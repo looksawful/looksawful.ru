@@ -2,12 +2,20 @@ export const MEDIA_DESK_AUTHORING_BRANCH = "content/text-cms";
 
 const REPOSITORY = "looksawful/looksawful.ru";
 const API_ROOT = `https://api.github.com/repos/${REPOSITORY}`;
-const ALLOWED_WRITE_ROOTS = [
-  "src/content/",
-  "src/data/media/",
-  "public/media/",
-  "public/pets/",
+const ALLOWED_WRITE_PREFIXES = [
+  "src/content/media-catalog/uploads/",
+  "public/media/catalog/",
 ];
+const ALLOWED_WRITE_FILES = new Set([
+  "src/content/projects.json",
+  "src/content/subproject-card-covers.json",
+]);
+const ALLOWED_READ_PREFIXES = [...ALLOWED_WRITE_PREFIXES];
+const ALLOWED_READ_FILES = new Set([
+  ...ALLOWED_WRITE_FILES,
+  "src/data/media/page-usage.generated.json",
+  "src/data/media/static-usage.generated.json",
+]);
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
 
@@ -24,22 +32,38 @@ function githubHeaders(token) {
   };
 }
 
-function assertAllowedPath(path) {
+function assertSafeRepositoryPath(path) {
   if (
     typeof path !== "string"
     || path.length === 0
     || path.startsWith("/")
     || path.includes("\\")
     || path.split("/").some((segment) => segment === "" || segment === "." || segment === "..")
-    || !ALLOWED_WRITE_ROOTS.some((root) => path.startsWith(root))
   ) {
     throw new Error(`Media Desk repository path is not allowed: ${String(path)}`);
   }
   return path;
 }
 
+function assertAllowedReadPath(path) {
+  const safe = assertSafeRepositoryPath(path);
+  if (!ALLOWED_READ_FILES.has(safe) && !ALLOWED_READ_PREFIXES.some((root) => safe.startsWith(root))) {
+    throw new Error(`Media Desk repository read path is not allowed: ${safe}`);
+  }
+  return safe;
+}
+
+function assertAllowedWritePath(path) {
+  const safe = assertSafeRepositoryPath(path);
+  if (!ALLOWED_WRITE_FILES.has(safe) && !ALLOWED_WRITE_PREFIXES.some((root) => safe.startsWith(root))) {
+    throw new Error(`Media Desk repository write path is not allowed: ${safe}`);
+  }
+  return safe;
+}
+
+
 function encodeRepositoryPath(path) {
-  return assertAllowedPath(path)
+  return assertAllowedReadPath(path)
     .split("/")
     .map((segment) => encodeURIComponent(segment))
     .join("/");
@@ -132,6 +156,29 @@ export async function readRepositoryFile({ token, path, fetchImpl = fetch }) {
   };
 }
 
+export async function readRepositoryFileAtHead({ token, path, expectedHead, fetchImpl = fetch }) {
+  if (typeof expectedHead !== "string" || expectedHead.length === 0) {
+    throw new TypeError("Media Desk expected branch head is required");
+  }
+  const encodedPath = encodeRepositoryPath(path);
+  const branchHead = await readAuthoringHead({ token, fetchImpl });
+  if (branchHead !== expectedHead) throw staleHead(expectedHead, branchHead);
+  const payload = await githubJson(
+    `${API_ROOT}/contents/${encodedPath}?ref=${encodeURIComponent(expectedHead)}`,
+    { token, fetchImpl },
+  );
+  if (payload?.encoding !== "base64" || typeof payload?.sha !== "string") {
+    throw new Error(`GitHub file payload is invalid for ${path}`);
+  }
+  const bytes = base64ToBytes(payload.content);
+  return {
+    text: decoder.decode(bytes),
+    blobSha: payload.sha,
+    revision: await sha256(bytes),
+    branchHead,
+  };
+}
+
 export async function commitRepositoryFiles({
   token,
   expectedHead,
@@ -150,7 +197,7 @@ export async function commitRepositoryFiles({
   }
 
   const prepared = files.map((file) => {
-    const path = assertAllowedPath(file?.path);
+    const path = assertAllowedWritePath(file?.path);
     if (file?.delete === true) return { path, delete: true, bytes: null };
     return { path, delete: false, bytes: asBytes(file?.content) };
   });

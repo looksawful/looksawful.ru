@@ -83,7 +83,13 @@ export class RemoteMediaDeskSession {
   }
 
   async sourceRevision(path: string): Promise<RemoteSourceRevision> {
-    const query = new URLSearchParams({ path });
+    const target = path === "src/content/projects.json"
+      ? "project-cover"
+      : path === "src/content/subproject-card-covers.json"
+        ? "pet-cover"
+        : null;
+    if (!target) throw new Error(`Remote revision target is not allowed: ${path}`);
+    const query = new URLSearchParams({ target });
     const response = await this.#fetcher(`/api/media/revision?${query}`, {
       headers: { accept: "application/json" },
     });
@@ -96,6 +102,20 @@ export class RemoteMediaDeskSession {
       revision: requiredString(payload.revision, "revision"),
       head,
     };
+  }
+  async assetRevision(
+    assetId: string,
+    surface: "catalog" | "source",
+  ): Promise<{ readonly revision: string; readonly head: string }> {
+    const query = new URLSearchParams({ assetId, surface });
+    const response = await this.#fetcher(`/api/media/revision?${query}`, {
+      headers: { accept: "application/json" },
+    });
+    const payload = await readJson<RemoteRevisionPayload & Record<string, unknown>>(response);
+    if (payload.ok !== true) throw new Error("Remote Media Desk asset revision response is not ok");
+    const head = requiredString(payload.head, "head");
+    this.#head = head;
+    return { revision: requiredString(payload.revision, "revision"), head };
   }
   async postJson(
     path: string,

@@ -40,7 +40,7 @@ test("remote Media Desk deletes files through the same atomic content/text-cms c
     token: "test-token",
     expectedHead: "head-a",
     files: [
-      { path: "public/media/uploads/asset-a.webp", delete: true },
+      { path: "public/media/catalog/asset-a.webp", delete: true },
       { path: "src/content/media-catalog/uploads/asset-a.json", delete: true },
     ],
     message: "media(media-desk): delete asset-a",
@@ -52,7 +52,7 @@ test("remote Media Desk deletes files through the same atomic content/text-cms c
   assert.equal(calls.some(({ url }) => url === `${API}/git/blobs`), false);
   const treeCall = calls.find(({ url, method }) => url === `${API}/git/trees` && method === "POST");
   assert.deepEqual(treeCall?.body.tree, [
-    { path: "public/media/uploads/asset-a.webp", mode: "100644", type: "blob", sha: null },
+    { path: "public/media/catalog/asset-a.webp", mode: "100644", type: "blob", sha: null },
     { path: "src/content/media-catalog/uploads/asset-a.json", mode: "100644", type: "blob", sha: null },
   ]);
 });

@@ -40,12 +40,26 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run typecheck
-      - run: node --test test/media-desk-cloudflare-auth.test.mjs test/media-desk-cloudflare-login.test.mjs test/media-desk-cloudflare-github.test.mjs test/media-desk-cloudflare-worker.test.mjs test/media-desk-cloudflare.test.mjs
+      - run: npm run media-desk:page-usage:check
+      - run: npm run media-desk:static-usage:check
+      - run: >-
+          node --test
+          test/media-desk-cloudflare-auth.test.mjs
+          test/media-desk-cloudflare-login.test.mjs
+          test/media-desk-cloudflare-github.test.mjs
+          test/media-desk-cloudflare-worker.test.mjs
+          test/media-desk-cloudflare-destructive-authority.test.mjs
+          test/media-desk-cms-asset-resolver.test.mjs
+          test/media-desk-cms-delete-guard.test.mjs
+          test/media-desk-replace-validation.test.mjs
+          test/media-desk-cloudflare.test.mjs
       - run: npm run media-desk:build
       - run: npm run media-desk:cf:dry-run
 
   deploy:
-    if: github.event_name != 'pull_request'
+    if: >-
+      github.ref == 'refs/heads/dev' &&
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     needs: verify
     runs-on: ubuntu-latest
     env:
@@ -53,6 +67,8 @@ jobs:
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
       - uses: actions/setup-node@v7
         with:
           node-version: 24

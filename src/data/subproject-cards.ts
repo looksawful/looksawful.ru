@@ -447,7 +447,7 @@ export const shootingCardGroups = [
   },
 ] as const satisfies readonly SubprojectCardGroupData[];
 
-const petProjectCardsBase = [
+export const petProjectCardsBase = [
   {
     id: "awful-cases",
     title: "Awful Cases",

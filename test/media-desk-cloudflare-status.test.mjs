@@ -1,4 +1,4 @@
-﻿import assert from "node:assert/strict";
+import assert from "node:assert/strict";
 import test from "node:test";
 
 import worker from "../tools/cloudflare/media-desk/worker.mjs";
@@ -65,7 +65,7 @@ test("remote revision endpoint returns guarded source revision without source te
   const runtime = await env();
   const cookie = await login(runtime);
   const response = await worker.fetch(new Request(
-    "https://media.looksawful.ru/api/media/revision?path=src%2Fcontent%2Fprojects.json",
+    "https://media.looksawful.ru/api/media/revision?target=project-cover",
     { headers: { cookie, accept: "application/json" } },
   ), runtime);
   assert.equal(response.status, 200);
@@ -76,4 +76,23 @@ test("remote revision endpoint returns guarded source revision without source te
   assert.equal(payload.head, "head-status-a");
   assert.match(payload.revision, /^[a-f0-9]{64}$/);
   assert.equal("text" in payload, false);
+});
+
+test("revision API rejects raw repository paths and accepts fixed revision targets", async () => {
+  const runtime = await env();
+  const cookie = await login(runtime);
+  const raw = await worker.fetch(new Request(
+    "https://media.looksawful.ru/api/media/revision?path=src%2Fcontent%2Fprojects.json",
+    { headers: { cookie, accept: "application/json" } },
+  ), runtime);
+  assert.equal(raw.status, 400);
+
+  const fixed = await worker.fetch(new Request(
+    "https://media.looksawful.ru/api/media/revision?target=project-cover",
+    { headers: { cookie, accept: "application/json" } },
+  ), runtime);
+  assert.equal(fixed.status, 200);
+  const payload = await fixed.json();
+  assert.equal(payload.path, "src/content/projects.json");
+  assert.equal(payload.head, "head-status-a");
 });

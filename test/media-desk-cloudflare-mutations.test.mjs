@@ -2,7 +2,6 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
-  planDelete,
   planReplace,
   planUpload,
   validateUploadTarget,
@@ -72,59 +71,4 @@ test("upload plan creates one canonical binary plus CMS catalog record", () => {
   assert.deepEqual(plan.writes.map(({ path }) => path), [plan.filePath, plan.catalogPath]);
   assert.equal(plan.writes[0].content, bytes);
   assert.equal(typeof plan.writes[1].content, "string");
-});
-
-test("replace preserves identity and requires both revision guards", () => {
-  const asset = assetRecord();
-  const plan = planReplace({
-    asset,
-    nextBytes: new Uint8Array([1, 2, 3]),
-    expectedRevision: "rev-a",
-    expectedHead: "head-a",
-  });
-
-  assert.equal(plan.assetId, "asset-a");
-  assert.equal(plan.filePath, asset.filePath);
-  assert.equal(plan.expectedRevision, "rev-a");
-  assert.equal(plan.expectedHead, "head-a");
-  assert.throws(
-    () => planReplace({ asset, nextBytes: new Uint8Array([1]), expectedRevision: "", expectedHead: "head-a" }),
-    /expected revision/i,
-  );
-  assert.throws(
-    () => planReplace({ asset, nextBytes: new Uint8Array([1]), expectedRevision: "rev-a", expectedHead: "" }),
-    /expected branch head/i,
-  );
-});
-
-test("delete blocks referenced assets and reports blocking usages", () => {
-  const record = assetRecord({
-    usages: [
-      {
-        kind: "project-cover",
-        ownerId: "jestei",
-        sourcePath: "src/content/projects.json",
-        blockingDelete: true,
-      },
-    ],
-  });
-
-  assert.throws(
-    () => planDelete({ record, expectedRevision: "rev-a", expectedHead: "head-a" }),
-    (error) => {
-      assert.match(error.message, /referenced media cannot be deleted/i);
-      assert.deepEqual(error.blockingUsages, record.usages);
-      return true;
-    },
-  );
-});
-
-test("unreferenced delete returns explicit file and catalog removals", () => {
-  const record = assetRecord();
-  const plan = planDelete({ record, expectedRevision: "rev-a", expectedHead: "head-a" });
-
-  assert.deepEqual(plan.removals, [record.filePath, record.catalogPath]);
-  assert.equal(plan.assetId, "asset-a");
-  assert.equal(plan.expectedRevision, "rev-a");
-  assert.equal(plan.expectedHead, "head-a");
 });

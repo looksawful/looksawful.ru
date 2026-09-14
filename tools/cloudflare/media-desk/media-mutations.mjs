@@ -165,51 +165,119 @@ export function planUpload({
   };
 }
 
-export function planReplace({ asset, nextBytes, expectedRevision, expectedHead }) {
-  const revision = requiredGuard(expectedRevision, "expected revision");
-  const head = requiredGuard(expectedHead, "expected branch head");
-  if (!asset || typeof asset !== "object") throw new TypeError("Media Desk asset is required");
-  if (typeof asset.id !== "string" || asset.id.length === 0) throw new TypeError("Media Desk asset ID is required");
-  if (typeof asset.filePath !== "string" || asset.filePath.length === 0) {
-    throw new TypeError("Media Desk asset file path is required");
-  }
-  const bytes = nextBytes instanceof Uint8Array ? nextBytes : new Uint8Array(nextBytes);
-  if (byteLengthOf(bytes) === 0) throw new TypeError("Replacement media cannot be empty");
-
-  return {
-    kind: "replace",
-    assetId: asset.id,
-    filePath: asset.filePath,
-    bytes,
-    expectedRevision: revision,
-    expectedHead: head,
-  };
+function ascii(bytes, start, length) {
+  return String.fromCharCode(...bytes.subarray(start, start + length));
 }
 
-export function planDelete({ record, expectedRevision, expectedHead }) {
+function extensionOfFilename(name) {
+  const dot = String(name ?? "").lastIndexOf(".");
+  return dot >= 0 ? String(name).slice(dot + 1).toLowerCase() : "";
+}
+
+function pngDimensions(bytes) {
+  const signature = [0x89,0x50,0x4e,0x47,0x0d,0x0a,0x1a,0x0a];
+  if (bytes.length < 24 || signature.some((value, index) => bytes[index] !== value) || ascii(bytes, 12, 4) !== "IHDR") {
+    throw new Error("Invalid PNG signature or IHDR metadata");
+  }
+  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  return { width: view.getUint32(16), height: view.getUint32(20) };
+}
+function gifDimensions(bytes) {
+  if (bytes.length < 10 || !["GIF87a", "GIF89a"].includes(ascii(bytes, 0, 6))) {
+    throw new Error("Invalid GIF signature");
+  }
+  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  return { width: view.getUint16(6, true), height: view.getUint16(8, true) };
+}
+
+function jpegDimensions(bytes) {
+  if (bytes.length < 10 || bytes[0] !== 0xff || bytes[1] !== 0xd8) throw new Error("Invalid JPEG signature");
+  const sof = new Set([0xc0,0xc1,0xc2,0xc3,0xc5,0xc6,0xc7,0xc9,0xca,0xcb,0xcd,0xce,0xcf]);
+  for (let offset = 2; offset + 8 < bytes.length;) {
+    if (bytes[offset] !== 0xff) { offset += 1; continue; }
+    const marker = bytes[offset + 1];
+    if (sof.has(marker)) {
+      const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+      return { width: view.getUint16(offset + 7), height: view.getUint16(offset + 5) };
+    }
+    if (marker === 0xd8 || marker === 0xd9) { offset += 2; continue; }
+    if (offset + 3 >= bytes.length) break;
+    const length = (bytes[offset + 2] << 8) | bytes[offset + 3];
+    if (length < 2) break;
+    offset += 2 + length;
+  }
+  throw new Error("Invalid JPEG dimensions");
+}
+function webpDimensions(bytes) {
+  if (bytes.length < 25 || ascii(bytes, 0, 4) !== "RIFF" || ascii(bytes, 8, 4) !== "WEBP") {
+    throw new Error("Invalid WebP signature");
+  }
+  const chunk = ascii(bytes, 12, 4);
+  if (chunk === "VP8X" && bytes.length >= 30) {
+    const width = 1 + bytes[24] + (bytes[25] << 8) + (bytes[26] << 16);
+    const height = 1 + bytes[27] + (bytes[28] << 8) + (bytes[29] << 16);
+    return { width, height };
+  }
+  if (chunk === "VP8 " && bytes.length >= 30 && bytes[23] === 0x9d && bytes[24] === 0x01 && bytes[25] === 0x2a) {
+    const width = (bytes[26] | (bytes[27] << 8)) & 0x3fff;
+    const height = (bytes[28] | (bytes[29] << 8)) & 0x3fff;
+    return { width, height };
+  }
+  if (chunk === "VP8L" && bytes[20] === 0x2f) {
+    const width = 1 + bytes[21] + ((bytes[22] & 0x3f) << 8);
+    const height = 1 + ((bytes[22] >> 6) | (bytes[23] << 2) | ((bytes[24] & 0x0f) << 10));
+    return { width, height };
+  }
+  throw new Error("Invalid WebP dimensions");
+}
+
+function replacementDimensions(extension, bytes) {
+  if (extension === "png") return pngDimensions(bytes);
+  if (extension === "gif") return gifDimensions(bytes);
+  if (extension === "jpg" || extension === "jpeg") return jpegDimensions(bytes);
+  if (extension === "webp") return webpDimensions(bytes);
+  throw new Error(`Remote replace does not support ${extension || "unknown"} images`);
+}
+export function planReplace({ resolved, file, expectedRevision, expectedHead }) {
   const revision = requiredGuard(expectedRevision, "expected revision");
   const head = requiredGuard(expectedHead, "expected branch head");
-  if (!record || typeof record !== "object") throw new TypeError("Media Desk record is required");
-  if (typeof record.id !== "string" || record.id.length === 0) throw new TypeError("Media Desk record ID is required");
-  if (typeof record.filePath !== "string" || typeof record.catalogPath !== "string") {
-    throw new TypeError("Media Desk delete requires file and catalog paths");
+  if (!resolved || typeof resolved !== "object" || !resolved.record) {
+    throw new TypeError("Media Desk resolved CMS asset is required");
   }
-
-  const usages = Array.isArray(record.usages) ? record.usages : [];
-  const blockingUsages = usages.filter((usage) => usage?.blockingDelete === true);
-  if (blockingUsages.length > 0) {
-    const error = new Error("Referenced media cannot be deleted");
-    error.name = "MediaDeskDependencyConflict";
-    error.status = 409;
-    error.blockingUsages = blockingUsages;
-    throw error;
+  if (resolved.record.mediaType !== "image") {
+    throw new Error("Remote replace currently supports CMS images only");
   }
+  if (!file || typeof file !== "object") throw new TypeError("Replacement file is required");
+  const bytes = file.bytes instanceof Uint8Array ? file.bytes : new Uint8Array(file.bytes ?? []);
+  if (bytes.byteLength === 0) throw new TypeError("Replacement media cannot be empty");
+  const extension = extensionOfFilename(file.name);
+  if (extension !== resolved.extension) throw new Error("Replacement must keep the same file extension");
+  if (file.type !== resolved.expectedMime) throw new Error("Replacement MIME must match canonical media MIME");
+  validateUploadTarget({ path: resolved.filePath, mediaType: "image", byteLength: bytes.byteLength });
+  const { width, height } = replacementDimensions(extension, bytes);
+  if (!(width > 0 && height > 0)) throw new Error("Replacement image dimensions are invalid");
 
+  const catalogRecord = {
+    ...resolved.record,
+    width,
+    height,
+    durationSeconds: 0,
+    mimeType: resolved.expectedMime,
+    byteLength: bytes.byteLength,
+  };
+  const catalogSource = `${JSON.stringify(catalogRecord, null, 2)}\n`;
   return {
-    kind: "delete",
-    assetId: record.id,
-    removals: [record.filePath, record.catalogPath],
+    kind: "replace",
+    assetId: resolved.assetId,
+    filePath: resolved.filePath,
+    catalogPath: resolved.catalogPath,
+    bytes,
+    catalogRecord,
     expectedRevision: revision,
     expectedHead: head,
+    writes: [
+      { path: resolved.filePath, content: bytes },
+      { path: resolved.catalogPath, content: catalogSource },
+    ],
   };
 }

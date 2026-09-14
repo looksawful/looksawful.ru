@@ -12,12 +12,14 @@ import {
   commitRepositoryFiles,
   readAuthoringHead,
   readRepositoryFile,
+  readRepositoryFileAtHead,
 } from "./github.mjs";
 import {
-  planDelete,
   planReplace,
   planUpload,
 } from "./media-mutations.mjs";
+import { resolveCmsAssetRecord } from "./cms-asset.mjs";
+import { deriveCmsDeleteBlockers } from "./cms-delete-guard.mjs";
 import {
   assignProjectCover,
   assignSubprojectCardCoverOverride,
@@ -261,49 +263,92 @@ async function handleUpload(request, env) {
 
 async function handleReplace(request, env) {
   const { metadata, file } = await readMultipartPayload(request);
-  const plan = planReplace({
-    asset: metadata?.asset,
-    nextBytes: file.bytes,
-    expectedRevision: metadata?.expectedRevision,
-    expectedHead: metadata?.expectedHead,
-  });
-  await assertCurrentSource({
-    env,
-    path: plan.filePath,
-    expectedRevision: plan.expectedRevision,
-    expectedHead: plan.expectedHead,
-  });
-  const committed = await commitRepositoryFiles({
+  const assetId = metadata?.assetId;
+  const expectedRevision = metadata?.expectedRevision;
+  const expectedHead = metadata?.expectedHead;
+  const resolved = await resolveCmsAssetAtHead({ env, assetId, expectedHead });
+  const currentSource = await readRepositoryFileAtHead({
     token: requiredSecret(env, "MEDIA_DESK_GITHUB_TOKEN"),
-    expectedHead: plan.expectedHead,
-    files: [{ path: plan.filePath, content: plan.bytes }],
-    message: `media(media-desk): replace ${plan.assetId}`,
+    path: resolved.filePath,
+    expectedHead,
     fetchImpl: githubFetch(env),
   });
-  return json(200, { ok: true, assetId: plan.assetId, ...committed });
+  if (currentSource.revision !== expectedRevision) {
+    throw conflict(`Stale source revision: expected ${expectedRevision}, current ${currentSource.revision}`);
+  }
+  const plan = planReplace({ resolved, file, expectedRevision, expectedHead });
+  const committed = await commitRepositoryFiles({
+    token: requiredSecret(env, "MEDIA_DESK_GITHUB_TOKEN"),
+    expectedHead,
+    files: plan.writes,
+    message: `media(media-desk): replace ${assetId}`,
+    fetchImpl: githubFetch(env),
+  });
+  return json(200, { ok: true, assetId, ...committed });
+}
+
+async function readJsonAtHead({ env, path, expectedHead }) {
+  const current = await readRepositoryFileAtHead({
+    token: requiredSecret(env, "MEDIA_DESK_GITHUB_TOKEN"),
+    path,
+    expectedHead,
+    fetchImpl: githubFetch(env),
+  });
+  return JSON.parse(current.text);
+}
+
+async function resolveCmsAssetAtHead({ env, assetId, expectedHead }) {
+  return resolveCmsAssetRecord({
+    assetId,
+    readSource: (path) => readRepositoryFileAtHead({
+      token: requiredSecret(env, "MEDIA_DESK_GITHUB_TOKEN"),
+      path,
+      expectedHead,
+      fetchImpl: githubFetch(env),
+    }),
+  });
 }
 
 async function handleDelete(request, env) {
   const payload = await readJsonPayload(request);
-  const plan = planDelete({
-    record: payload?.record,
-    expectedRevision: payload?.expectedRevision,
-    expectedHead: payload?.expectedHead,
+  const assetId = payload?.assetId;
+  const expectedRevision = payload?.expectedRevision;
+  const expectedHead = payload?.expectedHead;
+  const resolved = await resolveCmsAssetAtHead({ env, assetId, expectedHead });
+  if (resolved.revision !== expectedRevision) {
+    throw conflict(`Stale source revision: expected ${expectedRevision}, current ${resolved.revision}`);
+  }
+
+  const [projects, coverOverrides, pageUsage, staticUsage] = await Promise.all([
+    readJsonAtHead({ env, path: "src/content/projects.json", expectedHead }),
+    readJsonAtHead({ env, path: "src/content/subproject-card-covers.json", expectedHead }),
+    readJsonAtHead({ env, path: "src/data/media/page-usage.generated.json", expectedHead }),
+    readJsonAtHead({ env, path: "src/data/media/static-usage.generated.json", expectedHead }),
+  ]);
+  const blockingUsages = deriveCmsDeleteBlockers({
+    assetId,
+    record: resolved.record,
+    projects,
+    coverOverrides,
+    pageUsage,
+    staticUsage,
   });
-  await assertCurrentSource({
-    env,
-    path: payload.record.catalogPath,
-    expectedRevision: plan.expectedRevision,
-    expectedHead: plan.expectedHead,
-  });
+  if (blockingUsages.length > 0) {
+    const error = conflict("Referenced media cannot be deleted");
+    error.blockingUsages = blockingUsages;
+    throw error;
+  }
   const committed = await commitRepositoryFiles({
     token: requiredSecret(env, "MEDIA_DESK_GITHUB_TOKEN"),
-    expectedHead: plan.expectedHead,
-    files: plan.removals.map((path) => ({ path, delete: true })),
-    message: `media(media-desk): delete ${plan.assetId}`,
+    expectedHead,
+    files: [
+      { path: resolved.filePath, delete: true },
+      { path: resolved.catalogPath, delete: true },
+    ],
+    message: `media(media-desk): delete ${assetId}`,
     fetchImpl: githubFetch(env),
   });
-  return json(200, { ok: true, assetId: plan.assetId, ...committed });
+  return json(200, { ok: true, assetId, ...committed });
 }
 
 async function handleAssign(request, env) {
@@ -474,20 +519,43 @@ async function proxyPublicPreview(request, url, env) {
   return privateResponse(response);
 }
 
+const REVISION_TARGET_PATHS = Object.freeze({
+  "project-cover": "src/content/projects.json",
+  "pet-cover": "src/content/subproject-card-covers.json",
+});
+
 async function handleRevision(url, env) {
   try {
-    const path = url.searchParams.get("path") ?? "";
-    const current = await readRepositoryFile({
-      token: requiredSecret(env, "MEDIA_DESK_GITHUB_TOKEN"),
-      path,
-      fetchImpl: githubFetch(env),
+    if (url.searchParams.has("path")) throw new Error("Raw repository revision paths are not allowed");
+    const target = url.searchParams.get("target");
+    const assetId = url.searchParams.get("assetId");
+    const surface = url.searchParams.get("surface");
+    const token = requiredSecret(env, "MEDIA_DESK_GITHUB_TOKEN");
+    const fetchImpl = githubFetch(env);
+
+    if (target) {
+      if (assetId || surface) throw new Error("Revision request must use either target or asset identity");
+      const path = REVISION_TARGET_PATHS[target];
+      if (!path) throw new Error(`Unknown Media Desk revision target: ${target}`);
+      const current = await readRepositoryFile({ token, path, fetchImpl });
+      return json(200, { ok: true, target, path, revision: current.revision, head: current.branchHead });
+    }
+
+    if (!assetId || (surface !== "catalog" && surface !== "source")) {
+      throw new Error("CMS asset revision requires assetId and catalog/source surface");
+    }
+    const resolved = await resolveCmsAssetRecord({
+      assetId,
+      readSource: (path) => readRepositoryFile({ token, path, fetchImpl }),
     });
-    return json(200, {
-      ok: true,
-      path,
-      revision: current.revision,
-      head: current.branchHead,
-    });
+    if (surface === "catalog") {
+      return json(200, { ok: true, assetId, surface, revision: resolved.revision, head: resolved.branchHead });
+    }
+    const current = await readRepositoryFile({ token, path: resolved.filePath, fetchImpl });
+    if (current.branchHead !== resolved.branchHead) {
+      throw conflict(`Stale branch head: expected ${resolved.branchHead}, current ${current.branchHead}`);
+    }
+    return json(200, { ok: true, assetId, surface, revision: current.revision, head: current.branchHead });
   } catch (error) {
     return mutationError(error);
   }

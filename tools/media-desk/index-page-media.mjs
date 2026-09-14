@@ -5,6 +5,17 @@ import { fileURLToPath } from "node:url";
 const MEDIA_REFERENCE = /\/(?:media|pets)\/[^\s"'`()<>]+?\.(?:avif|gif|jpe?g|png|svg|webp|m4v|mov|mp4|webm|glb|gltf)(?:[?#][^\s"'`()<>]*)?/giu;
 const SOURCE_EXTENSIONS = new Set([".css", ".html", ".js", ".mjs", ".ts"]);
 
+export function serializePageUsageIndex(indexed) {
+  return `${JSON.stringify(indexed, null, 2)}\n`;
+}
+
+export function assertPageUsageSnapshotFresh(indexed, currentSource) {
+  const expected = serializePageUsageIndex(indexed);
+  if (currentSource !== expected) {
+    throw new Error("Media Desk page-usage snapshot is stale; run node tools/media-desk/index-page-media.mjs");
+  }
+}
+
 function normalizedReference(value) {
   return value.split(/[?#]/u, 1)[0];
 }
@@ -112,8 +123,12 @@ async function runCli() {
   ]);
   const indexed = indexPageMediaSources({ sources, catalog: mediaCatalogItems });
   const output = path.join(root, "src", "data", "media", "page-usage.generated.json");
-  await mkdir(path.dirname(output), { recursive: true });
-  await writeFile(output, `${JSON.stringify(indexed, null, 2)}\n`, "utf8");
+  if (process.argv.includes("--check")) {
+    assertPageUsageSnapshotFresh(indexed, await readFile(output, "utf8"));
+  } else {
+    await mkdir(path.dirname(output), { recursive: true });
+    await writeFile(output, serializePageUsageIndex(indexed), "utf8");
+  }
   process.stdout.write(
     `[media-desk-page-index] ${indexed.records.length} canonical refs; ${indexed.unresolved.length} unresolved refs\n`,
   );

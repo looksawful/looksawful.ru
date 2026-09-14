@@ -74,3 +74,46 @@ test("remote multipart mutation carries captured head and advances only after su
   await session.postMultipart("/api/media/replace", { expectedRevision: "rev-a", asset: { id: "a" } }, file);
   assert.equal(session.expectedHead(), "head-b");
 });
+
+test("remote asset revision identifies CMS asset and surface without repository path", async () => {
+  const fetcher = async (input) => {
+    const url = new URL(String(input), "https://media.looksawful.ru");
+    if (url.pathname === "/api/status") {
+      return Response.json({ ok: true, branch: "content/text-cms", head: "head-a" });
+    }
+    if (url.pathname === "/api/media/revision") {
+      assert.equal(url.searchParams.get("assetId"), "cms-74f88a53-7663-4eb4-a1cb-d300f219d8ab");
+      assert.equal(url.searchParams.get("surface"), "source");
+      assert.equal(url.searchParams.has("path"), false);
+      return Response.json({ ok: true, assetId: url.searchParams.get("assetId"), surface: "source", revision: "s".repeat(64), head: "head-a" });
+    }
+    throw new Error(`Unexpected request: ${url.pathname}`);
+  };
+  const session = new RemoteMediaDeskSession(fetcher);
+  await session.initialize();
+  const revision = await session.assetRevision("cms-74f88a53-7663-4eb4-a1cb-d300f219d8ab", "source");
+  assert.equal(revision.revision, "s".repeat(64));
+  assert.equal(revision.head, "head-a");
+});
+
+test("fixed source revisions use target enums and reject arbitrary repository paths before fetch", async () => {
+  const calls = [];
+  const fetcher = async (input) => {
+    const url = new URL(String(input), "https://media.looksawful.ru");
+    calls.push(url);
+    if (url.pathname === "/api/media/revision") {
+      assert.equal(url.searchParams.get("target"), "project-cover");
+      assert.equal(url.searchParams.has("path"), false);
+      return Response.json({ ok: true, path: "src/content/projects.json", revision: "p".repeat(64), head: "head-a" });
+    }
+    throw new Error(`Unexpected request: ${url.pathname}`);
+  };
+  const session = new RemoteMediaDeskSession(fetcher);
+  const revision = await session.sourceRevision("src/content/projects.json");
+  assert.equal(revision.revision, "p".repeat(64));
+  await assert.rejects(
+    () => session.sourceRevision("src/data/media/assets/index.ts"),
+    /revision target|not remotely versioned|not allowed/i,
+  );
+  assert.equal(calls.length, 1);
+});

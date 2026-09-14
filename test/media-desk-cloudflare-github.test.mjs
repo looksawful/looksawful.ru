@@ -40,7 +40,7 @@ test("remote Media Desk reads exact content/text-cms bytes with source revision"
 
   const result = await readRepositoryFile({
     token: "test-token",
-    path: "src/content/navigation.json",
+    path: "src/content/projects.json",
     fetchImpl,
   });
 
@@ -82,7 +82,7 @@ test("remote Media Desk fails closed when content/text-cms head is stale", async
     () => commitRepositoryFiles({
       token: "test-token",
       expectedHead: "head-a",
-      files: [{ path: "src/content/navigation.json", content: "{}\n" }],
+      files: [{ path: "src/content/projects.json", content: "{}\n" }],
       message: "content(media-desk): update navigation",
       fetchImpl: async (url, init = {}) => {
         calls.push({ url: String(url), method: init.method ?? "GET" });
@@ -132,8 +132,8 @@ test("remote Media Desk creates one fast-forward commit only on content/text-cms
     token: "test-token",
     expectedHead: "head-a",
     files: [
-      { path: "src/content/navigation.json", content: '{"title":"next"}\n' },
-      { path: "public/media/catalog/readme.txt", content: new TextEncoder().encode("asset") },
+      { path: "src/content/projects.json", content: '{"title":"next"}\n' },
+      { path: "public/media/catalog/test.webp", content: new TextEncoder().encode("asset") },
     ],
     message: "content(media-desk): atomic update",
     fetchImpl,
@@ -144,4 +144,47 @@ test("remote Media Desk creates one fast-forward commit only on content/text-cms
   assert.ok(calls.every(({ url }) => !url.includes("/heads/dev") && !url.includes("/heads/prod")));
   const patch = calls.find(({ method }) => method === "PATCH");
   assert.deepEqual(patch?.body, { sha: "commit-b", force: false });
+});
+
+test("remote writes are limited to CMS uploads, catalog binaries, and fixed cover sources", async () => {
+  const forbidden = [
+    "src/data/media/assets/index.ts",
+    "src/content/navigation.json",
+    "src/content/media-catalog/registered/a.json",
+    "public/pets/awful-cases/a.webp",
+  ];
+  for (const path of forbidden) {
+    let calls = 0;
+    await assert.rejects(
+      () => commitRepositoryFiles({
+        token: "test-token",
+        expectedHead: "head-a",
+        files: [{ path, content: "nope" }],
+        message: "blocked",
+        fetchImpl: async () => { calls += 1; throw new Error("network should not be reached"); },
+      }),
+      /path.*not allowed|not allowed.*path/i,
+    );
+    assert.equal(calls, 0, path);
+  }
+});
+
+test("exact-head reads pin content to immutable expected authoring SHA", async () => {
+  assert.equal(typeof (await import("../tools/cloudflare/media-desk/github.mjs")).readRepositoryFileAtHead, "function");
+  const { readRepositoryFileAtHead } = await import("../tools/cloudflare/media-desk/github.mjs");
+  const calls = [];
+  const result = await readRepositoryFileAtHead({
+    token: "test-token",
+    path: "src/content/projects.json",
+    expectedHead: "head-a",
+    fetchImpl: async (url) => {
+      const target = String(url); calls.push(target);
+      if (target.endsWith("/git/ref/heads/content/text-cms")) return json({ object: { sha: "head-a" } });
+      if (target.includes("/contents/src/content/projects.json?ref=head-a")) return json({ sha: "blob-a", encoding: "base64", content: Buffer.from("[]\n").toString("base64") });
+      throw new Error(`unexpected request: ${target}`);
+    },
+  });
+  assert.equal(result.branchHead, "head-a");
+  assert.ok(calls.some((url) => url.includes("?ref=head-a")));
+  assert.ok(calls.every((url) => !url.includes("?ref=content%2Ftext-cms")));
 });

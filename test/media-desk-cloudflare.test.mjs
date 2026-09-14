@@ -37,10 +37,15 @@ test("Cloudflare PR verification never receives Media Desk runtime secrets", asy
   assert.match(workflow, /workflow_dispatch:/);
   assert.match(workflow, /npm run media-desk:build/);
   assert.match(workflow, /npm run media-desk:cf:dry-run/);
-  assert.match(workflow, /github\.event_name\s*!=\s*'pull_request'/);
 
   const pullRequestSection = workflow.split(/\n\s*deploy:/, 1)[0];
   assert.doesNotMatch(pullRequestSection, /MEDIA_DESK_(?:GITHUB_TOKEN|PASSWORD_HASH|SESSION_SECRET)/);
+
+  const deploySection = workflow.split(/\n\s*deploy:/u)[1] ?? "";
+  assert.match(deploySection, /github\.ref\s*==\s*'refs\/heads\/dev'/);
+  assert.match(deploySection, /github\.event_name\s*==\s*'workflow_dispatch'/);
+  assert.match(deploySection, /ref:\s*\$\{\{\s*github\.sha\s*\}\}/);
+  assert.doesNotMatch(deploySection, /github\.event_name\s*!=\s*'pull_request'/);
 });
 
 test("isolated Desk build declares remote write provenance without enabling local server writes", async () => {

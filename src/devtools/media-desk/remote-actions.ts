@@ -1,62 +1,14 @@
 import type { MediaDeskInventoryRecord, MediaDeskUnifiedUsage } from "./inventory-model.ts";
 
-export interface MediaDeskMutationTarget {
-  readonly id: string;
-  readonly filePath: string;
-  readonly catalogPath: string;
-  readonly usages: readonly MediaDeskUnifiedUsage[];
-}
-
-const SAFE_ID = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
-
-function repositoryFilePath(src: string): string {
-  if (
-    typeof src !== "string"
-    || (!src.startsWith("/media/") && !src.startsWith("/pets/"))
-    || src.includes("\\")
-    || src.split("/").some((segment) => segment === "." || segment === "..")
-    || /[?#]/u.test(src)
-  ) {
-    throw new Error(`Media source is not repository-backed: ${String(src)}`);
-  }
-  return `public${src}`;
-}
-
-function catalogPath(record: MediaDeskInventoryRecord): string {
-  const id = record.assetId;
-  if (!SAFE_ID.test(id)) throw new Error(`Media asset id is not safe: ${id}`);
-  if (record.item.origin === "cms") {
-    const persistedId = id.startsWith("cms-") ? id.slice(4) : "";
-    if (!persistedId || !SAFE_ID.test(persistedId)) {
-      throw new Error(`CMS media asset id is invalid: ${id}`);
-    }
-    return `src/content/media-catalog/uploads/${persistedId}.json`;
-  }
-  return `src/content/media-catalog/registered/${id}.json`;
-}
 export function blockingDeleteUsages(
   record: Pick<MediaDeskInventoryRecord, "usages">,
 ): readonly MediaDeskUnifiedUsage[] {
   return record.usages.filter((usage) => usage.blockingDelete);
 }
 
-export function mutationTargetForInventoryRecord(
-  record: MediaDeskInventoryRecord,
-): MediaDeskMutationTarget {
-  const asset = record.item.asset;
-  const source = asset.type === "video" && asset.sourceSrc
-    ? asset.sourceSrc
-    : asset.src;
-  return {
-    id: record.assetId,
-    filePath: repositoryFilePath(source),
-    catalogPath: catalogPath(record),
-    usages: record.usages,
-  };
-}
-
 interface RemoteMutationSessionLike {
   sourceRevision(path: string): Promise<{ readonly revision: string }>;
+  assetRevision(assetId: string, surface: "catalog" | "source"): Promise<{ readonly revision: string }>;
   postJson(
     path: string,
     body: Readonly<Record<string, unknown>>,
@@ -82,31 +34,40 @@ export async function deleteInventoryRecord(
   session: RemoteMutationSessionLike,
   record: MediaDeskInventoryRecord,
 ): Promise<Readonly<Record<string, unknown>>> {
-  const target = mutationTargetForInventoryRecord(record);
+  if (record.item.origin !== "cms") {
+    throw new Error("Registered/code-owned media cannot be deleted remotely");
+  }
   const blockingUsages = blockingDeleteUsages(record);
   if (blockingUsages.length > 0) throw new MediaDeskBlockedDeleteError(blockingUsages);
-  const source = await session.sourceRevision(target.catalogPath);
+  const source = await session.assetRevision(record.assetId, "catalog");
   return session.postJson("/api/media/delete", {
+    assetId: record.assetId,
     expectedRevision: source.revision,
-    record: target,
   });
 }
+
+function remoteReplaceSupported(record: MediaDeskInventoryRecord): boolean {
+  const asset = record.item.asset;
+  return record.item.origin === "cms"
+    && asset.type === "image"
+    && /\.(?:png|jpe?g|gif|webp)$/iu.test(asset.src);
+}
+
 export async function replaceInventoryRecord(
   session: RemoteMutationSessionLike,
   record: MediaDeskInventoryRecord,
   file: File,
 ): Promise<Readonly<Record<string, unknown>>> {
-  const target = mutationTargetForInventoryRecord(record);
-  const source = await session.sourceRevision(target.filePath);
+  if (record.item.origin !== "cms") {
+    throw new Error("Registered/code-owned media cannot be replaced remotely");
+  }
+  if (!remoteReplaceSupported(record)) {
+    throw new Error("Remote replace supports CMS PNG/JPEG/GIF/WebP images only");
+  }
+  const source = await session.assetRevision(record.assetId, "source");
   return session.postMultipart(
     "/api/media/replace",
-    {
-      expectedRevision: source.revision,
-      asset: {
-        id: target.id,
-        filePath: target.filePath,
-      },
-    },
+    { assetId: record.assetId, expectedRevision: source.revision },
     file,
   );
 }
@@ -118,19 +79,21 @@ export interface RemoteControlState {
 }
 
 export function remoteControlState(record: MediaDeskInventoryRecord): RemoteControlState {
-  try {
-    mutationTargetForInventoryRecord(record);
-  } catch (error) {
-    const reason = error instanceof Error ? error.message : "Media source is not repository-backed";
-    return { replaceEnabled: false, deleteEnabled: false, deleteReason: reason };
+  if (record.item.origin !== "cms") {
+    return {
+      replaceEnabled: false,
+      deleteEnabled: false,
+      deleteReason: "Registered/code-owned media is read-only in remote Media Desk",
+    };
   }
-
+  const replaceEnabled = remoteReplaceSupported(record);
+  const replaceReason = replaceEnabled ? "" : "Remote replace supports CMS PNG/JPEG/GIF/WebP images only";
   const blockingUsages = blockingDeleteUsages(record);
   if (blockingUsages.length === 0) {
-    return { replaceEnabled: true, deleteEnabled: true, deleteReason: "" };
+    return { replaceEnabled, deleteEnabled: true, deleteReason: replaceReason };
   }
   return {
-    replaceEnabled: true,
+    replaceEnabled,
     deleteEnabled: false,
     deleteReason: blockingUsages
       .map((usage) => `${usage.kind}: ${usage.ownerId}`)

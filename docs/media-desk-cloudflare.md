@@ -39,7 +39,7 @@ They are provisioned interactively with `tools/cloudflare/media-desk/configure-s
 
 ## Deployment
 
-Pull requests build the isolated UI and run Wrangler dry-run only. Real Worker deployment is eligible only on trusted `push` to `dev` or manual `workflow_dispatch`, using Cloudflare deployment credentials already stored in GitHub Actions.
+Pull requests build the isolated UI and run Wrangler dry-run only. Real Worker deployment is eligible only when the workflow ref is exactly `refs/heads/dev`, for either a trusted `push` or a manual `workflow_dispatch`. The deploy job checks out the exact `github.sha`; a manual run from a feature branch or tag cannot publish the production Worker.
 
 The Worker-side GitHub adapter independently fixes its target to `content/text-cms`, validates repository paths before network access, checks the expected branch head, creates one Git commit, rechecks the head, and updates the branch with non-force fast-forward semantics.
 
@@ -56,15 +56,18 @@ All other Desk JavaScript, CSS and HTML continue to come from the Cloudflare Sta
 Authenticated read endpoints:
 
 - `GET /api/status` -> fixed authoring branch plus current `content/text-cms` head;
-- `GET /api/media/revision?path=<allowed-path>` -> SHA-256 source revision plus current branch head, never source text.
+- `GET /api/media/revision?target=project-cover|pet-cover` -> revision for one fixed cover-authoring source;
+- `GET /api/media/revision?assetId=cms-<uuid>&surface=catalog|source` -> revision for one server-resolved CMS asset surface. Raw repository paths are rejected.
 Mutation endpoints are same-origin `POST` requests:
 
 - `/api/media/upload` creates one canonical binary plus one CMS upload record in one authoring commit;
-- `/api/media/replace` preserves media identity and replaces the physical source only after source-revision and branch-head checks;
-- `/api/media/delete` rejects every asset with blocking unified usages and reports those dependencies;
+- `/api/media/replace` is destructive-authoring only for CMS-owned PNG/JPEG/GIF/WebP images. The Worker resolves the canonical source from the `cms-<uuid>` record, verifies same-format MIME + magic bytes, derives dimensions from the replacement bytes, and commits binary + technical catalog metadata atomically;
+- `/api/media/delete` is destructive-authoring only for CMS-owned assets. The Worker resolves file/catalog paths itself and recomputes blocking usages from the exact expected authoring commit before deletion;
 - `/api/media/assign` supports typed project-cover and pet-cover targets. Character-cover remains fail-closed until a canonical character owner source exists.
 
-New remote uploads require the captured branch head but no fictitious source revision. Replace, delete and assignment require both the relevant source revision and the captured branch head. A stale source or branch fails with `409`; the browser keeps its captured state and requires an explicit refresh instead of silently retrying.
+New remote uploads require the captured branch head but no fictitious source revision. Replace and delete accept only canonical CMS asset identity plus the relevant source revision; repository paths and client-supplied usage arrays are not authority. Assignment requires its fixed-source revision plus the captured branch head. A stale source or branch fails with `409`; the browser keeps its captured state and requires an explicit refresh instead of silently retrying.
+
+Registered/code-owned media remains visible and assignable but is read-only for remote replace/delete. Video, AVIF and SVG replacement also fails closed remotely; those replacements stay on the local/Git workflow until a server-side validator exists.
 
 The Worker transport cap for upload/replace is `16 MiB`, enforced before multipart parsing. This is intentionally lower than the repository's local media limits because Worker memory and GitHub base64 transport make larger bodies unsafe. Large media remains a local/Git-backed workflow until a separate bounded transport is designed.
 
@@ -79,5 +82,7 @@ Repository implementation and account activation are deliberately separate. Afte
 5. verify authenticated Desk assets, `/media/**` and `/pets/**` previews, including a Range request;
 6. verify `/api/status` reports `content/text-cms` and the current branch head;
 7. perform the first real mutation only after confirming the target source revision/head and the dependency preview in the UI.
+
+The deploy verification also checks the generated page-usage and static-usage snapshots for exact freshness. These snapshots let delete dependency checks use the same expected Git commit for page media, direct/video-poster placements and code-owned pet-cover bases.
 
 No account secret, custom-domain activation or real authoring mutation is required for PR dry-run verification.
