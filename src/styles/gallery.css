@@ -7,20 +7,6 @@
     color: var(--clr-text);
   }
 
-  .gallery__header {
-    margin-bottom: var(--space-group);
-  }
-
-  .gallery__title {
-    max-inline-size: 16ch;
-    margin: 0;
-    font-size: var(--fs-800);
-    font-weight: var(--fw-700);
-    line-height: var(--lh-display);
-    letter-spacing: var(--ls-heading);
-    text-transform: lowercase;
-  }
-
   .gallery__content {
     display: grid;
     gap: var(--space-group);
