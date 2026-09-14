@@ -10,6 +10,8 @@ export interface EntityShellOptions extends SectionRenderOptions {
   theme?: string;
   /** Home uses this hook for intra-page project navigation; standalone pages do not require it. */
   navigationProject?: boolean;
+  /** Allows a specialized case body to own its visible heading while keeping canonical intro data. */
+  showIntro?: boolean;
   introHeadingLevel?: 1 | 2;
 }
 
@@ -30,9 +32,11 @@ export function renderEntityShell(
     attributes.push(`data-theme="${escapeHtml(options.theme)}"`);
   }
 
-  const intro = renderEntityIntro(content.intro, {
-    headingLevel: options.introHeadingLevel ?? 1,
-  });
+  const intro = options.showIntro === false
+    ? ""
+    : renderEntityIntro(content.intro, {
+        headingLevel: options.introHeadingLevel ?? 1,
+      });
   const sections = renderSections(content.sections, options);
 
   return `
