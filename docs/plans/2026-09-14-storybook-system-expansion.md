@@ -237,3 +237,21 @@ Run narrower targeted tests during development; run only the broader commands th
 ## Long-term definition of complete
 
 The end state is reached when every real UI-producing surface has a canonical inventory entry; every entry has an explicit story policy; all story-required units have appropriate isolated/composition/page coverage; meaningful interaction, responsive, conditional/hidden, async and motion states are represented; page archetypes include unlisted but real routes; experimental/orphan/infrastructure entries are explicitly classified; and new unclassified UI cannot silently enter the site.
+### Molecule coverage stream status — 2026-09-15
+
+Dedicated worktree: `D:\Temp\looksawful-storybook-molecules`, branch `storybook/molecules-coverage`, based on the current Storybook integration head `origin/storybook/coverage-ci` (`ee4874e9`). No separate `origin/integration` ref exists.
+
+Risk/usage-first canonical additions in this slice:
+
+- `Media Figure`: `src/templates/media-figure.ts` + facade `src/components/content/media-figure.ts`, backed by the real `awfulCasesDemo` fixture. Production usage exists in home slots and entity content blocks.
+- `Mockup`: `src/templates/mockup.ts` + facade `src/components/content/mockup.ts`, backed by real Awful Cases and Berry fixtures. Production usage exists in home slots and entity content blocks.
+- `Resource Links`: `src/components/composition/resource-links.ts`, backed by real Jestei editorial and Sensetique equipment resource sets. Production usage exists in entity section rendering.
+
+All three use `parameters.looksawful`, the shared state schema, real production renderers/data, and no copied product markup or CSS. Inventory v2 reports these owners as canonical `molecule` coverage with strong declared-source evidence.
+
+Deferred on evidence/runtime grounds rather than faked as static coverage:
+
+- `src/templates/media-slider.ts` and `src/templates/mockup-deck.ts` emit `data-media-deck` and require the production runtime in `src/components/media-deck.ts`; follow-up is tracked in #881 and must use `play` for confirmed navigation/active/count behavior.
+- `src/templates/media-group.ts` remains unclassified for this slice because its many layout modes span substantially different composition behavior; classify from production usages before assigning a single Storybook layer/policy.
+
+This stream excludes atoms, organisms, infrastructure/supporting data, experiments, and sources already canonically covered by the integrated baseline.
