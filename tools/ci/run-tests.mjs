@@ -42,6 +42,7 @@ export const fastTests = new Set([
   "test/lighthouse-ci-config.test.mjs",
   "test/media-desk-cloudflare-auth.test.mjs",
   "test/media-desk-cloudflare-github.test.mjs",
+  "test/media-desk-cloudflare-mutations.test.mjs",
   "test/media-desk-cloudflare-worker.test.mjs",
   "test/media-desk-cover-assignment.test.mjs",
   "test/media-desk-launcher-policy.test.mjs",
