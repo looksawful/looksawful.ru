@@ -16,6 +16,7 @@ import { escapeHtml } from "../utils/html.ts";
 
 export interface ProjectIntroRenderOptions {
   headingLevel?: 1 | 2;
+  visuallyHideTitle?: boolean;
 }
 
 function getLogoUsage(id: LogoUsageId): LogoUsageData<LogoFileId> {
@@ -150,8 +151,11 @@ export function renderProjectIntro(
   `
     : "";
   const title = renderTitle(data.title);
+  const titleClassName = options.visuallyHideTitle
+    ? "project__title visually-hidden"
+    : "project__title";
   const titleHtml = title
-    ? `<${headingTag} class="project__title"${renderRevealAttribute("copy")}>
+    ? `<${headingTag} class="${titleClassName}"${renderRevealAttribute("copy")}>
         ${title}
       </${headingTag}>`
     : "";
