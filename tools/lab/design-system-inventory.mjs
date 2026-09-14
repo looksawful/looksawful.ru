@@ -1,7 +1,6 @@
 import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import ts from "typescript";
 
 const SOURCE_EXTENSIONS = new Set([".ts", ".js", ".mjs"]);
 const STORY_SUFFIXES = [".stories.ts", ".stories.js", ".stories.mjs"];
@@ -47,61 +46,44 @@ function isRuntimeSource(file) {
   return SOURCE_EXTENSIONS.has(path.posix.extname(file)) && !file.endsWith(".d.ts");
 }
 
-function sourceFileFor(text, file) {
-  const kind = file.endsWith(".ts") ? ts.ScriptKind.TS : ts.ScriptKind.JS;
-  return ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true, kind);
-}
-
-function propertyName(node) {
-  if (!node?.name) return null;
-  if (ts.isIdentifier(node.name) || ts.isStringLiteral(node.name)) return node.name.text;
-  return null;
-}
-
-function objectProperty(object, name) {
-  if (!object || !ts.isObjectLiteralExpression(object)) return null;
-  return object.properties.find((property) =>
-    propertyName(property) === name && ts.isPropertyAssignment(property)
-  )?.initializer ?? null;
-}
-
-function resolveIdentifierExpression(sourceFile, expression) {
-  if (!expression || !ts.isIdentifier(expression)) return expression;
-  for (const statement of sourceFile.statements) {
-    if (!ts.isVariableStatement(statement)) continue;
-    for (const declaration of statement.declarationList.declarations) {
-      if (ts.isIdentifier(declaration.name) && declaration.name.text === expression.text) {
-        return declaration.initializer ?? expression;
-      }
+function balancedObjects(text) {
+  const objects = [];
+  const stack = [];
+  let quote = null;
+  let escaped = false;
+  for (let index = 0; index < text.length; index += 1) {
+    const char = text[index];
+    if (quote) {
+      if (escaped) escaped = false;
+      else if (char === "\\") escaped = true;
+      else if (char === quote) quote = null;
+      continue;
+    }
+    if (char === "\"" || char === "'" || char === "\`") { quote = char; continue; }
+    if (char === "{") stack.push(index);
+    if (char === "}" && stack.length) {
+      const start = stack.pop();
+      objects.push(text.slice(start, index + 1));
     }
   }
-  return expression;
+  return objects;
 }
-
-function defaultExportObject(sourceFile) {
-  const exportAssignment = sourceFile.statements.find((statement) =>
-    ts.isExportAssignment(statement) && !statement.isExportEquals
-  );
-  if (!exportAssignment) return null;
-  const expression = resolveIdentifierExpression(sourceFile, exportAssignment.expression);
-  return ts.isObjectLiteralExpression(expression) ? expression : null;
+function fieldString(text, name) {
+  const pattern = new RegExp("(?:^|[,\\s])" + name + "\\s*:[ \t\r\n]*[\"'\`]([^\"'\`]*)[\"'\`]");
+  return text.match(pattern)?.[1] ?? null;
 }
-
-function staticString(node) {
-  return node && (ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node))
-    ? node.text
-    : null;
+function fieldBoolean(text, name) {
+  const pattern = new RegExp("(?:^|[,\\s])" + name + "\\s*:[ \t\r\n]*(true|false)\\b");
+  const value = text.match(pattern)?.[1];
+  return value === "true" ? true : value === "false" ? false : null;
 }
-
-function staticBoolean(node) {
-  if (node?.kind === ts.SyntaxKind.TrueKeyword) return true;
-  if (node?.kind === ts.SyntaxKind.FalseKeyword) return false;
-  return null;
+function fieldStringArray(text, name) {
+  const pattern = new RegExp("(?:^|[,\\s])" + name + "\\s*:[ \t\r\n]*\\[([\\s\\S]*?)\\]");
+  const body = text.match(pattern)?.[1] ?? "";
+  return [...body.matchAll(/[\"'\`]([^\"'\`]*)[\"'\`]/g)].map((match) => match[1]);
 }
-
-function staticStringArray(node) {
-  if (!node || !ts.isArrayLiteralExpression(node)) return [];
-  return node.elements.map(staticString).filter((value) => value !== null);
+function looksawfulBlock(text) {
+  return balancedObjects(text).find((object) => /(?:^|[,\s])looksawful\s*:/.test(object)) ?? "";
 }
 
 function resolveImport(storyPath, specifier) {
@@ -110,47 +92,26 @@ function resolveImport(storyPath, specifier) {
 }
 
 function parseStory(text, storyPath) {
-  const ast = sourceFileFor(text, storyPath);
   const importedSources = [];
-  for (const statement of ast.statements) {
-    if (
-      (ts.isImportDeclaration(statement) || ts.isExportDeclaration(statement)) &&
-      statement.moduleSpecifier
-    ) {
-      const specifier = staticString(statement.moduleSpecifier);
-      const resolved = specifier ? resolveImport(storyPath, specifier) : null;
-      if (resolved) importedSources.push(resolved);
-    }
+  const importPattern = /\b(?:import|export)\s+(?:[^\"']*?\s+from\s+)?[\"']([^\"']+)[\"']/g;
+  for (const match of text.matchAll(importPattern)) {
+    const resolved = resolveImport(storyPath, match[1]);
+    if (resolved) importedSources.push(resolved);
   }
-
-  const meta = defaultExportObject(ast);
-  const title = staticString(objectProperty(meta, "title"));
-  const parameters = objectProperty(meta, "parameters");
-  const looksawful = objectProperty(parameters, "looksawful");
-  const declaredSources = staticStringArray(objectProperty(looksawful, "sources"));
-  const layer = staticString(objectProperty(looksawful, "layer"));
-  const policy = staticString(objectProperty(looksawful, "policy"));
-  const canonicalValue = staticBoolean(objectProperty(looksawful, "canonical"));
-  const state = staticString(objectProperty(looksawful, "state"));
-  const visibility = staticStringArray(objectProperty(looksawful, "visibility"));
-  const experimental = canonicalValue === false ||
-    layer === "experimental" ||
-    policy === "experimental" ||
-    title?.startsWith("90 Experimental/");
-
+  const looksawful = looksawfulBlock(text);
+  const declaredSources = fieldStringArray(looksawful, "sources");
+  const layer = fieldString(looksawful, "layer");
+  const policy = fieldString(looksawful, "policy");
+  const canonicalValue = fieldBoolean(looksawful, "canonical");
+  const state = fieldString(looksawful, "state");
+  const visibility = fieldStringArray(looksawful, "visibility");
+  const title = fieldString(text, "title");
+  const experimental = canonicalValue === false || layer === "experimental" || policy === "experimental" || title?.startsWith("90 Experimental/");
   return {
-    id: `story:${storyPath}`,
-    path: storyPath,
-    kind: "story",
-    title,
+    id: `story:${storyPath}`, path: storyPath, kind: "story", title,
     status: experimental ? "experimental" : canonicalValue === true ? "canonical" : "unclassified",
-    declaredSources,
-    importedSources: [...new Set(importedSources)].sort(),
-    layer,
-    policy,
-    canonical: canonicalValue,
-    state,
-    visibility,
+    declaredSources, importedSources: [...new Set(importedSources)].sort(),
+    layer, policy, canonical: canonicalValue, state, visibility,
   };
 }
 
@@ -199,29 +160,21 @@ function layerFor(refs, stories) {
   return null;
 }
 
-function parseRoutes(text, manifestPath) {
-  const ast = sourceFileFor(text, manifestPath);
+function parseRoutes(text) {
   const routes = [];
-  function visit(node) {
-    if (ts.isObjectLiteralExpression(node)) {
-      const id = staticString(objectProperty(node, "id"));
-      const routePath = staticString(objectProperty(node, "path"));
-      if (id && routePath) {
-        const listed = staticBoolean(objectProperty(node, "listed"));
-        const indexable = staticBoolean(objectProperty(node, "indexable"));
-        routes.push({
-          id,
-          path: routePath,
-          discovery: {
-            listed: listed ?? true,
-            indexable: indexable ?? true,
-          },
-        });
-      }
-    }
-    ts.forEachChild(node, visit);
+  for (const object of balancedObjects(text)) {
+    const id = fieldString(object, "id");
+    const routePath = fieldString(object, "path");
+    if (!id || !routePath) continue;
+    routes.push({
+      id,
+      path: routePath,
+      discovery: {
+        listed: fieldBoolean(object, "listed") ?? true,
+        indexable: fieldBoolean(object, "indexable") ?? true,
+      },
+    });
   }
-  visit(ast);
   return routes.sort((a, b) => a.id.localeCompare(b.id));
 }
 
@@ -312,7 +265,7 @@ export async function collectDesignSystemInventory(root) {
   const manifestPath = "src/site/pages/manifest.ts";
   let routes = [];
   try {
-    routes = parseRoutes(await readFile(path.join(root, manifestPath), "utf8"), manifestPath);
+    routes = parseRoutes(await readFile(path.join(root, manifestPath), "utf8"));
   } catch (error) {
     if (error?.code !== "ENOENT") throw error;
   }
