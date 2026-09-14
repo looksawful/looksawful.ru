@@ -23,7 +23,10 @@ function createMasonry(grid: HTMLElement, column: 2 | 3 | 4 | 5): MasonryInfinit
   return new MasonryInfiniteGrid(grid, {
     column,
     gap: { horizontal: gap, vertical: gap },
-    align: "justify",
+    // SSR cards intentionally start at width:100% as a usable no-JS fallback.
+    // Stretch makes MasonryGrid assign the computed column width before
+    // positioning those cards, avoiding full-width items being placed side by side.
+    align: "stretch",
     useResizeObserver: true,
     observeChildren: true,
     autoResize: true,
