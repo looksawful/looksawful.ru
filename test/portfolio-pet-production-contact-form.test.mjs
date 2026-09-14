@@ -10,7 +10,7 @@ const form = fs.readFileSync(
 );
 
 test("production mounts Awful and the contact-only window", () => {
-  assert.match(main, /mountPortfolioPet\(document, \{ enabled: true \}\)/);
+  assert.match(main, /mountPortfolioPet\(document, \{ enabled: false \}\)/);
   assert.match(main, /mountContactFormHub\(document\)/);
   assert.match(pet, /data-portfolio-pet-launcher|dataset\.portfolioPetLauncher/);
   assert.match(pet, /data-portfolio-pet-dismiss|dataset\.portfolioPetDismiss/);
