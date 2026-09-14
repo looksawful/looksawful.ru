@@ -53,9 +53,6 @@ export function renderGalleryPage(page: GalleryPageDefinition): string {
     title: "gallery — Иван Крушинский",
     description: "Photography archive by Ivan Krushinsky.",
     content: `<section class="gallery" data-gallery>
-  <header class="gallery__header">
-    <h1 class="gallery__title">gallery</h1>
-  </header>
   <div class="gallery__content">
 ${renderGallerySeries(items)}
   </div>
