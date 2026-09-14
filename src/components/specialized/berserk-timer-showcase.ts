@@ -174,6 +174,17 @@ function renderAudioSlide(): string {
   </figure>`;
 }
 
+function renderGridIcon(): string {
+  return `<svg aria-hidden="true" focusable="false" height="14" viewBox="0 0 14 14" width="14">
+    <g fill="currentColor">
+      <rect height="5" rx="1" width="5" x="1" y="1"></rect>
+      <rect height="5" rx="1" width="5" x="8" y="1"></rect>
+      <rect height="5" rx="1" width="5" x="1" y="8"></rect>
+      <rect height="5" rx="1" width="5" x="8" y="8"></rect>
+    </g>
+  </svg>`;
+}
+
 function renderDeck(): string {
   const slides = [
     renderTerminalSlide(TERMINAL_SLIDES[0], true),
@@ -187,7 +198,7 @@ function renderDeck(): string {
   const dots = slides.map((_, index) => `<button${index === 0 ? ' aria-current="true" data-active=""' : ""} aria-label="Экран ${index + 1}" class="media-deck__dot" data-deck-dot="" type="button"></button>`).join("");
 
   return `<div class="media-deck" data-deck-autoplay="ping-pong" data-deck-interval="10000" data-deck-layout="track" data-media-deck="">
-    <div class="media-deck__toolbar cluster"><button aria-label="Предыдущий кадр" class="media-deck__button" data-deck-prev="" type="button">←</button><button aria-label="Сетка" aria-pressed="false" class="media-deck__button" data-deck-toggle-grid="" type="button">grid</button><button aria-label="Следующий кадр" class="media-deck__button" data-deck-next="" type="button">→</button></div>
+    <div class="media-deck__toolbar cluster"><button aria-label="Предыдущий кадр" class="media-deck__button" data-deck-prev="" type="button">←</button><button aria-label="Сетка" aria-pressed="false" class="media-deck__button" data-deck-toggle-grid="" type="button">${renderGridIcon()}</button><button aria-label="Следующий кадр" class="media-deck__button" data-deck-next="" type="button">→</button></div>
     <div class="media-deck__viewport" data-deck-viewport=""><div class="media-deck__track reel" data-deck-track="">${slides.join("\n")}</div></div>
     <div aria-label="Навигация по экранам" class="media-deck__dots cluster">${dots}</div>
   </div>`;
@@ -223,7 +234,7 @@ python -m src.main 25 --mute`,
 
 /** Historical Berserk Timer case content, mounted through the canonical EntityPage boundary. */
 export function renderBerserkTimerShowcase(): string {
-  return `<section class="project__section wrapper stack" id="berserk-timer-showcase" data-section-type="specialized" data-project-id="berserk-timer" data-media-caption-scope>
+  return `<section class="project__section wrapper stack" id="berserk-timer-showcase" data-section-type="specialized" data-project-id="berserk-timer" data-media-caption-scope data-media-caption-numbering="off">
     <h1 class="visually-hidden">Berserk Timer</h1>
     <figure class="media terminal" data-presentation="banner" data-terminal-theme="dark">
       <pre aria-hidden="true">${escapeHtml(BERSERK_ASCII)}</pre>
@@ -231,9 +242,9 @@ export function renderBerserkTimerShowcase(): string {
     </figure>
   </section>
   <div class="divider wrapper" aria-hidden="true"></div>
-  <section class="project__section wrapper stack" data-section-type="specialized" data-project-id="berserk-timer" data-media-caption-scope>${renderDeck()}</section>
+  <section class="project__section wrapper stack" data-section-type="specialized" data-project-id="berserk-timer" data-media-caption-scope data-media-caption-numbering="off">${renderDeck()}</section>
   <div class="divider wrapper" aria-hidden="true"></div>
-  <section class="project__section wrapper stack" data-section-type="specialized" data-project-id="berserk-timer">${renderCodeBlocks()}</section>
+  <section class="project__section wrapper stack" data-section-type="specialized" data-project-id="berserk-timer" data-media-caption-numbering="off">${renderCodeBlocks()}</section>
   <div class="divider wrapper" aria-hidden="true"></div>
   <footer class="project__footer cluster" data-reveal-group>
     <a download="berserk-timer-v0.2.1-beta.zip" href="https://github.com/looksawful/berserk-timer/archive/refs/tags/v0.2.1-beta.zip" data-reveal="copy">Скачать исходники</a>
