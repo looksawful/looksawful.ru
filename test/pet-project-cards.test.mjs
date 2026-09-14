@@ -24,8 +24,8 @@ const approvedCards = [
     id: "berserk-timer",
     title: "Berserk Timer",
     description: "Консольный помодоро-таймер для Windows.",
-    state: "coming-soon",
-    href: undefined,
+    state: "live",
+    href: "/work/berserk-timer/",
   },
   {
     id: "awful-studio",
