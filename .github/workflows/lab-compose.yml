@@ -1,0 +1,93 @@
+name: Compose generated Lab
+
+on:
+  workflow_dispatch:
+    inputs:
+      pr_numbers:
+        description: Comma-separated same-repo open PR numbers to compose over current dev
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+  pull-requests: read
+
+concurrency:
+  group: generated-lab-compose
+  cancel-in-progress: false
+
+jobs:
+  compose:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: dev
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Resolve deterministic composition
+        id: resolve
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          RAW_PRS: ${{ inputs.pr_numbers }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE' > "$RUNNER_TEMP/lab-prs.txt"
+          import { normalizeSelectedPrNumbers } from "./tools/preview/source-contract.mjs";
+          const raw = process.env.RAW_PRS.trim();
+          const values = raw ? raw.split(",").map((value) => value.trim()).filter(Boolean) : [];
+          for (const number of normalizeSelectedPrNumbers(values)) console.log(number);
+          NODE
+          : > "$RUNNER_TEMP/lab-heads.tsv"
+          while IFS= read -r number; do
+            [[ -n "$number" ]] || continue
+            json="$(gh api "repos/$REPOSITORY/pulls/$number")"
+            state="$(jq -r .state <<<"$json")"
+            head_repo="$(jq -r .head.repo.full_name <<<"$json")"
+            head_sha="$(jq -r .head.sha <<<"$json")"
+            [[ "$state" == open ]] || { echo "PR #$number is not open" >&2; exit 1; }
+            [[ "$head_repo" == "$REPOSITORY" ]] || { echo "PR #$number is not same-repo" >&2; exit 1; }
+            [[ "$head_sha" =~ ^[0-9a-f]{40}$ ]] || { echo "PR #$number head is not exact SHA" >&2; exit 1; }
+            printf '%s\t%s\n' "$number" "$head_sha" >> "$RUNNER_TEMP/lab-heads.tsv"
+          done < "$RUNNER_TEMP/lab-prs.txt"
+          echo "dev_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Compose without mutating known-good Lab on conflict
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "looksawful Lab Composer"
+          git config user.email "lab-composer@users.noreply.github.com"
+          while IFS=$'\t' read -r number sha; do
+            [[ -n "$number" ]] || continue
+            git fetch --no-tags origin "$sha"
+            if ! git merge --no-ff --no-edit FETCH_HEAD; then
+              git merge --abort || true
+              echo "Composition conflict at PR #$number ($sha); existing lab remains untouched." >&2
+              exit 1
+            fi
+          done < "$RUNNER_TEMP/lab-heads.tsv"
+          printf 'generated from dev %s\n' "${{ steps.resolve.outputs.dev_sha }}" > "$RUNNER_TEMP/lab-summary.txt"
+          cat "$RUNNER_TEMP/lab-heads.tsv" >> "$RUNNER_TEMP/lab-summary.txt"
+
+      - name: Update disposable Lab only after complete composition
+        shell: bash
+        run: |
+          set -euo pipefail
+          git push --force-with-lease origin HEAD:refs/heads/lab
+
+      - name: Summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "### Generated Lab"
+            echo ""
+            echo "- base: current dev"
+            echo "- target: disposable lab"
+            echo "- promotion: forbidden; merge feature PRs to dev separately"
+            echo "- conflict policy: abort before push, keep previous known-good lab"
+          } >> "$GITHUB_STEP_SUMMARY"
