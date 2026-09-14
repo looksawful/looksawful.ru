@@ -1,18 +1,14 @@
 .lab-pet-projects-story {
-  min-block-size: 100vh;
+  min-block-size: 100dvh;
   background: var(--clr-bg);
   color: var(--clr-text);
 }
 
 .lab-pet-projects-candidate {
   --pet-card-inline: min(82cqi, 22rem);
-  --pet-reel-edge: calc((100cqi - var(--pet-card-inline)) / 2);
+  --pet-reel-edge: max(0px, calc((100cqi - var(--pet-card-inline)) / 2));
 
-  padding-inline: 0;
-}
-
-.lab-pet-projects-candidate > h2 {
-  padding-inline: var(--section-inline);
+  container: lab-pet-projects / inline-size;
 }
 
 .lab-pet-projects-candidate .pet-projects__grid {
@@ -22,13 +18,19 @@
   grid-template-columns: none;
   align-items: start;
   gap: clamp(var(--size-200), 3cqi, var(--size-400));
+  margin-inline: calc(var(--section-inline) * -1);
+  padding-block: var(--size-100) var(--size-300);
+  padding-inline: calc(var(--section-inline) + var(--pet-reel-edge));
   overflow-x: auto;
   overscroll-behavior-inline: contain;
-  padding: var(--size-100) var(--pet-reel-edge) var(--size-400);
-  scroll-padding-inline: var(--pet-reel-edge);
+  scroll-padding-inline: calc(var(--section-inline) + var(--pet-reel-edge));
   scroll-snap-type: inline mandatory;
-  scrollbar-width: thin;
-  scrollbar-color: color-mix(in srgb, var(--clr-text) 24%, transparent) transparent;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.lab-pet-projects-candidate .pet-projects__grid::-webkit-scrollbar {
+  display: none;
 }
 
 .lab-pet-projects-candidate .subproject-card {
@@ -39,31 +41,32 @@
 }
 
 .lab-pet-projects-candidate .subproject-card__figure {
-  opacity: .5;
-  scale: .9;
   transform-origin: 50% 42%;
-  transition:
-    scale 320ms cubic-bezier(.22, 1, .36, 1),
-    opacity 240ms ease;
+}
+
+@supports (container-type: scroll-state) {
+  .lab-pet-projects-candidate .subproject-card__figure {
+    opacity: .58;
+    scale: .92;
+    transition:
+      scale 320ms cubic-bezier(.22, 1, .36, 1),
+      opacity 240ms ease;
+  }
+
+  @container pet-project-snap scroll-state(snapped: inline) {
+    .subproject-card__figure {
+      opacity: 1;
+      scale: 1;
+    }
+  }
 }
 
 .lab-pet-projects-candidate .subproject-card__media {
-  background: #050505;
-}
-
-.lab-pet-projects-candidate .subproject-card__media > :is(img, video) {
-  object-fit: contain;
+  background: var(--clr-surface-raised);
 }
 
 .lab-pet-projects-candidate .subproject-card__caption {
-  min-block-size: 4.25rem;
-}
-
-@container pet-project-snap scroll-state(snapped: inline) {
-  .subproject-card__figure {
-    opacity: 1;
-    scale: 1;
-  }
+  min-block-size: 4.5rem;
 }
 
 .lab-pet-cover {
@@ -134,6 +137,7 @@
   inset-block-end: -3%;
   inline-size: min(49%, 15rem);
   block-size: auto;
+  max-inline-size: none;
   object-fit: contain;
   image-rendering: pixelated;
   filter: grayscale(1) contrast(1.05);
@@ -171,22 +175,26 @@
 .lab-berserk-muted { color: rgb(232 227 212 / 58%); }
 .lab-berserk-head { color: #b6ff6d; font-weight: 700; }
 
-@container pet-projects (width > 44rem) {
-  .lab-pet-projects-candidate {
-    padding-inline: var(--section-inline);
-  }
+.lab-pet-cover--awful-studio {
+  background: #111;
+}
 
-  .lab-pet-projects-candidate > h2 {
-    padding-inline: 0;
-  }
+.lab-pet-cover--awful-studio img {
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+  object-position: center;
+}
 
+@container lab-pet-projects (width > 44rem) {
   .lab-pet-projects-candidate .pet-projects__grid {
     grid-auto-flow: initial;
     grid-auto-columns: initial;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--space-group) var(--size-300);
-    overflow: visible;
+    margin-inline: 0;
     padding: 0;
+    overflow: visible;
     scroll-snap-type: none;
   }
 
@@ -201,10 +209,9 @@
   }
 }
 
-@supports not (container-type: scroll-state) {
-  .lab-pet-projects-candidate .subproject-card__figure {
-    opacity: 1;
-    scale: 1;
+@container lab-pet-projects (width > 72rem) {
+  .lab-pet-projects-candidate .pet-projects__grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 

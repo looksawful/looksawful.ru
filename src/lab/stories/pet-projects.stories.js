@@ -1,3 +1,4 @@
+import "../../styles/subproject-cards.css";
 import "./pet-projects.stories.css";
 
 const cards = [
@@ -68,11 +69,13 @@ function coverMarkup(card) {
       `;
     case "awful-studio":
       return `
-        <img
-          src="/lab-assets/awful-studio-overview.webp"
-          alt=""
-          loading="eager"
-        >
+        <div class="lab-pet-cover lab-pet-cover--awful-studio">
+          <img
+            src="/lab-assets/awful-studio-hero.webp"
+            alt=""
+            loading="eager"
+          >
+        </div>
       `;
     default:
       return "";
@@ -116,7 +119,7 @@ const meta = {
     layout: "fullscreen",
     docs: {
       description: {
-        component: "Production candidate for the homepage Pet Projects organism. Resize the story or open it through Lab viewport presets: mobile uses a centered horizontal snap reel; wider containers resolve to a 2×2 grid.",
+        component: "Production-like approval candidate for the homepage Pet Projects organism. Mobile uses a centered horizontal snap reel with a larger active card; medium containers resolve to a 2×2 grid; wide containers show four balanced cards in one row.",
       },
     },
   },
