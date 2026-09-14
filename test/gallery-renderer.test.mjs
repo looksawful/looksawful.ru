@@ -36,24 +36,39 @@ test("Gallery renderer emits semantic build-time content inside the shared page 
   assert.doesNotMatch(html, /gallery__header|gallery__title/);
 });
 
-test("Gallery renderer has one photo stream and no retired layer/filter UI", () => {
+test("Gallery renderer has one continuous mixed-media wall and no retired layer/filter UI", () => {
+  assert.equal((html.match(/data-gallery-grid/g) ?? []).length, 1);
+  assert.doesNotMatch(html, /data-gallery-series=/);
   assert.doesNotMatch(html, /data-gallery-layer-control/);
   assert.doesNotMatch(html, /data-gallery-layer-panel/);
   assert.doesNotMatch(html, /data-gallery-layer=/);
-  assert.doesNotMatch(html, /\bproduction\b/i);
   assert.doesNotMatch(html, /data-gallery-sort|data-gallery-search/);
+  assert.match(html, /data-gallery-kind="image"/);
+  assert.match(html, /data-gallery-kind="video"/);
 });
 
-test("Gallery output keeps invisible series boundaries and intrinsic image geometry", () => {
-  assert.match(html, /data-gallery-series=/);
+test("Gallery image and video cards preserve canonical intrinsic geometry", () => {
   assert.match(html, /data-gallery-item-id=/);
   assert.match(html, /<img[^>]*\bwidth="\d+"[^>]*\bheight="\d+"/);
-  assert.doesNotMatch(html, /gallery-series__title|data-gallery-series-title/);
+  assert.match(html, /<video[^>]*data-gallery-video[^>]*muted[^>]*loop[^>]*playsinline[^>]*preload="metadata"/);
+  assert.match(html, /<video[^>]*poster="\/media\//);
+
+  const videoCards = [...html.matchAll(/<figure[^>]*data-gallery-kind="video"[\s\S]*?<\/figure>/g)]
+    .map((match) => match[0]);
+  assert.ok(videoCards.length > 0, "Gallery must render video cards");
+  for (const card of videoCards) {
+    assert.match(card, /data-gallery-src="[^"]+"/);
+    assert.match(card, /data-gallery-poster="[^"]+"/);
+    assert.match(card, /data-gallery-width="\d+"/);
+    assert.match(card, /data-gallery-height="\d+"/);
+    assert.match(card, /data-gallery-title=/);
+    assert.match(card, /data-gallery-credits=/);
+  }
 });
 
-test("Gallery cards never expose an empty accessible image label when canonical title exists", () => {
-  const cards = [...html.matchAll(/<figure class="gallery-card"[\s\S]*?<\/figure>/g)].map((match) => match[0]);
-  assert.ok(cards.length > 0, "Gallery must render cards");
+test("Gallery image cards never expose an empty accessible label when canonical title exists", () => {
+  const cards = [...html.matchAll(/<figure[^>]*data-gallery-kind="image"[\s\S]*?<\/figure>/g)].map((match) => match[0]);
+  assert.ok(cards.length > 0, "Gallery must render image cards");
 
   for (const card of cards) {
     const title = card.match(/data-gallery-title="([^"]*)"/)?.[1] ?? "";
@@ -70,7 +85,7 @@ test("Gallery exposes canonical credits to the PhotoSwipe caption adapter", () =
   assert.match(lightboxSource, /captionHtml/);
 });
 
-test("Gallery PhotoSwipe credits stay readable over arbitrary photography", () => {
+test("Gallery PhotoSwipe credits stay readable over arbitrary media", () => {
   const captionRule = mediaLightboxCss.match(
     /\.media-lightbox--photoswipe \.media-lightbox__caption\s*\{([\s\S]*?)\n\}/,
   )?.[1] ?? "";
@@ -80,17 +95,19 @@ test("Gallery PhotoSwipe credits stay readable over arbitrary photography", () =
   assert.match(captionRule, /padding:/);
 });
 
-test("Gallery CSS has no retired heading styles and explicitly avoids masonry mechanics", () => {
+test("Gallery CSS is layout-neutral for InfiniteGrid and keeps equal gap ownership", () => {
   assert.doesNotMatch(galleryCss, /\.gallery__header\b/);
   assert.doesNotMatch(galleryCss, /\.gallery__title\b/);
+  assert.doesNotMatch(galleryCss, /grid-template-columns\s*:/);
   assert.doesNotMatch(galleryCss, /column-count\s*:/);
   assert.doesNotMatch(galleryCss, /grid-auto-rows\s*:/);
   assert.doesNotMatch(galleryCss, /grid-row-end\s*:/);
   assert.doesNotMatch(galleryCss, /gallery-row-span/);
-  assert.doesNotMatch(galleryCss, /data-gallery-layout-ready/);
+  assert.match(galleryCss, /column-gap:\s*var\(--gallery-gap\)/);
+  assert.match(galleryCss, /row-gap:\s*var\(--gallery-gap\)/);
 });
 
-test("Gallery lightbox reads the one public photo stream instead of retired layer panels", () => {
+test("Gallery lightbox reads the one public wall instead of retired layer panels", () => {
   assert.doesNotMatch(lightboxSource, /data-gallery-layer-panel/);
   assert.match(lightboxSource, /root\.querySelectorAll<HTMLElement>\("\[data-gallery-card\]"\)/);
 });
