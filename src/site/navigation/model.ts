@@ -10,6 +10,7 @@ import { projectCardPresentations } from "../../data/projects.ts";
 import { sitePages } from "../pages/manifest.ts";
 import type { SitePageDefinition, SitePageId } from "../pages/types.ts";
 import {
+  HIDDEN_PRIMARY_NAVIGATION_PAGE_IDS,
   PRIMARY_NAVIGATION_PAGE_IDS,
   type PrimaryNavigationPageId,
 } from "./primary.ts";
@@ -39,7 +40,7 @@ function getDomainPageLabel(page: SitePageDefinition): string {
     case "home":
       return getNavigationLabel("home");
     case "gallery":
-      return "Gallery";
+      return "галерея";
     case "case":
       return getCase(page.entityId).name || page.entityId;
     case "collection": {
@@ -98,15 +99,17 @@ export function getPrimaryNavigationItems(
   labels: readonly NavigationLabelData[] = navigationLabels,
   pages: readonly SitePageDefinition[] = sitePages,
 ): readonly SiteNavigationItem[] {
-  return PRIMARY_NAVIGATION_PAGE_IDS.map((id) => {
-    const page = requirePage(id, pages);
-    return {
-      id,
-      label: getNavigationPageLabel(page, labels),
-      href: page.path,
-      previewSrc: getNavigationPreviewSrc(id),
-    };
-  });
+  return PRIMARY_NAVIGATION_PAGE_IDS
+    .filter((id) => !HIDDEN_PRIMARY_NAVIGATION_PAGE_IDS.has(id))
+    .map((id) => {
+      const page = requirePage(id, pages);
+      return {
+        id,
+        label: getNavigationPageLabel(page, labels),
+        href: page.path,
+        previewSrc: getNavigationPreviewSrc(id),
+      };
+    });
 }
 
 export function getBreadcrumbItems(
