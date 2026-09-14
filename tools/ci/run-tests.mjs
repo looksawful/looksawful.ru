@@ -38,6 +38,7 @@ export const fastTests = new Set([
   "test/domain-taxonomy-references.test.mjs",
   "test/editorial-content-boundary.test.mjs",
   "test/editorial-copy-optional.test.mjs",
+  "test/homepage-compact-curation-834.test.mjs",
   "test/jestei-event-migration.test.mjs",
   "test/lighthouse-ci-config.test.mjs",
   "test/media-desk-launcher-policy.test.mjs",
@@ -54,6 +55,7 @@ export const fastTests = new Set([
   "test/private-admin-github-oauth.test.mjs",
   "test/private-lab-shell.test.mjs",
   "test/project-card-hover.test.mjs",
+  "test/project-lead-desktop-width.test.mjs",
   "test/repository-growth-policy.test.mjs",
   "test/search-presentation.test.mjs",
   // CONTRACT: one document H1 on Home and one textual H1 on every indexable portfolio page.
