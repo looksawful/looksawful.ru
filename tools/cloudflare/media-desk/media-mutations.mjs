@@ -1,4 +1,5 @@
 const MEBIBYTE = 1024 * 1024;
+const UUID_V4 = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu;
 
 const MEDIA_LIMITS = Object.freeze({
   image: Object.freeze({ maxBytes: 50 * MEBIBYTE }),
@@ -7,7 +8,7 @@ const MEDIA_LIMITS = Object.freeze({
 
 const IMAGE_EXTENSIONS = new Set([".avif", ".gif", ".jpeg", ".jpg", ".png", ".svg", ".webp"]);
 const VIDEO_EXTENSIONS = new Set([".m4v", ".mov", ".mp4", ".webm"]);
-const UPLOAD_ROOTS = ["public/media/", "public/pets/"];
+const UPLOAD_ROOT = "public/media/catalog/";
 
 function requiredGuard(value, label) {
   if (typeof value !== "string" || value.trim().length === 0) {
@@ -28,16 +29,16 @@ function extensionOf(path) {
   return dot >= 0 ? file.slice(dot).toLowerCase() : "";
 }
 
-function assertSafeRepositoryPath(path) {
+function assertSafeUploadPath(path) {
   if (
     typeof path !== "string"
     || path.length === 0
     || path.startsWith("/")
     || path.includes("\\")
     || path.split("/").some((segment) => segment === "" || segment === "." || segment === "..")
-    || !UPLOAD_ROOTS.some((root) => path.startsWith(root))
+    || !path.startsWith(UPLOAD_ROOT)
   ) {
-    throw new Error(`Unsafe upload path: ${String(path)}`);
+    throw new Error(`Unsafe upload path: ${String(path)}; uploads must use public/media/catalog/`);
   }
   return path;
 }
@@ -49,8 +50,23 @@ function assertKnownMediaType(mediaType) {
   return mediaType;
 }
 
+function finiteNonNegative(value, label) {
+  if (typeof value !== "number" || !Number.isFinite(value) || value < 0) {
+    throw new TypeError(`${label} must be a finite non-negative number`);
+  }
+  return value;
+}
+
+function stringArray(value, fallback = []) {
+  if (value === undefined) return [...fallback];
+  if (!Array.isArray(value) || value.some((item) => typeof item !== "string")) {
+    throw new TypeError("Media catalog metadata arrays must contain strings");
+  }
+  return [...value];
+}
+
 export function validateUploadTarget({ path, mediaType, byteLength }) {
-  const safePath = assertSafeRepositoryPath(path);
+  const safePath = assertSafeUploadPath(path);
   const type = assertKnownMediaType(mediaType);
   if (!Number.isSafeInteger(byteLength) || byteLength <= 0) {
     throw new TypeError("Media upload byte length must be a positive integer");
@@ -68,6 +84,88 @@ export function validateUploadTarget({ path, mediaType, byteLength }) {
   }
 
   return { path: safePath, mediaType: type, byteLength };
+}
+
+export function planUpload({
+  id,
+  filename,
+  mediaType,
+  bytes,
+  width,
+  height,
+  durationSeconds = 0,
+  mimeType,
+  title,
+  alt = "",
+  description = "",
+  date = "",
+  projectIds,
+  workAreaIds,
+  projectTypeIds,
+  deliverableIds,
+  tags,
+  credits,
+  showInCatalog = false,
+  reusable = false,
+  archived = false,
+  expectedRevision,
+  expectedHead,
+}) {
+  const revision = requiredGuard(expectedRevision, "expected revision");
+  const head = requiredGuard(expectedHead, "expected branch head");
+  if (typeof id !== "string" || !UUID_V4.test(id)) throw new TypeError("Media Desk upload ID must be a UUID v4");
+  if (typeof filename !== "string" || filename.length === 0 || filename.includes("/") || filename.includes("\\")) {
+    throw new TypeError("Media Desk upload filename is invalid");
+  }
+  const uploadBytes = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
+  const extension = extensionOf(filename);
+  const filePath = `${UPLOAD_ROOT}${id}${extension}`;
+  const validated = validateUploadTarget({ path: filePath, mediaType, byteLength: byteLengthOf(uploadBytes) });
+  if (typeof title !== "string" || title.trim().length === 0) throw new TypeError("Media Desk upload title is required");
+  if (typeof mimeType !== "string" || mimeType.trim().length === 0) throw new TypeError("Media Desk upload MIME type is required");
+
+  const catalogPath = `src/content/media-catalog/uploads/${id}.json`;
+  const src = `/${validated.path.slice("public/".length)}`;
+  const catalogRecord = {
+    id,
+    mediaType: validated.mediaType,
+    src,
+    deliverySrc: "",
+    posterSrc: "",
+    width: finiteNonNegative(width, "Media upload width"),
+    height: finiteNonNegative(height, "Media upload height"),
+    durationSeconds: finiteNonNegative(durationSeconds, "Media upload duration"),
+    mimeType: mimeType.trim(),
+    byteLength: validated.byteLength,
+    title: title.trim(),
+    alt: String(alt),
+    description: String(description),
+    date: String(date),
+    projectIds: stringArray(projectIds),
+    workAreaIds: stringArray(workAreaIds),
+    projectTypeIds: stringArray(projectTypeIds),
+    deliverableIds: stringArray(deliverableIds),
+    tags: stringArray(tags),
+    credits: stringArray(credits),
+    showInCatalog: Boolean(showInCatalog),
+    reusable: Boolean(reusable),
+    archived: Boolean(archived),
+  };
+  const catalogSource = `${JSON.stringify(catalogRecord, null, 2)}\n`;
+
+  return {
+    kind: "upload",
+    assetId: `cms-${id}`,
+    filePath,
+    catalogPath,
+    catalogRecord,
+    expectedRevision: revision,
+    expectedHead: head,
+    writes: [
+      { path: filePath, content: uploadBytes },
+      { path: catalogPath, content: catalogSource },
+    ],
+  };
 }
 
 export function planReplace({ asset, nextBytes, expectedRevision, expectedHead }) {
