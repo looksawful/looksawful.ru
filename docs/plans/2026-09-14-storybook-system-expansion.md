@@ -19,12 +19,28 @@ Evolve the existing LAB Storybook into a reliable catalogue of canonical product
 - The actual UI surface is broader than `src/components`: `src/templates`, `src/site/pages`, `src/site/navigation`, `src/site/renderers`, `src/site/rendering`, `src/site/shell`, page manifests, global interactive/motion entry points and LAB-only experiments also matter.
 - `src/site/pages/manifest.ts` is a canonical source for page types and discovery state, including unlisted/non-indexable project routes and the 404 route.
 
+## Integrated milestone (2026-09-14)
+
+Tracks A-F are now combined on `storybook/coverage-ci`. The integrated system has:
+
+- evidence-backed inventory v2 spanning 96 UI-owner sources across components, templates and selected `src/site/**` owners;
+- 8 Storybook modules total, including four new canonical pilot stories;
+- explicit supporting-source validation so canonical `src/data/**` dependencies can be declared without inflating the UI denominator;
+- one canonical state/visibility schema shared with inventory layer, policy and visibility validation;
+- LAB review viewports at 1440x1000, 834x1112 and 390x844;
+- a Windows-safe Storybook launcher;
+- historical audit artifacts pinned to their original baseline rather than presented as current live counts.
+
+The last code-changing integrated head before the audit/roadmap-only merges was `29d3c6c0a8b2d87b9d09430ea4e327e823f546a5`. Fresh verification there produced 16/16 focused Storybook/inventory/schema tests, 0 structural inventory errors, a successful Storybook 10.6.0 static build, and 207/207 fast tests.
+
+Phase 0's truth/denominator exit gate is achieved. Phase 1 is technically established across harness, schema, pilot metadata and inventory, but visual browser parity review is still outstanding, and an explicit hidden/overlay/conditional pilot should be added only when a low-risk canonical owner is selected. Build warnings for `:target-current` parsing and large Storybook chunks remain non-blocking follow-up items rather than coverage failures.
+
 ## Architectural decisions
 
 1. Keep official Storybook embedded in LAB. Do not replace it with a second custom component explorer.
 2. Keep Storybook's Vite configuration isolated. Add only deliberate preview context/decorators needed to render canonical site UI.
 3. A story must prefer canonical production renderer/runtime/data. Do not duplicate product markup or CSS merely to make a story convenient.
-4. Do not equate every source file with a story. Inventory entries must be classified by story policy: `isolated`, `composition`, `page`, `behavior-fixture`, `no-story`, `experimental`, `orphan`.
+4. Do not equate every source file with a story. Canonical story metadata uses the story policies `isolated`, `composition`, `page`, `behavior-fixture`, and `experimental`. Source inventory separately carries exemptions/classification such as `no-story` / `exempt-no-story` and orphan / `needs-classification` states.
 5. Do not equate filename-stem matching with coverage. Story ownership must become evidence-backed and able to represent one story using multiple canonical sources.
 6. Hidden state is multidimensional. At minimum distinguish breakpoint visibility, conditional/data visibility, disclosure state, overlay/portal state, route discovery visibility, feature/experiment state and reduced-motion behavior.
 7. Page discovery flags (`listed`, `indexable`) are not the same thing as visual visibility and must remain separate fields.
@@ -40,7 +56,7 @@ New and gradually updated stories should use a consistent custom Storybook param
 parameters: {
   looksawful: {
     sources: ["src/templates/example.ts", "src/components/example.ts"],
-    kind: "molecule",
+    layer: "molecule",
     policy: "isolated",
     canonical: true,
     state: "default",
