@@ -6,7 +6,7 @@ type ContactDraft = {
   message: string;
 };
 
-const SITE_CONTACT_SELECTOR = '.contact a[href="mailto:i@lookawful.ru"]';
+const SITE_CONTACT_SELECTOR = 'a[href="mailto:i@lookawful.ru"]';
 const PET_SELECTOR = "[data-portfolio-pet-launcher]";
 const DRAFT_STORAGE_KEY = "looksawful.contact-form.draft.v1";
 const MOBILE_MEDIA = "(width <= 42.5rem)";
