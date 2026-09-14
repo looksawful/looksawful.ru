@@ -1,9 +1,9 @@
 {
   "version": 3,
-  "baseSha": "83ea6cb845528e1976b13687956bdd249ba8def8",
+  "baseSha": "9c10a23cbf1413346955a9b3f01439f99f399a9e",
   "entryCount": 889,
   "uniqueEntryIdCount": 889,
-  "entrySemanticsSha256": "13414e7555139743369319bab6a7ff21fd105703009a5174f833d6ebb39f1b26",
+  "entrySemanticsSha256": "cd04d227befcf60053568f912140a93ec63ef337992ece5c28c5128fbab0b11f",
   "trackedCatalogAssetIds": [
     "behance-hypression-001",
     "behance-hypression-003",
@@ -70,5 +70,5 @@
     "styx-07-source-01-4x5",
     "styx-07-source-02-4x5"
   ],
-  "trackedCatalogMetadataSha256": "f88af5e6c84c37147ec39cb8e1b8769c398e2a9ca84c48df4d52c282c804ff01"
+  "trackedCatalogMetadataSha256": "5c8adc7f2dba335e510f81a0195ff405c1496e207b9d1a01f3bd610ed78deede"
 }
