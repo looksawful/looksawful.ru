@@ -194,6 +194,21 @@ export function mountContactFormHub(root: Document = document): Destroy {
   });
 
   const persistDraft = (): void => writeDraft(root, currentDraft());
+  const markInvalid = (event: Event): void => {
+    const target = event.target;
+    if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) {
+      target.setAttribute("aria-invalid", "true");
+    }
+  };
+  const clearInvalid = (event: Event): void => {
+    const target = event.target;
+    if (
+      (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) &&
+      target.validity.valid
+    ) {
+      target.removeAttribute("aria-invalid");
+    }
+  };
   const isMobile = (): boolean => root.defaultView?.matchMedia(MOBILE_MEDIA).matches ?? false;
 
   const resetPosition = (): void => {
@@ -211,8 +226,8 @@ export function mountContactFormHub(root: Document = document): Destroy {
     const petRect = pet.getBoundingClientRect();
     const margin = 12;
     const gap = 12;
-    const width = Math.min(hub.offsetWidth || 328, view.innerWidth - margin * 2);
-    const height = Math.min(hub.offsetHeight || 420, view.innerHeight - margin * 2);
+    const width = Math.min(hub.offsetWidth || 376, view.innerWidth - margin * 2);
+    const height = Math.min(hub.offsetHeight || 460, view.innerHeight - margin * 2);
     let left = petRect.right + gap;
     if (left + width > view.innerWidth - margin) left = petRect.left - gap - width;
     left = Math.max(margin, Math.min(left, view.innerWidth - width - margin));
@@ -310,9 +325,13 @@ export function mountContactFormHub(root: Document = document): Destroy {
   collapsedLauncher.addEventListener("click", restore);
   closeButton.addEventListener("click", close);
   form.addEventListener("submit", submit);
+  form.addEventListener("invalid", markInvalid, true);
   nameInput.addEventListener("input", persistDraft);
+  nameInput.addEventListener("input", clearInvalid);
   emailInput.addEventListener("input", persistDraft);
+  emailInput.addEventListener("input", clearInvalid);
   messageInput.addEventListener("input", persistDraft);
+  messageInput.addEventListener("input", clearInvalid);
   root.addEventListener("keydown", onKeyDown);
   root.addEventListener("portfolio-pet:moved", onPetMoved);
   root.defaultView?.addEventListener("resize", onViewportChange);
@@ -326,9 +345,13 @@ export function mountContactFormHub(root: Document = document): Destroy {
     collapsedLauncher.removeEventListener("click", restore);
     closeButton.removeEventListener("click", close);
     form.removeEventListener("submit", submit);
+    form.removeEventListener("invalid", markInvalid, true);
     nameInput.removeEventListener("input", persistDraft);
+    nameInput.removeEventListener("input", clearInvalid);
     emailInput.removeEventListener("input", persistDraft);
+    emailInput.removeEventListener("input", clearInvalid);
     messageInput.removeEventListener("input", persistDraft);
+    messageInput.removeEventListener("input", clearInvalid);
     root.removeEventListener("keydown", onKeyDown);
     root.removeEventListener("portfolio-pet:moved", onPetMoved);
     root.defaultView?.removeEventListener("resize", onViewportChange);
