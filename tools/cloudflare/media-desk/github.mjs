@@ -149,10 +149,11 @@ export async function commitRepositoryFiles({
     throw new TypeError("Media Desk commit requires at least one file");
   }
 
-  const prepared = files.map((file) => ({
-    path: assertAllowedPath(file?.path),
-    bytes: asBytes(file?.content),
-  }));
+  const prepared = files.map((file) => {
+    const path = assertAllowedPath(file?.path);
+    if (file?.delete === true) return { path, delete: true, bytes: null };
+    return { path, delete: false, bytes: asBytes(file?.content) };
+  });
   const uniquePaths = new Set(prepared.map(({ path }) => path));
   if (uniquePaths.size !== prepared.length) {
     throw new Error("Media Desk commit contains duplicate repository paths");
@@ -172,6 +173,16 @@ export async function commitRepositoryFiles({
 
   const treeEntries = [];
   for (const file of prepared) {
+    if (file.delete) {
+      treeEntries.push({
+        path: file.path,
+        mode: "100644",
+        type: "blob",
+        sha: null,
+      });
+      continue;
+    }
+
     const blob = await githubJson(`${API_ROOT}/git/blobs`, {
       token,
       method: "POST",
