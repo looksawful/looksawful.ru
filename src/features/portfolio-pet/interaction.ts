@@ -6,6 +6,7 @@ export interface PetGestureInput {
   durationMs: number;
   velocityX?: number;
   viewportEdgeDistance?: number;
+  startViewportEdgeDistance?: number;
 }
 
 const ACTIVATE_DISTANCE = 10;
@@ -13,6 +14,7 @@ const HIDE_DISTANCE = 120;
 const HIDE_MAX_CROSS_AXIS = 48;
 const HIDE_MAX_EDGE_DISTANCE = 40;
 const HIDE_MIN_VELOCITY_X = -0.5;
+const HIDE_MIN_START_EDGE_DISTANCE = 160;
 
 export function classifyPetGesture(input: PetGestureInput): PetGestureResult {
   const distance = Math.hypot(input.dx, input.dy);
@@ -22,7 +24,8 @@ export function classifyPetGesture(input: PetGestureInput): PetGestureResult {
     input.dx <= -HIDE_DISTANCE &&
     Math.abs(input.dy) <= HIDE_MAX_CROSS_AXIS &&
     (input.velocityX ?? 0) <= HIDE_MIN_VELOCITY_X &&
-    (input.viewportEdgeDistance ?? Number.POSITIVE_INFINITY) <= HIDE_MAX_EDGE_DISTANCE;
+    (input.viewportEdgeDistance ?? Number.POSITIVE_INFINITY) <= HIDE_MAX_EDGE_DISTANCE &&
+    (input.startViewportEdgeDistance ?? Number.POSITIVE_INFINITY) >= HIDE_MIN_START_EDGE_DISTANCE;
 
   return deliberateHide ? "hide" : "drag";
 }

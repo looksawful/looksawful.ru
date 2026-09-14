@@ -71,6 +71,19 @@ test("DR-006: swipe-to-hide is distinct from normal reposition drag", async () =
       durationMs: 210,
       velocityX: -0.72,
       viewportEdgeDistance: 22,
+      startViewportEdgeDistance: 18,
+    }),
+    "drag",
+    "a pet already parked at the left edge must remain draggable instead of disappearing",
+  );
+  assert.equal(
+    classifyPetGesture({
+      dx: -150,
+      dy: 8,
+      durationMs: 210,
+      velocityX: -0.72,
+      viewportEdgeDistance: 22,
+      startViewportEdgeDistance: 240,
     }),
     "hide",
   );

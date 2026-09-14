@@ -572,6 +572,7 @@ export function mountPortfolioPet(
             durationMs,
             velocityX: dx / durationMs,
             viewportEdgeDistance: Math.max(0, event.clientX - viewportLeft),
+            startViewportEdgeDistance: Math.max(0, session.startRect.left - viewportLeft),
           });
 
     dragSession = null;
