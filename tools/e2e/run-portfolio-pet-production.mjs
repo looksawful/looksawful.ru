@@ -17,6 +17,20 @@ export async function runPortfolioPetProductionSanity({ browser, baseUrl }) {
     });
     await page.goto(baseUrl, { waitUntil: "domcontentloaded" });
     const pet = page.locator("[data-portfolio-pet-launcher]");
+    if ((await pet.count()) === 0) {
+      const contactLink = page.locator('a[href="mailto:i@lookawful.ru"]').first();
+      await contactLink.dispatchEvent("click");
+      const form = page.locator("[data-contact-form-hub]");
+      await form.waitFor({ state: "visible" });
+      if (await page.locator("[data-contact-hub-ai], [data-contact-hub-ai-composer]").count()) {
+        throw new Error("AI controls are present in the contact-only release");
+      }
+      await form.locator("[data-contact-form-hub-close]").click();
+      if (chatRequests.length) throw new Error(`unexpected AI requests: ${chatRequests.join(", ")}`);
+      console.log(`[portfolio-pet-production] ${viewport.width}x${viewport.height}: mascot disabled, contact form OK`);
+      await context.close();
+      continue;
+    }
     await pet.waitFor({ state: "visible" });
     const assetVersion = await pet.getAttribute("data-asset-version");
     if (assetVersion !== "v6") throw new Error(`expected v6 pet, got ${assetVersion}`);
