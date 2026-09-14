@@ -107,6 +107,32 @@ export const sitePages = [
     },
   },
   {
+    id: "project:berserk-timer",
+    type: "project",
+    entityId: "berserk-timer",
+    path: "/work/berserk-timer/",
+    enabled: true,
+    renderer: "entity",
+    build: VITE_BUILD,
+    discovery: {
+      listed: false,
+      indexable: false,
+    },
+  },
+  {
+    id: "project:awful-studio",
+    type: "project",
+    entityId: "awful-studio",
+    path: "/work/awful-studio/",
+    enabled: false,
+    renderer: "entity",
+    build: VITE_BUILD,
+    discovery: {
+      listed: false,
+      indexable: false,
+    },
+  },
+  {
     id: "project:berry-social-content-2020",
     type: "project",
     entityId: "berry-social-content-2020",
