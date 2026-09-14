@@ -93,11 +93,25 @@ jobs:
       - name: Lab workspace contracts
         run: node --test test/lab-workspace-contract.test.mjs test/lab-design-system-inventory.test.mjs
 
-      - name: Build Lab without production analytics
+      - name: Build public preview without production analytics
         run: npm run cms:check && npm run build:vite
 
       - name: Finalize Lab discovery before generated Storybook output
         run: node tools/generate-site-icons.mjs && node tools/finalize-static-discovery.mjs && node tools/generate-sitemap.mjs && node tools/check-site-meta.mjs
+
+      - name: Build isolated Lab shell
+        env:
+          LAB_BUILD_BRANCH: lab
+          LAB_BUILD_COMMIT: ${{ github.sha }}
+          LAB_BUILD_TIME: ${{ github.event.head_commit.timestamp || github.event.repository.updated_at }}
+        run: npx vite build --config vite.lab.config.ts
+
+      - name: Overlay isolated Lab artifact into preview
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp -a dist-lab/. dist/
+          test -s dist/lab/index.html
 
       - name: Build Lab design system
         run: npm run lab:system

@@ -4,14 +4,17 @@ import test from "node:test";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
-test("Lab is a Vite build entry and is explicitly non-indexable", async () => {
-  const [viteConfig, labHtml, scratch] = await Promise.all([
+test("Lab uses the isolated Vite build and is explicitly non-indexable", async () => {
+  const [publicViteConfig, labViteConfig, labHtml, scratch] = await Promise.all([
     read("vite.config.ts"),
+    read("vite.lab.config.ts"),
     read("lab/index.html"),
     read("src/lab/scratch.ts"),
   ]);
 
-  assert.match(viteConfig, /lab:\s*fileURLToPath\(new URL\("\.\/lab\/index\.html"/);
+  assert.doesNotMatch(publicViteConfig, /lab\/index\.html/);
+  assert.match(labViteConfig, /lab:\s*fileURLToPath\(new URL\("\.\/lab\/index\.html"/);
+  assert.match(labViteConfig, /outDir:\s*"dist-lab"/);
   assert.match(labHtml, /<meta name="robots" content="noindex,nofollow,noarchive"/);
   assert.match(labHtml, /src="\/src\/lab\/index\.ts"/);
   assert.match(labHtml, /src="\/src\/lab\/scratch\.ts"/);
@@ -26,7 +29,11 @@ test("Lab deployment stays isolated and syncs one password secret into the Pages
   assert.match(workflow, /CLOUDFLARE_PAGES_PROJECT: looksawful-ru-preview/);
   assert.match(workflow, /pages deploy dist --project-name=looksawful-ru-preview --branch=lab/);
   assert.doesNotMatch(workflow, /--branch=prod/);
-  assert.match(workflow, /Build Lab without production analytics/);
+  assert.match(workflow, /Build public preview without production analytics/);
+  assert.match(workflow, /Build isolated Lab shell/);
+  assert.match(workflow, /vite build --config vite\.lab\.config\.ts/);
+  assert.match(workflow, /Overlay isolated Lab artifact into preview/);
+  assert.match(workflow, /cp -a dist-lab\/\. dist\//);
   assert.match(workflow, /Fast tests/);
   assert.match(workflow, /npm run test:fast/);
   assert.match(workflow, /Require Lab password/);

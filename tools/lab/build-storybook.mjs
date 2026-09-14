@@ -19,6 +19,7 @@ function run(command, args) {
     cwd: root,
     stdio: "inherit",
     env: process.env,
+    shell: process.platform === "win32",
   });
   if (result.error) throw result.error;
   if (result.status !== 0) {

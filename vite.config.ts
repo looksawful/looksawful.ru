@@ -29,11 +29,7 @@ export default defineConfig({
       fileName: "THIRD_PARTY_LICENSES.md",
     },
     rollupOptions: {
-      input: {
-        ...createSiteInputs(root),
-        lab: fileURLToPath(new URL("./lab/index.html", import.meta.url)),
-        labBlog: fileURLToPath(new URL("./lab/blog/index.html", import.meta.url)),
-      },
+      input: createSiteInputs(root),
     },
   },
 });

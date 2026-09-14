@@ -1,5 +1,10 @@
 import "./lab.css";
 
+declare const __LAB_BRANCH__: string;
+declare const __LAB_COMMIT__: string;
+declare const __LAB_BUILD_TIME__: string;
+const LAB_MODE = "READ ONLY" as const;
+
 type ViewportPreset = "fit" | "desktop" | "tablet" | "mobile";
 type StageBackground = "checker" | "light" | "dark";
 
@@ -420,3 +425,8 @@ window.addEventListener("keydown", (event) => {
 renderControls();
 scaleFrame();
 navigate(state.route);
+
+document.documentElement.dataset.labMode = LAB_MODE.toLowerCase().replaceAll(" ", "-");
+document.documentElement.dataset.labBranch = __LAB_BRANCH__;
+document.documentElement.dataset.labCommit = __LAB_COMMIT__;
+document.documentElement.dataset.labBuildTime = __LAB_BUILD_TIME__;
