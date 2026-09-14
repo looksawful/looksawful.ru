@@ -256,10 +256,6 @@ body {
   min-block-size: 100vh;
 }
 
-.pet-prototype-project .project__intro {
-  padding-block-end: var(--size-700);
-}
-
 .pet-prototype-project-media {
   display: grid;
   gap: var(--size-300);
