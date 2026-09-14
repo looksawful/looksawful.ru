@@ -4,14 +4,18 @@ import { responsiveVariantsFor } from "../../data/media/responsive.ts";
 import { renderMediaElement } from "../../templates/media-figure.ts";
 import { renderResponsiveImageAttributes } from "../../templates/responsive-image.ts";
 
-const item = mediaCatalogItems.find(({ asset }) =>
-  asset.type === "image" && responsiveVariantsFor(asset).length > 0
-);
-if (!item || item.asset.type !== "image") {
-  throw new Error("Responsive Image story requires a catalog image with generated variants");
+const fixture = mediaEntries
+  .map((entry) => ({
+    entry,
+    item: mediaCatalogItems.find(({ asset }) => asset.id === entry.assetId),
+  }))
+  .find(({ item }) =>
+    item?.asset.type === "image" && responsiveVariantsFor(item.asset).length > 0
+  );
+if (!fixture || !fixture.item || fixture.item.asset.type !== "image") {
+  throw new Error("Responsive Image story requires a media entry with generated variants");
 }
-const entry = mediaEntries.find(({ assetId }) => assetId === item.asset.id);
-if (!entry) throw new Error(`Responsive Image story requires a media entry for ${item.asset.id}`);
+const { item, entry } = fixture;
 
 function renderResponsiveImageFixture(loading) {
   const attributes = renderResponsiveImageAttributes(item.asset, loading);
