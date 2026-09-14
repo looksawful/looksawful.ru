@@ -1,13 +1,11 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { DRACOLoader } from "three/addons/loaders/DRACOLoader.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { RGBELoader } from "three/addons/loaders/RGBELoader.js";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 
-const MODEL_URL = "/media/projects/jestei/theme-organism/jestei-theme-organism.glb";
-const DRACO_PATH = "/vendor/draco/gltf/";
-const HDRI_URL = "https://threejs.org/examples/textures/equirectangular/venice_sunset_1k.hdr";
+const MODEL_URL = "/media/projects/jestei/model-viewer/jestei-logo-web.glb";
+const HDRI_URL = "/media/projects/jestei/model-viewer/studio-small-09-1k.hdr";
 const STYLE_ID = "model-viewer-jestei-logo-story-styles";
 
 const ensureStyles = () => {
@@ -205,6 +203,7 @@ const loadEnvironment = async (renderer, scene) => {
     const environment = pmrem.fromEquirectangular(source).texture;
     source.dispose();
     scene.environment = environment;
+    scene.environmentRotation.set(0, Math.PI * 0.32, 0);
     return environment;
   } catch (error) {
     console.warn("Jestei logo HDRI failed; using neutral PMREM fallback.", error);
@@ -212,6 +211,7 @@ const loadEnvironment = async (renderer, scene) => {
     const environment = pmrem.fromScene(room, 0.04).texture;
     room.dispose();
     scene.environment = environment;
+    scene.environmentRotation.set(0, Math.PI * 0.32, 0);
     return environment;
   } finally {
     pmrem.dispose();
@@ -219,17 +219,9 @@ const loadEnvironment = async (renderer, scene) => {
 };
 
 const loadJesteiLogo = async () => {
-  const draco = new DRACOLoader();
-  draco.setDecoderPath(DRACO_PATH);
   const loader = new GLTFLoader();
-  loader.setDRACOLoader(draco);
-
-  try {
-    const gltf = await loader.loadAsync(MODEL_URL);
-    return gltf.scene;
-  } finally {
-    draco.dispose();
-  }
+  const gltf = await loader.loadAsync(MODEL_URL);
+  return gltf.scene;
 };
 
 const fitModel = (model, camera, controls) => {
@@ -255,7 +247,7 @@ const fitModel = (model, camera, controls) => {
   const halfFov = THREE.MathUtils.degToRad(camera.fov * 0.5);
   const distance = fittedSphere.radius / Math.sin(halfFov) * 1.08;
 
-  camera.position.set(distance * 0.72, distance * 0.22, distance);
+  camera.position.set(distance * 0.24, distance * 0.08, distance);
   camera.near = Math.max(0.01, distance / 100);
   camera.far = distance * 100;
   camera.updateProjectionMatrix();
@@ -276,7 +268,7 @@ const mountViewer = async (root) => {
   let disposed = false;
   let environment = null;
   let model = null;
-  let material = null;
+  const materials = new Set();
 
   const renderer = new THREE.WebGLRenderer({
     canvas,
@@ -285,8 +277,8 @@ const mountViewer = async (root) => {
     powerPreference: "high-performance",
   });
   renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.05;
+  renderer.toneMapping = THREE.NeutralToneMapping;
+  renderer.toneMappingExposure = 1.0;
   renderer.setClearColor(0x000000, 0);
 
   const scene = new THREE.Scene();
@@ -327,25 +319,28 @@ const mountViewer = async (root) => {
     if (disposed) {
       loadedEnvironment?.dispose?.();
       loadedModel.traverse((object) => {
-        if (object.isMesh) object.geometry?.dispose?.();
+        if (!object.isMesh) return;
+        object.geometry?.dispose?.();
+        disposeMaterial(object.material);
       });
       return () => {};
     }
 
     environment = loadedEnvironment;
     model = loadedModel;
-    material = new THREE.MeshStandardMaterial({
-      color: new THREE.Color("#d2d2cf"),
-      metalness: 0.96,
-      roughness: 0.24,
-      envMapIntensity: 1.25,
-      side: THREE.DoubleSide,
-    });
 
     model.traverse((object) => {
       if (!object.isMesh) return;
-      disposeMaterial(object.material);
-      object.material = material;
+      const meshMaterials = Array.isArray(object.material)
+        ? object.material
+        : [object.material];
+      meshMaterials.forEach((material) => {
+        if (!material) return;
+        material.side = THREE.FrontSide;
+        if ("envMapIntensity" in material) material.envMapIntensity = 0.95;
+        material.needsUpdate = true;
+        materials.add(material);
+      });
       object.castShadow = false;
       object.receiveShadow = false;
     });
@@ -364,9 +359,11 @@ const mountViewer = async (root) => {
 
   const renderModeInputs = root.querySelectorAll('[data-jestei-render-mode]');
   const updateRenderMode = (mode) => {
-    if (!material) return;
-    material.wireframe = mode === "wireframe";
-    material.needsUpdate = true;
+    materials.forEach((material) => {
+      if (!("wireframe" in material)) return;
+      material.wireframe = mode === "wireframe";
+      material.needsUpdate = true;
+    });
     render();
   };
   renderModeInputs.forEach((input) => {
@@ -396,8 +393,9 @@ const mountViewer = async (root) => {
     resizeObserver.disconnect();
     controls.removeEventListener("change", render);
     controls.dispose();
-    material?.dispose();
     environment?.dispose();
+    materials.forEach((material) => material.dispose?.());
+    materials.clear();
     if (model) {
       model.traverse((object) => {
         if (object.isMesh) object.geometry?.dispose?.();
@@ -464,7 +462,7 @@ export default {
     layout: "padded",
     docs: {
       description: {
-        component: "Статический Jestei Pool 3D logo внутри обычной media surface сайта. Геометрия взята из существующей theme-organism сцены, но без её анимации и shader material: обычный metallic PBR материал и HDRI environment lighting.",
+        component: "Статический Jestei Pool 3D logo внутри обычной media surface сайта. Используется отдельный исправленный web GLB: manifold-сетка, жёсткие фронт/тыл, контролируемые фаски и экспортированные normals. Материал хранится в GLB; Three.js добавляет только локальную HDRI/PMREM, Neutral tone mapping, камеру и interaction.",
       },
     },
   },
