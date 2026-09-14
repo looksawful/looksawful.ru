@@ -9,6 +9,17 @@ import { computeMediaFingerprint } from "../../tools/media-dev-state.mjs";
 const CONFIG_FILES = ["tools/build-responsive-media.mjs", "package-lock.json"];
 const ASSETS = [{ id: "image", type: "image", src: "/media/source/image.jpg" }];
 
+const DEFAULT_SCOPE_CONFIG_FILES = [
+  "tools/build-responsive-media.mjs",
+  "tools/build-video-media.mjs",
+  "tools/sync-media-catalog.mjs",
+  "src/data/media/responsive-policy.ts",
+  "src/data/media/assets/index.ts",
+  "src/data/media/assets/registered.ts",
+  "src/data/media/catalog.ts",
+];
+const GENERATED_CATALOG_PATH = "src/data/media/catalog-records.generated.ts";
+
 async function write(root, relativePath, contents) {
   const filePath = path.join(root, relativePath);
   await mkdir(path.dirname(filePath), { recursive: true });
@@ -85,4 +96,44 @@ test("sharp libvips package-lock changes invalidate generated media cache", asyn
 
     assert.notEqual(after, before);
   });
+});
+
+test("default media fingerprint ignores deterministic generated catalog output", async () => {
+  const repoRoot = await mkdtemp(path.join(os.tmpdir(), "media-cache-default-scope-"));
+  try {
+    await write(repoRoot, "public/media/source/image.jpg", "image-source");
+    for (const relativePath of DEFAULT_SCOPE_CONFIG_FILES) {
+      await write(repoRoot, relativePath, `${relativePath}-v1\n`);
+    }
+    await write(repoRoot, GENERATED_CATALOG_PATH, "generated-v1\n");
+    await write(repoRoot, "package-lock.json", lockfile());
+
+    const before = await computeMediaFingerprint({ repoRoot, assets: ASSETS });
+    await write(repoRoot, GENERATED_CATALOG_PATH, "generated-v2\n");
+    const after = await computeMediaFingerprint({ repoRoot, assets: ASSETS });
+
+    assert.equal(after, before);
+  } finally {
+    await rm(repoRoot, { recursive: true, force: true });
+  }
+});
+
+test("default media fingerprint still tracks authored media tooling", async () => {
+  const repoRoot = await mkdtemp(path.join(os.tmpdir(), "media-cache-default-tooling-"));
+  try {
+    await write(repoRoot, "public/media/source/image.jpg", "image-source");
+    for (const relativePath of DEFAULT_SCOPE_CONFIG_FILES) {
+      await write(repoRoot, relativePath, `${relativePath}-v1\n`);
+    }
+    await write(repoRoot, GENERATED_CATALOG_PATH, "generated-v1\n");
+    await write(repoRoot, "package-lock.json", lockfile());
+
+    const before = await computeMediaFingerprint({ repoRoot, assets: ASSETS });
+    await write(repoRoot, "tools/sync-media-catalog.mjs", "sync-media-catalog-v2\n");
+    const after = await computeMediaFingerprint({ repoRoot, assets: ASSETS });
+
+    assert.notEqual(after, before);
+  } finally {
+    await rm(repoRoot, { recursive: true, force: true });
+  }
 });

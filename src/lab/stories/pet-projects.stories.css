@@ -1,0 +1,9 @@
+.lab-pet-projects-story {
+  min-block-size: 100dvh;
+  background: var(--clr-bg);
+  color: var(--clr-text);
+}
+
+.lab-pet-projects-story .pet-projects {
+  min-block-size: 100dvh;
+}

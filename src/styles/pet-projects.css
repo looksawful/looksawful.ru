@@ -1,0 +1,246 @@
+@layer components {
+  .pet-projects {
+    --pet-projects-inline: max(
+      var(--page-padding-inline),
+      calc((100% - var(--content-wide-width)) / 2 + var(--page-padding-inline))
+    );
+    --pet-project-card-inline: min(82cqi, 22rem);
+    --pet-project-gap: clamp(var(--size-200), 2.2cqi, var(--size-400));
+
+    container: pet-projects / inline-size;
+    padding-block: var(--size-700);
+    overflow: clip;
+    border-block-start: var(--border-width-100) solid var(--clr-border);
+  }
+
+  .pet-projects__head {
+    padding-inline: var(--pet-projects-inline);
+  }
+
+  .pet-projects__title {
+    margin: 0 0 var(--size-400);
+    font-size: var(--fs-300);
+    font-weight: var(--fw-600);
+    line-height: var(--lh-tight);
+  }
+
+  .pet-projects__reel {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: var(--pet-project-card-inline);
+    gap: var(--pet-project-gap);
+    padding-block: var(--size-100) var(--size-300);
+    padding-inline: max(
+      var(--pet-projects-inline),
+      calc((100cqi - var(--pet-project-card-inline)) / 2)
+    );
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scroll-padding-inline: max(
+      var(--pet-projects-inline),
+      calc((100cqi - var(--pet-project-card-inline)) / 2)
+    );
+    scroll-snap-type: inline mandatory;
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--clr-text) 24%, transparent) transparent;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .pet-project-card {
+    display: block;
+    min-inline-size: 0;
+    container-name: pet-project-card;
+    container-type: inline-size;
+    color: inherit;
+    text-decoration: none;
+    scroll-snap-align: center;
+    scroll-snap-stop: always;
+  }
+
+  @supports (container-type: scroll-state) {
+    .pet-project-card {
+      container-name: pet-project-card pet-project-snap;
+      container-type: inline-size scroll-state;
+    }
+  }
+
+  .pet-project-card__surface {
+    min-inline-size: 0;
+    opacity: 0.58;
+    transform: scale(0.92);
+    transform-origin: 50% 44%;
+    transition:
+      transform 320ms cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 240ms ease;
+  }
+
+  .pet-project-card[data-active="true"] .pet-project-card__surface {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  @container pet-project-snap scroll-state(snapped: inline) {
+    .pet-project-card__surface {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .pet-project-card__figure {
+    display: grid;
+    min-inline-size: 0;
+    margin: 0;
+  }
+
+  .pet-project-card__media {
+    --radius-max: var(--radius-poster);
+
+    position: relative;
+    display: grid;
+    min-inline-size: 0;
+    overflow: hidden;
+    aspect-ratio: 16 / 10;
+    isolation: isolate;
+    background: var(--clr-surface-raised);
+    border-radius: clamp(
+      0px,
+      calc((100vw - var(--radius-edge-offset) - 100%) * 9999),
+      var(--radius-max)
+    );
+  }
+
+  .pet-project-card__media > :is(img, video, picture),
+  .pet-project-card__media > picture > img,
+  .pet-project-card__media .pet-project-cover > :is(img, video) {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+    max-inline-size: none;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  .pet-project-card__caption {
+    display: grid;
+    gap: var(--size-100);
+    min-block-size: 4.5rem;
+    padding-block: var(--size-200);
+    color: var(--clr-text-muted);
+    font-size: var(--fs-200);
+    line-height: var(--lh-caption);
+  }
+
+  .pet-project-card__title,
+  .pet-project-card__description {
+    margin: 0;
+  }
+
+  .pet-project-card__title {
+    color: var(--clr-text);
+    font: inherit;
+    font-weight: var(--fw-600);
+    line-height: inherit;
+  }
+
+  .pet-project-card__description {
+    max-inline-size: 42ch;
+  }
+
+  .pet-project-card__badge {
+    position: absolute;
+    z-index: 2;
+    inset-block-start: var(--size-200);
+    inset-inline-start: var(--size-200);
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 1.65rem;
+    padding-inline: 0.55rem;
+    border: var(--border-width-100) solid currentColor;
+    border-radius: 999px;
+    font-size: max(0.625rem, var(--fs-100));
+    font-weight: var(--fw-600);
+    line-height: 1;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+
+  .pet-project-card__badge[data-badge="new"] {
+    color: var(--clr-bg);
+    background: var(--clr-text);
+    border-color: var(--clr-text);
+  }
+
+  .pet-project-card__badge[data-badge="coming-soon"] {
+    color: var(--clr-text);
+    background: color-mix(in srgb, var(--clr-bg) 88%, transparent);
+    backdrop-filter: blur(8px);
+  }
+
+  .pet-project-card[data-status="coming-soon"] .pet-project-card__media {
+    filter: saturate(0.55) contrast(0.94);
+  }
+
+  .pet-project-card[data-status="coming-soon"] .pet-project-card__caption {
+    opacity: 0.72;
+  }
+
+  .pet-project-card:is(a:hover, a:focus-visible) .pet-project-card__media > :is(img, video, picture),
+  .pet-project-card:is(a:hover, a:focus-visible) .pet-project-card__media > picture > img,
+  .pet-project-card:is(a:hover, a:focus-visible) .pet-project-card__media .pet-project-cover > :is(img, video) {
+    transform: scale(1.025);
+  }
+
+  .pet-project-card__media > :is(img, video, picture),
+  .pet-project-card__media > picture > img,
+  .pet-project-card__media .pet-project-cover > :is(img, video) {
+    transform: scale(1);
+    transition: transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .pet-project-card:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: var(--size-100);
+  }
+
+  @container pet-project-card (width > 20rem) {
+    .pet-project-card__caption {
+      grid-template-columns: minmax(7rem, 0.8fr) minmax(0, 1.4fr);
+      gap: var(--size-100) var(--size-300);
+    }
+  }
+
+  @container pet-projects (width > 44rem) {
+    .pet-projects__reel {
+      grid-auto-flow: row;
+      grid-auto-columns: initial;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      padding-inline: var(--pet-projects-inline);
+      overflow: visible;
+      scroll-snap-type: none;
+    }
+
+    .pet-project-card {
+      scroll-snap-align: none;
+    }
+
+    .pet-project-card__surface {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @container pet-projects (width > 72rem) {
+    .pet-projects__reel {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pet-project-card__surface,
+    .pet-project-card__media > :is(img, video, picture),
+    .pet-project-card__media > picture > img,
+    .pet-project-card__media .pet-project-cover > :is(img, video) {
+      transition: none;
+    }
+  }
+}

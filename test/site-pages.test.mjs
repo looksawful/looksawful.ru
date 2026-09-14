@@ -28,12 +28,15 @@ const homepageSource = await readFile(
 
 const expectedRoutes = new Map([
   ["home", "/"],
+  ["gallery", "/gallery/"],
   ["case:jestei-pool", "/work/jestei-pool/"],
   ["case:styx", "/work/styx/"],
   ["case:sensetique", "/work/sensetique/"],
   ["collection:music-photography", "/shootings/"],
   ["project:awful-cases", "/work/awful-cases/"],
   ["project:moves-awful", "/work/moves-awful/"],
+  ["project:berserk-timer", "/work/berserk-timer/"],
+  ["project:awful-studio", "/work/awful-studio/"],
   ["project:berry-social-content-2020", "/work/berry-social-content-2020/"],
   ["cv", "/cv/"],
   ["privacy", "/privacy/"],
@@ -151,6 +154,8 @@ test("enabled page lookup uses canonical normalized paths", () => {
 
   const page = getPageByPath("/work/jestei-pool");
   assert.equal(page?.id, "case:jestei-pool");
+  assert.equal(getPageByPath("/work/berserk-timer")?.id, "project:berserk-timer");
+  assert.equal(getPageByPath("/work/awful-studio")?.id, "project:awful-studio");
   assert.equal(getPageByPath("/cv")?.id, "cv");
   assert.equal(getPageByPath("/privacy")?.id, "privacy");
 });
@@ -163,6 +168,8 @@ test("entity routes reference the existing domain model", () => {
     ["collection:music-photography", { type: "collection", entityId: "music-photography" }],
     ["project:awful-cases", { type: "project", entityId: "awful-cases" }],
     ["project:moves-awful", { type: "project", entityId: "moves-awful" }],
+    ["project:berserk-timer", { type: "project", entityId: "berserk-timer" }],
+    ["project:awful-studio", { type: "project", entityId: "awful-studio" }],
     ["project:berry-social-content-2020", { type: "project", entityId: "berry-social-content-2020" }],
   ]);
 
@@ -181,7 +188,7 @@ test("only enabled pages are returned for build ownership decisions", () => {
 
 test("public Case, Collection, CV and privacy pages are listed and indexable while selected Project pages stay unlisted", () => {
   for (const page of sitePages) {
-    if (page.type === "case" || page.type === "collection" || page.id === "cv" || page.id === "privacy") {
+    if (page.type === "case" || page.type === "collection" || page.type === "gallery" || page.id === "cv" || page.id === "privacy") {
       assert.equal(page.discovery.listed, true);
       assert.equal(page.discovery.indexable, true);
     }

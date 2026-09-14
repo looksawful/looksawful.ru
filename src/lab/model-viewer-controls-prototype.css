@@ -1,0 +1,27 @@
+.mv-stage .mv-toggle-art {
+  display: inline-block;
+}
+
+@container model-viewer (width < 46rem) {
+  .mv-stage .mv-direct {
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scrollbar-width: none;
+  }
+
+  .mv-stage .mv-direct::-webkit-scrollbar {
+    display: none;
+  }
+
+  .mv-stage .mv-direct > * {
+    flex: 0 0 auto;
+  }
+
+  .mv-stage .mv-settings-trigger {
+    position: sticky;
+    inset-inline-end: 0;
+    background: var(--clr-surface-raised);
+  }
+}

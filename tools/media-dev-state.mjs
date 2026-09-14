@@ -28,7 +28,7 @@ const DEFAULT_CONFIG_FILES = [
   "src/data/media/assets/index.ts",
   "src/data/media/assets/registered.ts",
   "src/data/media/catalog.ts",
-  "src/data/media/catalog-records.generated.ts",
+  // Generated catalog records are deterministic outputs of media:sync, never cache-key inputs.
   PACKAGE_LOCK_CONFIG,
 ];
 
