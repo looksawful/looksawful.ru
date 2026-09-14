@@ -26,3 +26,11 @@ test("video resume smoke proves a non-zero seek without failing as autoplay adva
   assert.match(smoke, /state\.videoCurrentTime \+ 0\.15 >= expected\.resumeAt/);
   assert.doesNotMatch(smoke, /Math\.abs\(state\.videoCurrentTime - expected\.resumeAt\) < 0\.35/);
 });
+
+test("quick smoke uses the canonical lightbox readiness helper", async () => {
+  const smoke = await read("tools/e2e/run-smoke.mjs");
+
+  assert.match(smoke, /import \{[^}]*waitForLightboxOpen[^}]*\} from "\.\/readiness\.mjs"/);
+  assert.equal((smoke.match(/await waitForLightboxOpen\(page\)/g) ?? []).length, 2);
+  assert.doesNotMatch(smoke, /window\.pswp\?\.opener\?\.isOpen/);
+});

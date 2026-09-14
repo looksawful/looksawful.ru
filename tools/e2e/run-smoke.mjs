@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { getExpectedCvCardCount, getExpectedCvHiddenCards } from "./smoke-cv.mjs";
 import { mapWithConcurrency } from "./concurrency.mjs";
-import { waitForDocumentReady, waitForLightboxClosed } from "./readiness.mjs";
+import { waitForDocumentReady, waitForLightboxClosed, waitForLightboxOpen } from "./readiness.mjs";
 import { isDirectExecution, withE2ERuntime } from "./runtime.mjs";
 
 const VIEWPORTS = [{ width: 390, height: 844 }, { width: 1440, height: 900 }];
@@ -173,7 +173,7 @@ async function verifyCase(page) {
   if (await source.count()) {
     await source.scrollIntoViewIfNeeded();
     await source.click({ force: true });
-    await page.waitForFunction(() => window.pswp?.opener?.isOpen === true || document.querySelector("[data-media-lightbox][open]"));
+    await waitForLightboxOpen(page);
     await page.keyboard.press("Escape");
     await waitForLightboxClosed(page);
   }
@@ -237,7 +237,7 @@ async function verifyDenseMobileCaptions(page, { requireMiddleReel = false } = {
     const source = hiddenOverlay.locator("[data-lightbox-source]").first();
     await source.scrollIntoViewIfNeeded();
     await source.click({ force: true });
-    await page.waitForFunction(() => window.pswp?.opener?.isOpen === true || document.querySelector("[data-media-lightbox][open]"));
+    await waitForLightboxOpen(page);
     const lightboxCaption = page.locator(".media-lightbox__caption").first();
     await lightboxCaption.waitFor({ state: "attached" });
     assert.ok((await lightboxCaption.innerText()).trim(), "hidden dense overlay caption must reach the lightbox");
