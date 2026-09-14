@@ -8,6 +8,7 @@ import {
   getCanonical,
   is404Html,
   isFixtureHtml,
+  isLabDesignSystemHtml,
   isNoIndex,
   readUtf8,
   validateCanonical,
