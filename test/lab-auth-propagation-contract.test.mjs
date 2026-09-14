@@ -20,8 +20,9 @@ test("immutable Lab auth probe retries only safe propagation states and rejects 
   assert.match(verification, /"\$anonymous_status" == "401"/);
   assert.match(verification, /WWW-Authenticate/i);
   assert.match(verification, /Basic realm=\\?"looksawful lab/);
+  assert.match(verification, /"\$anonymous_status" == "000"/);
   assert.match(verification, /"\$anonymous_status" == "404"/);
-  assert.match(verification, /\[\[ "\$anonymous_status" =~ \^5 \]\]/);
+  assert.match(verification, /"\$anonymous_status" =~ \^5/);
   assert.match(verification, /sleep 3/);
   assert.match(verification, /if \[\[ "\$auth_ready" != "1" \]\]/);
   assert.match(verification, /did not converge to fail-closed Basic Auth/);
