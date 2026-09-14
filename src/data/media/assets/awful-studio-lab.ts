@@ -5,6 +5,6 @@ export const awfulStudioLabMediaAssets = [
   {
     id: "awful-studio-lab-cover",
     type: "image",
-    src: "/lab-assets/awful-studio-overview.webp",
+    src: "/lab-assets/awful-studio-hero.webp",
   },
 ] as const satisfies readonly MediaAsset[];
