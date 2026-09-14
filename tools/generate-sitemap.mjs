@@ -49,13 +49,22 @@ export function buildSitemapFiles(urls, maxUrls = MAX_URLS_PER_SITEMAP) {
   return files;
 }
 
+function isLabDesignSystemHtml(filePath, distDir) {
+  const relative = path.relative(distDir, filePath).replaceAll(path.sep, "/");
+  return relative.startsWith("lab/system/");
+}
+
 export async function collectIndexableCanonicals(distDir) {
   const htmlFiles = await collectHtmlFiles(distDir);
   const canonicals = [];
   const seen = new Map();
 
   for (const filePath of htmlFiles) {
-    if (is404Html(filePath) || isFixtureHtml(filePath, distDir)) continue;
+    if (
+      is404Html(filePath) ||
+      isFixtureHtml(filePath, distDir) ||
+      isLabDesignSystemHtml(filePath, distDir)
+    ) continue;
     const html = await readUtf8(filePath);
     if (isNoIndex(html)) continue;
 

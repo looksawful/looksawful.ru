@@ -45,6 +45,13 @@ test("sitemap excludes noindex and 404", () => withDist(async (dir) => {
   assert.deepEqual(await collectIndexableCanonicals(dir), ["https://www.looksawful.ru/"]);
 }));
 
+test("sitemap excludes generated Lab design-system HTML", () => withDist(async (dir) => {
+  await put(dir, "index.html", page("https://www.looksawful.ru/"));
+  await put(dir, "lab/system/iframe.html", "<!doctype html><html><head><title>Storybook iframe</title></head><body>x</body></html>");
+  await put(dir, "lab/system/index.html", "<!doctype html><html><head><title>Storybook</title></head><body>x</body></html>");
+  assert.deepEqual(await collectIndexableCanonicals(dir), ["https://www.looksawful.ru/"]);
+}));
+
 for (const [name, canonical, pattern] of [
   ["missing canonical", null, /missing production canonical/],
   ["wrong origin", "https://looksawful.ru/foo/", /origin must be/],
