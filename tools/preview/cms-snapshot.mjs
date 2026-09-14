@@ -7,6 +7,8 @@ import { fileURLToPath } from "node:url";
 import { classifyCmsPublicationFiles } from "../cms-publication-scope.mjs";
 import { planCmsPreview } from "./source-contract.mjs";
 
+const EXACT_SHA = /^[0-9a-f]{40}$/;
+
 function arg(args, name) {
   const index = args.indexOf(name);
   return index < 0 ? undefined : args[index + 1];
@@ -16,12 +18,26 @@ function git(cwd, args, options = {}) {
   return execFileSync("git", ["-C", cwd, ...args], { encoding: "utf8", stdio: options.stdio ?? ["ignore", "pipe", "pipe"] }).trim();
 }
 
-function tryGit(cwd, args) {
+function readRemoteRefSha(cwd, ref) {
   try {
-    return git(cwd, args, { stdio: "ignore" });
-  } catch {
-    return undefined;
+    const output = git(cwd, ["ls-remote", "--exit-code", "origin", ref]);
+    const sha = output.split(/\s+/, 1)[0];
+    if (!EXACT_SHA.test(sha)) throw new Error(`remote ref ${ref} returned an invalid exact SHA`);
+    return sha;
+  } catch (error) {
+    if (error && typeof error === "object" && error.status === 2) return null;
+    throw error;
   }
+}
+
+export function cmsPreviewLeaseArgument(ref, expectedSha) {
+  if (!String(ref).startsWith("refs/heads/cms-preview/")) {
+    throw new Error("CMS preview lease ref is outside the disposable namespace");
+  }
+  if (expectedSha !== null && !EXACT_SHA.test(String(expectedSha))) {
+    throw new Error("CMS preview lease expected value must be an exact SHA or null");
+  }
+  return `--force-with-lease=${ref}:${expectedSha ?? ""}`;
 }
 
 export function validateCmsSnapshot({ id, baseBranch = "dev", allowLabBase = false, files }) {
@@ -44,7 +60,8 @@ export function createCmsSnapshot({ repoRoot, id, baseBranch = "dev", allowLabBa
   if (!push) return { ...plan, files: scope.files, dryRun: true };
 
   git(repoRoot, ["fetch", "origin", baseBranch], { stdio: "ignore" });
-  tryGit(repoRoot, ["fetch", "origin", `refs/heads/${plan.ref}:refs/remotes/origin/${plan.ref}`]);
+  const remoteRef = `refs/heads/${plan.ref}`;
+  const expectedRemoteSha = readRemoteRefSha(repoRoot, remoteRef);
   const worktree = mkdtempSync(path.join(tmpdir(), "looksawful-cms-preview-"));
   try {
     git(repoRoot, ["worktree", "add", "--detach", worktree, `origin/${baseBranch}`], { stdio: "ignore" });
@@ -64,7 +81,7 @@ export function createCmsSnapshot({ repoRoot, id, baseBranch = "dev", allowLabBa
     if (!verified.safe || actual.length === 0) throw new Error("CMS preview snapshot produced no safe changes");
     git(worktree, ["-c", "user.name=looksawful CMS Preview", "-c", "user.email=preview@looksawful.local", "commit", "-m", `preview(cms): ${id}`], { stdio: "ignore" });
     const sha = git(worktree, ["rev-parse", "HEAD"]);
-    git(worktree, ["push", "--force-with-lease", "origin", `HEAD:refs/heads/${plan.ref}`], { stdio: "ignore" });
+    git(worktree, ["push", cmsPreviewLeaseArgument(remoteRef, expectedRemoteSha), "origin", `HEAD:${remoteRef}`], { stdio: "ignore" });
     return { ...plan, sha, files: verified.files, dryRun: false };
   } finally {
     try { git(repoRoot, ["worktree", "remove", "--force", worktree], { stdio: "ignore" }); } catch {}
