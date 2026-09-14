@@ -14,6 +14,8 @@ test("Lab uses the isolated Vite build and is explicitly non-indexable", async (
 
   assert.doesNotMatch(publicViteConfig, /lab\/index\.html/);
   assert.match(labViteConfig, /lab:\s*fileURLToPath\(new URL\("\.\/lab\/index\.html"/);
+  assert.match(labViteConfig, /labBlog:\s*fileURLToPath\(new URL\("\.\/lab\/blog\/index\.html"/);
+  assert.match(labViteConfig, /labPets:\s*fileURLToPath\(new URL\("\.\/lab\/pets\/index\.html"/);
   assert.match(labViteConfig, /outDir:\s*"dist-lab"/);
   assert.match(labHtml, /<meta name="robots" content="noindex,nofollow,noarchive"/);
   assert.match(labHtml, /src="\/src\/lab\/index\.ts"/);
@@ -145,4 +147,78 @@ test("Lab design-system inventory is generated from canonical source rather than
   assert.match(inventory, /inventory\.html/);
   assert.match(packageJsonText, /"lab:inventory":\s*"node tools\/lab\/design-system-inventory\.mjs"/);
   assert.match(workflow, /npm run lab:inventory/);
+});
+
+test("Lab Storybook exposes the canonical Awful + Contact release candidate", async () => {
+  await assert.doesNotReject(() => read("src/lab/stories/portfolio-pet.stories.js"));
+  const story = await read("src/lab/stories/portfolio-pet.stories.js");
+
+  assert.match(story, /mountPortfolioPet/);
+  assert.match(story, /mountContactFormHub/);
+  assert.match(story, /03 Organisms\/Awful Contact/);
+  assert.match(story, /Interactive/);
+  assert.match(story, /ContactOpen/);
+  assert.match(story, /LeftFacing/);
+  assert.match(story, /HiddenRestore/);
+  assert.match(story, /ReducedMotion/);
+  assert.match(story, /portfolio-pet\.css/);
+  assert.match(story, /contact-form-hub\.css/);
+});
+
+test("Lab Storybook documents the canonical contact form owner separately", async () => {
+  await assert.doesNotReject(() => read("src/lab/stories/contact-form-hub.stories.js"));
+  const story = await read("src/lab/stories/contact-form-hub.stories.js");
+  assert.match(story, /mountContactFormHub/);
+  assert.match(story, /03 Organisms\/Contact Form Hub/);
+  assert.match(story, /Open/);
+  assert.match(story, /ShortMobile/);
+  assert.match(story, /contact-form-hub\.css/);
+});
+
+test("immutable Lab verification tolerates Cloudflare static propagation after auth activates", async () => {
+  const workflow = await read(".github/workflows/lab-preview.yml");
+  const start = workflow.indexOf("Verify Basic Auth on immutable deployment");
+  const end = workflow.indexOf("Verify immutable Lab entry and design system");
+  const verification = workflow.slice(start, end);
+
+  assert.match(verification, /for attempt in \{1\.\.20\}/);
+  assert.match(verification, /lab-version\.json\?sha=\$GITHUB_SHA/);
+  assert.match(verification, /jq -e --arg sha "\$GITHUB_SHA"/);
+  assert.match(verification, /sleep 3/);
+  assert.match(verification, /did not expose exact Lab identity/);
+});
+
+test("immutable Lab bundle verification polls real Lab and Storybook routes until Pages propagation completes", async () => {
+  const workflow = await read(".github/workflows/lab-preview.yml");
+  const start = workflow.indexOf("Verify immutable Lab entry and design system");
+  const end = workflow.indexOf("Verify stable Lab branch alias");
+  const verification = workflow.slice(start, end);
+
+  assert.match(verification, /for attempt in \{1\.\.20\}/);
+  assert.match(verification, /\$PREVIEW_URL\/lab\/\?sha=\$GITHUB_SHA/);
+  assert.match(verification, /\$PREVIEW_URL\/lab\/system\//);
+  assert.match(verification, /\$PREVIEW_URL\/lab\/system\/inventory\.html/);
+  assert.match(verification, /immutable Lab bundle was not ready/);
+  assert.match(verification, /sleep 3/);
+});
+
+test("Lab keeps the verified pages.dev fallback green when custom-domain DNS provisioning is unavailable", async () => {
+  const workflow = await read(".github/workflows/lab-preview.yml");
+  const configureStart = workflow.indexOf("Configure Lab custom domain");
+  const deployStart = workflow.indexOf("Deploy persistent Lab branch preview");
+  const stableStart = workflow.indexOf("Verify stable Lab branch alias");
+  const customStart = workflow.indexOf("Verify custom Lab domain");
+  const reportStart = workflow.indexOf("Report Lab URLs");
+
+  const configure = workflow.slice(configureStart, deployStart);
+  const stable = workflow.slice(stableStart, customStart);
+  const custom = workflow.slice(customStart, reportStart);
+  const report = workflow.slice(reportStart);
+
+  assert.match(configure, /id:\s*custom_domain/);
+  assert.match(configure, /continue-on-error:\s*true/);
+  assert.doesNotMatch(stable, /continue-on-error:\s*true/);
+  assert.match(custom, /if:\s*steps\.custom_domain\.outcome == 'success'/);
+  assert.match(report, /steps\.custom_domain\.outcome/);
+  assert.match(report, /stable branch:/);
 });
