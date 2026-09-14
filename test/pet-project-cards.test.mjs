@@ -10,38 +10,42 @@ const approvedCards = [
     id: "awful-cases",
     title: "Awful Cases",
     description: "Утилита для Windows: регистр и типографика выделенного текста.",
+    state: "live",
+    href: "/work/awful-cases/",
   },
   {
     id: "moves-awful",
     title: "Moves Awful",
     description: "Библиотека с шаблонами анимированных canvas галерей для лендингов.",
+    state: "live",
+    href: "/work/moves-awful/",
   },
   {
     id: "berserk-timer",
     title: "Berserk Timer",
     description: "Консольный помодоро-таймер для Windows.",
+    state: "coming-soon",
+    href: undefined,
   },
   {
     id: "awful-studio",
     title: "AWFUL STUDIO",
     description: "Расширение Blender для сборки виртуальной предметной студии.",
+    state: "coming-soon",
+    href: undefined,
   },
 ];
 
-test("Pet Projects exposes exactly the approved current cards and copy", () => {
+test("Pet Projects exposes exactly the approved current cards, copy and release state", () => {
   assert.deepEqual(
-    petProjectCards.map(({ id, title, description }) => ({ id, title, description })),
+    petProjectCards.map(({ id, title, description, state, href }) => ({
+      id,
+      title,
+      description,
+      state,
+      href,
+    })),
     approvedCards,
-  );
-
-  assert.deepEqual(
-    petProjectCards.map(({ href }) => href),
-    [
-      "/work/awful-cases/",
-      "/work/moves-awful/",
-      "/work/berserk-timer/",
-      "/work/awful-studio/",
-    ],
   );
 });
 
