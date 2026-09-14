@@ -105,6 +105,38 @@ VITE_YANDEX_METRIKA_COUNTER_ID=112065623
 
 Localhost and `*.localhost` previews do not mount analytics.
 
+## Yandex API audit
+
+`tools/yandex-metrika-api.mjs` is the repository's read-only management/reporting client. It uses the official Yandex Metrika Management API to inspect the counter and configured goals, and the Reporting API to retrieve aggregate traffic and goal totals.
+
+The client never creates, updates or deletes counters or goals. OAuth credentials are read only from the process environment and are never printed. Do not pass OAuth tokens through command-line arguments, repository variables, committed `.env` files or workflow inputs.
+
+Required secret:
+
+```text
+YANDEX_METRIKA_OAUTH_TOKEN
+```
+
+Optional environment override:
+
+```text
+YANDEX_METRIKA_COUNTER_ID=112065623
+```
+
+Local read-only commands:
+
+```bash
+npm run analytics:yandex:audit
+npm run analytics:yandex:goals
+npm run analytics:yandex:report -- --days 30
+```
+
+The manual GitHub Actions workflow `.github/workflows/yandex-metrika-audit.yml` exposes the same audit for 7, 30 or 90 days. It has only `contents: read` GitHub permission, receives the OAuth token only from the `YANDEX_METRIKA_OAUTH_TOKEN` repository secret and writes the aggregate result to the workflow summary.
+
+The audit fails with exit code `2` when an expected runtime goal is missing or its JavaScript-event condition does not match the runtime goal ID. This deliberately turns dashboard drift into a visible failure instead of letting documentation and the real counter silently diverge.
+
+The Reporting API query uses aggregate visits, users and pageviews plus `ym:s:goal<goal_id>visits` for the six expected conversion goals. It does not use Logs API and does not download visitor-level data.
+
 ## Yandex dashboard checklist
 
 Before merging the analytics PR to a deployable branch:
@@ -114,6 +146,8 @@ Before merging the analytics PR to a deployable branch:
 3. Enable **Do not store full IP addresses of site visitors** when required by the site's privacy requirements.
 4. Accept the Yandex Metrica Data Processing Agreement when GDPR applies.
 5. Confirm the public `/privacy/` notice still matches the actual counter configuration.
+6. Configure `YANDEX_METRIKA_OAUTH_TOKEN` as a GitHub repository secret with only the access required to read this counter and its reports.
+7. Run the **Yandex Metrika Audit** workflow and require all six expected goals to report `OK` before treating the dashboard configuration as synchronized with the runtime contract.
 
 ## Verification
 
@@ -130,6 +164,13 @@ For a production-like CV artifact, configure the production analytics environmen
 ```bash
 npm run build:site
 npm run cv:prod:verify
+```
+
+The API audit client can be syntax-checked without credentials:
+
+```bash
+node --check tools/yandex-metrika-api.mjs
+node tools/yandex-metrika-api.mjs --help
 ```
 
 Yandex Metrica supports `_ym_debug=2` for browser-side counter and goal debugging. Use it on a deployed URL after Yandex is enabled for the current session, then verify each goal once without generating repeated synthetic conversions.
