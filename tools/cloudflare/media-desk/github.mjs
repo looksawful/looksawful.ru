@@ -95,7 +95,7 @@ async function githubJson(url, { token, method = "GET", body, fetchImpl = fetch 
   return payload;
 }
 
-async function readAuthoringHead({ token, fetchImpl = fetch }) {
+export async function readAuthoringHead({ token, fetchImpl = fetch }) {
   const payload = await githubJson(
     `${API_ROOT}/git/ref/heads/${MEDIA_DESK_AUTHORING_BRANCH}`,
     { token, fetchImpl },

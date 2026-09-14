@@ -8,7 +8,9 @@ import {
   sameOriginMutation,
 } from "./domain.mjs";
 import {
+  MEDIA_DESK_AUTHORING_BRANCH,
   commitRepositoryFiles,
+  readAuthoringHead,
   readRepositoryFile,
 } from "./github.mjs";
 import {
@@ -31,6 +33,8 @@ const SESSION_MAX_AGE = 12 * 60 * 60;
 const MAX_LOGIN_BYTES = 8 * 1024;
 const MAX_JSON_BYTES = 256 * 1024;
 const MAX_REMOTE_MEDIA_BYTES = 16 * 1024 * 1024;
+const PUBLIC_SITE_ORIGIN = "https://looksawful.ru";
+const PUBLIC_PREVIEW_PREFIXES = ["/media/", "/pets/"];
 const MEDIA_MUTATION_PATHS = new Set([
   "/api/media/upload",
   "/api/media/replace",
@@ -442,6 +446,59 @@ function privateResponse(response) {
   });
 }
 
+function isPublicPreviewPath(pathname) {
+  return PUBLIC_PREVIEW_PREFIXES.some((prefix) => pathname.startsWith(prefix));
+}
+
+function previewFetch(env) {
+  return typeof env?.MEDIA_DESK_PUBLIC_FETCH === "function"
+    ? env.MEDIA_DESK_PUBLIC_FETCH
+    : fetch;
+}
+
+function forwardedPreviewHeaders(request) {
+  const headers = new Headers();
+  for (const name of ["accept", "range", "if-none-match", "if-modified-since"]) {
+    const value = request.headers.get(name);
+    if (value) headers.set(name, value);
+  }
+  return headers;
+}
+
+async function proxyPublicPreview(request, url, env) {
+  const upstream = new URL(`${url.pathname}${url.search}`, PUBLIC_SITE_ORIGIN);
+  const response = await previewFetch(env)(new Request(upstream, {
+    method: request.method,
+    headers: forwardedPreviewHeaders(request),
+  }));
+  return privateResponse(response);
+}
+
+async function handleRevision(url, env) {
+  try {
+    const path = url.searchParams.get("path") ?? "";
+    const current = await readRepositoryFile({
+      token: requiredSecret(env, "MEDIA_DESK_GITHUB_TOKEN"),
+      path,
+      fetchImpl: githubFetch(env),
+    });
+    return json(200, {
+      ok: true,
+      path,
+      revision: current.revision,
+      head: current.branchHead,
+    });
+  } catch (error) {
+    return mutationError(error);
+  }
+}
+async function handleStatus(env) {
+  const head = await readAuthoringHead({
+    token: requiredSecret(env, "MEDIA_DESK_GITHUB_TOKEN"),
+    fetchImpl: githubFetch(env),
+  });
+  return json(200, { ok: true, branch: MEDIA_DESK_AUTHORING_BRANCH, head });
+}
 function wantsHtml(request) {
   return (request.headers.get("accept") ?? "").includes("text/html");
 }
@@ -461,7 +518,24 @@ export default {
         : json(401, { ok: false, error: "Authentication required" });
     }
 
+    if (url.pathname === "/api/status") {
+      if (request.method !== "GET" && request.method !== "HEAD") {
+        return json(405, { ok: false, error: "Method not allowed" });
+      }
+      return handleStatus(env);
+    }
+    if (url.pathname === "/api/media/revision") {
+      if (request.method !== "GET" && request.method !== "HEAD") {
+        return json(405, { ok: false, error: "Method not allowed" });
+      }
+      return handleRevision(url, env);
+    }
+
     if (url.pathname === "/") return redirect(DESK_PATH);
+
+    if ((request.method === "GET" || request.method === "HEAD") && isPublicPreviewPath(url.pathname)) {
+      return proxyPublicPreview(request, url, env);
+    }
 
     if (request.method !== "GET" && request.method !== "HEAD") {
       if (!sameOriginMutation(request)) return json(403, { ok: false, error: "Origin rejected" });

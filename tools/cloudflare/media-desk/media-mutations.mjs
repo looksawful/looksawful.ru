@@ -108,10 +108,8 @@ export function planUpload({
   showInCatalog = false,
   reusable = false,
   archived = false,
-  expectedRevision,
   expectedHead,
 }) {
-  const revision = requiredGuard(expectedRevision, "expected revision");
   const head = requiredGuard(expectedHead, "expected branch head");
   if (typeof id !== "string" || !UUID_V4.test(id)) throw new TypeError("Media Desk upload ID must be a UUID v4");
   if (typeof filename !== "string" || filename.length === 0 || filename.includes("/") || filename.includes("\\")) {
@@ -159,7 +157,6 @@ export function planUpload({
     filePath,
     catalogPath,
     catalogRecord,
-    expectedRevision: revision,
     expectedHead: head,
     writes: [
       { path: filePath, content: uploadBytes },

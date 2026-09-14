@@ -56,14 +56,13 @@ test("upload plan creates one canonical binary plus CMS catalog record", () => {
     height: 1600,
     mimeType: "image/webp",
     title: "Portrait",
-    expectedRevision: "catalog-rev-a",
     expectedHead: "head-a",
   });
 
   assert.equal(plan.assetId, `cms-${uploadId}`);
   assert.equal(plan.filePath, `public/media/catalog/${uploadId}.webp`);
   assert.equal(plan.catalogPath, `src/content/media-catalog/uploads/${uploadId}.json`);
-  assert.equal(plan.expectedRevision, "catalog-rev-a");
+  assert.equal("expectedRevision" in plan, false);
   assert.equal(plan.expectedHead, "head-a");
   assert.equal(plan.catalogRecord.id, uploadId);
   assert.equal(plan.catalogRecord.src, `/media/catalog/${uploadId}.webp`);

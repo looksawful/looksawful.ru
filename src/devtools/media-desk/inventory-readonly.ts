@@ -13,6 +13,8 @@ import {
   type MediaDeskUnifiedUsage,
 } from "./inventory-model.ts";
 import { pageUsageRecords, unresolvedPageUsages } from "./page-usage.ts";
+import { createInventoryRemoteControls } from "./inventory-remote-controls.ts";
+import { createRemoteUploadPanel } from "./inventory-remote-upload.ts";
 import {
   galleryUsages,
   mediaEntryUsages,
@@ -21,6 +23,9 @@ import {
   projectCoverUsages,
 } from "./usage-sources.ts";
 import "./inventory-readonly.css";
+
+const REMOTE_MODE = import.meta.env.VITE_CONTENT_DESK_REMOTE === "1";
+const remoteDeletedAssetIds = new Set<string>();
 
 const unifiedBindings = [
   ...galleryUsages(mediaCatalogItems),
@@ -187,6 +192,12 @@ function recordCard(record: MediaDeskInventoryRecord): HTMLElement {
   ]);
 
   card.append(header, badges, canonical, placement, provenance, derived);
+  if (REMOTE_MODE) {
+    card.append(createInventoryRemoteControls(record, () => {
+      remoteDeletedAssetIds.add(record.assetId);
+      card.remove();
+    }));
+  }
   return card;
 }
 
@@ -278,7 +289,7 @@ function mount(): void {
       search: search.value,
       usage: usage.value as MediaDeskInventoryUsageFilter,
       diagnostic: diagnostic.value as MediaDeskInventoryDiagnosticFilter,
-    });
+    }).filter((record) => !remoteDeletedAssetIds.has(record.assetId));
     const visible = filtered.slice(0, 120);
     resultMeta.textContent = filtered.length > visible.length
       ? `${visible.length} / ${filtered.length}`
@@ -291,6 +302,7 @@ function mount(): void {
   usage.addEventListener("change", render);
   diagnostic.addEventListener("change", render);
 
+  if (REMOTE_MODE) body.append(createRemoteUploadPanel());
   body.append(controls, unresolved, list);
   panel.append(summaryNode, body);
   status.insertAdjacentElement("afterend", panel);

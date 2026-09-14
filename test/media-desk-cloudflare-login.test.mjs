@@ -40,3 +40,25 @@ test("browser form login redirects to the Desk with a strict session cookie", as
   assert.equal(response.headers.get("location"), "/tools/media-desk/");
   assert.match(response.headers.get("set-cookie") ?? "", /__Host-media_desk_session=/);
 });
+
+test("login page and form errors remain valid UTF-8 Russian copy", async () => {
+  const env = await testEnv();
+  const page = await worker.fetch(new Request(
+    "https://media.looksawful.ru/tools/media-desk/",
+    { headers: { accept: "text/html" } },
+  ), env);
+  const body = await page.text();
+  assert.match(body, /Закрытая рабочая область looksawful\./);
+  assert.match(body, />Пароль<input/);
+  assert.match(body, />Войти<\/button>/);
+
+  const wrong = await worker.fetch(new Request("https://media.looksawful.ru/login", {
+    method: "POST",
+    headers: {
+      "content-type": "application/x-www-form-urlencoded",
+      origin: "https://media.looksawful.ru",
+    },
+    body: new URLSearchParams({ password: "wrong" }),
+  }), env);
+  assert.match(await wrong.text(), /Неверный пароль\./);
+});
