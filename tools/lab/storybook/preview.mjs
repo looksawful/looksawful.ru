@@ -1,4 +1,5 @@
 import "../../../src/styles/index.css";
+import "../../../src/lab/model-viewer-controls-prototype.css";
 
 const preview = {
   tags: ["autodocs"],
