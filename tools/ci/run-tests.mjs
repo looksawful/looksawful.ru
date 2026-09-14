@@ -15,6 +15,8 @@ export const fastTests = new Set([
   "test/awful-cases-cms-editorial.test.mjs",
   "test/ci-fast-concurrency.test.mjs",
   "test/code-block-contract.test.mjs",
+  "test/contact-delivery.test.mjs",
+  "test/contact-form-delivery-contract.test.mjs",
   "test/cms-authoring-topology.test.mjs",
   "test/cms-publication-scope.test.mjs",
   "test/cms-publication-topology.test.mjs",

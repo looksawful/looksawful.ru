@@ -266,6 +266,23 @@
   font-size: var(--fs-200);
 }
 
+.contact-hub__attachment-name {
+  min-inline-size: 0;
+  flex: 1;
+  overflow: hidden;
+  color: var(--clr-text-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.contact-hub__form-status {
+  min-block-size: 1.35em;
+  margin: 6px 0 0;
+  color: var(--clr-text-muted);
+  font-size: var(--fs-200);
+  line-height: 1.35;
+}
+
 .contact-hub__submit {
   padding-block-end: 2px;
   border-block-end: var(--border-width-100) solid currentColor;

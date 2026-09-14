@@ -74,9 +74,10 @@ test("mobile collapse and restore are wired without clearing form draft", () => 
   assert.match(component, /dataset\.contactHubLauncher/);
   assert.match(component, /transitionContactHub\(state, \{ type: "COLLAPSE" \}\)/);
   assert.match(component, /transitionContactHub\(state, \{ type: "RESTORE" \}\)/);
-  assert.doesNotMatch(component, /nameInput\.value\s*=\s*""/);
-  assert.doesNotMatch(component, /emailInput\.value\s*=\s*""/);
-  assert.doesNotMatch(component, /messageInput\.value\s*=\s*""/);
+  const collapseRestore = component.match(/const collapse =[\s\S]*?const close =/u)?.[0] ?? "";
+  assert.doesNotMatch(collapseRestore, /nameInput\.value\s*=\s*""/);
+  assert.doesNotMatch(collapseRestore, /emailInput\.value\s*=\s*""/);
+  assert.doesNotMatch(collapseRestore, /messageInput\.value\s*=\s*""/);
 });
 
 test("visible mobile consent is moved clear of the bottom sheet", () => {

@@ -9,6 +9,7 @@ import {
 } from "../features/contact-hub/persistence.ts";
 import { createPortfolioAssistantClient } from "../features/portfolio-pet/assistant-client.ts";
 import { createPreviewPortfolioAssistantRouter } from "../features/portfolio-pet/prepared-answers.ts";
+import { submitContactMessage } from "../features/contact-hub/contact-delivery.ts";
 
 type Destroy = () => void;
 
@@ -133,6 +134,11 @@ function createHubElement(documentRef: Document) {
   messageInput.required = true;
   messageInput.maxLength = 5000;
 
+  const fileInput = documentRef.createElement("input");
+  fileInput.type = "file";
+  fileInput.name = "attachment";
+  fileInput.hidden = true;
+
   const formActions = documentRef.createElement("div");
   formActions.className = "contact-hub__form-actions";
   const attachButton = createTextButton(documentRef, "+ файл");
@@ -141,7 +147,15 @@ function createHubElement(documentRef: Document) {
   submitButton.type = "submit";
   submitButton.className = "contact-hub__text-action contact-hub__submit";
   submitButton.textContent = "отправить";
-  formActions.append(attachButton, submitButton);
+  const attachmentName = documentRef.createElement("span");
+  attachmentName.className = "contact-hub__attachment-name";
+  attachmentName.dataset.contactHubAttachmentName = "";
+  formActions.append(attachButton, attachmentName, submitButton);
+
+  const status = documentRef.createElement("p");
+  status.className = "contact-hub__form-status";
+  status.dataset.contactHubFormStatus = "";
+  status.setAttribute("aria-live", "polite");
 
   const mailFallback = documentRef.createElement("p");
   mailFallback.className = "contact-hub__mail-fallback";
@@ -155,7 +169,9 @@ function createHubElement(documentRef: Document) {
     createField("имя", nameInput),
     createField("email", emailInput),
     createField("сообщение", messageInput),
+    fileInput,
     formActions,
+    status,
     mailFallback,
   );
 
@@ -208,6 +224,11 @@ function createHubElement(documentRef: Document) {
     nameInput,
     emailInput,
     messageInput,
+    fileInput,
+    attachButton,
+    attachmentName,
+    submitButton,
+    status,
     composer,
     composerInput,
     composerSend,
@@ -225,14 +246,15 @@ export function mountContactHub(root: Document = document): Destroy {
   const elements = createHubElement(root);
   const {
     hub, collapsedLauncher, collapseButton, closeButton,
-    formScreen, aiScreen, aiLog, nameInput, emailInput, messageInput, composer, composerInput,
-    composerSend,
+    formScreen, aiScreen, aiLog, nameInput, emailInput, messageInput, fileInput, attachButton,
+    attachmentName, submitButton, status, composer, composerInput, composerSend,
   } = elements;
   root.body.append(hub, collapsedLauncher);
 
   let state: ContactHubState = createContactHubState({ aiAvailable: true });
   let opener: HTMLElement | null = null;
   let assistantBusy = false;
+  let formBusy = false;
   let petStateTimer = 0;
   const draftStore = resolveDraftStore(root);
   const previewAssistant = isPreviewAssistantRuntime(root);
@@ -421,6 +443,60 @@ export function mountContactHub(root: Document = document): Destroy {
     void submitAiMessage(composerInput.value);
   };
 
+  const onAttach = (): void => {
+    if (!formBusy) fileInput.click();
+  };
+
+  const onFileChange = (): void => {
+    const file = fileInput.files?.[0];
+    attachmentName.textContent = file?.name ?? "";
+    status.textContent = file && file.size > (10 * 1024 * 1024) ? "файл больше 10 МБ" : "";
+  };
+
+  const onFormSubmit = async (event: SubmitEvent): Promise<void> => {
+    event.preventDefault();
+    if (formBusy || !formScreen.reportValidity()) return;
+
+    formBusy = true;
+    submitButton.disabled = true;
+    attachButton.disabled = true;
+    status.textContent = "отправка…";
+    setPetState("thinking");
+
+    const attachment = fileInput.files?.[0];
+    const result = await submitContactMessage({
+      name: nameInput.value,
+      email: emailInput.value,
+      message: messageInput.value,
+      pageUrl: root.defaultView?.location.href ?? "https://looksawful.ru/",
+      ...(attachment ? { attachment } : {}),
+    });
+
+    if (result.kind === "sent") {
+      nameInput.value = "";
+      emailInput.value = "";
+      messageInput.value = "";
+      fileInput.value = "";
+      attachmentName.textContent = "";
+      try {
+        draftStore?.clear();
+      } catch {
+        // Delivery succeeded; storage cleanup is non-critical.
+      }
+      status.textContent = "отправлено";
+      setPetState("success");
+      schedulePetIdle(900);
+    } else {
+      status.textContent = result.kind === "invalid" ? "файл больше 10 МБ" : "не отправлено — используй email ниже";
+      setPetState("error");
+      schedulePetIdle(900);
+    }
+
+    formBusy = false;
+    submitButton.disabled = false;
+    attachButton.disabled = false;
+  };
+
   const collapse = (): void => {
     if (state.visibility !== "open") return;
     state = transitionContactHub(state, { type: "COLLAPSE" });
@@ -465,7 +541,6 @@ export function mountContactHub(root: Document = document): Destroy {
     else resetHubPosition();
   };
 
-  const preventPrototypeSubmit = (event: SubmitEvent): void => event.preventDefault();
   openers.forEach((contact) => contact.addEventListener("click", openFromSiteContact));
   petOpeners.forEach((pet) => pet.addEventListener("click", openFromPet));
   collapseButton.addEventListener("click", collapse);
@@ -473,7 +548,9 @@ export function mountContactHub(root: Document = document): Destroy {
   nameInput.addEventListener("input", persistDraft);
   emailInput.addEventListener("input", persistDraft);
   messageInput.addEventListener("input", persistDraft);
-  formScreen.addEventListener("submit", preventPrototypeSubmit);
+  attachButton.addEventListener("click", onAttach);
+  fileInput.addEventListener("change", onFileChange);
+  formScreen.addEventListener("submit", onFormSubmit);
   composer.addEventListener("submit", onComposerSubmit);
   closeButton.addEventListener("click", close);
   root.addEventListener("keydown", onKeyDown);
@@ -490,7 +567,9 @@ export function mountContactHub(root: Document = document): Destroy {
     nameInput.removeEventListener("input", persistDraft);
     emailInput.removeEventListener("input", persistDraft);
     messageInput.removeEventListener("input", persistDraft);
-    formScreen.removeEventListener("submit", preventPrototypeSubmit);
+    attachButton.removeEventListener("click", onAttach);
+    fileInput.removeEventListener("change", onFileChange);
+    formScreen.removeEventListener("submit", onFormSubmit);
     composer.removeEventListener("submit", onComposerSubmit);
     closeButton.removeEventListener("click", close);
     root.removeEventListener("keydown", onKeyDown);
