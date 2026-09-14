@@ -1,6 +1,7 @@
 import { retiredMediaAssetIds } from "../asset-aliases.ts";
 
 import { awfulCasesMediaAssets } from "./awful-cases.ts";
+import { awfulStudioLabMediaAssets } from "./awful-studio-lab.ts";
 import { behanceShootingMediaAssets } from "./behance-shootings.ts";
 import { berryMediaAssets } from "./berry.ts";
 import { berserkTimerMediaAssets } from "./berserk-timer.ts";
@@ -24,6 +25,7 @@ import { unassignedMediaAssets } from "./unassigned.ts";
  */
 export const registeredMediaAssets = [
   ...awfulCasesMediaAssets,
+  ...awfulStudioLabMediaAssets,
   ...behanceShootingMediaAssets,
   ...berryMediaAssets,
   ...berserkTimerMediaAssets,
