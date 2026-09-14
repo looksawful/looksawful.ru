@@ -5,6 +5,7 @@ import {
   toCatalogItem,
   type CatalogItem,
 } from "./public-catalog.ts";
+import { responsiveVariantsFor } from "./responsive.ts";
 
 export type GalleryBaseItem = Omit<
   CatalogItem,
@@ -125,14 +126,41 @@ function isApprovedGalleryItem(item: MediaCatalogItem): boolean {
     && item.workAreaIds.includes("photography");
 }
 
+function resolvedGalleryGeometry(item: CatalogItem): {
+  width: number;
+  height: number;
+  aspectRatio: number;
+} | null {
+  if (item.width && item.height && item.aspectRatio) {
+    return {
+      width: item.width,
+      height: item.height,
+      aspectRatio: item.aspectRatio,
+    };
+  }
+
+  if (item.asset.type === "image") {
+    const variants = responsiveVariantsFor(item.asset);
+    const fallback = variants[variants.length - 1];
+    if (fallback && fallback.width > 0 && fallback.height > 0) {
+      return {
+        width: fallback.width,
+        height: fallback.height,
+        aspectRatio: fallback.width / fallback.height,
+      };
+    }
+  }
+
+  return null;
+}
+
 function toGalleryItem(item: CatalogItem): GalleryItem | null {
-  if (!item.width || !item.height || !item.aspectRatio) return null;
+  const geometry = resolvedGalleryGeometry(item);
+  if (!geometry) return null;
 
   const base = {
     ...item,
-    width: item.width,
-    height: item.height,
-    aspectRatio: item.aspectRatio,
+    ...geometry,
   };
 
   if (item.asset.type === "image") {
@@ -159,6 +187,9 @@ function toGalleryItem(item: CatalogItem): GalleryItem | null {
  * Curated mixed-media Gallery projection over canonical media ownership.
  * Bulk project families are selected by canonical context; exact Jestei and
  * Moves Awful selections resolve MediaEntry IDs to canonical asset IDs once.
+ * Historical raster assets missing dimensions reuse the existing generated
+ * responsive metadata for stable intrinsic geometry instead of inventing a
+ * Gallery-specific media registry.
  */
 export function getGalleryItemsFromMediaCatalog(
   mediaItems: readonly MediaCatalogItem[] = contextualMediaCatalogItems,
