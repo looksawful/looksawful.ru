@@ -5,7 +5,7 @@ description: Use for Pages CMS models, Media Catalog, media uploads/derivatives,
 
 # Looksawful media and CMS
 
-Use the canonical architecture, not assumptions from an older roadmap.
+Use the canonical architecture and live branch policy, not assumptions from an older roadmap.
 
 ## Read first
 
@@ -35,10 +35,13 @@ Do not turn Pages CMS into a generic page builder.
 - Generated responsive/video assets and generated TypeScript indexes are never hand-edited.
 - Do not create placeholder media to satisfy validation.
 
-## CMS publication boundary
+## CMS publication and authoring boundary
 
 - CMS publication authorization and classifiers are protected policy surfaces.
-- `dev` is the CMS working source; trusted publication policy is executed from `prod` according to the current architecture.
+- **CURRENT project branch contract:** `dev` is GitHub default + working/integration; `prod` is production/release/deploy. Editorial batches use the permanent `content/text-cms` branch and remain there until the user explicitly marks the batch ready (`готово`). Only then reconcile/validate and integrate into fresh `dev`; production publication remains a separate `dev -> prod` release.
+- **CURRENT repository caveat:** `content/text-cms` already exists but must be reconciled with current `dev` before the next authoring cycle. Do not force-reset it and do not silently rebase underneath an open editor session. GitHub #451 owns this branch/reconciliation contract.
+- **CURRENT local Desk topology:** `npm run desk` is write-capable and operates on the current checkout. Its write endpoints are mounted only when `CONTENT_DESK_WRITE=1`; startup currently runs `media:ensure`, which may synchronize derived media state before the UI opens. Treat it as an operator write tool, not a read-only browser.
+- **OPEN hardening, not current executable protection:** GitHub #452/#453 track read-only-by-default Desk inspection, deliberate guarded write activation, stronger source authorization, revision-aware conflict handling and atomic/rollback-safe persistence. #451 additionally must enforce `content/text-cms` provenance and the explicit ready gate. Do not instruct agents as though those protections already exist.
 - `ENGINEERING`, `UNKNOWN`, mixed scope, or unsafe topology must block publication. Do not add an override to bypass this.
 - Do not change `.pages.yml`, workflows, scope/topology tools or publication semantics as a side effect of an ordinary content/media task.
 

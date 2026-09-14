@@ -9,6 +9,7 @@ import {
   getProject,
 } from "../../data/catalog/lookup.ts";
 import { getEntityShellPresentation } from "../pages/entity-presentation.ts";
+import { getEntitySearchPresentation } from "../pages/search-presentation.ts";
 import type { EntityPageDefinition } from "../pages/types.ts";
 import { renderPageShell } from "../shell/page-shell.ts";
 import { renderEntityShell } from "./entity/entity-shell.ts";
@@ -17,6 +18,9 @@ function getEntityPageCopy(page: EntityPageDefinition): {
   title: string;
   description: string;
 } {
+  const searchPresentation = getEntitySearchPresentation(page.id);
+  if (searchPresentation) return searchPresentation;
+
   if (page.type === "case") {
     const entity = getCase(page.entityId);
     const name = entity.name || page.entityId;
@@ -46,8 +50,14 @@ function getEntityPageCopy(page: EntityPageDefinition): {
 function renderCanonicalEntityArticle(page: EntityPageDefinition): string {
   const content = getEntityPageContent(entityPageContentRegistry, page.id);
   const presentation = getEntityShellPresentation(page.id);
+  const standaloneContent = page.id === "case:jestei-pool"
+    ? {
+        ...content,
+        intro: { ...content.intro, head: undefined, role: undefined, period: undefined },
+      }
+    : content;
 
-  return renderEntityShell(content, {
+  return renderEntityShell(standaloneContent, {
     ...presentation,
     introHeadingLevel: 1,
     specialized: {

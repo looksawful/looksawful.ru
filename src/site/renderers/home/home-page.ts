@@ -11,6 +11,7 @@ import {
 import { getPageByPath } from "../../pages/manifest.ts";
 import { homeSearchPresentation } from "../../pages/search-presentation.ts";
 import type { EntityPageId } from "../../pages/types.ts";
+import { escapeHtml } from "../../../utils/html.ts";
 import { replaceRequiredSlot } from "../../rendering/html.ts";
 import {
   renderHomeStructuredData,
@@ -23,6 +24,7 @@ import { renderHomepage } from "./home-slots.ts";
 const homeEntitiesMount = '<div data-home-entities></div>';
 const legacyHomepageNavigation = /<nav\b(?=[^>]*\bdata-site-navigation\b)(?=[^>]*\bhidden\b)[^>]*>[\s\S]*?<\/nav>/g;
 const homeStructuredData = /<script\b(?=[^>]*\btype=["']application\/ld\+json["'])[^>]*>[\s\S]*?<\/script>/i;
+const compactHomepageSectionCount = 2;
 
 function getHomePage() {
   const page = getPageByPath("/");
@@ -42,14 +44,43 @@ function renderCanonicalHomepageEntity(entry: HomepageEntry): string {
   const pageId = pageIdForHomepageEntry(entry);
   const content = getEntityPageContent(entityPageContentRegistry, pageId);
   const presentation = getEntityShellPresentation(pageId);
+  const previewSectionIds = entry.preview?.sectionIds;
+  const compactSections = previewSectionIds
+    ? content.sections.filter((section) => previewSectionIds.includes(section.id))
+    : content.sections.slice(0, compactHomepageSectionCount);
+  const previewLink = entry.preview
+    ? { label: entry.preview.introLabel, href: entry.preview.href }
+    : undefined;
+  const homepageContent = entry.mode === "compact"
+    ? {
+        ...content,
+        intro: previewLink
+          ? { ...content.intro, links: [...(content.intro.links ?? []), previewLink] }
+          : content.intro,
+        sections: compactSections,
+      }
+    : content;
 
-  return renderEntityShell(content, {
+  const rendered = renderEntityShell(homepageContent, {
     ...presentation,
     introHeadingLevel: 2,
     specialized: {
       jesteiTrackFilter: renderJesteiTrackFilter,
     },
   });
+
+  if (!entry.preview) return rendered;
+
+  const callout = `
+    <div class="project-preview-entry" data-reveal-group>
+      <a class="project-preview-entry__link" href="${escapeHtml(entry.preview.href)}" data-reveal="copy">
+        <span>${escapeHtml(entry.preview.calloutLabel)}</span>
+        <span class="project-preview-entry__arrow" aria-hidden="true">→</span>
+      </a>
+    </div>
+  `;
+
+  return rendered.replace(/<\/article>\s*$/, `${callout}</article>`);
 }
 
 function renderCanonicalHomepageEntities(): string {

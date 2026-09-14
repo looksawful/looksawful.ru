@@ -15,6 +15,7 @@ import { mountExperience } from "./components/experience.ts";
 import { mountSiteAnalyticsConsent } from "./components/site-analytics-consent.ts";
 import {
   mountSiteAnalytics,
+  mountSiteAnalyticsCaseEndTracking,
   mountSiteAnalyticsGoalTracking,
 } from "./components/site-analytics.ts";
 import { initBeforeAfter } from "./components/before-after.ts";
@@ -100,6 +101,7 @@ const siteAnalyticsConfig = {
 };
 
 let destroySiteAnalyticsGoalTracking: Destroy = noop;
+let destroySiteAnalyticsCaseEndTracking: Destroy = noop;
 let destroySiteAnalyticsConsent: Destroy = noop;
 if (import.meta.env.PROD) {
   mountSiteAnalytics({
@@ -108,6 +110,11 @@ if (import.meta.env.PROD) {
     config: siteAnalyticsConfig,
   });
   destroySiteAnalyticsGoalTracking = mountSiteAnalyticsGoalTracking({
+    root: document,
+    target: window,
+    config: siteAnalyticsConfig,
+  });
+  destroySiteAnalyticsCaseEndTracking = mountSiteAnalyticsCaseEndTracking({
     root: document,
     target: window,
     config: siteAnalyticsConfig,
@@ -125,6 +132,7 @@ mountExperience(document);
 const motion = createMotionPreference();
 const destroys: Destroy[] = [
   destroySiteAnalyticsGoalTracking,
+  destroySiteAnalyticsCaseEndTracking,
   destroySiteAnalyticsConsent,
 ];
 let destroyed = false;

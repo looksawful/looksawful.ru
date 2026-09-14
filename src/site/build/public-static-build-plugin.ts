@@ -6,6 +6,7 @@ import type { Plugin } from "vite";
 import { cvContent } from "../../data/cv.ts";
 import { sitePages } from "../pages/manifest.ts";
 import { cvSearchPresentation } from "../pages/search-presentation.ts";
+import { normalizeCvPortfolioLinks } from "../renderers/cv-page.ts";
 import { replacePageMetadata } from "../shell/metadata.ts";
 import { publicStaticOutputPath } from "./public-static.ts";
 
@@ -63,7 +64,8 @@ export async function finalizeProductionCv(
     throw new Error(`Hidden CV experience card remains in ${target}`);
   }
 
-  const withMetadata = replacePageMetadata(result.html, {
+  const withPortfolioLinks = normalizeCvPortfolioLinks(result.html);
+  const withMetadata = replacePageMetadata(withPortfolioLinks, {
     page: cvPage,
     ...cvSearchPresentation,
   });

@@ -28,10 +28,10 @@ export interface TextDeskAnalysis {
 
 const normalize = (value: string): string => value.trim().toLocaleLowerCase();
 
-export function filterTextDeskEntries(
-  entries: readonly ContentDeskTextEntry[],
+export function filterTextDeskEntries<T extends ContentDeskTextEntry>(
+  entries: readonly T[],
   filter: TextDeskFilter,
-): readonly ContentDeskTextEntry[] {
+): readonly T[] {
   const query = normalize(filter.query ?? "");
   return entries.filter((entry) => {
     if (filter.sourcePath && entry.sourcePath !== filter.sourcePath) return false;

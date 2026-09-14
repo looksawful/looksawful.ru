@@ -87,7 +87,7 @@ export const engagements = [
   {
     id: "moskovskie-novosti-2012",
     displayName: "РИА Новости / Московские новости",
-    date: "2012",
+    date: "2012–2013",
     clientIds: ["ria-novosti", "moskovskie-novosti"],
     primaryRoleId: "layout-designer",
     roleIds: ["layout-designer"],

@@ -28,7 +28,11 @@ export function responsiveVariantsFor(asset: ImageMedia): readonly ResponsiveMed
 }
 
 export function responsiveImageSrcSet(asset: ImageMedia): string {
-  return responsiveVariantsFor(asset)
-    .map((variant) => `${encodeURI(variant.src)} ${variant.width}w`)
-    .join(", ");
+  const variants = responsiveVariantsFor(asset);
+  if (!variants.length) return "";
+
+  return [
+    ...variants.map((variant) => `${encodeURI(variant.src)} ${variant.width}w`),
+    `${encodeURI(asset.src)} ${asset.width}w`,
+  ].join(", ");
 }

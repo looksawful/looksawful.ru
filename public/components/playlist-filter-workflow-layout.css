@@ -1,4 +1,13 @@
 @layer components {
+    .title-row h2 {
+        color: #ffffff;
+        font-family: var(--font-display);
+        font-size: var(--fs-title);
+        font-weight: var(--fw-medium);
+        line-height: var(--lh-title);
+        letter-spacing: 0;
+    }
+
     .advanced-button {
         white-space: nowrap;
     }
@@ -19,5 +28,16 @@
     .check-options--track-type {
         flex-wrap: nowrap;
         block-size: 16px;
+    }
+}
+
+@container playlist-filter (inline-size >= 359px) {
+    @layer components {
+        .title-row h2 {
+            font-family: "Rubik", "Arial Black", var(--font-body);
+            font-size: clamp(22px, 3.45cqi, 28px);
+            line-height: 36px;
+            font-weight: 500;
+        }
     }
 }
