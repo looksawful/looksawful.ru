@@ -5,6 +5,7 @@ import {
   collectHtmlFiles,
   extractReferenceAttributes,
   hasAnchor,
+  isLabDesignSystemHtml,
   normalizeLocalReference,
   readUtf8,
   resolveLocalPath,
