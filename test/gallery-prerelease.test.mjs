@@ -15,12 +15,12 @@ const requiredMusicianProjectIds = [
   "shootings-igguana",
   "shootings-esmi",
   "shootings-hypression",
-  "shootings-behance-offmi",
-  "shootings-dava",
+  "shootings-ofelia",
 ];
 
 const defaultHiddenProjectIds = [
-  "shootings-ofelia",
+  "shootings-behance-offmi",
+  "shootings-dava",
   "shootings-behance-ecobasik",
   "shootings-behance-cinema-stills-2",
   "shootings-behance-anka-model-tests",
