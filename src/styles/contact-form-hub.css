@@ -97,7 +97,6 @@
 .contact-form-hub__field:focus-within {
   border-color: var(--clr-border-strong);
   background: var(--clr-surface-raised);
-  box-shadow: var(--shadow-focus-ring);
 }
 
 .contact-form-hub__field:has(:is(input, textarea)[aria-invalid="true"]) {
@@ -174,7 +173,6 @@
 }
 
 .contact-form-hub__text-action:focus-visible,
-.contact-form-hub__field :is(input, textarea):focus-visible,
 .contact-form-hub-launcher:focus-visible {
   outline: var(--border-width-200) solid currentColor;
   outline-offset: 0.18rem;
@@ -274,5 +272,12 @@
   .contact-form-hub__close,
   .contact-form-hub__submit {
     transition: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .contact-form-hub__field:focus-within {
+    outline: 2px solid Highlight;
+    outline-offset: 2px;
   }
 }

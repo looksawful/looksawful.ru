@@ -146,6 +146,12 @@
   outline-offset: 2px;
 }
 
+html.contact-form-hub-open .portfolio-pet__dismiss {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
 @media (width <= 42.5rem) {
   .portfolio-pet {
     --pet-scale: 0.92;
@@ -156,8 +162,7 @@
     block-size: 194px;
   }
 
-  html.contact-hub-open .portfolio-pet,
-  html.contact-hub-open .portfolio-pet__dismiss {
+  html.contact-form-hub-open .portfolio-pet {
     opacity: 0;
     visibility: hidden;
     pointer-events: none;

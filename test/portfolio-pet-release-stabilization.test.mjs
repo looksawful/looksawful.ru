@@ -56,10 +56,10 @@ test("first hover uses the authored full-body glasses gesture with cooldown", ()
   assert.match(pet, /90_000/);
 });
 
-test("contact footer aligns fallback and submit controls in one row", () => {
+test("contact footer keeps the submit control aligned to the end", () => {
   assert.match(formSource, /contact-form-hub__footer/);
   assert.match(formCss, /\.contact-form-hub__footer\s*\{[\s\S]*align-items:\s*center/);
-  assert.match(formCss, /\.contact-form-hub__footer\s*\{[\s\S]*justify-content:\s*space-between/);
+  assert.match(formCss, /\.contact-form-hub__footer\s*\{[\s\S]*justify-content:\s*flex-end/);
 });
 
 test("contact window positioning uses its rendered dimensions instead of stale constants", () => {
