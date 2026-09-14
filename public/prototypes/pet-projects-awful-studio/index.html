@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>AWFUL STUDIO preview</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main>
+    <article class="project">
+      <div class="project__head">
+        <p class="project__name">AWFUL STUDIO</p>
+        <p class="project__role">Разработчик</p>
+        <p class="project__period">2026</p>
+      </div>
+
+      <header class="project__intro">
+        <h1 class="project__title">AWFUL STUDIO</h1>
+        <p class="project__summary">Blender-native virtual product and advertising studio for editable product-shooting scenes, lighting rigs, camera setups, environments and motion presets.</p>
+        <p class="project__lead">AWFUL STUDIO создаёт редактируемую продуктовую студию внутри Blender: сцену, product rig, camera rig, свет, окружение и motion-пресеты. После применения пресета нативные свойства Blender остаются главными.</p>
+        <nav class="project__links" aria-label="Ссылки проекта">
+          <a href="https://github.com/looksawful/awful-studio" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://github.com/looksawful/awful-studio/archive/refs/heads/main.zip">Download ZIP</a>
+        </nav>
+      </header>
+
+      <figure class="banner">
+        <button class="banner__surface" type="button" data-lightbox="assets/awful-studio-tutorial.webp">
+          <img src="assets/awful-studio-tutorial.webp" alt="AWFUL STUDIO Blender Tutorial Cheat Sheet">
+        </button>
+        <figcaption class="caption">
+          <strong>AWFUL STUDIO / quick start</strong>
+          <p>Общий вид сцены, структура Outliner, N-panel и пресеты движения продукта и камеры.</p>
+        </figcaption>
+      </figure>
+
+      <figure class="mockup" data-media-deck tabindex="0" aria-label="AWFUL STUDIO presentation gallery">
+        <div class="mockup__frame">
+          <div class="mockup__chrome" aria-hidden="true"><i></i><i></i><i></i></div>
+          <div class="mockup__viewport">
+            <div class="mockup__slides">
+              <button class="mockup__slide" type="button" data-slide data-active data-lightbox="assets/awful-studio-tutorial.webp"><img src="assets/awful-studio-tutorial.webp" alt="AWFUL STUDIO Blender Tutorial Cheat Sheet"></button>
+              <button class="mockup__slide" type="button" data-slide data-lightbox="assets/awful-studio-overview.webp"><img src="assets/awful-studio-overview.webp" alt="Awful Studio Blender Product Studio Infographic"></button>
+              <button class="mockup__slide" type="button" data-slide data-lightbox="assets/awful-studio-lighting.webp"><img src="assets/awful-studio-lighting.webp" alt="AWFUL STUDIO: Световые схемы для Blender"></button>
+            </div>
+          </div>
+        </div>
+
+        <div class="mockup__meta">
+          <figcaption class="caption" aria-live="polite">
+            <strong data-deck-caption-title>AWFUL STUDIO / quick start</strong>
+            <p data-deck-caption-text>Общий вид сцены, структура Outliner, N-panel и пресеты движения продукта и камеры.</p>
+          </figcaption>
+          <div class="slider-controls" role="group" aria-label="Навигация по слайдам">
+            <button data-deck-prev type="button" aria-label="Предыдущий кадр">←</button>
+            <span data-deck-count aria-live="polite">01 / 03</span>
+            <button data-deck-next type="button" aria-label="Следующий кадр">→</button>
+          </div>
+        </div>
+      </figure>
+    </article>
+  </main>
+
+  <dialog id="lightbox">
+    <button class="close" type="button" aria-label="Закрыть">×</button>
+    <img alt="">
+  </dialog>
+  <script src="app.js" defer></script>
+</body>
+</html>
