@@ -33,6 +33,7 @@ export function planLabComposition({ repository, devSha, selectedPrs = [] }) {
     if (!Number.isSafeInteger(number) || number < 1 || seen.has(number)) throw new Error("PR identity must be unique and positive");
     seen.add(number);
     if (pr.state !== "open") throw new Error(`PR #${number} is not open`);
+    if (pr.baseRef !== "dev") throw new Error(`PR #${number} must target dev`);
     if (pr.headRepo !== repository) throw new Error(`PR #${number} is not same-repo`);
     return { number, sha: requireExactSha(pr.headSha, `PR #${number} head`) };
   }).sort((a, b) => a.number - b.number);
