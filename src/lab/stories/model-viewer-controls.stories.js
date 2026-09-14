@@ -29,7 +29,7 @@ const controlSpecs = [
 
   { id: "background", label: "фон", kind: "select", group: "вид", options: ["transparent", "white", "black", "custom", "environment"], value: "transparent" },
   { id: "background-color", label: "цвет фона", kind: "color", group: "вид", value: "#f7f7f5" },
-  { id: "ground", label: "плоскость", kind: "toggle", group: "вид", value: true },
+  { id: "ground", label: "плоскость", kind: "toggle", group: "вид", value: false },
   { id: "grid-floor", label: "сетка пола", kind: "toggle", group: "вид", value: false },
 
   { id: "lighting-enabled", label: "свет", kind: "toggle", group: "свет", value: true },
@@ -53,8 +53,8 @@ const controlSpecs = [
   { id: "animation-direction", label: "направление", kind: "segmented", group: "анимация", options: ["вперёд", "назад"], value: "вперёд" },
   { id: "animation-timeline", label: "таймлайн", kind: "range", group: "анимация", min: 0, max: 10, step: 0.05, value: 0 },
 
-  { id: "parts", label: "части модели", kind: "checklist", group: "модель", options: ["core", "ring", "base"] },
-  { id: "isolate-part", label: "изолировать", kind: "select", group: "модель", options: ["all", "core", "ring", "base"], value: "all" },
+  { id: "parts", label: "части модели", kind: "checklist", group: "модель", options: ["cube"] },
+  { id: "isolate-part", label: "изолировать", kind: "select", group: "модель", options: ["all", "cube"], value: "all" },
   { id: "explode", label: "разнести", kind: "range", group: "модель", min: 0, max: 1, step: 0.05, value: 0 },
   { id: "material-variant", label: "материал", kind: "select", group: "модель", options: ["default", "dark", "chrome", "warm"], value: "default" },
   { id: "texture-variant", label: "текстура", kind: "select", group: "модель", options: ["checker", "plain", "uv"], value: "checker" },
@@ -114,7 +114,8 @@ const ensureStyles = () => {
   style.id = STYLE_ID;
   style.textContent = `
     .mv-lab { display:grid; gap:var(--size-300); min-inline-size:0; color:var(--clr-text); }
-    .mv-stage { position:relative; display:grid; min-block-size:clamp(32rem,72vh,54rem); overflow:hidden; border:var(--border-width-100) solid var(--clr-border); border-radius:var(--radius-shell); background:var(--clr-surface-page); container:model-viewer / inline-size; }
+    .mv-media { inline-size:min(100%,72rem); margin-inline:auto; }
+    .mv-stage { position:relative; display:grid; min-inline-size:0; min-block-size:0; overflow:hidden; background:var(--clr-surface-page); container:model-viewer / inline-size; }
     .mv-stage canvas { position:absolute; inset:0; inline-size:100%; block-size:100%; touch-action:none; }
     .mv-direct { position:absolute; z-index:5; inset-inline-end:var(--size-300); inset-block-end:var(--size-300); display:flex; flex-wrap:wrap; justify-content:flex-end; gap:.25rem; max-inline-size:calc(100% - 2 * var(--size-300)); padding:.25rem; border:var(--border-width-100) solid var(--clr-border); border-radius:var(--radius-contained); background:color-mix(in srgb,var(--clr-surface-raised),transparent 4%); box-shadow:var(--shadow-surface-elevated); }
     .mv-pill,.mv-action,.mv-settings-trigger { appearance:none; min-block-size:2rem; padding-inline:.6rem; border:0; border-radius:999px; background:transparent; color:inherit; font:inherit; font-size:.75rem; line-height:var(--lh-ui); cursor:pointer; }
@@ -181,7 +182,6 @@ const ensureStyles = () => {
     .mv-lab-code { overflow:auto; margin:0; padding:.7rem; border-radius:var(--radius-100); background:var(--clr-surface-page); color:var(--clr-text-muted); font: .7rem/1.45 var(--ff-mono); white-space:pre; }
     .mv-helper { position:absolute; z-index:3; inset-inline-start:var(--size-300); inset-block-end:var(--size-300); color:var(--clr-text-muted); font-size:.7rem; pointer-events:none; }
     @container model-viewer (width < 46rem) {
-      .mv-stage { min-block-size:42rem; }
       .mv-direct { inset-inline:var(--size-200); inset-block-end:var(--size-200); justify-content:center; max-inline-size:none; }
       .mv-panel { inset-inline:var(--size-200); inset-block-start:auto; inset-block-end:4.25rem; inline-size:auto; max-block-size:58%; }
       .mv-pill,.mv-action,.mv-settings-trigger,.mv-direct-field,.mv-direct .mv-segmented > div { min-block-size:2.75rem; }
@@ -213,7 +213,7 @@ const renderControl = (spec, compact = false) => {
   }
   if (spec.kind === "color") return `<label class="mv-color"><span>${spec.label}</span><span><input type="color" data-control="${spec.id}" value="${value}"><code>${value}</code></span></label>`;
   if (spec.kind === "checklist") return `<fieldset class="mv-check-group"><legend>${spec.label}</legend>${(spec.options ?? []).map((option) => `<label><input type="checkbox" data-part="${option}" checked><span>${option}</span></label>`).join("")}</fieldset>`;
-  if (spec.kind === "readout") return `<dl class="mv-readout"><div><dt>meshes</dt><dd>3</dd></div><div><dt>materials</dt><dd>3</dd></div><div><dt>animations</dt><dd>4 demo</dd></div><div><dt>scale</dt><dd>1.0</dd></div></dl>`;
+  if (spec.kind === "readout") return `<dl class="mv-readout"><div><dt>meshes</dt><dd>1</dd></div><div><dt>materials</dt><dd>1</dd></div><div><dt>animations</dt><dd>0</dd></div><div><dt>scale</dt><dd>1.0</dd></div></dl>`;
   const options = spec.options ?? [];
   return `<fieldset class="mv-segmented"><legend>${spec.label}</legend><div>${options.map((option, index) => `<label><input type="radio" name="${spec.id}" data-control="${spec.id}" value="${escapeHtml(option)}" ${(option === value || (!value && index === 0)) ? "checked" : ""}><span>${escapeHtml(option)}</span></label>`).join("")}</div></fieldset>`;
 };
@@ -278,35 +278,28 @@ const createRuntime = (root) => {
   const orbit = new OrbitControls(camera, canvas);
   orbit.enableDamping = true;
   orbit.dampingFactor = 0.08;
-  orbit.target.set(0, 0.35, 0);
+  orbit.target.set(0, 0, 0);
 
   const checker = makeCheckerTexture();
-  const baseMaterial = new THREE.MeshStandardMaterial({ color: 0xd4d0c8, map: checker, roughness: 0.46, metalness: 0.28 });
-  const ringMaterial = new THREE.MeshStandardMaterial({ color: 0x1b1b1b, roughness: 0.24, metalness: 0.7 });
-  const accentMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.2, metalness: 0.12 });
+  const baseMaterial = new THREE.MeshStandardMaterial({
+    color: 0xd4d0c8,
+    map: checker,
+    roughness: 0.46,
+    metalness: 0.28,
+  });
+  const normalMaterial = new THREE.MeshNormalMaterial();
 
-  const model = new THREE.Group();
-  const core = new THREE.Mesh(new THREE.IcosahedronGeometry(1.25, 3), baseMaterial);
-  core.name = "core";
-  core.castShadow = true;
-  core.receiveShadow = true;
-  const ring = new THREE.Mesh(new THREE.TorusGeometry(1.65, 0.12, 18, 96), ringMaterial);
-  ring.name = "ring";
-  ring.rotation.x = Math.PI / 2.8;
-  ring.rotation.z = Math.PI / 6;
-  ring.castShadow = true;
-  const base = new THREE.Mesh(new THREE.CylinderGeometry(1.05, 1.28, 0.28, 72), accentMaterial);
-  base.name = "base";
-  base.position.y = -1.65;
-  base.castShadow = true;
-  base.receiveShadow = true;
-  model.add(core, ring, base);
+  const model = new THREE.Mesh(new THREE.BoxGeometry(2.4, 2.4, 2.4, 6, 6, 6), baseMaterial);
+  model.name = "cube";
+  model.castShadow = true;
+  model.receiveShadow = true;
   scene.add(model);
 
   const groundMaterial = new THREE.ShadowMaterial({ color: 0x000000, opacity: 0.14 });
   const ground = new THREE.Mesh(new THREE.PlaneGeometry(12, 12), groundMaterial);
   ground.rotation.x = -Math.PI / 2;
-  ground.position.y = -1.82;
+  ground.position.y = -1.35;
+  ground.visible = false;
   ground.receiveShadow = true;
   scene.add(ground);
 
@@ -348,24 +341,38 @@ const createRuntime = (root) => {
 
   const fit = () => {
     camera.position.set(4.2, 3.2, 5.4);
-    orbit.target.set(0, 0.35, 0);
+    orbit.target.set(0, 0, 0);
     orbit.update();
   };
 
   const setRenderMode = (mode) => {
-    core.material = baseMaterial;
-    ring.material = ringMaterial;
-    base.material = accentMaterial;
-    [baseMaterial, ringMaterial, accentMaterial].forEach((material) => { material.wireframe = false; material.transparent = false; material.opacity = 1; material.map = material === baseMaterial ? checker : null; });
-    if (mode === "каркас") [baseMaterial, ringMaterial, accentMaterial].forEach((material) => { material.wireframe = true; material.map = null; });
-    if (mode === "clay") [baseMaterial, ringMaterial, accentMaterial].forEach((material) => { material.color.set(0xbeb9ae); material.map = null; material.roughness = 0.78; material.metalness = 0; });
-    if (mode === "normals") [core, ring, base].forEach((mesh) => { mesh.material = new THREE.MeshNormalMaterial(); });
-    if (mode === "x-ray") [baseMaterial, ringMaterial, accentMaterial].forEach((material) => { material.transparent = true; material.opacity = 0.38; material.map = null; });
-    if (mode === "silhouette") [baseMaterial, ringMaterial, accentMaterial].forEach((material) => { material.color.set(0x111111); material.map = null; material.roughness = 1; material.metalness = 0; });
-    if (mode === "текстура" || mode === "текстура + каркас") {
-      baseMaterial.color.set(0xd4d0c8); ringMaterial.color.set(0x1b1b1b); accentMaterial.color.set(0xffffff);
-      baseMaterial.roughness = 0.46; baseMaterial.metalness = 0.28; baseMaterial.map = checker;
-      ringMaterial.roughness = 0.24; ringMaterial.metalness = 0.7;
+    model.material = baseMaterial;
+    baseMaterial.color.set(0xd4d0c8);
+    baseMaterial.map = checker;
+    baseMaterial.roughness = 0.46;
+    baseMaterial.metalness = 0.28;
+    baseMaterial.transparent = false;
+    baseMaterial.opacity = 1;
+    baseMaterial.wireframe = false;
+
+    if (mode === "каркас" || mode === "текстура + каркас") baseMaterial.wireframe = true;
+    if (mode === "clay") {
+      baseMaterial.color.set(0xbeb9ae);
+      baseMaterial.map = null;
+      baseMaterial.roughness = 0.78;
+      baseMaterial.metalness = 0;
+    }
+    if (mode === "normals") model.material = normalMaterial;
+    if (mode === "x-ray") {
+      baseMaterial.transparent = true;
+      baseMaterial.opacity = 0.38;
+      baseMaterial.map = null;
+    }
+    if (mode === "silhouette") {
+      baseMaterial.color.set(0x111111);
+      baseMaterial.map = null;
+      baseMaterial.roughness = 1;
+      baseMaterial.metalness = 0;
     }
   };
 
@@ -412,7 +419,7 @@ const createRuntime = (root) => {
     }
     if (id === "debug-axes") axes.visible = Boolean(value);
     if (id === "debug-bounds") box.visible = Boolean(value);
-    if (id === "explode") { const amount = Number(target.value); core.position.y = amount * 0.7; ring.position.y = amount * 1.35; base.position.y = -1.65 - amount * 0.5; box.update(); }
+    if (id === "explode") { const amount = Number(target.value); model.scale.setScalar(1 + amount * 0.15); box.update(); }
     if (target.matches('input[type="range"]')) target.parentElement?.querySelector("output")?.replaceChildren(document.createTextNode(target.value));
     if (target.matches('input[type="color"]')) target.parentElement?.querySelector("code")?.replaceChildren(document.createTextNode(target.value));
   };
@@ -457,8 +464,8 @@ const createRuntime = (root) => {
     checker.dispose();
     environment.dispose();
     pmrem.dispose();
-    [core, ring, base, ground].forEach((mesh) => mesh.geometry.dispose());
-    [baseMaterial, ringMaterial, accentMaterial, groundMaterial].forEach((material) => material.dispose());
+    [model, ground].forEach((mesh) => mesh.geometry.dispose());
+    [baseMaterial, normalMaterial, groundMaterial].forEach((material) => material.dispose());
     renderer.dispose();
   };
 };
@@ -507,15 +514,29 @@ const initialize = ({ canvasElement }, preset = "full") => {
 
 const renderStory = () => `
   <div class="mv-lab" data-model-viewer-demo>
-    <section class="mv-stage" data-model-viewer data-model-controls="all" aria-label="3D model viewer controls prototype">
-      <canvas aria-label="3D model"></canvas>
-      <div class="mv-helper">drag — rotate · wheel — zoom</div>
-      <div class="mv-direct" data-viewer-direct></div>
-      <aside class="mv-panel" data-viewer-panel hidden aria-label="настройки модели">
-        <div class="mv-panel-head"><strong>настройки</strong><button type="button" data-viewer-close>закрыть</button></div>
-        <div data-viewer-panel-body></div>
-      </aside>
-    </section>
+    <figure class="media mv-media" data-lightbox="off">
+      <div
+        class="media__surface mv-stage"
+        data-model-viewer
+        data-model-controls="all"
+        style="--media-ratio: 16 / 10;"
+        aria-label="3D model viewer controls prototype"
+      >
+        <canvas aria-label="3D model"></canvas>
+        <div class="mv-helper">drag · rotate · wheel · zoom</div>
+        <div class="mv-direct" data-viewer-direct></div>
+        <aside class="mv-panel" data-viewer-panel hidden aria-label="настройки модели">
+          <div class="mv-panel-head"><strong>настройки</strong><button type="button" data-viewer-close>закрыть</button></div>
+          <div data-viewer-panel-body></div>
+        </aside>
+      </div>
+      <figcaption class="media__caption">
+        <p class="media__caption-line">
+          <span class="media__title">3D model</span>
+          <span class="media__text">generic media renderer prototype</span>
+        </p>
+      </figcaption>
+    </figure>
     <section class="mv-lab-config" data-lab-config>
       <div class="mv-lab-config__head"><h3>lab: состав контролов</h3><div class="mv-lab-presets">${Object.keys(presets).map((name) => `<button type="button" data-lab-preset="${name}" aria-pressed="false">${name}</button>`).join("")}</div></div>
       <div class="mv-lab-list">${controlSpecs.map((spec) => `<label><input type="checkbox" data-lab-control="${spec.id}"><span>${spec.label} <code>${spec.id}</code></span></label>`).join("")}</div>
