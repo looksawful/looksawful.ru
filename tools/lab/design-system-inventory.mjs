@@ -1,4 +1,4 @@
-import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, readdir, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
@@ -44,6 +44,20 @@ async function collectFiles(root, relativeDirectory) {
 
 function isRuntimeSource(file) {
   return SOURCE_EXTENSIONS.has(path.posix.extname(file)) && !file.endsWith(".d.ts");
+}
+
+async function checkDeclaredSource(root, sourcePath, uiSourcePaths) {
+  let exists = false;
+  try {
+    exists = (await stat(path.join(root, sourcePath))).isFile();
+  } catch (error) {
+    if (error?.code !== "ENOENT") throw error;
+  }
+  return {
+    path: sourcePath,
+    exists,
+    role: !exists ? "missing" : uiSourcePaths.has(sourcePath) ? "ui-owner" : "supporting-source",
+  };
 }
 
 function balancedObjects(text) {
@@ -206,7 +220,9 @@ export function validateDesignSystemInventory(inventory) {
       issues.push({ severity: "error", code: "unknown-policy", storyPath: story.path, value: story.policy });
     }
     for (const declaredSource of story.declaredSources) {
-      if (!sourcePaths.has(declaredSource)) {
+      const sourceCheck = story.declaredSourceChecks?.find((check) => check.path === declaredSource);
+      const exists = sourceCheck ? sourceCheck.exists : sourcePaths.has(declaredSource);
+      if (!exists) {
         issues.push({
           severity: "error",
           code: "declared-source-missing",
@@ -261,6 +277,13 @@ export async function collectDesignSystemInventory(root) {
     }
   }
   sourceRecords.sort((a, b) => a.path.localeCompare(b.path));
+
+  const uiSourcePaths = new Set(sourceRecords.map((source) => source.path));
+  for (const story of stories) {
+    story.declaredSourceChecks = await Promise.all(
+      story.declaredSources.map((sourcePath) => checkDeclaredSource(root, sourcePath, uiSourcePaths)),
+    );
+  }
 
   const manifestPath = "src/site/pages/manifest.ts";
   let routes = [];

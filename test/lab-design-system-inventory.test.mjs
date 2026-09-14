@@ -143,6 +143,38 @@ test("extracts route discovery without treating it as visual visibility", async 
   assert.equal(Object.hasOwn(route, "visibility"), false);
 });
 
+test("accepts existing declared supporting sources outside the UI denominator", async (t) => {
+  const root = await fixture(t, {
+    "src/templates/card.ts": "export const render = true;",
+    "src/data/card-data.ts": "export const data = true;",
+    "src/lab/stories/card.stories.js": `
+      import "../../templates/card.ts";
+      import "../../data/card-data.ts";
+      export default {
+        title: "02 Molecules/Card",
+        parameters: {
+          looksawful: {
+            sources: ["src/templates/card.ts", "src/data/card-data.ts"],
+            layer: "molecule",
+            policy: "isolated",
+            canonical: true,
+            state: "default",
+            visibility: ["always"]
+          }
+        }
+      };
+    `,
+  });
+  const inventory = await collectDesignSystemInventory(root);
+  assert.equal(sourceByPath(inventory, "src/data/card-data.ts"), undefined);
+  const story = inventory.stories.find((item) => item.path === "src/lab/stories/card.stories.js");
+  assert.deepEqual(story.declaredSourceChecks, [
+    { path: "src/templates/card.ts", exists: true, role: "ui-owner" },
+    { path: "src/data/card-data.ts", exists: true, role: "supporting-source" },
+  ]);
+  assert.equal(inventory.structuralIssues.length, 0);
+});
+
 test("reports structural errors for declared source paths that do not exist", async (t) => {
   const root = await fixture(t, {
     "src/lab/stories/broken.stories.js": `
