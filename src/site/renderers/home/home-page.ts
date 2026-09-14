@@ -103,6 +103,7 @@ export function renderCompactHomepageEntity(entry: HomepageEntry): string {
   const rendered = renderEntityShell(compactContent, {
     ...presentation,
     introHeadingLevel: 2,
+    visuallyHideIntroTitle: true,
     suppressCaptions: entry.preview.visualOnly === true,
     specialized: {
       jesteiTrackFilter: renderJesteiTrackFilter,
