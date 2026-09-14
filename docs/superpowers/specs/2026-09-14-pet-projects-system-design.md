@@ -4,15 +4,15 @@ Status: approved for preview implementation on `preview/pet-projects-system`.
 
 ## Goal
 
-Build the Pet Projects section as a production-ready, reusable homepage component that scales beyond the current four projects without changing the site architecture. The preview must use the real looksawful.ru shell, tokens, media pipeline, page model and responsive behavior so that approval is about the actual production candidate rather than a detached mockup.
+Build the Pet Projects section as a production-ready, reusable homepage component that scales beyond the current four authored projects without changing the site architecture. The preview must use the real looksawful.ru shell, tokens, media pipeline, page model and responsive behavior so that approval is about the actual production candidate rather than a detached mockup.
 
 Production remains untouched until explicit approval.
 
-## Current public cards
+## Current authored set and release gate
 
 The section heading is exactly `Полезное`.
 
-The first four published cards are:
+The current authored set is:
 
 1. **Awful Cases** — `Утилита для Windows: регистр и типографика выделенного текста.`
 2. **Moves Awful** — `Библиотека с шаблонами анимированных canvas галерей для лендингов.`
@@ -20,6 +20,15 @@ The first four published cards are:
 4. **AWFUL STUDIO** — `Расширение Blender для сборки виртуальной предметной студии.`
 
 Roles and years are not shown in these cards.
+
+Awful Cases and Moves Awful are the currently live cards. Berserk Timer and AWFUL STUDIO are implementation-ready entities but remain release-gated until their final cards/pages are approved:
+
+- their homepage cards use `state: "coming-soon"` and therefore expose no `href`;
+- their production-candidate SitePage definitions exist but use `enabled: false`, `listed: false`, `indexable: false`;
+- `getPageByPath()` must not resolve either disabled route;
+- the private password-protected Lab may enable the same routes for development and visual review.
+
+Moving Berserk Timer or AWFUL STUDIO to `live` is a separate release action: final media/content approval, card `href`, and SitePage `enabled: true` must land together. This avoids a half-published state where a card or guessed URL exposes unfinished work.
 
 ## Future projects
 
@@ -57,7 +66,7 @@ A manual `NEW` badge is independent of lifecycle and can be enabled or removed b
 
 TypeScript should enforce invalid combinations at compile time through a discriminated union. In particular, `coming-soon` must not accept `href`, and `live` must require it for Pet Project entries.
 
-No separate `hidden` runtime state is required. A project that should not appear simply does not exist in the rendered Pet Project card list. This avoids inventing a second visibility system.
+No separate `hidden` runtime card state is required. A project that should not appear simply does not exist in the rendered Pet Project card list. Page availability is independently controlled by the canonical SitePage `enabled` flag.
 
 No `kind` taxonomy is introduced in this iteration because nothing in the current UI consumes it. Add it later only when filtering/grouping requires it.
 
@@ -92,7 +101,7 @@ Prefer native CSS state when supported by the project's Chromium floor. The requ
 
 ## Desktop behavior
 
-Desktop is not a forced carousel. Once the component has enough inline space, it becomes a stable grid. With the current four cards the wide layout is one row of four cards; with future additions it becomes subsequent rows without changing authored data or markup.
+Desktop is not a forced carousel. Once the component has enough inline space, it becomes a stable grid. With the current four authored cards the wide layout is one row of four cards; with future additions it becomes subsequent rows without changing authored data or markup.
 
 ## Media behavior
 
@@ -104,7 +113,7 @@ Landscape card media uses a stable aspect ratio and deterministic `object-fit` p
 
 The homepage renderer must stop embedding a duplicate stylesheet string for Pet Projects. `home-slots.ts` owns composition only; `src/styles/subproject-cards.css` owns the card and Pet Projects layout.
 
-The homepage must render the exact heading and card copy above.
+The homepage must render the exact heading and card copy above. Release-gated cards may remain visible as non-interactive `COMING SOON` articles, but they must never expose a public link before their page is enabled.
 
 ## Project pages
 
@@ -113,28 +122,31 @@ Existing canonical pages remain:
 - `/work/awful-cases/`
 - `/work/moves-awful/`
 
-Add production-like, direct-link-only, unlisted/noindex entity pages for:
+Prepare production-like EntityPage architecture for:
 
 - `/work/berserk-timer/`
 - `/work/awful-studio/`
 
 They must use the existing `EntityPageContent` + `EntityShellPresentation` + entity renderer architecture. Do not create standalone page shells or a generic page builder.
 
+Until their final cards/pages are approved, both production-candidate manifest entries stay `enabled:false`, `listed:false`, `indexable:false`. Their files/content may exist in the branch so development can continue without making the routes publicly routable. The password-protected Lab may enable them for review.
+
 Berserk Timer page content must represent the console Pomodoro timer described by the approved card copy and available project evidence. Do not silently mix unrelated desktop/CLI product identities or expose a private repository as a public link.
 
-AWFUL STUDIO uses the current Blender-native product-studio facts and real prepared media. Its presentation hierarchy is: intro -> strong hero -> mockup/product deck -> technical/system slider -> compact final media group. Reuse existing media blocks and page shell.
+AWFUL STUDIO uses the current Blender-native product-studio facts and real prepared media. Its eventual presentation hierarchy is: intro -> strong hero -> mockup/product deck -> technical/system slider -> compact final media group. Reuse existing media blocks and page shell.
 
 ## Preview strategy
 
-The primary approval surface is a draft PR based on current `prod`, because it renders the real homepage and real `/work/...` pages with production CSS and runtime.
+The primary production-candidate surface is a draft PR based on current `prod`. Release-gated routes remain disabled there until final page/card approval.
 
-Additionally expose an isolated Lab preview fixture for card states so the following can be inspected without polluting production data:
+Additionally expose an isolated password-protected Lab preview fixture for card states and private route review so the following can be inspected without exposing unfinished work to real users:
 
 - normal live card;
 - live card with `NEW`;
 - `COMING SOON` non-clickable card;
-- 4-card current set;
-- larger synthetic set to demonstrate multiple desktop rows and mobile scrolling.
+- 4-card current authored set;
+- larger synthetic set to demonstrate multiple desktop rows and mobile scrolling;
+- enabled private versions of the Berserk Timer and AWFUL STUDIO routes when needed for development.
 
 Storybook may consume the same renderer/fixtures if the current Lab Storybook infrastructure is available, but Storybook must not become a second implementation of the component. The production renderer and CSS are the source of truth.
 
@@ -146,17 +158,20 @@ Required verification before calling the preview ready:
 
 - TypeScript typecheck;
 - focused card-rendering/route contracts;
+- permanent release-gate contracts proving unfinished cards have no `href` and unfinished production-candidate pages are disabled/unlisted/non-indexable;
 - `test:fast` if affected contracts are in its manifest;
 - `npm run build:site`;
-- relevant project/MPA E2E;
+- relevant project/MPA E2E where applicable;
 - manual/affected responsive Chromium check for 390, 834 and 1440 class viewports;
-- PR Preview deploy on the exact branch SHA.
+- private Lab/Storybook deploy for visual review;
+- PR Preview checks on the exact branch SHA.
 
 Final report must classify new tests according to `docs/testing-policy.md`.
 
 ## Non-goals
 
-- no production merge;
+- no production merge without explicit approval;
+- no publicly routable unfinished Berserk Timer or AWFUL STUDIO page;
 - no public future-project routes or placeholder pages;
 - no new CSS framework/reset/token system;
 - no JS-driven breakpoint/layout calculations;
