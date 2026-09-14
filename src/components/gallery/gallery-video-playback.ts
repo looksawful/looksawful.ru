@@ -43,7 +43,7 @@ export function createGalleryVideoPlayback(
         }
       }
     },
-    { threshold: [0, 0.6, 1] },
+    { threshold: [0.6] },
   );
 
   for (const video of videos) observer.observe(video);
