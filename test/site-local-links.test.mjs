@@ -60,3 +60,8 @@ test("mailto and external URLs are ignored", () => withDist(async (dir) => {
   await put(dir, "index.html", html('<a href="mailto:i@example.com">mail</a><a href="https://example.com/missing">external</a>'));
   await checkLocalLinks({ distDir: dir });
 }));
+
+test("runtime template references in generated HTML are not treated as static filesystem links", () => withDist(async (dir) => {
+  await put(dir, "index.html", html('<a href="${doc}">runtime</a><img src="${asset}">'));
+  await checkLocalLinks({ distDir: dir });
+}));
