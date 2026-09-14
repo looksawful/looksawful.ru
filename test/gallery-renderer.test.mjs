@@ -27,12 +27,13 @@ assert.ok(galleryPage && galleryPage.type === "gallery");
 
 const html = renderGalleryPage(galleryPage);
 
-test("Gallery renderer emits semantic build-time content inside the shared page shell", () => {
+test("Gallery renderer emits semantic build-time content inside the shared page shell without a page-level heading", () => {
   assert.match(html, /<body[^>]*data-page-type="gallery"[^>]*>/);
   assert.match(html, /data-site-navigation/);
   assert.match(html, /<main>/);
   assert.match(html, /<section[^>]*data-gallery/);
-  assert.match(html, /<h1[^>]*>gallery<\/h1>/);
+  assert.doesNotMatch(html, /<h1\b/i);
+  assert.doesNotMatch(html, /gallery__header|gallery__title/);
 });
 
 test("Gallery renderer has one photo stream and no retired layer/filter UI", () => {
@@ -79,10 +80,9 @@ test("Gallery PhotoSwipe credits stay readable over arbitrary photography", () =
   assert.match(captionRule, /padding:/);
 });
 
-test("Gallery CSS follows site typography and explicitly avoids masonry mechanics", () => {
-  assert.match(galleryCss, /\.gallery__title\s*\{[\s\S]*font-size:\s*var\(--fs-800\)/);
-  assert.match(galleryCss, /\.gallery__title\s*\{[\s\S]*font-weight:\s*var\(--fw-700\)/);
-  assert.match(galleryCss, /\.gallery__title\s*\{[\s\S]*letter-spacing:\s*var\(--ls-heading\)/);
+test("Gallery CSS has no retired heading styles and explicitly avoids masonry mechanics", () => {
+  assert.doesNotMatch(galleryCss, /\.gallery__header\b/);
+  assert.doesNotMatch(galleryCss, /\.gallery__title\b/);
   assert.doesNotMatch(galleryCss, /column-count\s*:/);
   assert.doesNotMatch(galleryCss, /grid-auto-rows\s*:/);
   assert.doesNotMatch(galleryCss, /grid-row-end\s*:/);
