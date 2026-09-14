@@ -35,6 +35,8 @@ const expectedRoutes = new Map([
   ["collection:music-photography", "/shootings/"],
   ["project:awful-cases", "/work/awful-cases/"],
   ["project:moves-awful", "/work/moves-awful/"],
+  ["project:berserk-timer", "/work/berserk-timer/"],
+  ["project:awful-studio", "/work/awful-studio/"],
   ["project:berry-social-content-2020", "/work/berry-social-content-2020/"],
   ["cv", "/cv/"],
   ["privacy", "/privacy/"],
@@ -152,6 +154,8 @@ test("enabled page lookup uses canonical normalized paths", () => {
 
   const page = getPageByPath("/work/jestei-pool");
   assert.equal(page?.id, "case:jestei-pool");
+  assert.equal(getPageByPath("/work/berserk-timer")?.id, "project:berserk-timer");
+  assert.equal(getPageByPath("/work/awful-studio")?.id, "project:awful-studio");
   assert.equal(getPageByPath("/cv")?.id, "cv");
   assert.equal(getPageByPath("/privacy")?.id, "privacy");
 });
@@ -164,6 +168,8 @@ test("entity routes reference the existing domain model", () => {
     ["collection:music-photography", { type: "collection", entityId: "music-photography" }],
     ["project:awful-cases", { type: "project", entityId: "awful-cases" }],
     ["project:moves-awful", { type: "project", entityId: "moves-awful" }],
+    ["project:berserk-timer", { type: "project", entityId: "berserk-timer" }],
+    ["project:awful-studio", { type: "project", entityId: "awful-studio" }],
     ["project:berry-social-content-2020", { type: "project", entityId: "berry-social-content-2020" }],
   ]);
 
