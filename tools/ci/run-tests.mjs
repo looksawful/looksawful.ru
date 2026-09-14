@@ -13,6 +13,7 @@ const derivativeTests = new Set([
 export const fastTests = new Set([
   "test/agent-verification-workflow.test.mjs",
   "test/awful-cases-cms-editorial.test.mjs",
+  "test/berserk-timer-page-contract.test.mjs",
   "test/ci-fast-concurrency.test.mjs",
   "test/code-block-contract.test.mjs",
   "test/cms-publication-scope.test.mjs",
@@ -47,6 +48,9 @@ export const fastTests = new Set([
   "test/media-tools/affected-media-ci.test.mjs",
   "test/media-tools/media-cache-fingerprint-scope.test.mjs",
   "test/pages-cms-yaml-syntax.test.mjs",
+  "test/pet-project-card-access.test.mjs",
+  "test/pet-project-cards.test.mjs",
+  "test/pet-project-page-access.test.mjs",
   "test/pr-preview-media-packaging.test.mjs",
   "test/pr-preview-workflow.test.mjs",
   "test/portfolio-pet-production-contact-form.test.mjs",
