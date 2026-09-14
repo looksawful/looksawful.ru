@@ -35,6 +35,11 @@ export function isFixtureHtml(filePath, rootDir) {
   return relative.some((segment) => FIXTURE_SEGMENTS.has(segment.toLowerCase()));
 }
 
+export function isLabDesignSystemHtml(filePath, rootDir) {
+  const relative = path.relative(rootDir, filePath).split(path.sep).join("/");
+  return relative.startsWith("lab/system/");
+}
+
 export function is404Html(filePath) {
   return path.basename(filePath).toLowerCase() === "404.html";
 }
