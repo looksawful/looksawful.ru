@@ -23,14 +23,16 @@ const meta = {
       canonical: true,
       state: "interactive-ready",
       visibility: ["always"],
+      interaction: ["default", "active-or-pressed", "disabled"],
       motion: ["motion-enabled", "reduced-motion"],
       responsive: {
         review: ["desktop", "tablet", "mobile"],
+        conditions: ["portrait", "landscape"],
       },
     },
     docs: {
       description: {
-        component: "Uses the canonical Sensetique page-flip data, production renderer and production runtime enhancer. Motion behavior follows the current prefers-reduced-motion environment.",
+        component: "Uses the canonical Sensetique page-flip data, production renderer and production runtime enhancer. Runtime evidence includes disabled edge controls, active paging, portrait/landscape orientation and prefers-reduced-motion behavior.",
       },
     },
   },
