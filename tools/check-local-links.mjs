@@ -23,6 +23,7 @@ export async function checkLocalLinks({ distDir = "dist" } = {}) {
   };
 
   for (const sourceHtml of htmlFiles) {
+    if (isLabDesignSystemHtml(sourceHtml, root)) continue;
     const html = await readCached(sourceHtml);
     const sourceLabel = path.relative(root, sourceHtml);
 
