@@ -57,6 +57,21 @@ jobs:
           done < "$RUNNER_TEMP/lab-prs.txt"
           echo "dev_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
+          set +e
+          lab_remote="$(git ls-remote --exit-code origin refs/heads/lab 2>"$RUNNER_TEMP/lab-ref.err")"
+          lab_status=$?
+          set -e
+          if [[ $lab_status -eq 0 ]]; then
+            lab_expected_sha="${lab_remote%%$'\t'*}"
+            [[ "$lab_expected_sha" =~ ^[0-9a-f]{40}$ ]] || { echo "lab ref returned invalid SHA" >&2; exit 1; }
+          elif [[ $lab_status -eq 2 ]]; then
+            lab_expected_sha=""
+          else
+            cat "$RUNNER_TEMP/lab-ref.err" >&2
+            exit "$lab_status"
+          fi
+          echo "lab_expected_sha=$lab_expected_sha" >> "$GITHUB_OUTPUT"
+
       - name: Compose without mutating known-good Lab on conflict
         shell: bash
         run: |
@@ -79,7 +94,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          git push --force-with-lease origin HEAD:refs/heads/lab
+          git push "--force-with-lease=refs/heads/lab:${{ steps.resolve.outputs.lab_expected_sha }}" origin HEAD:refs/heads/lab
 
       - name: Summary
         if: always()
