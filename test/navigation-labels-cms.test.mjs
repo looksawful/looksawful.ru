@@ -16,6 +16,7 @@ const navigationDataUrl = new URL("../src/data/navigation.ts", import.meta.url);
 
 const fixture = [
   { id: "home", label: "Старт" },
+  { id: "gallery", label: "галерея" },
   { id: "case:jestei-pool", label: "Музыка" },
   { id: "case:styx", label: "Украшения" },
   { id: "case:sensetique", label: "Студия" },
@@ -36,7 +37,7 @@ test("navigation label adapter derives fixed identity and order from primary Sit
   assert.deepEqual(parsed.map(({ id }) => id), PRIMARY_NAVIGATION_PAGE_IDS);
   assert.deepEqual(
     parsed.map(({ label }) => label),
-    ["Старт", "Музыка", "Украшения", "Студия", "Съёмки", "Опыт"],
+    ["Старт", "галерея", "Музыка", "Украшения", "Студия", "Съёмки", "Опыт"],
   );
   assert.match(source, /PRIMARY_NAVIGATION_PAGE_IDS/);
   assert.doesNotMatch(source, /export const NAVIGATION_LABEL_IDS\s*=\s*\[/);
@@ -71,7 +72,7 @@ test("navigation label adapter rejects missing, duplicate, unknown and empty con
   );
 });
 
-test("edited CMS labels feed menu and breadcrumbs while href and preview stay code-owned", () => {
+test("edited CMS labels feed visible menu and breadcrumbs while hidden Gallery keeps its identity", () => {
   const labels = parseNavigationLabels(fixture);
   const menu = getPrimaryNavigationItems(labels);
 
@@ -94,9 +95,13 @@ test("edited CMS labels feed menu and breadcrumbs while href and preview stay co
     { id: "home", label: "Старт", href: "/" },
     { id: "case:jestei-pool", label: "Музыка", current: true },
   ]);
+  assert.deepEqual(getBreadcrumbItems(page("gallery"), labels), [
+    { id: "home", label: "Старт", href: "/" },
+    { id: "gallery", label: "галерея", current: true },
+  ]);
 });
 
-test("live navigation content keeps six stable IDs with editable non-empty labels", async () => {
+test("live navigation content keeps seven stable IDs with editable non-empty labels", async () => {
   const content = JSON.parse(
     await readFile(new URL("../src/content/navigation.json", import.meta.url), "utf8"),
   );
