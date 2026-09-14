@@ -3,13 +3,14 @@ import test from "node:test";
 
 import { petProjectCards } from "../src/data/pet-project-cards.ts";
 
-const unfinishedProjectIds = ["berserk-timer", "awful-studio"];
+test("Berserk Timer is publicly linked while AWFUL STUDIO stays gated", () => {
+  const berserk = petProjectCards.find((candidate) => candidate.id === "berserk-timer");
+  assert.ok(berserk, "missing Berserk Timer card");
+  assert.equal(berserk.state, "live");
+  assert.equal(berserk.href, "/work/berserk-timer/");
 
-test("unfinished Pet Project cards never expose public hrefs", () => {
-  for (const id of unfinishedProjectIds) {
-    const card = petProjectCards.find((candidate) => candidate.id === id);
-    assert.ok(card, `missing Pet Project card ${id}`);
-    assert.equal(card.state, "coming-soon");
-    assert.equal("href" in card, false);
-  }
+  const awfulStudio = petProjectCards.find((candidate) => candidate.id === "awful-studio");
+  assert.ok(awfulStudio, "missing AWFUL STUDIO card");
+  assert.equal(awfulStudio.state, "coming-soon");
+  assert.equal("href" in awfulStudio, false);
 });
