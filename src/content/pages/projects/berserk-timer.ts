@@ -1,4 +1,4 @@
-import { berserkTimerCover, berserkTimerIntro } from "../../../data/content/berserk-timer.ts";
+import { berserkTimerIntro } from "../../../data/content/berserk-timer.ts";
 import type { EntityPageContent } from "../../contracts/page-content.ts";
 
 export const berserkTimerPageContent = {
@@ -6,15 +6,10 @@ export const berserkTimerPageContent = {
   intro: berserkTimerIntro,
   sections: [
     {
-      type: "project",
-      id: "berserk-timer-interface",
+      type: "specialized",
+      kind: "berserk-timer-showcase",
+      id: "berserk-timer-showcase",
       projectId: "berserk-timer",
-      blocks: [
-        {
-          type: "media-figure",
-          data: berserkTimerCover,
-        },
-      ],
     },
   ],
 } as const satisfies EntityPageContent;
