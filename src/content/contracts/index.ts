@@ -22,6 +22,7 @@ export {
   assertNeverSection,
 } from "./sections.ts";
 export type {
+  BerserkTimerShowcaseSection,
   ContentSection,
   JesteiTrackFilterSection,
   MovesCanvasDemoSection,
