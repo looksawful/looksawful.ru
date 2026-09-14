@@ -9,10 +9,18 @@ export type HomepageEntityReference =
   | { type: "project"; id: ProjectId }
   | { type: "collection"; id: CollectionId };
 
+export interface HomepagePreviewConfig {
+  sectionIds: readonly string[];
+  href: string;
+  introLabel: string;
+  calloutLabel: string;
+}
+
 export interface HomepageEntry {
   entity: HomepageEntityReference;
   mode: HomepageRenderMode;
   order: number;
+  preview?: HomepagePreviewConfig;
 }
 
 export const homepageEntries = [
@@ -20,6 +28,17 @@ export const homepageEntries = [
     entity: { type: "case", id: "jestei-pool" },
     mode: "compact",
     order: 10,
+    preview: {
+      sectionIds: [
+        "jestei-featured",
+        "jestei-home",
+        "jestei-brand",
+        "jestei-event",
+      ],
+      href: "/work/jestei-pool/",
+      introLabel: "Подробнее о проекте",
+      calloutLabel: "Подробнее о проекте",
+    },
   },
   {
     entity: { type: "case", id: "styx" },
@@ -49,6 +68,12 @@ export function assertHomepagePresentationSupported(
     if (entry.mode !== "full" && entry.mode !== "compact") {
       throw new Error(
         `Homepage render mode is not implemented: ${entityKey(entry.entity)} -> ${entry.mode}`,
+      );
+    }
+
+    if (entry.preview && entry.mode !== "compact") {
+      throw new Error(
+        `Homepage preview config requires compact mode: ${entityKey(entry.entity)}`,
       );
     }
   }
