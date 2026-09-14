@@ -16,3 +16,10 @@ test("responsive image atom uses canonical production owner and real media data"
   assert.match(source, /responsive:\s*\{/);
   assert.doesNotMatch(source, /srcset\s*=/);
 });
+
+test("responsive image atom resolves an importable production fixture", async () => {
+  const story = await import(`${storyUrl.href}?fixture=${Date.now()}`);
+  assert.equal(typeof story.default.render, "function");
+  assert.ok(story.Lazy);
+  assert.ok(story.Eager);
+});
