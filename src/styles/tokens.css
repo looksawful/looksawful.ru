@@ -81,4 +81,7 @@
 
   --border-width-100: 1px;
   --border-width-200: 2px;
+
+  --layer-assistant-pet: 120;
+  --layer-contact-hub: 130;
 }
