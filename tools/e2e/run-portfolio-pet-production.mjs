@@ -1,0 +1,63 @@
+import { isDirectExecution, withE2ERuntime } from "./runtime.mjs";
+
+export async function runPortfolioPetProductionSanity({ browser, baseUrl }) {
+  for (const viewport of [
+    { width: 390, height: 844 },
+    { width: 1440, height: 900 },
+  ]) {
+    const context = await browser.newContext({
+      viewport,
+      hasTouch: viewport.width === 390,
+      isMobile: viewport.width === 390,
+    });
+    const page = await context.newPage();
+    const chatRequests = [];
+    page.on("request", (request) => {
+      if (/portfolio-chat|assistant/i.test(request.url())) chatRequests.push(request.url());
+    });
+    await page.goto(baseUrl, { waitUntil: "domcontentloaded" });
+    const pet = page.locator("[data-portfolio-pet-launcher]");
+    await pet.waitFor({ state: "visible" });
+    const assetVersion = await pet.getAttribute("data-asset-version");
+    if (assetVersion !== "v6") throw new Error(`expected v6 pet, got ${assetVersion}`);
+    const image = pet.locator("img");
+    await image.evaluate(async (node) => node.decode());
+
+    await pet.click();
+    const form = page.locator("[data-contact-form-hub]");
+    await form.waitFor({ state: "visible" });
+    if (await page.locator("[data-contact-hub-ai], [data-contact-hub-ai-composer]").count()) {
+      throw new Error("AI controls are present in the contact-only release");
+    }
+    await form.locator("[data-contact-form]").evaluate((node) => {
+      const formElement = node;
+      formElement.elements.namedItem("email").value = "test@example.com";
+      formElement.elements.namedItem("message").value = "test";
+    });
+    await form.locator("[data-contact-form-hub-close]").click();
+
+    const before = await pet.boundingBox();
+    if (!before) throw new Error("pet has no bounding box");
+    await page.mouse.move(before.x + before.width / 2, before.y + before.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(before.x + before.width / 2 + 48, before.y + before.height / 2 - 24, {
+      steps: 4,
+    });
+    await page.mouse.up();
+    const after = await pet.boundingBox();
+    if (!after || Math.abs(after.x - before.x) < 10) throw new Error("pet did not move after drag");
+
+    await page.locator("[data-portfolio-pet-dismiss]").click();
+    if (await pet.isVisible()) throw new Error("pet remained visible after hide");
+    const restore = page.locator("[data-portfolio-pet-restore]");
+    await restore.click();
+    await pet.waitFor({ state: "visible" });
+    if (chatRequests.length) throw new Error(`unexpected AI requests: ${chatRequests.join(", ")}`);
+    console.log(`[portfolio-pet-production] ${viewport.width}x${viewport.height}: OK`);
+    await context.close();
+  }
+}
+
+if (isDirectExecution(import.meta.url)) {
+  await withE2ERuntime(runPortfolioPetProductionSanity);
+}

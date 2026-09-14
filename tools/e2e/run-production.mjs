@@ -1,5 +1,6 @@
 import { runQuickSmoke, runMediaSanity } from "./run-smoke.mjs";
 import { isDirectExecution, withE2ERuntime } from "./runtime.mjs";
+import { runPortfolioPetProductionSanity } from "./run-portfolio-pet-production.mjs";
 
 async function inspectImage(locator, label) {
   await locator.waitFor({ state: "attached", timeout: 10_000 });
@@ -271,6 +272,7 @@ async function runGallerySanity({ browser, baseUrl }) {
 }
 
 export async function runProductionE2E({ browser, baseUrl }) {
+  await runPortfolioPetProductionSanity({ browser, baseUrl });
   await runQuickSmoke({ browser, baseUrl, cvMode: "production" });
   await runMediaSanity({ browser, baseUrl });
   await runJesteiFilterArtworkSanity({ browser, baseUrl });

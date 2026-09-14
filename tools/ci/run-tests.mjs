@@ -46,6 +46,7 @@ export const fastTests = new Set([
   "test/pages-cms-yaml-syntax.test.mjs",
   "test/pr-preview-media-packaging.test.mjs",
   "test/pr-preview-workflow.test.mjs",
+  "test/portfolio-pet-production-contact-form.test.mjs",
   "test/project-card-hover.test.mjs",
   "test/repository-growth-policy.test.mjs",
   "test/search-presentation.test.mjs",
