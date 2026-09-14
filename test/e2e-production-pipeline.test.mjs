@@ -38,6 +38,23 @@ test("production E2E runner reuses one runtime for compact production smoke and 
   assert.doesNotMatch(source, /captureCaptionQa|runAllSmokeSuites|runSmokeNavigation|runSmokeMpa/);
 });
 
+test("production E2E includes mixed-media Gallery masonry QA", async () => {
+  const runner = await read("tools/e2e/run-production.mjs");
+  const gallery = await read("tools/e2e/gallery-media-wall.mjs");
+
+  assert.match(runner, /runGalleryMediaWallSanity/);
+  assert.match(gallery, /data-gallery-kind=["']image["']/);
+  assert.match(gallery, /data-gallery-kind=["']video["']/);
+  assert.match(gallery, /scrollIntoViewIfNeeded/);
+  assert.match(gallery, /horizontal overflow/);
+  assert.match(gallery, /prefers-reduced-motion|reducedMotion/);
+  assert.match(gallery, /gallery-lightbox__video/);
+  assert.match(gallery, /columnGap/);
+  assert.match(gallery, /rowGap/);
+  assert.match(gallery, /ArrowRight/);
+  assert.match(gallery, /data-gallery-credits/);
+});
+
 test("full combined E2E validates production CV output on direct execution", async () => {
   const source = await read("tools/e2e/run-all.mjs");
   assert.match(source, /runAllSmokeSuites\(\{\s*browser,\s*baseUrl,\s*cvMode\s*=\s*["']authored["']/s);
