@@ -37,6 +37,7 @@ export const fastTests = new Set([
   "test/domain-taxonomy-references.test.mjs",
   "test/editorial-content-boundary.test.mjs",
   "test/editorial-copy-optional.test.mjs",
+  "test/gallery-masonry.test.mjs",
   "test/gallery-navigation-visibility.test.mjs",
   "test/gallery-prerelease.test.mjs",
   "test/gallery-renderer.test.mjs",
