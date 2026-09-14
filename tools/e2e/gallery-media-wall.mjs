@@ -156,7 +156,7 @@ export async function runGalleryMediaWallSanity({ browser, baseUrl }) {
     await page.waitForFunction(() => {
       const video = document.querySelector("video[data-gallery-video]");
       return video instanceof HTMLVideoElement && !video.paused;
-    }, { timeout: 8_000 });
+    }, null, { timeout: 8_000 });
 
     const imageWithCreditsIndex = await page
       .locator('[data-gallery-card][data-gallery-kind="image"]')
