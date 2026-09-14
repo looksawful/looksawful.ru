@@ -56,6 +56,12 @@ test("query/hash assets resolve before filesystem checks", () => withDist(async 
   await checkLocalLinks({ distDir: dir });
 }));
 
+test("generated Lab design-system HTML is outside production local-link validation", () => withDist(async (dir) => {
+  await put(dir, "index.html", html("<main>site</main>"));
+  await put(dir, "lab/system/index.html", html('<img src="/storybook-internal-missing.svg">'));
+  await checkLocalLinks({ distDir: dir });
+}));
+
 test("mailto and external URLs are ignored", () => withDist(async (dir) => {
   await put(dir, "index.html", html('<a href="mailto:i@example.com">mail</a><a href="https://example.com/missing">external</a>'));
   await checkLocalLinks({ distDir: dir });
