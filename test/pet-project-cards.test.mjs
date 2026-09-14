@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 
 import { petProjectCards } from "../src/data/pet-project-cards.ts";
@@ -81,4 +82,19 @@ test("coming-soon Pet Project cards are semantic non-links", () => {
   assert.match(html, /class="subproject-card__badge"[^>]*>COMING SOON<\/span>/);
   assert.doesNotMatch(html, /<a\b/);
   assert.doesNotMatch(html, /href=/);
+});
+
+test("homepage owns Pet Projects composition while CSS owns presentation", () => {
+  const source = readFileSync(
+    new URL("../src/site/renderers/home/home-slots.ts", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(
+    source,
+    /import \{ petProjectCards \} from "\.\.\/\.\.\/\.\.\/data\/pet-project-cards\.ts";/,
+  );
+  assert.match(source, /<h2 id="pet-projects-title"[^>]*>Полезное<\/h2>/);
+  assert.doesNotMatch(source, /petProjectsPreviewStyles/);
+  assert.doesNotMatch(source, /<style>\$\{/);
 });
