@@ -43,20 +43,18 @@ export const petProjectCards = [
     description: "Консольный помодоро-таймер для Windows.",
     coverEntryId: "berserk-timer-cover-use-01",
     shape: "landscape",
-    href: "/work/berserk-timer/",
     source: "site",
-    state: "live",
+    state: "coming-soon",
   },
   {
     id: "awful-studio",
     title: "AWFUL STUDIO",
     description: "Расширение Blender для сборки виртуальной предметной студии.",
-    // Temporary canonical-catalog placeholder. Task 4 replaces this with the
-    // registered AWFUL STUDIO hero entry before the preview is considered ready.
+    // Temporary canonical-catalog placeholder. The final card art is connected
+    // only when AWFUL STUDIO is ready to leave the preview-only state.
     coverEntryId: "berserk-timer-cover-use-01",
     shape: "landscape",
-    href: "/work/awful-studio/",
     source: "site",
-    state: "live",
+    state: "coming-soon",
   },
 ] as const satisfies readonly PetProjectCardData[];
