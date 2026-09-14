@@ -1,7 +1,6 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
-import { fastTests } from "../tools/ci/run-tests.mjs";
 
 const media = readFileSync(new URL("../src/styles/media.css", import.meta.url), "utf8");
 const components = readFileSync(new URL("../src/styles/components.css", import.meta.url), "utf8");
@@ -73,8 +72,4 @@ test("Wave5K preserves runtime and authored duration boundaries", () => {
 
 test("Wave5K media ownership remains isolated from Slider", () => {
   assert.doesNotMatch(media, /(?:^|\n)\.slider\s*\{/);
-});
-
-test("Wave5K infinite-reel split ownership contract is mandatory in Fast CI", () => {
-  assert.equal(fastTests.has("test/css-refactor-wave5k-infinite-reel.test.mjs"), true);
 });

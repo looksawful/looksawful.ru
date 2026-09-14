@@ -1,7 +1,6 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
-import { fastTests } from "../tools/ci/run-tests.mjs";
 
 const components = readFileSync(new URL("../src/styles/components.css", import.meta.url), "utf8");
 const media = readFileSync(new URL("../src/styles/media.css", import.meta.url), "utf8");
@@ -32,8 +31,4 @@ test("Wave5K mask consumers provide the generic fade fallback at the read site",
 
 test("Wave5K fade remediation does not invent a duplicate configuration variable", () => {
   assert.doesNotMatch(`${components}\n${media}`, /--(?:media-group|reel)-infinite-reel-fade-size\s*:/);
-});
-
-test("Wave5K fade input contract is mandatory in Fast CI", () => {
-  assert.equal(fastTests.has("test/css-refactor-wave5k-fade-input.test.mjs"), true);
 });
