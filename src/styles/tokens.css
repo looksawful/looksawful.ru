@@ -79,9 +79,15 @@
     0 1px 2px rgb(0 0 0 / 0.035),
     0 10px 30px rgb(0 0 0 / 0.055);
 
+  /* Form-control primitives shared by compact product UI. */
+  --control-block-size: 2.75rem;
+  --control-radius: var(--radius-contained);
+  --control-padding-inline: var(--size-300);
+  --shadow-control:
+    0 1px 1px rgb(0 0 0 / 0.08),
+    0 4px 12px rgb(0 0 0 / 0.08);
+  --shadow-focus-ring: 0 0 0 3px color-mix(in srgb, var(--clr-foreground), transparent 88%);
+
   --border-width-100: 1px;
   --border-width-200: 2px;
-
-  --layer-assistant-pet: 120;
-  --layer-contact-hub: 130;
 }

@@ -71,6 +71,19 @@ export const otherProjects = [
     primaryRoleId: "developer",
     roleIds: ["developer"],
   },
+  {
+    id: "awful-studio",
+    name: "AWFUL STUDIO",
+    date: "2026",
+    status: "active",
+    collectionIds: ["pet-projects"],
+    summary: "Расширение Blender для сборки виртуальной предметной студии.",
+    description:
+      "Blender-native виртуальная предметная и рекламная студия для сборки редактируемых сцен, света, камер, окружения, процедурных мокапов и motion-пресетов без замены нативных инструментов Blender.",
+    engagementTypeIds: ["self-initiated"],
+    primaryRoleId: "developer",
+    roleIds: ["developer"],
+  },
 ] as const satisfies readonly ProjectData[];
 
 export type OtherProject = (typeof otherProjects)[number];

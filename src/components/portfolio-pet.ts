@@ -23,7 +23,7 @@ export interface MountPortfolioPetOptions {
 
 const PET_SELECTOR = "[data-portfolio-pet-launcher]";
 const CONSENT_SELECTOR = ".site-analytics-consent";
-const CONTACT_CTA_SELECTOR = '.contact a[href="mailto:i@lookawful.ru"]';
+const CONTACT_CTA_SELECTOR = 'a[href="mailto:i@lookawful.ru"]';
 const POSITION_STORAGE_KEY = "looksawful:portfolio-pet-position:v1";
 const DRAG_THRESHOLD = 10;
 const MIN_VISIBLE = { width: 72, height: 96 } as const;
@@ -54,7 +54,6 @@ interface DragSession {
   pointerId: number;
   startX: number;
   startY: number;
-  lastX: number;
   startTime: number;
   startRect: DOMRect;
   moved: boolean;
@@ -192,6 +191,9 @@ export function mountPortfolioPet(
   viewport.className = "portfolio-pet__viewport";
   viewport.setAttribute("aria-hidden", "true");
 
+  const facing = root.createElement("span");
+  facing.className = "portfolio-pet__facing";
+
   const image = root.createElement("img");
   image.className = "portfolio-pet__image";
   image.src = AWFUL_V6_SOURCES.main;
@@ -200,7 +202,8 @@ export function mountPortfolioPet(
   image.decoding = "async";
   image.fetchPriority = "high";
 
-  viewport.append(image);
+  facing.append(image);
+  viewport.append(facing);
   launcher.append(viewport);
   root.body.append(launcher, dismissButton, restoreButton);
 
@@ -219,6 +222,7 @@ export function mountPortfolioPet(
   let currentVisualState: PetVisualState = "idle";
   let observedConsent: HTMLElement | null = null;
   let lastUserActivityAt = performance.now();
+  let lastHoverGestureAt = Number.NEGATIVE_INFINITY;
   const lastDecorativeStartedAt = new Map<AwfulDecorativeAnimation, number>();
   launcher.dataset.assetVersion = "v6";
 
@@ -232,7 +236,14 @@ export function mountPortfolioPet(
     animation: AwfulDecorativeAnimation,
     now = performance.now(),
   ): boolean => {
-    if (fallbackActive || dragSession || currentVisualState === "error") return false;
+    if (
+      fallbackActive ||
+      dragSession ||
+      launcher.hidden ||
+      reducedMotionQuery?.matches ||
+      currentVisualState === "error"
+    )
+      return false;
 
     const policy = AWFUL_DECORATIVE_ANIMATION_POLICY[animation];
     const lastStartedAt = lastDecorativeStartedAt.get(animation);
@@ -295,7 +306,10 @@ export function mountPortfolioPet(
   };
 
   const renderSprite = (now: number): void => {
-    if (!fallbackActive && currentAnimation === "idle") {
+    frameRequest = 0;
+    if (destroyed || launcher.hidden) return;
+    const reducedMotion = reducedMotionQuery?.matches ?? false;
+    if (!reducedMotion && !fallbackActive && currentAnimation === "idle") {
       const inactiveFor = now - lastUserActivityAt;
       if (inactiveFor >= 180_000) requestDecorativeAnimation("sleep-cross-legged", now);
       else if (inactiveFor >= 15_000) requestDecorativeAnimation("coffee", now);
@@ -304,14 +318,14 @@ export function mountPortfolioPet(
     const animation = resolveSpriteAnimation(manifest, currentAnimation);
     if (animation.src !== renderedSrc) {
       requestSpriteSource(animation.src);
-      frameRequest = view?.requestAnimationFrame(renderSprite) ?? 0;
+      if (!reducedMotion) frameRequest = view?.requestAnimationFrame(renderSprite) ?? 0;
       return;
     }
     if (pendingSrc) cancelPendingSpriteSource();
     const frame = resolveAnimationFrame(
       animation,
       now - animationStartedAt,
-      reducedMotionQuery?.matches ?? false,
+      reducedMotion,
     );
     const rect = resolveSpriteFrameRect(animation, frame.frameIndex);
     image.style.transform = `translate(${-rect.x}px, ${-rect.y}px)`;
@@ -325,11 +339,25 @@ export function mountPortfolioPet(
     ) {
       startAnimation(animationForState(currentVisualState));
     }
-    frameRequest = view?.requestAnimationFrame(renderSprite) ?? 0;
+    if (!reducedMotion) frameRequest = view?.requestAnimationFrame(renderSprite) ?? 0;
+  };
+
+  const resumeSpriteRendering = (): void => {
+    if (!view || destroyed || launcher.hidden || frameRequest) return;
+    if (reducedMotionQuery?.matches) {
+      renderSprite(performance.now());
+      return;
+    }
+    frameRequest = view.requestAnimationFrame(renderSprite);
+  };
+
+  const pauseSpriteRendering = (): void => {
+    if (frameRequest && view) view.cancelAnimationFrame(frameRequest);
+    frameRequest = 0;
   };
 
   startAnimation("idle");
-  frameRequest = view?.requestAnimationFrame(renderSprite) ?? 0;
+  resumeSpriteRendering();
 
   const onImageError = activateFallback;
 
@@ -351,6 +379,9 @@ export function mountPortfolioPet(
 
   const hidePet = (): void => {
     const rect = launcher.getBoundingClientRect();
+    pauseSpriteRendering();
+    cancelPendingSpriteSource();
+    startAnimation(animationForState(currentVisualState));
     launcher.hidden = true;
     dismissButton.hidden = true;
     restoreButton.style.top = `${Math.round(Math.max(16, Math.min(rect.top + rect.height / 2 - 18, (view?.innerHeight ?? 800) - 52)))}px`;
@@ -362,6 +393,7 @@ export function mountPortfolioPet(
     restoreButton.hidden = true;
     launcher.hidden = false;
     dismissButton.hidden = false;
+    resumeSpriteRendering();
     updateDefaultObstacleOffset();
     requestAnimationFrame(() => {
       syncPetControls();
@@ -491,7 +523,6 @@ export function mountPortfolioPet(
       pointerId: event.pointerId,
       startX: event.clientX,
       startY: event.clientY,
-      lastX: event.clientX,
       startTime: performance.now(),
       startRect: rect,
       moved: false,
@@ -503,11 +534,9 @@ export function mountPortfolioPet(
     if (!dragSession || dragSession.pointerId !== event.pointerId) return;
     const dx = event.clientX - dragSession.startX;
     const dy = event.clientY - dragSession.startY;
-    const stepDx = event.clientX - dragSession.lastX;
-    dragSession.lastX = event.clientX;
     if (!dragSession.moved && Math.hypot(dx, dy) < DRAG_THRESHOLD) return;
 
-    setFacingFromDelta(Math.abs(stepDx) >= 0.5 ? stepDx : dx);
+    setFacingFromDelta(dx);
     dragSession.moved = true;
     launcher.dataset.dragging = "true";
     launcher.dataset.state = "dragging";
@@ -539,6 +568,7 @@ export function mountPortfolioPet(
             durationMs,
             velocityX: dx / durationMs,
             viewportEdgeDistance: Math.max(0, event.clientX - viewportLeft),
+            startViewportEdgeDistance: Math.max(0, session.startRect.left - viewportLeft),
           });
 
     dragSession = null;
@@ -610,11 +640,24 @@ export function mountPortfolioPet(
     syncPetControls();
   };
 
+  const onReducedMotionChange = (): void => {
+    pauseSpriteRendering();
+    if (isAwfulDecorativeAnimation(currentAnimation)) startAnimation(animationForState(currentVisualState));
+    if (launcher.hidden || reducedMotionQuery?.matches) {
+      if (!launcher.hidden) renderSprite(performance.now());
+      return;
+    }
+    resumeSpriteRendering();
+  };
+
   const onPointerEnter = (): void => {
-    if (!dragSession && currentVisualState === "idle") startAnimation("hover");
+    if (dragSession || currentVisualState !== "idle") return;
+    const now = performance.now();
+    if (now - lastHoverGestureAt < 90_000) return;
+    if (requestDecorativeAnimation("full-body-glasses-gesture", now)) lastHoverGestureAt = now;
   };
   const onPointerLeave = (): void => {
-    if (!dragSession && currentVisualState === "idle") startAnimation("idle");
+    if (!dragSession && currentVisualState === "idle" && currentAnimation === "hover") startAnimation("idle");
   };
 
   dismissButton.addEventListener("click", hidePet);
@@ -635,6 +678,7 @@ export function mountPortfolioPet(
   view?.addEventListener("scroll", onScroll, { passive: true });
   view?.visualViewport?.addEventListener("resize", onResize);
   view?.visualViewport?.addEventListener("scroll", onResize);
+  reducedMotionQuery?.addEventListener("change", onReducedMotionChange);
 
   return () => {
     destroyed = true;
@@ -660,6 +704,7 @@ export function mountPortfolioPet(
     view?.removeEventListener("scroll", onScroll);
     view?.visualViewport?.removeEventListener("resize", onResize);
     view?.visualViewport?.removeEventListener("scroll", onResize);
+    reducedMotionQuery?.removeEventListener("change", onReducedMotionChange);
     launcher.remove();
     dismissButton.remove();
     restoreButton.remove();

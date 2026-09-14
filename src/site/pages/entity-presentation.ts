@@ -4,6 +4,7 @@ export interface EntityShellPresentation {
   articleId: string;
   theme: string;
   navigationProject: boolean;
+  showIntro?: boolean;
 }
 
 export type EntityShellPresentationRegistry = ReadonlyMap<
@@ -43,6 +44,17 @@ export const entityShellPresentationRegistry: EntityShellPresentationRegistry = 
   ["project:moves-awful", {
     articleId: "project-moves-awful",
     theme: "orange-cream",
+    navigationProject: false,
+  }],
+  ["project:berserk-timer", {
+    articleId: "project-berserk-timer",
+    theme: "neutral",
+    navigationProject: false,
+    showIntro: false,
+  }],
+  ["project:awful-studio", {
+    articleId: "project-awful-studio",
+    theme: "neutral",
     navigationProject: false,
   }],
   ["project:berry-social-content-2020", {
