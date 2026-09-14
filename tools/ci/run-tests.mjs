@@ -59,6 +59,7 @@ export const fastTests = new Set([
   "test/media-desk-remote-client.test.mjs",
   "test/media-desk-remote-controls-wiring.test.mjs",
   "test/media-desk-remote-upload-action.test.mjs",
+  "test/media-desk-remote-upload-security.test.mjs",
   "test/media-desk-remote-upload-ui-wiring.test.mjs",
   "test/media-desk-utf8-regression.test.mjs",
   "test/media-desk-revision-session.test.mjs",

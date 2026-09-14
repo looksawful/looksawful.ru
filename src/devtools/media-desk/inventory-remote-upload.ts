@@ -56,17 +56,25 @@ function imageMetadata(url: string): Promise<ProbedMediaFile> {
     image.src = url;
   });
 }
-function videoMetadata(url: string): Promise<ProbedMediaFile> {
-  return new Promise((resolve, reject) => {
+function videoMetadata(file: File): Promise<ProbedMediaFile> {
+  return new Promise((resolve) => {
     const video = document.createElement("video");
     video.preload = "metadata";
-    video.onloadedmetadata = () => resolve({
+    const finish = (metadata: ProbedMediaFile): void => {
+      video.srcObject = null;
+      resolve(metadata);
+    };
+    video.onloadedmetadata = () => finish({
       width: video.videoWidth,
       height: video.videoHeight,
       durationSeconds: Number.isFinite(video.duration) ? video.duration : 0,
     });
-    video.onerror = () => reject(new Error("Не удалось прочитать метаданные видео"));
-    video.src = url;
+    video.onerror = () => finish({ width: 0, height: 0, durationSeconds: 0 });
+    try {
+      video.srcObject = file;
+    } catch {
+      finish({ width: 0, height: 0, durationSeconds: 0 });
+    }
   });
 }
 
@@ -74,9 +82,10 @@ export async function probeMediaFile(file: File): Promise<ProbedMediaFile> {
   if (!file.type.startsWith("image/") && !file.type.startsWith("video/")) {
     throw new Error("Поддерживаются только изображения и видео");
   }
+  if (file.type.startsWith("video/")) return videoMetadata(file);
   const url = URL.createObjectURL(file);
   try {
-    return file.type.startsWith("image/") ? await imageMetadata(url) : await videoMetadata(url);
+    return await imageMetadata(url);
   } finally {
     URL.revokeObjectURL(url);
   }
