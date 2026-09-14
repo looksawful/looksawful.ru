@@ -14,6 +14,7 @@ import {
   getTitle,
   is404Html,
   isFixtureHtml,
+  isLabDesignSystemHtml,
   isNoIndex,
   parseAttributes,
   readUtf8,
