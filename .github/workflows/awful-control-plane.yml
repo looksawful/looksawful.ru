@@ -1,0 +1,145 @@
+name: AWFUL Control Plane
+
+on:
+  pull_request:
+    branches: [dev, prod]
+    paths:
+      - 'cloud/awful-control-plane/**'
+      - '.github/workflows/awful-control-plane.yml'
+  push:
+    branches: [dev]
+    paths:
+      - 'cloud/awful-control-plane/**'
+      - '.github/workflows/awful-control-plane.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: awful-control-plane-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  YC_FOLDER_ID: b1gccfh8f63ut5b9eogf
+  YC_DEPLOYER_SA_ID: ajeuf4oo2pv8mlmlihjh
+  YC_RUNTIME_SA_ID: aje7sk32o4io6m5s30sc
+  YC_REGISTRY_ID: crplsoo7okmv83u9o5gc
+  YC_CONTAINER_ID: bbavst3pldfkk7mc0v68
+  YC_LOCKBOX_SECRET_ID: e6qk60qugdijk0msveru
+  YC_IMAGE_REPOSITORY: awful-control-plane
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: cloud/awful-control-plane
+    steps:
+      - name: Checkout exact source tree
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 1
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - name: Syntax check
+        run: npm run check
+      - name: Smoke tests
+        run: npm test
+      - name: Build container image
+        run: docker build --tag awful-control-plane:ci .
+
+  powershell-syntax:
+    runs-on: windows-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout exact source tree
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 1
+      - name: Parse provisioning scripts
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $files = @(
+            'cloud/awful-control-plane/scripts/bootstrap-yandex.ps1',
+            'cloud/awful-control-plane/scripts/configure-secrets.ps1'
+          )
+          foreach ($file in $files) {
+            $tokens = $null
+            $errors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile(
+              (Resolve-Path $file),
+              [ref]$tokens,
+              [ref]$errors
+            ) | Out-Null
+            if ($errors.Count -gt 0) {
+              $errors | ForEach-Object { Write-Error "${file}: $($_.Message)" }
+              exit 1
+            }
+            Write-Host "PowerShell syntax OK: $file"
+          }
+
+  deploy-dev:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
+    needs: [verify, powershell-syntax]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout exact source tree
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+
+      - name: Exchange GitHub OIDC token for Yandex IAM token
+        id: yandex-iam
+        uses: docker://ghcr.io/yc-actions/yc-iam-token-fed:1.0.0
+        with:
+          yc-sa-id: ${{ env.YC_DEPLOYER_SA_ID }}
+
+      - name: Login to Yandex Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: cr.yandex
+          username: iam
+          password: ${{ steps.yandex-iam.outputs.token }}
+
+      - name: Build and push image
+        working-directory: cloud/awful-control-plane
+        env:
+          IMAGE_URL: cr.yandex/${{ env.YC_REGISTRY_ID }}/${{ env.YC_IMAGE_REPOSITORY }}:${{ github.sha }}
+        run: |
+          docker build --tag "$IMAGE_URL" .
+          docker push "$IMAGE_URL"
+
+      - name: Install Yandex Cloud CLI
+        run: |
+          curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash -s -- -i "$HOME/yandex-cloud" -n
+          echo "$HOME/yandex-cloud/bin" >> "$GITHUB_PATH"
+
+      - name: Deploy Serverless Container revision
+        env:
+          YC_IAM_TOKEN: ${{ steps.yandex-iam.outputs.token }}
+          IMAGE_URL: cr.yandex/${{ env.YC_REGISTRY_ID }}/${{ env.YC_IMAGE_REPOSITORY }}:${{ github.sha }}
+        run: |
+          yc serverless container revision deploy \
+            --container-id "$YC_CONTAINER_ID" \
+            --image "$IMAGE_URL" \
+            --cores 1 \
+            --memory 512MB \
+            --core-fraction 100 \
+            --concurrency 8 \
+            --execution-timeout 120s \
+            --service-account-id "$YC_RUNTIME_SA_ID" \
+            --environment "ALLOWED_ORIGINS=https://looksawful.ru,UPSTREAM_TIMEOUT_MS=120000,YANDEX_AI_BASE_URL=https://ai.api.cloud.yandex.net/v1,YANDEX_AI_MODEL=gpt://$YC_FOLDER_ID/yandexgpt/latest" \
+            --secret "environment-variable=AWFUL_INTERNAL_TOKEN,id=$YC_LOCKBOX_SECRET_ID,key=awful-internal-token" \
+            --secret "environment-variable=YANDEX_AI_API_KEY,id=$YC_LOCKBOX_SECRET_ID,key=yandex-ai-api-key" \
+            --folder-id "$YC_FOLDER_ID" \
+            --token "$YC_IAM_TOKEN"
