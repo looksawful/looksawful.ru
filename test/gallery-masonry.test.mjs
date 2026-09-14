@@ -18,6 +18,11 @@ test("Gallery masonry resolves 5/4/3/2 columns", async () => {
 test("Gallery masonry gives InfiniteGrid sole geometry ownership with equal gaps", () => {
   assert.match(masonrySource, /MasonryInfiniteGrid/);
   assert.match(masonrySource, /gap:\s*\{\s*horizontal:\s*gap,\s*vertical:\s*gap\s*\}/s);
+  assert.match(
+    masonrySource,
+    /align:\s*["']stretch["']/,
+    "SSR Gallery cards begin at width:100%; Masonry must stretch them to the computed column width instead of positioning full-width cards side-by-side",
+  );
   assert.match(masonrySource, /renderItems\(\)/);
   assert.match(masonrySource, /updateItems\(\)/);
   assert.match(masonrySource, /ResizeObserver/);
