@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 
+import { validateCmsSnapshot } from "../tools/preview/cms-snapshot.mjs";
 import {
   DEFAULT_CMS_PREVIEW_TTL_HOURS,
   normalizeSelectedPrNumbers,
@@ -52,4 +54,21 @@ test("CMS preview requires explicit advanced mode for lab and rejects unauthoriz
   assert.throws(() => planCmsPreview({ id: "x", baseBranch: "lab", changedPaths: [], authorizedPrefixes: [], allowLabBase: false }));
   assert.equal(planCmsPreview({ id: "x", baseBranch: "lab", changedPaths: [], authorizedPrefixes: [], allowLabBase: true }).baseBranch, "lab");
   assert.throws(() => planCmsPreview({ id: "x", changedPaths: ["src/main.ts"], authorizedPrefixes: ["content/"] }));
+});
+
+test("CMS snapshot reuses fail-closed publication scope", () => {
+  const safe = validateCmsSnapshot({ id: "styx-copy", files: ["src/content/cases/styx.json"] });
+  assert.equal(safe.plan.baseBranch, "dev");
+  assert.equal(safe.scope.safe, true);
+  assert.throws(() => validateCmsSnapshot({ id: "code", files: ["src/main.ts"] }), /blocked/);
+  assert.throws(() => validateCmsSnapshot({ id: "unknown", files: ["src/content/new-unconfigured.json"] }), /blocked/);
+});
+
+test("Lab composer is source-only and cannot mutate dev or prod", () => {
+  const workflow = readFileSync(new URL("../.github/workflows/lab-compose.yml", import.meta.url), "utf8");
+  assert.match(workflow, /ref: dev/);
+  assert.match(workflow, /HEAD:refs\/heads\/lab/);
+  assert.doesNotMatch(workflow, /HEAD:refs\/heads\/(?:dev|prod)/);
+  assert.doesNotMatch(workflow, /CLOUDFLARE|API_TOKEN|ACCOUNT_ID|PASSWORD|SESSION_SECRET/i);
+  assert.doesNotMatch(workflow, /repository_dispatch|workflow_dispatch.*awful-control/s);
 });
