@@ -44,9 +44,14 @@ test("Lab deployment stays isolated and syncs one password secret into the Pages
     "the encrypted runtime secret must exist before the protected deployment is published",
   );
   assert.ok(
-    workflow.indexOf("Finalize Lab site and validate local links")
+    workflow.indexOf("Finalize Lab discovery before generated Storybook output")
       < workflow.indexOf("Build Lab design system"),
-    "production-style site finalization must finish before generated Storybook HTML is added",
+    "production discovery must finish before generated Storybook HTML is added",
+  );
+  assert.ok(
+    workflow.indexOf("Generate Lab design-system inventory")
+      < workflow.indexOf("Validate Lab local links after generated artifacts exist"),
+    "local-link validation must run only after Lab generated routes exist",
   );
 });
 
