@@ -111,7 +111,7 @@ export const sitePages = [
     type: "project",
     entityId: "berserk-timer",
     path: "/work/berserk-timer/",
-    enabled: false,
+    enabled: true,
     renderer: "entity",
     build: VITE_BUILD,
     discovery: {
