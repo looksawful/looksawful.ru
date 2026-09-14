@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { petProjectCards } from "../src/data/subproject-cards.ts";
+import { petProjectCards } from "../src/data/pet-project-cards.ts";
 import { renderPetProjectCards } from "../src/templates/subproject-card.ts";
 
 const approvedCards = [
