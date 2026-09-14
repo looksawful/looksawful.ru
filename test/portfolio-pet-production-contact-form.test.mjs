@@ -9,6 +9,8 @@ const form = fs.readFileSync(
   new URL("../src/components/contact-form-hub.ts", import.meta.url),
   "utf8",
 );
+const formCss = fs.readFileSync(new URL("../src/styles/contact-form-hub.css", import.meta.url), "utf8");
+const tokens = fs.readFileSync(new URL("../src/styles/tokens.css", import.meta.url), "utf8");
 
 test("production mounts Awful and the contact-only window", () => {
   assert.match(main, /mountPortfolioPet\(document, \{ enabled: true \}\)/);
@@ -23,8 +25,16 @@ test("production contact window contains no AI dialog or transport", () => {
   assert.match(form, /dataset\.contactFormHub/);
   assert.match(form, /dataset\.contactForm/);
   assert.match(form, /mailto:i@lookawful\.ru/);
+  assert.doesNotMatch(form, /contact-form-hub__fallback|fallbackLink|fallback\.append/);
   assert.doesNotMatch(main, /mountContactHub|portfolio-chat|assistant/i);
   assert.doesNotMatch(form, /portfolio-chat|assistant|contactHubAi|\bAI\b/i);
+  assert.match(tokens, /--control-block-size:/);
+  assert.match(tokens, /--control-radius:/);
+  assert.match(tokens, /--shadow-control:/);
+  assert.match(formCss, /box-shadow:\s*var\(--shadow-surface-elevated\)/);
+  assert.match(formCss, /background:\s*var\(--clr-foreground\)/);
+  assert.match(formCss, /justify-content:\s*flex-end/);
+  assert.doesNotMatch(formCss, /contact-form-hub__fallback/);
 });
 
 
