@@ -36,8 +36,8 @@ export const homepageEntries = [
         "jestei-event",
       ],
       href: "/work/jestei-pool/",
-      introLabel: "Полный кейс",
-      calloutLabel: "Полный кейс Jestei Pool",
+      introLabel: "Подробнее о проекте",
+      calloutLabel: "Подробнее о проекте",
     },
   },
   {
