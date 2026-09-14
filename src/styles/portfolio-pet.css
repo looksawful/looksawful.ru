@@ -49,10 +49,18 @@
   inline-size: 192px;
   block-size: 208px;
   overflow: hidden;
-  transform: translateX(-50%) scale(var(--pet-scale)) scaleX(var(--pet-facing));
+  transform: translateX(-50%) scale(var(--pet-scale));
   transform-origin: 50% 100%;
   pointer-events: none;
   user-select: none;
+}
+
+.portfolio-pet__facing {
+  position: absolute;
+  inset: 0;
+  transform: scaleX(var(--pet-facing));
+  transform-origin: 50% 100%;
+  pointer-events: none;
 }
 
 .portfolio-pet__image {
@@ -111,16 +119,25 @@
 .portfolio-pet__dismiss {
   inline-size: 28px;
   block-size: 28px;
+  border: var(--border-width-100) solid var(--clr-border);
   border-radius: 999px;
-  box-shadow: 0 1px 8px rgb(0 0 0 / 0.12);
+  box-shadow: 0 2px 12px rgb(0 0 0 / 0.1);
+  transition: transform 120ms ease, box-shadow 120ms ease, opacity 120ms ease;
+}
+
+.portfolio-pet__dismiss:hover {
+  transform: scale(1.06);
+  box-shadow: 0 3px 16px rgb(0 0 0 / 0.14);
 }
 
 .portfolio-pet__restore {
   inset-inline-start: 0;
   inline-size: 32px;
   block-size: 44px;
+  border: var(--border-width-100) solid var(--clr-border);
+  border-inline-start: 0;
   border-radius: 0 999px 999px 0;
-  box-shadow: 1px 1px 8px rgb(0 0 0 / 0.12);
+  box-shadow: 1px 2px 12px rgb(0 0 0 / 0.1);
 }
 
 .portfolio-pet__dismiss:focus-visible,
@@ -132,8 +149,8 @@
 @media (width <= 42.5rem) {
   .portfolio-pet {
     --pet-scale: 0.92;
-    inset-inline-start: auto;
-    inset-inline-end: max(8px, var(--pet-safe-right));
+    inset-inline-start: max(8px, var(--pet-safe-left));
+    inset-inline-end: auto;
     inset-block-end: calc(max(8px, var(--pet-safe-bottom)) + var(--pet-consent-offset));
     inline-size: 178px;
     block-size: 194px;

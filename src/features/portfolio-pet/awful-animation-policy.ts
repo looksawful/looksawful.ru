@@ -5,6 +5,7 @@ export const AWFUL_DECORATIVE_ANIMATION_POLICY = {
   flipchart: { priority: 49, cooldownMs: 120_000, maxPlaybackMs: 1_440 },
   "drawing-cross-legged": { priority: 45, cooldownMs: 120_000, maxPlaybackMs: 1_280 },
   "music-house-dance": { priority: 40, cooldownMs: 120_000, maxPlaybackMs: 4_640 },
+  "full-body-glasses-gesture": { priority: 35, cooldownMs: 90_000, maxPlaybackMs: 850 },
   laptop: { priority: 30, cooldownMs: 45_000, maxPlaybackMs: 20_000 },
   coffee: { priority: 20, cooldownMs: 900_000, maxPlaybackMs: 1_080 },
   "sleep-cross-legged": { priority: 15, cooldownMs: 600_000, maxPlaybackMs: 9_150 },
