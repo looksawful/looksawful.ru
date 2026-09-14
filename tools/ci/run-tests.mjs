@@ -41,6 +41,7 @@ export const fastTests = new Set([
   "test/gallery-navigation-visibility.test.mjs",
   "test/gallery-prerelease.test.mjs",
   "test/gallery-renderer.test.mjs",
+  "test/gallery-video-playback.test.mjs",
   "test/jestei-event-migration.test.mjs",
   "test/lighthouse-ci-config.test.mjs",
   "test/media-tools/affected-media-ci.test.mjs",
