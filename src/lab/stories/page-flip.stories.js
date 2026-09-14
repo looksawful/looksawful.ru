@@ -13,18 +13,32 @@ const meta = {
   parameters: {
     layout: "fullscreen",
     looksawful: {
-      sources: ["src/templates/page-flip.ts", "src/components/page-flip.ts", "src/data/content/sensetique.ts"],
+      sources: [
+        "src/components/page-flip.ts",
+        "src/data/content/sensetique.ts",
+        "src/templates/page-flip.ts",
+      ],
       layer: "organism",
-      policy: "isolated",
+      policy: "behavior-fixture",
       canonical: true,
-      state: "default",
+      state: "interactive-ready",
       visibility: ["always"],
+      motion: ["motion-enabled", "reduced-motion"],
+      responsive: {
+        review: ["desktop", "tablet", "mobile"],
+      },
+    },
+    docs: {
+      description: {
+        component: "Uses the canonical Sensetique page-flip data, production renderer and production runtime enhancer. Motion behavior follows the current prefers-reduced-motion environment.",
+      },
     },
   },
 };
 
 export default meta;
-export const Default = {
+
+export const InteractiveReady = {
   play: ({ canvasElement }) => {
     const root = canvasElement.querySelector("[data-page-flip]");
     if (root) createPageFlip(root, { motion: motionPreference });
