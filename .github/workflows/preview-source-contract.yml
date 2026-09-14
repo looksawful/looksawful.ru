@@ -1,0 +1,29 @@
+name: Preview Source Contract
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/lab-compose.yml"
+      - ".github/workflows/preview-source-contract.yml"
+      - "tools/preview/**"
+      - "tools/cms-publication-scope.mjs"
+      - "test/preview-source-contract.test.mjs"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: node --test test/preview-source-contract.test.mjs
+      - run: npm run typecheck
