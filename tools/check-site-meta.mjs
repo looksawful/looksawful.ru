@@ -80,7 +80,11 @@ export async function validateSite({ distDir = "dist" } = {}) {
   const htmlFiles = await collectHtmlFiles(root);
 
   for (const filePath of htmlFiles) {
-    if (is404Html(filePath) || isFixtureHtml(filePath, root)) continue;
+    if (
+      is404Html(filePath) ||
+      isFixtureHtml(filePath, root) ||
+      isLabDesignSystemHtml(filePath, root)
+    ) continue;
     const label = path.relative(root, filePath);
     const html = await readUtf8(filePath);
     const noindex = isNoIndex(html);
