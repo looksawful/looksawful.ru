@@ -20,8 +20,7 @@ const DEFAULT_MUSICIAN_PROJECT_IDS = new Set([
   "shootings-igguana",
   "shootings-esmi",
   "shootings-hypression",
-  "shootings-behance-offmi",
-  "shootings-dava",
+  "shootings-ofelia",
 ]);
 
 function isCanonicalPhotograph(item: MediaCatalogItem): boolean {

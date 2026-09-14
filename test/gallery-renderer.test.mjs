@@ -13,6 +13,10 @@ const galleryCss = await readFile(
   new URL("../src/styles/gallery.css", import.meta.url),
   "utf8",
 );
+const mediaLightboxCss = await readFile(
+  new URL("../src/styles/media-lightbox.css", import.meta.url),
+  "utf8",
+);
 const lightboxSource = await readFile(
   new URL("../src/components/gallery/gallery-lightbox.ts", import.meta.url),
   "utf8",
@@ -63,6 +67,16 @@ test("Gallery exposes canonical credits to the PhotoSwipe caption adapter", () =
   assert.match(html, /data-gallery-credits=/);
   assert.match(lightboxSource, /galleryCredits/);
   assert.match(lightboxSource, /captionHtml/);
+});
+
+test("Gallery PhotoSwipe credits stay readable over arbitrary photography", () => {
+  const captionRule = mediaLightboxCss.match(
+    /\.media-lightbox--photoswipe \.media-lightbox__caption\s*\{([\s\S]*?)\n\}/,
+  )?.[1] ?? "";
+
+  assert.match(captionRule, /color:\s*#fff\b/);
+  assert.match(captionRule, /background:/);
+  assert.match(captionRule, /padding:/);
 });
 
 test("Gallery CSS follows site typography and explicitly avoids masonry mechanics", () => {
