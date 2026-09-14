@@ -7,6 +7,15 @@ import {
   isAllowedMediaDeskOrigin,
   sameOriginMutation,
 } from "./domain.mjs";
+import {
+  commitRepositoryFiles,
+  readRepositoryFile,
+} from "./github.mjs";
+import {
+  planDelete,
+  planReplace,
+  planUpload,
+} from "./media-mutations.mjs";
 
 const LOGIN_PATH = "/login";
 const LOGOUT_PATH = "/logout";
@@ -14,6 +23,13 @@ const DESK_PATH = "/tools/media-desk/";
 const SESSION_COOKIE = "__Host-media_desk_session";
 const SESSION_MAX_AGE = 12 * 60 * 60;
 const MAX_LOGIN_BYTES = 8 * 1024;
+const MAX_JSON_BYTES = 256 * 1024;
+const MEDIA_MUTATION_PATHS = new Set([
+  "/api/media/upload",
+  "/api/media/replace",
+  "/api/media/delete",
+  "/api/media/assign",
+]);
 
 function privateHeaders() {
   return {
@@ -108,6 +124,36 @@ async function readBody(request, maxBytes) {
   return new TextDecoder().decode(bytes);
 }
 
+async function readJsonPayload(request) {
+  const contentType = request.headers.get("content-type") ?? "";
+  if (!contentType.includes("application/json")) throw new Error("Expected application/json request");
+  return JSON.parse(await readBody(request, MAX_JSON_BYTES));
+}
+
+async function readMultipartPayload(request) {
+  const contentType = request.headers.get("content-type") ?? "";
+  if (!contentType.toLowerCase().startsWith("multipart/form-data")) {
+    throw new Error("Expected multipart/form-data request");
+  }
+  const form = await request.formData();
+  const metadataSource = form.get("metadata");
+  const file = form.get("file");
+  if (typeof metadataSource !== "string" || !file || typeof file !== "object" || typeof file.arrayBuffer !== "function") {
+    throw new Error("Media mutation requires metadata and file fields");
+  }
+  const metadata = JSON.parse(metadataSource);
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  return {
+    metadata,
+    file: {
+      name: typeof file.name === "string" ? file.name : "upload.bin",
+      type: typeof file.type === "string" ? file.type : "application/octet-stream",
+      size: typeof file.size === "number" ? file.size : bytes.byteLength,
+      bytes,
+    },
+  };
+}
+
 async function readLoginPayload(request) {
   const source = await readBody(request, MAX_LOGIN_BYTES);
   const contentType = request.headers.get("content-type") ?? "";
@@ -127,6 +173,134 @@ function requiredSecret(env, key) {
     throw new Error(`Missing Media Desk runtime secret: ${key}`);
   }
   return value;
+}
+
+function githubFetch(env) {
+  return typeof env?.MEDIA_DESK_GITHUB_FETCH === "function"
+    ? env.MEDIA_DESK_GITHUB_FETCH
+    : fetch;
+}
+
+function conflict(message) {
+  const error = new Error(message);
+  error.status = 409;
+  return error;
+}
+
+function mutationError(error) {
+  const message = error instanceof Error ? error.message : "Media mutation failed";
+  const status = error?.status === 409 || /stale branch head|stale source revision/iu.test(message)
+    ? 409
+    : 400;
+  return json(status, {
+    ok: false,
+    error: message,
+    ...(Array.isArray(error?.blockingUsages) ? { blockingUsages: error.blockingUsages } : {}),
+  });
+}
+
+async function assertCurrentSource({ env, path, expectedRevision, expectedHead }) {
+  const current = await readRepositoryFile({
+    token: requiredSecret(env, "MEDIA_DESK_GITHUB_TOKEN"),
+    path,
+    fetchImpl: githubFetch(env),
+  });
+  if (current.branchHead !== expectedHead) {
+    throw conflict(`Stale branch head: expected ${expectedHead}, current ${current.branchHead}`);
+  }
+  if (current.revision !== expectedRevision) {
+    throw conflict(`Stale source revision: expected ${expectedRevision}, current ${current.revision}`);
+  }
+  return current;
+}
+
+async function handleUpload(request, env) {
+  const { metadata, file } = await readMultipartPayload(request);
+  const mediaType = metadata?.mediaType
+    ?? (file.type.startsWith("image/") ? "image" : file.type.startsWith("video/") ? "video" : undefined);
+  const plan = planUpload({
+    ...metadata,
+    id: crypto.randomUUID(),
+    filename: file.name,
+    mediaType,
+    mimeType: metadata?.mimeType ?? file.type,
+    bytes: file.bytes,
+  });
+  const committed = await commitRepositoryFiles({
+    token: requiredSecret(env, "MEDIA_DESK_GITHUB_TOKEN"),
+    expectedHead: plan.expectedHead,
+    files: plan.writes,
+    message: `media(media-desk): upload ${plan.assetId}`,
+    fetchImpl: githubFetch(env),
+  });
+  return json(201, { ok: true, assetId: plan.assetId, ...committed });
+}
+
+async function handleReplace(request, env) {
+  const { metadata, file } = await readMultipartPayload(request);
+  const plan = planReplace({
+    asset: metadata?.asset,
+    nextBytes: file.bytes,
+    expectedRevision: metadata?.expectedRevision,
+    expectedHead: metadata?.expectedHead,
+  });
+  await assertCurrentSource({
+    env,
+    path: plan.filePath,
+    expectedRevision: plan.expectedRevision,
+    expectedHead: plan.expectedHead,
+  });
+  const committed = await commitRepositoryFiles({
+    token: requiredSecret(env, "MEDIA_DESK_GITHUB_TOKEN"),
+    expectedHead: plan.expectedHead,
+    files: [{ path: plan.filePath, content: plan.bytes }],
+    message: `media(media-desk): replace ${plan.assetId}`,
+    fetchImpl: githubFetch(env),
+  });
+  return json(200, { ok: true, assetId: plan.assetId, ...committed });
+}
+
+async function handleDelete(request, env) {
+  const payload = await readJsonPayload(request);
+  const plan = planDelete({
+    record: payload?.record,
+    expectedRevision: payload?.expectedRevision,
+    expectedHead: payload?.expectedHead,
+  });
+  await assertCurrentSource({
+    env,
+    path: payload.record.catalogPath,
+    expectedRevision: plan.expectedRevision,
+    expectedHead: plan.expectedHead,
+  });
+  const committed = await commitRepositoryFiles({
+    token: requiredSecret(env, "MEDIA_DESK_GITHUB_TOKEN"),
+    expectedHead: plan.expectedHead,
+    files: plan.removals.map((path) => ({ path, delete: true })),
+    message: `media(media-desk): delete ${plan.assetId}`,
+    fetchImpl: githubFetch(env),
+  });
+  return json(200, { ok: true, assetId: plan.assetId, ...committed });
+}
+
+async function handleAssign(request) {
+  const payload = await readJsonPayload(request);
+  if (!payload?.target || typeof payload.target !== "object") {
+    throw new Error("Media assignment target is required");
+  }
+  throw new Error("Media assignment target is not authorable yet");
+}
+
+async function handleMediaMutation(path, request, env) {
+  try {
+    if (path === "/api/media/upload") return await handleUpload(request, env);
+    if (path === "/api/media/replace") return await handleReplace(request, env);
+    if (path === "/api/media/delete") return await handleDelete(request, env);
+    if (path === "/api/media/assign") return await handleAssign(request, env);
+    return json(404, { ok: false, error: "Unknown media mutation" });
+  } catch (error) {
+    return mutationError(error);
+  }
 }
 
 async function isAuthenticated(request, env, subject) {
@@ -215,6 +389,9 @@ export default {
 
     if (request.method !== "GET" && request.method !== "HEAD") {
       if (!sameOriginMutation(request)) return json(403, { ok: false, error: "Origin rejected" });
+      if (request.method === "POST" && MEDIA_MUTATION_PATHS.has(url.pathname)) {
+        return handleMediaMutation(url.pathname, request, env);
+      }
       return json(405, { ok: false, error: "Method not allowed" });
     }
 
