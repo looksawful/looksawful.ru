@@ -80,9 +80,10 @@ test("Local Lab command opens the workbench instead of production", async () => 
 });
 
 test("Lab design system is a static Storybook viewer over canonical source", async () => {
-  const [main, preview, builder, workflow, labHtml] = await Promise.all([
+  const [main, preview, storybookVite, builder, workflow, labHtml] = await Promise.all([
     read("tools/lab/storybook/main.mjs"),
     read("tools/lab/storybook/preview.mjs"),
+    read("tools/lab/storybook/vite.config.mjs"),
     read("tools/lab/build-storybook.mjs"),
     read(".github/workflows/lab-preview.yml"),
     read("lab/index.html"),
@@ -93,6 +94,11 @@ test("Lab design system is a static Storybook viewer over canonical source", asy
   assert.match(main, /@storybook\/addon-a11y/);
   assert.match(main, /storybook-design-token/);
   assert.match(main, /src\/lab\/stories/);
+  assert.match(main, /@storybook\/builder-vite/);
+  assert.match(main, /viteConfigPath:\s*storybookViteConfig/);
+  assert.match(main, /new URL\("\.\/vite\.config\.mjs", import\.meta\.url\)/);
+  assert.doesNotMatch(storybookVite, /vite\.config\.ts/);
+  assert.doesNotMatch(storybookVite, /sitePagesPlugin|labPlugin|productionAssetBudgetPlugin/);
   assert.match(preview, /src\/styles\/index\.css/);
   assert.match(builder, /storybook@10\.6\.0/);
   assert.match(builder, /@storybook\/html-vite@10\.6\.0/);

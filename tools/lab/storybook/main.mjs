@@ -1,3 +1,9 @@
+import { fileURLToPath } from "node:url";
+
+const storybookViteConfig = fileURLToPath(
+  new URL("./vite.config.mjs", import.meta.url),
+);
+
 const config = {
   stories: ["../../../src/lab/stories/**/*.stories.@(js|mjs)"],
   addons: [
@@ -8,6 +14,14 @@ const config = {
   framework: {
     name: "@storybook/html-vite",
     options: {},
+  },
+  core: {
+    builder: {
+      name: "@storybook/builder-vite",
+      options: {
+        viteConfigPath: storybookViteConfig,
+      },
+    },
   },
   docs: {
     autodocs: "tag",
