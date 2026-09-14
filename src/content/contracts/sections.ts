@@ -104,7 +104,17 @@ export interface MovesCanvasDemoSection {
   gallery: MovesAnimatedCanvasGalleryData<MediaEntryId>;
 }
 
-export type SpecializedSection = JesteiTrackFilterSection | MovesCanvasDemoSection;
+export interface BerserkTimerShowcaseSection {
+  type: "specialized";
+  kind: "berserk-timer-showcase";
+  id: SectionId;
+  projectId: ProjectId;
+}
+
+export type SpecializedSection =
+  | JesteiTrackFilterSection
+  | MovesCanvasDemoSection
+  | BerserkTimerShowcaseSection;
 
 export type Section =
   | ContentSection
