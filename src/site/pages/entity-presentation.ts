@@ -45,6 +45,16 @@ export const entityShellPresentationRegistry: EntityShellPresentationRegistry = 
     theme: "orange-cream",
     navigationProject: false,
   }],
+  ["project:berserk-timer", {
+    articleId: "project-berserk-timer",
+    theme: "neutral",
+    navigationProject: false,
+  }],
+  ["project:awful-studio", {
+    articleId: "project-awful-studio",
+    theme: "neutral",
+    navigationProject: false,
+  }],
   ["project:berry-social-content-2020", {
     articleId: "project-berry-social-content-2020",
     theme: "berry-pink",
