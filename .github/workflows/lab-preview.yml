@@ -96,14 +96,17 @@ jobs:
       - name: Build Lab without production analytics
         run: npm run cms:check && npm run build:vite
 
-      - name: Finalize Lab site and validate local links
-        run: npm run site:postbuild
+      - name: Finalize Lab discovery before generated Storybook output
+        run: node tools/generate-site-icons.mjs && node tools/finalize-static-discovery.mjs && node tools/generate-sitemap.mjs && node tools/check-site-meta.mjs
 
       - name: Build Lab design system
         run: npm run lab:system
 
       - name: Generate Lab design-system inventory
         run: npm run lab:inventory
+
+      - name: Validate Lab local links after generated artifacts exist
+        run: npm run check:links
 
       - name: Verify Lab design-system artifact
         shell: bash
