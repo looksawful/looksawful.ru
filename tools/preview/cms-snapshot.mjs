@@ -16,6 +16,14 @@ function git(cwd, args, options = {}) {
   return execFileSync("git", ["-C", cwd, ...args], { encoding: "utf8", stdio: options.stdio ?? ["ignore", "pipe", "pipe"] }).trim();
 }
 
+function tryGit(cwd, args) {
+  try {
+    return git(cwd, args, { stdio: "ignore" });
+  } catch {
+    return undefined;
+  }
+}
+
 export function validateCmsSnapshot({ id, baseBranch = "dev", allowLabBase = false, files }) {
   const scope = classifyCmsPublicationFiles(files);
   if (!scope.safe || scope.files.length === 0) {
@@ -35,7 +43,8 @@ export function createCmsSnapshot({ repoRoot, id, baseBranch = "dev", allowLabBa
   const { plan, scope } = validateCmsSnapshot({ id, baseBranch, allowLabBase, files });
   if (!push) return { ...plan, files: scope.files, dryRun: true };
 
-  git(repoRoot, ["fetch", "origin", baseBranch, plan.ref], { stdio: "ignore" });
+  git(repoRoot, ["fetch", "origin", baseBranch], { stdio: "ignore" });
+  tryGit(repoRoot, ["fetch", "origin", `refs/heads/${plan.ref}:refs/remotes/origin/${plan.ref}`]);
   const worktree = mkdtempSync(path.join(tmpdir(), "looksawful-cms-preview-"));
   try {
     git(repoRoot, ["worktree", "add", "--detach", worktree, `origin/${baseBranch}`], { stdio: "ignore" });
