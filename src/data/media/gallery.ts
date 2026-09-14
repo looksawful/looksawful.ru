@@ -28,7 +28,7 @@ export type GalleryVideoItem = GalleryBaseItem & {
 
 export type GalleryItem = GalleryImageItem | GalleryVideoItem;
 
-const DEFAULT_MUSICIAN_PROJECT_IDS = new Set([
+const DEFAULT_MUSICIAN_PROJECT_IDS: ReadonlySet<string> = new Set([
   "shootings-obladaet",
   "shootings-evasha",
   "shootings-igguana",
@@ -38,15 +38,15 @@ const DEFAULT_MUSICIAN_PROJECT_IDS = new Set([
   "shootings-behance-offmi",
 ]);
 
-const HIDDEN_PROJECT_IDS = new Set(["shootings-dava"]);
+const HIDDEN_PROJECT_IDS: ReadonlySet<string> = new Set(["shootings-dava"]);
 
-const APPROVED_MOVES_AWFUL_ENTRY_IDS = new Set([
+const APPROVED_MOVES_AWFUL_ENTRY_IDS: ReadonlySet<string> = new Set([
   "moves-awful-jestei-landing-animation-01-use-01",
   "moves-awful-jestei-landing-animation-02-use-01",
   "moves-awful-jestei-landing-animation-03-use-01",
 ]);
 
-const APPROVED_JESTEI_BRAND_ENTRY_IDS = new Set([
+const APPROVED_JESTEI_BRAND_ENTRY_IDS: ReadonlySet<string> = new Set([
   "jestei-system-logo-source-logo-anatomy-slide-use-01",
   "jestei-system-logo-source-logo-color-slide-use-01",
   "jestei-system-logo-source-logo-type-slide-use-01",
@@ -54,7 +54,7 @@ const APPROVED_JESTEI_BRAND_ENTRY_IDS = new Set([
   "jestei-system-type-source-logo-druk-slide-use-01",
 ]);
 
-const APPROVED_JESTEI_BANNER_ENTRY_IDS = new Set([
+const APPROVED_JESTEI_BANNER_ENTRY_IDS: ReadonlySet<string> = new Set([
   "jestei-05-source-01-701x452-use-01",
   "jestei-05-source-02-1x1-use-01",
   "jestei-05-source-03-1x1-use-01",
@@ -68,29 +68,31 @@ const APPROVED_JESTEI_BANNER_ENTRY_IDS = new Set([
   "jestei-05-source-11-3x2-use-01",
 ]);
 
-const APPROVED_JESTEI_LANDINGS_ENTRY_IDS = new Set([
+const APPROVED_JESTEI_LANDINGS_ENTRY_IDS: ReadonlySet<string> = new Set([
   "jestei-13-source-13-1280x588-use-01",
 ]);
 
 function canonicalAssetIdsForEntryIds(entryIds: ReadonlySet<string>): ReadonlySet<string> {
-  return new Set(
+  return new Set<string>(
     mediaEntries
       .filter((entry) => entryIds.has(entry.id))
       .map((entry) => entry.assetId),
   );
 }
 
-const APPROVED_EXACT_ASSET_IDS = new Set([
+const APPROVED_EXACT_ASSET_IDS: ReadonlySet<string> = new Set<string>([
   ...canonicalAssetIdsForEntryIds(APPROVED_MOVES_AWFUL_ENTRY_IDS),
   ...canonicalAssetIdsForEntryIds(APPROVED_JESTEI_BRAND_ENTRY_IDS),
   ...canonicalAssetIdsForEntryIds(APPROVED_JESTEI_BANNER_ENTRY_IDS),
   ...canonicalAssetIdsForEntryIds(APPROVED_JESTEI_LANDINGS_ENTRY_IDS),
 ]);
 
-const posterAssetIds = new Set(
+const posterAssetIds: ReadonlySet<string> = new Set<string>(
   mediaEntries.flatMap((entry) => entry.posterAssetId ? [entry.posterAssetId] : []),
 );
-const usageAssetIds = new Set(mediaEntries.map((entry) => entry.assetId));
+const usageAssetIds: ReadonlySet<string> = new Set<string>(
+  mediaEntries.map((entry) => entry.assetId),
+);
 
 function isTechnicalPosterOnly(assetId: string): boolean {
   return posterAssetIds.has(assetId) && !usageAssetIds.has(assetId);
