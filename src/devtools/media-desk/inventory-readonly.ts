@@ -12,9 +12,11 @@ import {
   type MediaDeskInventoryUsageFilter,
   type MediaDeskUnifiedUsage,
 } from "./inventory-model.ts";
+import { pageUsageRecords, unresolvedPageUsages } from "./page-usage.ts";
 import {
   galleryUsages,
   mediaEntryUsages,
+  pageMediaUsages,
   petCoverUsages,
   projectCoverUsages,
 } from "./usage-sources.ts";
@@ -25,6 +27,7 @@ const unifiedBindings = [
   ...mediaEntryUsages(mediaEntries),
   ...projectCoverUsages(projectCardPresentations, mediaCatalogItems),
   ...petCoverUsages(petProjectCards, mediaEntries),
+  ...pageMediaUsages(pageUsageRecords),
 ];
 const records = buildMediaDeskInventoryIndex(mediaCatalogItems, mediaEntries, unifiedBindings);
 const summary = summarizeMediaDeskDiagnostics(records);
@@ -187,6 +190,35 @@ function recordCard(record: MediaDeskInventoryRecord): HTMLElement {
   return card;
 }
 
+function unresolvedCard(index: number): HTMLElement {
+  const record = unresolvedPageUsages[index];
+  const card = element("article", "md-inventory-card");
+  const header = element("header", "md-inventory-card__header");
+  const titleWrap = element("div", "md-inventory-card__title-wrap");
+  titleWrap.append(
+    element("strong", "md-inventory-card__title", record.referencedPath),
+    element("code", "md-inventory-card__id", record.ownerId),
+  );
+  header.append(titleWrap);
+
+  const badges = element("div", "md-inventory-badges");
+  badges.append(
+    element("span", "md-inventory-badge md-inventory-badge--diagnostic", "unresolved page media"),
+  );
+
+  card.append(
+    header,
+    badges,
+    group("Reference", [
+      row("Owner", record.ownerId),
+      row("Route", record.route),
+      row("Source", record.sourcePath),
+      row("Referenced path", record.referencedPath),
+    ]),
+  );
+  return card;
+}
+
 function mount(): void {
   const status = document.querySelector<HTMLElement>(".md-status");
   if (!status || document.querySelector(".md-inventory")) return;
@@ -198,7 +230,7 @@ function mount(): void {
     element(
       "span",
       "md-inventory__summary-counts",
-      `${records.length} assets · ${summary.orphan} orphan · ${summary["missing-source"]} missing source · ${summary["duplicate-path"]} duplicate path`,
+      `${records.length} assets · ${summary.orphan} orphan · ${summary["missing-source"]} missing source · ${summary["duplicate-path"]} duplicate path · ${unresolvedPageUsages.length} unresolved page media`,
     ),
   );
 
@@ -231,6 +263,13 @@ function mount(): void {
   const resultMeta = element("span", "md-inventory-controls__meta");
   controls.append(search, usage, diagnostic, resultMeta);
 
+  const unresolved = element("details", "md-inventory");
+  const unresolvedSummary = element("summary", "md-inventory__summary");
+  unresolvedSummary.textContent = `Unresolved standalone page media · ${unresolvedPageUsages.length}`;
+  const unresolvedList = element("div", "md-inventory-list");
+  unresolvedList.append(...unresolvedPageUsages.map((_, index) => unresolvedCard(index)));
+  unresolved.append(unresolvedSummary, unresolvedList);
+
   const list = element("div", "md-inventory-list");
   list.setAttribute("aria-live", "polite");
 
@@ -252,7 +291,7 @@ function mount(): void {
   usage.addEventListener("change", render);
   diagnostic.addEventListener("change", render);
 
-  body.append(controls, list);
+  body.append(controls, unresolved, list);
   panel.append(summaryNode, body);
   status.insertAdjacentElement("afterend", panel);
   render();
