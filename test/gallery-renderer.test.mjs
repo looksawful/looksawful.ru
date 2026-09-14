@@ -95,6 +95,18 @@ test("Gallery PhotoSwipe credits stay readable over arbitrary media", () => {
   assert.match(captionRule, /padding:/);
 });
 
+test("Gallery mixed-media lightbox renders controlled video slides and pauses them across lifecycle changes", () => {
+  assert.match(lightboxSource, /dataset\.galleryKind/);
+  assert.match(lightboxSource, /dataset\.galleryPoster/);
+  assert.match(lightboxSource, /escapeAttribute/);
+  assert.match(lightboxSource, /gallery-lightbox__video/);
+  assert.match(lightboxSource, /controls playsinline preload="metadata"/);
+  assert.match(lightboxSource, /pauseViewerVideos/);
+  assert.match(lightboxSource, /lightbox\.on\("change"/);
+  assert.match(lightboxSource, /lightbox\.on\("close"/);
+  assert.match(lightboxSource, /lightbox\.on\("destroy"/);
+});
+
 test("Gallery CSS is layout-neutral for InfiniteGrid and keeps equal gap ownership", () => {
   assert.doesNotMatch(galleryCss, /\.gallery__header\b/);
   assert.doesNotMatch(galleryCss, /\.gallery__title\b/);
