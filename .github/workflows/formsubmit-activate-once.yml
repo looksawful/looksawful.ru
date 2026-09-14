@@ -1,0 +1,29 @@
+name: FormSubmit Activation Once
+
+on:
+  push:
+    branches: [contact-hub-frontend-current]
+    paths:
+      - .github/workflows/formsubmit-activate-once.yml
+
+permissions:
+  contents: read
+
+jobs:
+  activate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Request activation email for portfolio contact form
+        shell: bash
+        run: |
+          set -euo pipefail
+          response="$(curl --silent --show-error --fail-with-body \
+            --request POST \
+            --header 'Content-Type: application/json' \
+            --header 'Accept: application/json' \
+            --data '{"name":"looksawful.ru Contact Hub","email":"i@lookawful.ru","message":"Activation request for the portfolio contact form.","_subject":"Activate looksawful.ru contact form","_captcha":"false"}' \
+            'https://formsubmit.co/ajax/i@lookawful.ru')"
+          success="$(printf '%s' "$response" | jq -r '.success // false')"
+          echo "formsubmit_request_success=${success}"
+          test "$success" = "true"
