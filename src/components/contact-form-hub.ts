@@ -6,6 +6,19 @@ type ContactDraft = {
   message: string;
 };
 
+export function buildContactMailtoHref(value: ContactDraft): string {
+  const body = [
+    value.name.trim() ? `Имя: ${value.name.trim()}` : "",
+    `Email: ${value.email.trim()}`,
+    "",
+    value.message.trim(),
+  ]
+    .filter((line, index) => line || index === 2)
+    .join("\n");
+  const subject = "Сообщение с looksawful.ru";
+  return `mailto:i@lookawful.ru?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}
+
 const SITE_CONTACT_SELECTOR = 'a[href="mailto:i@lookawful.ru"]';
 const PET_SELECTOR = "[data-portfolio-pet-launcher]";
 const DRAFT_STORAGE_KEY = "looksawful.contact-form.draft.v1";
@@ -53,7 +66,6 @@ function createContactForm(documentRef: Document) {
   hub.dataset.contactFormHub = "";
   hub.dataset.visibility = "closed";
   hub.setAttribute("role", "dialog");
-  hub.setAttribute("aria-modal", "true");
   hub.setAttribute("aria-label", "Связаться со мной");
 
   const header = documentRef.createElement("header");
@@ -102,13 +114,12 @@ function createContactForm(documentRef: Document) {
   messageInput.required = true;
   messageInput.maxLength = 5000;
 
-  const actions = documentRef.createElement("div");
-  actions.className = "contact-form-hub__actions";
+  const footer = documentRef.createElement("div");
+  footer.className = "contact-form-hub__footer";
   const submitButton = documentRef.createElement("button");
   submitButton.type = "submit";
   submitButton.className = "contact-form-hub__text-action contact-form-hub__submit";
   submitButton.textContent = "отправить";
-  actions.append(submitButton);
 
   const fallback = documentRef.createElement("p");
   fallback.className = "contact-form-hub__fallback";
@@ -117,13 +128,13 @@ function createContactForm(documentRef: Document) {
   fallbackLink.href = "mailto:i@lookawful.ru";
   fallbackLink.textContent = "i@lookawful.ru";
   fallback.append(fallbackLink);
+  footer.append(fallback, submitButton);
 
   form.append(
     createField("имя", nameInput),
     createField("email", emailInput),
     createField("сообщение", messageInput),
-    actions,
-    fallback,
+    footer,
   );
   hub.append(header, form);
 
@@ -200,8 +211,8 @@ export function mountContactFormHub(root: Document = document): Destroy {
     const petRect = pet.getBoundingClientRect();
     const margin = 12;
     const gap = 12;
-    const width = Math.min(328, Math.max(280, view.innerWidth - margin * 2));
-    const height = Math.min(404, view.innerHeight - margin * 2);
+    const width = Math.min(hub.offsetWidth || 328, view.innerWidth - margin * 2);
+    const height = Math.min(hub.offsetHeight || 420, view.innerHeight - margin * 2);
     let left = petRect.right + gap;
     if (left + width > view.innerWidth - margin) left = petRect.left - gap - width;
     left = Math.max(margin, Math.min(left, view.innerWidth - width - margin));
@@ -274,18 +285,7 @@ export function mountContactFormHub(root: Document = document): Destroy {
     event.preventDefault();
     if (!form.reportValidity()) return;
     const value = currentDraft();
-    const body = [
-      value.name.trim() ? `Имя: ${value.name.trim()}` : "",
-      `Email: ${value.email.trim()}`,
-      "",
-      value.message.trim(),
-    ]
-      .filter((line, index) => line || index === 2)
-      .join("\n");
-    const mailto = new URL("mailto:i@lookawful.ru");
-    mailto.searchParams.set("subject", "Сообщение с looksawful.ru");
-    mailto.searchParams.set("body", body);
-    if (root.defaultView) root.defaultView.location.href = mailto.href;
+    if (root.defaultView) root.defaultView.location.href = buildContactMailtoHref(value);
   };
 
   const onKeyDown = (event: KeyboardEvent): void => {

@@ -131,7 +131,7 @@ const destroys: Destroy[] = [
   destroySiteAnalyticsGoalTracking,
   destroySiteAnalyticsConsent,
 ];
-destroys.push(mountPortfolioPet(document, { enabled: false }));
+destroys.push(mountPortfolioPet(document, { enabled: true }));
 destroys.push(mountContactFormHub(document));
 let destroyed = false;
 

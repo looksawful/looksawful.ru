@@ -71,6 +71,12 @@ export function createAwfulSpriteManifest(sources: string | AwfulSpriteSources):
             frameDurationMs: 180,
             loop: false,
           }),
+          "full-body-glasses-gesture": createClip(sources.extras, {
+            row: 4,
+            frameCount: 5,
+            frameDurationMs: 170,
+            loop: false,
+          }),
           "drawing-cross-legged": createClip(sources.extras, {
             row: 4,
             frameCount: 8,

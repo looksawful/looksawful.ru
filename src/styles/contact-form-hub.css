@@ -4,7 +4,9 @@
   inset-inline-start: 214px;
   inset-block-end: 18px;
   inline-size: min(328px, calc(100vw - 236px));
-  block-size: min(404px, calc(100dvh - 36px));
+  block-size: min(420px, calc(100dvh - 36px));
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
   color: var(--clr-text);
   background: var(--clr-surface-elevated);
   border: var(--border-width-100) solid var(--clr-border);
@@ -39,6 +41,11 @@
   font: inherit;
   cursor: pointer;
   touch-action: manipulation;
+  transition: opacity 120ms ease;
+}
+
+.contact-form-hub__text-action:hover {
+  opacity: 0.62;
 }
 
 .contact-form-hub__collapse,
@@ -62,9 +69,13 @@
 }
 
 .contact-form-hub__form {
+  min-block-size: 0;
   padding: 0 14px 12px;
   display: grid;
   align-content: start;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
 }
 
 .contact-form-hub__field {
@@ -104,9 +115,12 @@
   resize: none;
 }
 
-.contact-form-hub__actions {
+.contact-form-hub__footer {
+  min-block-size: 48px;
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
   padding-block-start: 12px;
   font-size: var(--fs-200);
 }
@@ -118,7 +132,8 @@
 }
 
 .contact-form-hub__fallback {
-  margin: 10px 0 0;
+  min-inline-size: 0;
+  margin: 0;
 }
 
 .contact-form-hub__fallback a {
@@ -158,7 +173,7 @@
     inset-block-start: auto !important;
     inset-block-end: 0 !important;
     inline-size: 100% !important;
-    block-size: min(62dvh, 520px);
+    block-size: min(520px, calc(100dvh - env(safe-area-inset-top, 0px) - 8px));
     max-block-size: calc(100dvh - env(safe-area-inset-top, 0px));
     border-inline: 0;
     border-block-end: 0;
