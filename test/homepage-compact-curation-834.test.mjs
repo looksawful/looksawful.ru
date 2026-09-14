@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { existsSync, readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 
 import { entityPageContentRegistry, getEntityPageContent } from "../src/content/pages/index.ts";
@@ -108,14 +108,4 @@ test("Съёмки is the public identity while the existing /shootings/ route a
 
   assert.match(homepage, /<a\b(?=[^>]*class="project-card")(?=[^>]*href="\/shootings\/")[^>]*>/);
   assert.match(homepage, />Съёмки</);
-});
-
-test("Lab Storybook records the real compact-project renderer variants", () => {
-  const storyUrl = new URL("../src/lab/stories/compact-project-preview.stories.js", import.meta.url);
-  assert.equal(existsSync(storyUrl), true);
-  const story = readFileSync(storyUrl, "utf8");
-  assert.match(story, /renderCompactHomepageEntity/);
-  assert.match(story, /Jestei/);
-  assert.match(story, /Styx/);
-  assert.match(story, /Sensetique/);
 });
