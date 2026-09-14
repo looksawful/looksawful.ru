@@ -277,3 +277,11 @@
     line-height: var(--lh-copy);
     letter-spacing: var(--ls-copy);
   }
+
+/* The restored shared lead constraint above is the mobile/default value.
+   Keep the established desktop project-intro behavior full-width. */
+@container project (width > 50rem) {
+  .project__lead {
+    max-inline-size: none;
+  }
+}
