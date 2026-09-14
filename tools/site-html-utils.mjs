@@ -8,6 +8,7 @@ export const SITE_ORIGIN_URL = new URL(SITE_ORIGIN);
 
 const FIXTURE_SEGMENTS = new Set(["fixtures", "__fixtures__", "test-fixtures"]);
 const SKIPPED_SCHEMES = /^(?:mailto|tel|data|blob|javascript):/i;
+const RUNTIME_TEMPLATE_REFERENCE = /\$\{[^}]+\}/u;
 
 export async function collectHtmlFiles(rootDir) {
   const files = [];
@@ -223,7 +224,7 @@ export function parseSrcset(value) {
 }
 
 export function isSkippableReference(value) {
-  return !value || SKIPPED_SCHEMES.test(value);
+  return !value || SKIPPED_SCHEMES.test(value) || RUNTIME_TEMPLATE_REFERENCE.test(value);
 }
 
 export function normalizeLocalReference(value, sourceHtml, distDir) {
