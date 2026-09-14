@@ -45,3 +45,12 @@ test("Berserk Timer restores terminal deck, interactive audio, code blocks and p
   assert.match(html, /Релиз v0\.2\.1-beta/);
   assert.match(html, />looksawful \/ berserk-timer<\/a>/);
 });
+
+test("Berserk Timer does not leak deck implementation labels or generic caption numbering", () => {
+  const html = renderBerserkPage();
+
+  assert.match(html, /data-deck-toggle-grid/);
+  assert.match(html, /aria-label="Сетка"/);
+  assert.doesNotMatch(html, />grid<\/button>/);
+  assert.match(html, /data-media-caption-numbering="off"/);
+});
