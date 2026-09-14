@@ -15,6 +15,21 @@ export function resolveAnimationFrame(
   }
 
   const safeElapsedMs = Number.isFinite(elapsedMs) ? Math.max(0, elapsedMs) : 0;
+  const authoredDurations = animation.frameDurationsMs;
+  if (authoredDurations) {
+    const cycleDurationMs = authoredDurations.reduce((total, duration) => total + duration, 0);
+    const completed = !animation.loop && safeElapsedMs >= cycleDurationMs;
+    const positionMs = animation.loop
+      ? safeElapsedMs % cycleDurationMs
+      : Math.min(safeElapsedMs, Math.max(0, cycleDurationMs - Number.EPSILON));
+    let boundaryMs = 0;
+    for (let frameIndex = 0; frameIndex < authoredDurations.length; frameIndex += 1) {
+      boundaryMs += authoredDurations[frameIndex] ?? 0;
+      if (positionMs < boundaryMs) return { frameIndex, completed };
+    }
+    return { frameIndex: animation.frameCount - 1, completed };
+  }
+
   const frameDurationMs = 1000 / animation.fps;
   const elapsedFrames = Math.floor(safeElapsedMs / frameDurationMs);
 

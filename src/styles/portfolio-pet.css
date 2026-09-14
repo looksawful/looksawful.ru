@@ -37,7 +37,9 @@
   background: rgb(0 0 0 / 0.08);
   filter: blur(3px);
   transform: translateX(-50%);
-  transition: transform 160ms ease, opacity 160ms ease;
+  transition:
+    transform 160ms ease,
+    opacity 160ms ease;
 }
 
 .portfolio-pet__viewport {
@@ -57,8 +59,8 @@
   position: absolute;
   inset: 0 auto auto 0;
   display: block;
-  inline-size: 1536px;
-  block-size: 2288px;
+  inline-size: auto;
+  block-size: auto;
   max-inline-size: none;
   max-block-size: none;
   opacity: 1;

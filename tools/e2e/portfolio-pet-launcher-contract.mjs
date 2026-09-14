@@ -2,14 +2,21 @@ import assert from "node:assert/strict";
 import { withE2ERuntime } from "./runtime.mjs";
 
 async function settle(page) {
-  await page.evaluate(() => new Promise((resolve) => {
-    requestAnimationFrame(() => requestAnimationFrame(resolve));
-  }));
+  await page.evaluate(
+    () =>
+      new Promise((resolve) => {
+        requestAnimationFrame(() => requestAnimationFrame(resolve));
+      }),
+  );
   await page.waitForTimeout(220);
 }
 
 await withE2ERuntime(async ({ browser, baseUrl }) => {
   const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+  await page.route("**/pets/awful/v6/extras/animations/camera-pro-flash.webp", async (route) => {
+    await new Promise((resolve) => setTimeout(resolve, 750));
+    await route.continue();
+  });
   await page.goto(`${baseUrl}/?pet=1`, { waitUntil: "networkidle" });
 
   const pet = page.locator("[data-portfolio-pet-launcher]");
@@ -35,18 +42,27 @@ await withE2ERuntime(async ({ browser, baseUrl }) => {
       animation: element.dataset.animation ?? "",
       frame: image?.dataset.frame ?? "",
       spriteTransform: imageStyle?.transform ?? "none",
+      spriteSrc: image instanceof HTMLImageElement ? image.currentSrc : "",
       naturalWidth: image instanceof HTMLImageElement ? image.naturalWidth : 0,
       naturalHeight: image instanceof HTMLImageElement ? image.naturalHeight : 0,
     };
   });
 
   assert.equal(initial.position, "fixed", "Awful must float above the site without reflow");
-  assert.ok(initial.width >= 120 && initial.height >= 120, "Awful must be visibly present, not a tiny launcher icon");
+  assert.ok(
+    initial.width >= 120 && initial.height >= 120,
+    "Awful must be visibly present, not a tiny launcher icon",
+  );
   assert.ok(initial.left >= 0 && initial.top >= 0, "Awful must start inside the viewport");
   assert.ok(initial.right <= initial.viewportWidth, "Awful must not clip horizontally");
   assert.ok(initial.bottom <= initial.viewportHeight, "Awful must not clip vertically");
   assert.equal(initial.cursor, "grab", "Awful must advertise pointer dragging");
   assert.equal(initial.animation, "idle", "Awful must start on the canonical idle sprite clip");
+  assert.match(
+    initial.spriteSrc,
+    /\/pets\/awful\/v6\/spritesheet\.webp$/,
+    "Awful must render from the versioned v6 atlas",
+  );
   assert.equal(initial.naturalWidth, 1536, "Awful atlas must decode at canonical width");
   assert.equal(initial.naturalHeight, 2288, "Awful atlas must decode at canonical height");
   await page.waitForTimeout(360);
@@ -54,13 +70,71 @@ await withE2ERuntime(async ({ browser, baseUrl }) => {
     frame: image.dataset.frame ?? "",
     transform: getComputedStyle(image).transform,
   }));
-  assert.notEqual(animated.frame, initial.frame, "Awful idle must advance through real sprite frames");
-  assert.notEqual(animated.transform, initial.spriteTransform, "Awful idle must move the atlas, not CSS-wobble one bitmap");
+  assert.notEqual(
+    animated.frame,
+    initial.frame,
+    "Awful idle must advance through real sprite frames",
+  );
+  assert.notEqual(
+    animated.transform,
+    initial.spriteTransform,
+    "Awful idle must move the atlas, not CSS-wobble one bitmap",
+  );
+
+  await page.evaluate(() => {
+    document.dispatchEvent(
+      new CustomEvent("portfolio-pet:animation", {
+        detail: { animation: "camera-pro-flash" },
+      }),
+    );
+  });
+  await page.waitForFunction(
+    () =>
+      document.querySelector("[data-portfolio-pet-launcher]")?.getAttribute("data-animation") ===
+      "camera-pro-flash",
+  );
+  await page.waitForTimeout(250);
+  const loadingExtra = await pet.locator(".portfolio-pet__image").evaluate((image) => ({
+    src: image instanceof HTMLImageElement ? image.currentSrc : "",
+    naturalWidth: image instanceof HTMLImageElement ? image.naturalWidth : 0,
+  }));
+  assert.match(
+    loadingExtra.src,
+    /\/pets\/awful\/v6\/spritesheet\.webp$/,
+    "Awful must keep the decoded atlas visible while a lazy extra strip loads",
+  );
+  assert.equal(
+    loadingExtra.naturalWidth,
+    1536,
+    "loading an extra strip must not expose an empty or geometrically mismatched image",
+  );
+  await page.waitForFunction(() => {
+    const image = document.querySelector(".portfolio-pet__image");
+    return (
+      image instanceof HTMLImageElement &&
+      image.complete &&
+      image.naturalWidth === 2304 &&
+      image.currentSrc.endsWith("/pets/awful/v6/extras/animations/camera-pro-flash.webp")
+    );
+  });
+  const extraAnimation = await pet.locator(".portfolio-pet__image").evaluate((image) => ({
+    src: image instanceof HTMLImageElement ? image.currentSrc : "",
+    frame: image.dataset.frame ?? "",
+  }));
+  assert.match(
+    extraAnimation.src,
+    /\/pets\/awful\/v6\/extras\/animations\/camera-pro-flash\.webp$/,
+    "explicit visual-context events must switch Awful to the matching v6 strip",
+  );
+  assert.ok(
+    Number(extraAnimation.frame) <= 1,
+    "the animation clock must begin when the decoded strip becomes visible",
+  );
 
   const startBox = await pet.boundingBox();
   assert.ok(startBox, "Awful must expose a draggable bounding box");
-  const startX = startBox.x + (startBox.width / 2);
-  const startY = startBox.y + (startBox.height / 2);
+  const startX = startBox.x + startBox.width / 2;
+  const startY = startBox.y + startBox.height / 2;
   await page.mouse.move(startX, startY);
   await page.mouse.down();
   await page.mouse.move(startX + 180, startY - 96, { steps: 8 });
@@ -71,22 +145,34 @@ await withE2ERuntime(async ({ browser, baseUrl }) => {
   assert.ok(draggedBox, "Awful must remain visible after dragging");
   assert.ok(draggedBox.x - startBox.x > 100, "Awful must move horizontally with the pointer");
   assert.ok(startBox.y - draggedBox.y > 50, "Awful must move vertically with the pointer");
-  assert.equal(await pet.getAttribute("data-facing"), "right", "dragging right must face Awful right");
-  const rightFacingScale = await pet.locator(".portfolio-pet__viewport").evaluate((element) => new DOMMatrix(getComputedStyle(element).transform).a);
+  assert.equal(
+    await pet.getAttribute("data-facing"),
+    "right",
+    "dragging right must face Awful right",
+  );
+  const rightFacingScale = await pet
+    .locator(".portfolio-pet__viewport")
+    .evaluate((element) => new DOMMatrix(getComputedStyle(element).transform).a);
   assert.ok(rightFacingScale > 0, "right-facing Awful must not mirror the sprite viewport");
-  assert.equal(await page.locator("[data-contact-hub]").isVisible(), false, "dragging must not accidentally open chat");
+  assert.equal(
+    await page.locator("[data-contact-hub]").isVisible(),
+    false,
+    "dragging must not accidentally open chat",
+  );
 
   const rightBox = await pet.boundingBox();
   assert.ok(rightBox, "Awful must expose a draggable box before leftward drag");
-  const rightX = rightBox.x + (rightBox.width / 2);
-  const rightY = rightBox.y + (rightBox.height / 2);
+  const rightX = rightBox.x + rightBox.width / 2;
+  const rightY = rightBox.y + rightBox.height / 2;
   await page.mouse.move(rightX, rightY);
   await page.mouse.down();
   await page.mouse.move(rightX - 120, rightY, { steps: 8 });
   await page.mouse.up();
   await settle(page);
   assert.equal(await pet.getAttribute("data-facing"), "left", "dragging left must face Awful left");
-  const leftFacingScale = await pet.locator(".portfolio-pet__viewport").evaluate((element) => new DOMMatrix(getComputedStyle(element).transform).a);
+  const leftFacingScale = await pet
+    .locator(".portfolio-pet__viewport")
+    .evaluate((element) => new DOMMatrix(getComputedStyle(element).transform).a);
   assert.ok(leftFacingScale < 0, "left-facing Awful must mirror the sprite viewport");
 
   await pet.evaluate((element) => {
@@ -97,8 +183,8 @@ await withE2ERuntime(async ({ browser, baseUrl }) => {
   });
   const safeAreaStart = await pet.boundingBox();
   assert.ok(safeAreaStart, "Awful must remain draggable while safe-area values are active");
-  const safeStartX = safeAreaStart.x + (safeAreaStart.width / 2);
-  const safeStartY = safeAreaStart.y + (safeAreaStart.height / 2);
+  const safeStartX = safeAreaStart.x + safeAreaStart.width / 2;
+  const safeStartY = safeAreaStart.y + safeAreaStart.height / 2;
   await page.mouse.move(safeStartX, safeStartY);
   await page.mouse.down();
   await page.mouse.move(-600, -420, { steps: 20 });
@@ -106,23 +192,42 @@ await withE2ERuntime(async ({ browser, baseUrl }) => {
   await settle(page);
   const safeAreaBox = await pet.boundingBox();
   assert.ok(safeAreaBox, "Awful must remain recoverable after safe-area clamp");
-  assert.ok(safeAreaBox.x >= 48 - (safeAreaBox.width - 72) - 1, "PET-020: runtime clamp must use effective left safe area");
-  assert.ok(safeAreaBox.y >= 36 - (safeAreaBox.height - 96) - 1, "PET-020: runtime clamp must use effective top safe area");
+  assert.ok(
+    safeAreaBox.x >= 48 - (safeAreaBox.width - 72) - 1,
+    "PET-020: runtime clamp must use effective left safe area",
+  );
+  assert.ok(
+    safeAreaBox.y >= 36 - (safeAreaBox.height - 96) - 1,
+    "PET-020: runtime clamp must use effective top safe area",
+  );
 
   await pet.click();
   await settle(page);
 
   const hub = page.locator("[data-contact-hub]");
   await hub.waitFor({ state: "visible", timeout: 2_000 });
-  assert.equal(await hub.getAttribute("data-mode"), "ai", "clicking Awful must open Contact Hub in AI mode");
+  assert.equal(
+    await hub.getAttribute("data-mode"),
+    "ai",
+    "clicking Awful must open Contact Hub in AI mode",
+  );
   assert.equal(await hub.getAttribute("data-visibility"), "open");
 
   const composerInput = page.getByLabel("Сообщение AI");
   await composerInput.fill("привет");
   await composerInput.press("Enter");
-  await page.locator(".contact-hub__message--user", { hasText: "привет" }).waitFor({ state: "visible", timeout: 2_000 });
-  await page.locator(".contact-hub__message--bot").last().waitFor({ state: "visible", timeout: 2_000 });
-  assert.equal(await composerInput.inputValue(), "", "submitted chat text must clear from the composer");
+  await page
+    .locator(".contact-hub__message--user", { hasText: "привет" })
+    .waitFor({ state: "visible", timeout: 2_000 });
+  await page
+    .locator(".contact-hub__message--bot")
+    .last()
+    .waitFor({ state: "visible", timeout: 2_000 });
+  assert.equal(
+    await composerInput.inputValue(),
+    "",
+    "submitted chat text must clear from the composer",
+  );
 
   await page.keyboard.press("Escape");
   await hub.waitFor({ state: "hidden", timeout: 2_000 });
@@ -143,15 +248,39 @@ await withE2ERuntime(async ({ browser, baseUrl }) => {
   await settle(page);
   const beforeHide = await pet.boundingBox();
   assert.ok(beforeHide, "Awful must be visible before deliberate swipe-to-hide");
-  const hideStartX = beforeHide.x + (beforeHide.width / 2);
-  const hideStartY = beforeHide.y + (beforeHide.height / 2);
+  const hideStartX = beforeHide.x + beforeHide.width / 2;
+  const hideStartY = beforeHide.y + beforeHide.height / 2;
   await page.mouse.move(hideStartX, hideStartY);
   await page.mouse.down();
   await page.mouse.move(18, hideStartY + 4, { steps: 2 });
   await page.mouse.up();
   await settle(page);
-  assert.equal(await pet.isVisible(), false, "DR-006/PET-024: deliberate fast swipe to the left edge must hide Awful");
+  assert.equal(
+    await pet.isVisible(),
+    false,
+    "DR-006/PET-024: deliberate fast swipe to the left edge must hide Awful",
+  );
   assert.equal(await hub.isVisible(), false, "swipe-to-hide must not open Contact Hub");
 
   await page.close();
+
+  const fallbackPage = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+  await fallbackPage.route("**/pets/awful/v6/spritesheet.webp", (route) => route.abort());
+  await fallbackPage.goto(`${baseUrl}/?pet=1`, { waitUntil: "networkidle" });
+  const fallbackPet = fallbackPage.locator("[data-portfolio-pet-launcher]");
+  await fallbackPet.waitFor({ state: "visible", timeout: 2_000 });
+  await fallbackPage.waitForFunction(
+    () =>
+      document
+        .querySelector("[data-portfolio-pet-launcher]")
+        ?.getAttribute("data-asset-version") === "v2-fallback",
+  );
+  const fallback = await fallbackPet.locator(".portfolio-pet__image").evaluate((image) => ({
+    src: image instanceof HTMLImageElement ? image.currentSrc : "",
+    width: image instanceof HTMLImageElement ? image.naturalWidth : 0,
+    height: image instanceof HTMLImageElement ? image.naturalHeight : 0,
+  }));
+  assert.match(fallback.src, /\/pets\/awful\/awful-v2-spritesheet\.webp$/);
+  assert.deepEqual([fallback.width, fallback.height], [1536, 2288]);
+  await fallbackPage.close();
 });

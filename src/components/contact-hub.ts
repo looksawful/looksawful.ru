@@ -9,6 +9,7 @@ import {
 } from "../features/contact-hub/persistence.ts";
 import { createPortfolioAssistantClient } from "../features/portfolio-pet/assistant-client.ts";
 import { createPreviewPortfolioAssistantRouter } from "../features/portfolio-pet/prepared-answers.ts";
+import { resolveAwfulPromptAnimation } from "../features/portfolio-pet/awful-animation-policy.ts";
 
 type Destroy = () => void;
 
@@ -67,12 +68,18 @@ function resolveAssistantSessionId(documentRef: Document): string {
 
 function isPreviewAssistantRuntime(documentRef: Document): boolean {
   const hostname = documentRef.defaultView?.location.hostname ?? "";
-  return hostname === "localhost"
-    || hostname === "127.0.0.1"
-    || hostname.endsWith(".looksawful-ru-preview.pages.dev");
+  return (
+    hostname === "localhost" ||
+    hostname === "127.0.0.1" ||
+    hostname.endsWith(".looksawful-ru-preview.pages.dev")
+  );
 }
 
-function createAiMessage(documentRef: Document, text: string, author: AiAuthor): HTMLParagraphElement {
+function createAiMessage(
+  documentRef: Document,
+  text: string,
+  author: AiAuthor,
+): HTMLParagraphElement {
   const message = documentRef.createElement("p");
   message.className = `contact-hub__message contact-hub__message--${author}`;
   message.textContent = text;
@@ -224,8 +231,18 @@ export function mountContactHub(root: Document = document): Destroy {
 
   const elements = createHubElement(root);
   const {
-    hub, collapsedLauncher, collapseButton, closeButton,
-    formScreen, aiScreen, aiLog, nameInput, emailInput, messageInput, composer, composerInput,
+    hub,
+    collapsedLauncher,
+    collapseButton,
+    closeButton,
+    formScreen,
+    aiScreen,
+    aiLog,
+    nameInput,
+    emailInput,
+    messageInput,
+    composer,
+    composerInput,
     composerSend,
   } = elements;
   root.body.append(hub, collapsedLauncher);
@@ -234,6 +251,10 @@ export function mountContactHub(root: Document = document): Destroy {
   let opener: HTMLElement | null = null;
   let assistantBusy = false;
   let petStateTimer = 0;
+  let petWorkTimer = 0;
+  let assistantGeneration = 0;
+  let activePendingMessage: HTMLParagraphElement | null = null;
+  let destroyed = false;
   const draftStore = resolveDraftStore(root);
   const previewAssistant = isPreviewAssistantRuntime(root);
   const assistantClient = createPortfolioAssistantClient(
@@ -244,7 +265,11 @@ export function mountContactHub(root: Document = document): Destroy {
     previewAssistant ? { router: createPreviewPortfolioAssistantRouter() } : {},
   );
 
-  const formDraft = () => ({ name: nameInput.value, email: emailInput.value, message: messageInput.value });
+  const formDraft = () => ({
+    name: nameInput.value,
+    email: emailInput.value,
+    message: messageInput.value,
+  });
 
   const persistDraft = (): void => {
     try {
@@ -265,8 +290,29 @@ export function mountContactHub(root: Document = document): Destroy {
     // Corrupt/blocked storage fails closed and leaves an empty form.
   }
 
-  const setPetState = (visualState: "idle" | "thinking" | "speaking" | "success" | "error"): void => {
+  const setPetState = (
+    visualState: "idle" | "thinking" | "speaking" | "success" | "error",
+  ): void => {
     root.dispatchEvent(new CustomEvent("portfolio-pet:state", { detail: { state: visualState } }));
+  };
+
+  const setPetAnimation = (animation: string): void => {
+    root.dispatchEvent(new CustomEvent("portfolio-pet:animation", { detail: { animation } }));
+  };
+
+  const cancelAssistantWork = (markCancelled: boolean): void => {
+    assistantGeneration += 1;
+    const view = root.defaultView;
+    if (view) view.clearTimeout(petWorkTimer);
+    petWorkTimer = 0;
+    assistantBusy = false;
+    composerInput.disabled = false;
+    composerSend.disabled = false;
+    if (markCancelled && activePendingMessage?.dataset.pending === "true") {
+      activePendingMessage.textContent = "запрос отменён";
+      delete activePendingMessage.dataset.pending;
+    }
+    activePendingMessage = null;
   };
 
   const schedulePetIdle = (delayMs: number): void => {
@@ -297,17 +343,20 @@ export function mountContactHub(root: Document = document): Destroy {
     const gap = 12;
     const viewportWidth = view.visualViewport?.width ?? view.innerWidth;
     const viewportHeight = view.visualViewport?.height ?? view.innerHeight;
-    const hubWidth = Math.min(state.mode === "form" ? 328 : 356, Math.max(280, viewportWidth - (margin * 2)));
+    const hubWidth = Math.min(
+      state.mode === "form" ? 328 : 356,
+      Math.max(280, viewportWidth - margin * 2),
+    );
     const requestedHeight = state.mode === "form" ? 382 : 464;
-    const hubHeight = Math.min(requestedHeight, viewportHeight - (margin * 2));
+    const hubHeight = Math.min(requestedHeight, viewportHeight - margin * 2);
 
     let left = petRect.right + gap;
     if (left + hubWidth > viewportWidth - margin) left = petRect.left - gap - hubWidth;
     left = Math.max(margin, Math.min(left, viewportWidth - hubWidth - margin));
-    const top = Math.max(margin, Math.min(
-      petRect.bottom - hubHeight,
-      viewportHeight - hubHeight - margin,
-    ));
+    const top = Math.max(
+      margin,
+      Math.min(petRect.bottom - hubHeight, viewportHeight - hubHeight - margin),
+    );
 
     hub.style.insetInlineStart = `${Math.round(left)}px`;
     hub.style.insetBlockStart = `${Math.round(top)}px`;
@@ -347,7 +396,9 @@ export function mountContactHub(root: Document = document): Destroy {
       return;
     }
     resetHubPosition();
-    requestAnimationFrame(() => (nameInput.value ? messageInput : nameInput).focus({ preventScroll: true }));
+    requestAnimationFrame(() =>
+      (nameInput.value ? messageInput : nameInput).focus({ preventScroll: true }),
+    );
   };
 
   const openFromSiteContact = (event: Event): void => {
@@ -373,6 +424,7 @@ export function mountContactHub(root: Document = document): Destroy {
     const message = rawMessage.trim();
     if (!message || assistantBusy || state.mode !== "ai" || state.visibility !== "open") return;
 
+    const requestGeneration = ++assistantGeneration;
     assistantBusy = true;
     composerInput.value = "";
     composerInput.disabled = true;
@@ -380,16 +432,30 @@ export function mountContactHub(root: Document = document): Destroy {
     aiLog.append(createAiMessage(root, message, "user"));
 
     const pendingMessage = createAiMessage(root, "думаю…", "bot");
+    activePendingMessage = pendingMessage;
     pendingMessage.dataset.pending = "true";
     aiLog.append(pendingMessage);
     scrollAiToEnd();
     setPetState("thinking");
+    const promptAnimation = resolveAwfulPromptAnimation(message);
+    if (promptAnimation) setPetAnimation(promptAnimation);
+    const view = root.defaultView;
+    if (view) {
+      view.clearTimeout(petWorkTimer);
+      petWorkTimer = view.setTimeout(() => {
+        if (!destroyed && requestGeneration === assistantGeneration) setPetAnimation("laptop");
+      }, 12_000);
+    }
 
     const result = await assistantClient.reply({
       message,
       locale: root.documentElement.lang.toLowerCase().startsWith("en") ? "en" : "ru",
       context: { page: root.defaultView?.location.pathname ?? "home" },
     });
+    if (destroyed || requestGeneration !== assistantGeneration) return;
+    if (view) view.clearTimeout(petWorkTimer);
+    petWorkTimer = 0;
+    activePendingMessage = null;
 
     let responseText: string;
     let successfulAnswer = false;
@@ -412,7 +478,9 @@ export function mountContactHub(root: Document = document): Destroy {
     composerInput.focus({ preventScroll: true });
     scrollAiToEnd();
 
-    setPetState(successfulAnswer ? "speaking" : result.kind === "unavailable" ? "error" : "speaking");
+    setPetState(
+      successfulAnswer ? "speaking" : result.kind === "unavailable" ? "error" : "speaking",
+    );
     schedulePetIdle(successfulAnswer ? 1_150 : 900);
   };
 
@@ -439,6 +507,7 @@ export function mountContactHub(root: Document = document): Destroy {
 
   const close = (): void => {
     if (state.visibility === "closed") return;
+    cancelAssistantWork(true);
     const focusTarget = opener;
     state = transitionContactHub(state, { type: "CLOSE" });
     render();
@@ -483,6 +552,8 @@ export function mountContactHub(root: Document = document): Destroy {
   render();
 
   return () => {
+    destroyed = true;
+    cancelAssistantWork(false);
     openers.forEach((contact) => contact.removeEventListener("click", openFromSiteContact));
     petOpeners.forEach((pet) => pet.removeEventListener("click", openFromPet));
     collapseButton.removeEventListener("click", collapse);
@@ -497,7 +568,9 @@ export function mountContactHub(root: Document = document): Destroy {
     root.removeEventListener("portfolio-pet:moved", onPetMoved);
     root.defaultView?.removeEventListener("resize", onViewportChange);
     root.defaultView?.visualViewport?.removeEventListener("resize", onViewportChange);
-    if (root.defaultView) root.defaultView.clearTimeout(petStateTimer);
+    if (root.defaultView) {
+      root.defaultView.clearTimeout(petStateTimer);
+    }
     root.documentElement.classList.remove("contact-hub-open");
     hub.remove();
     collapsedLauncher.remove();
