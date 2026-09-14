@@ -175,6 +175,21 @@ test("accepts existing declared supporting sources outside the UI denominator", 
   assert.equal(inventory.structuralIssues.length, 0);
 });
 
+test("inventory uses canonical story policy and visibility enums", async (t) => {
+  const root = await fixture(t, {
+    "src/components/card.ts": "export const card = true;",
+    "src/lab/stories/card.stories.js": `
+      export default { title: "02 Molecules/Card", parameters: { looksawful: {
+        sources: ["src/components/card.ts"], layer: "molecule", policy: "no-story",
+        canonical: true, state: "default", visibility: ["route-discovery"]
+      } } };
+    `,
+  });
+  const inventory = await collectDesignSystemInventory(root);
+  assert.ok(inventory.structuralIssues.some((issue) => issue.code === "unknown-policy"));
+  assert.ok(inventory.structuralIssues.some((issue) => issue.code === "unknown-visibility"));
+});
+
 test("reports structural errors for declared source paths that do not exist", async (t) => {
   const root = await fixture(t, {
     "src/lab/stories/broken.stories.js": `

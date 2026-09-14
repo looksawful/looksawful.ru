@@ -1,6 +1,11 @@
 import { mkdir, readFile, readdir, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
+import {
+  LOOKSAWFUL_STORY_LAYER_VALUES,
+  LOOKSAWFUL_STORY_POLICY_VALUES,
+  LOOKSAWFUL_VISIBILITY_VALUES,
+} from "./storybook/state-schema.mjs";
 
 const SOURCE_EXTENSIONS = new Set([".ts", ".js", ".mjs"]);
 const STORY_SUFFIXES = [".stories.ts", ".stories.js", ".stories.mjs"];
@@ -13,8 +18,9 @@ const SOURCE_GROUPS = [
   ["src/site/shell", "shell"],
   ["src/site/pages", "page"],
 ];
-const LAYERS = new Set(["foundation", "atom", "molecule", "organism", "template", "page", "motion", "experimental"]);
-const POLICIES = new Set(["isolated", "composition", "page", "behavior-fixture", "experimental", "no-story"]);
+const LAYERS = new Set(LOOKSAWFUL_STORY_LAYER_VALUES);
+const POLICIES = new Set(LOOKSAWFUL_STORY_POLICY_VALUES);
+const VISIBILITY = new Set(LOOKSAWFUL_VISIBILITY_VALUES);
 const OVERALL_STATUSES = new Set(["missing", "partial", "covered", "composition-only", "page-only", "experimental", "exempt-no-story", "needs-classification"]);
 
 function toPosix(value) {
@@ -218,6 +224,11 @@ export function validateDesignSystemInventory(inventory) {
     }
     if (story.policy && !POLICIES.has(story.policy)) {
       issues.push({ severity: "error", code: "unknown-policy", storyPath: story.path, value: story.policy });
+    }
+    for (const visibility of story.visibility) {
+      if (!VISIBILITY.has(visibility)) {
+        issues.push({ severity: "error", code: "unknown-visibility", storyPath: story.path, value: visibility });
+      }
     }
     for (const declaredSource of story.declaredSources) {
       const sourceCheck = story.declaredSourceChecks?.find((check) => check.path === declaredSource);
