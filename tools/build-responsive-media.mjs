@@ -169,6 +169,7 @@ export async function buildResponsiveVariants({
 
   for (const asset of assets) {
     if (asset.type !== "image") continue;
+    if (asset.responsive === false) continue;
     if (!RASTER_INPUT_FORMATS.has(extensionFor(asset.src))) continue;
 
     const sourcePath = await resolveMediaFile(resolvedRoot, asset.src);

@@ -28,6 +28,8 @@ export interface MediaBase {
 
 export interface ImageMedia extends MediaBase {
   type: "image";
+  /** Set to false for lab-only or source assets that must never enter responsive generation. */
+  responsive?: boolean;
 }
 
 export interface VideoMedia extends MediaBase {
