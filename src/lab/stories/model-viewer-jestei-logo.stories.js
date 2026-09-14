@@ -17,18 +17,20 @@ const ensureStyles = () => {
     .mv-jestei-story {
       inline-size: min(100%, 72rem);
       margin-inline: auto;
+      container: model-viewer / inline-size;
     }
 
     .mv-jestei-story .media__surface {
       position: relative;
       display: grid;
       overflow: hidden;
+      inline-size: 100%;
+      max-inline-size: 100%;
       aspect-ratio: 16 / 9;
-      min-block-size: 24rem;
+      min-block-size: 0;
       background:
         radial-gradient(circle at 50% 42%, rgb(255 255 255) 0 14%, transparent 55%),
         var(--clr-surface-page);
-      container: model-viewer / inline-size;
     }
 
     .mv-jestei-stage,
@@ -157,7 +159,8 @@ const ensureStyles = () => {
 
     @container model-viewer (width < 36rem) {
       .mv-jestei-story .media__surface {
-        min-block-size: 20rem;
+        aspect-ratio: 1 / 1;
+        min-block-size: 0;
       }
 
       .mv-jestei-toolbar {
@@ -247,7 +250,7 @@ const fitModel = (model, camera, controls) => {
   const halfFov = THREE.MathUtils.degToRad(camera.fov * 0.5);
   const distance = fittedSphere.radius / Math.sin(halfFov) * 1.08;
 
-  camera.position.set(distance * 0.24, distance * 0.08, distance);
+  camera.position.set(distance * 0.06, distance * 0.025, distance);
   camera.near = Math.max(0.01, distance / 100);
   camera.far = distance * 100;
   camera.updateProjectionMatrix();
@@ -268,7 +271,11 @@ const mountViewer = async (root) => {
   let disposed = false;
   let environment = null;
   let model = null;
+  let edgeRoot = null;
+  let edgeMaterial = null;
   const materials = new Set();
+  const meshes = [];
+  const edgeObjects = [];
 
   const renderer = new THREE.WebGLRenderer({
     canvas,
@@ -341,12 +348,37 @@ const mountViewer = async (root) => {
         material.needsUpdate = true;
         materials.add(material);
       });
+      meshes.push(object);
       object.castShadow = false;
       object.receiveShadow = false;
     });
 
     scene.add(model);
     fitModel(model, camera, controls);
+
+    model.updateMatrixWorld(true);
+    const modelInverse = new THREE.Matrix4().copy(model.matrixWorld).invert();
+    edgeMaterial = new THREE.LineBasicMaterial({
+      color: 0x3f3f3f,
+      transparent: true,
+      opacity: 0.72,
+      depthTest: true,
+      depthWrite: false,
+    });
+    edgeRoot = new THREE.Group();
+    edgeRoot.name = "JesteiLogo_Edges";
+    edgeRoot.visible = false;
+
+    meshes.forEach((mesh) => {
+      mesh.updateWorldMatrix(true, false);
+      const geometry = new THREE.EdgesGeometry(mesh.geometry, 28);
+      const lines = new THREE.LineSegments(geometry, edgeMaterial);
+      lines.matrix.copy(modelInverse.clone().multiply(mesh.matrixWorld));
+      lines.matrixAutoUpdate = false;
+      edgeRoot.add(lines);
+      edgeObjects.push(lines);
+    });
+    model.add(edgeRoot);
     resize();
     status?.setAttribute("hidden", "");
   } catch (error) {
@@ -359,11 +391,11 @@ const mountViewer = async (root) => {
 
   const renderModeInputs = root.querySelectorAll('[data-jestei-render-mode]');
   const updateRenderMode = (mode) => {
-    materials.forEach((material) => {
-      if (!("wireframe" in material)) return;
-      material.wireframe = mode === "wireframe";
-      material.needsUpdate = true;
+    const showEdges = mode === "wireframe";
+    meshes.forEach((mesh) => {
+      mesh.visible = !showEdges;
     });
+    if (edgeRoot) edgeRoot.visible = showEdges;
     render();
   };
   renderModeInputs.forEach((input) => {
@@ -394,6 +426,10 @@ const mountViewer = async (root) => {
     controls.removeEventListener("change", render);
     controls.dispose();
     environment?.dispose();
+    edgeObjects.forEach((lines) => lines.geometry?.dispose?.());
+    edgeObjects.length = 0;
+    edgeMaterial?.dispose?.();
+    edgeRoot?.removeFromParent();
     materials.forEach((material) => material.dispose?.());
     materials.clear();
     if (model) {
