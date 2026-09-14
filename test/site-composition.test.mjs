@@ -102,14 +102,14 @@ test("homepage final output resolves every build-time marker", () => {
   assert.doesNotMatch(rendered, /<!-- [A-Z][A-Z0-9_]+ -->/);
 });
 
-test("homepage full entities render from canonical PageContent in declared order", () => {
+test("homepage enabled entities render from canonical PageContent in declared order", () => {
   const html = renderHomepagePage(indexHtml);
   const articleIds = [
     "project-jestei",
     "project-styx",
     "project-sensetique",
-    "project-shootings",
   ];
+  assert.doesNotMatch(html, /id="project-shootings"/);
 
   let previousIndex = -1;
   for (const articleId of articleIds) {
