@@ -16,6 +16,8 @@ The prototype must be realistic enough to review visually and behaviorally in La
 
 ## Current public Pet Projects
 
+The homepage section heading is exactly `Полезное`.
+
 The public homepage candidate contains exactly these four projects:
 
 1. `awful-cases`
@@ -95,23 +97,25 @@ interface PetProjectCardBase {
   description: string;
   kind: PetProjectKind;
   shape: "landscape" | "square" | "portrait";
-  coverEntryId?: MediaEntryId;
 }
 
 export interface LivePetProjectCard extends PetProjectCardBase {
   status: "live";
+  coverEntryId: MediaEntryId;
   href: string;
   badge?: "new";
 }
 
 export interface ComingSoonPetProjectCard extends PetProjectCardBase {
   status: "coming-soon";
+  coverEntryId: MediaEntryId;
   href?: never;
   badge?: never;
 }
 
 export interface HiddenPetProjectCard extends PetProjectCardBase {
   status: "hidden";
+  coverEntryId?: MediaEntryId;
   href?: never;
   badge?: never;
 }
@@ -126,8 +130,9 @@ export type PetProjectCardData =
 
 - `NEW` is deliberately manual. It never expires automatically based on a date.
 - `COMING SOON` is derived from `status: "coming-soon"`, not independently toggled, so a card cannot accidentally be clickable while also marked unavailable.
-- `hidden` records can exist architecturally without being rendered.
-- `kind` is data for future grouping/filtering and does not need to appear visually now.
+- every visible card requires real media at the type level;
+- `hidden` records can exist architecturally without being rendered or having media ready;
+- `kind` is data for future grouping/filtering and does not need to appear visually now;
 - `href` exists only for live cards.
 
 ## Rendering contract
@@ -240,7 +245,7 @@ Future ten projects do not receive public routes or pages yet.
 
 The review prototype must let the user inspect more than a card specimen. It must show the real experience expected after production integration:
 
-1. homepage-like Pet Projects section in site context;
+1. homepage-like `Полезное` section in site context;
 2. mobile horizontal reel behavior;
 3. intermediate 2-column behavior;
 4. wide 4-column behavior;
@@ -259,6 +264,7 @@ Storybook is used as a component review surface, not the source of production im
 Recommended stories:
 
 - `03 Organisms / Pet Projects / Production Candidate`
+  - exact heading `Полезное`
   - exact four current public cards
   - real media
   - site tokens/styles
@@ -349,12 +355,14 @@ The card component does not own route registration. A project becomes fully live
 
 Implementation must add or update tests for:
 
-- live cards require `href` at compile/type level;
-- coming-soon/hidden cards cannot carry `href`;
+- live cards require `coverEntryId` and `href` at compile/type level;
+- coming-soon cards require `coverEntryId` but cannot carry `href`;
+- hidden cards may omit media and cannot carry `href`;
 - hidden records do not render;
 - coming-soon cards render no anchor;
 - `NEW` renders only when manually requested;
 - coming-soon badge is derived from status;
+- exact heading `Полезное`;
 - exact approved copy for the four current cards;
 - four current cards are the only cards in the production candidate;
 - Berserk Timer and AWFUL STUDIO canonical routes are registered when those pages are implemented;
@@ -383,7 +391,8 @@ This phase does not:
 The design is ready for implementation when all of the following are true:
 
 - the data model can represent all 14 known Pet Project IDs;
-- only four current projects appear in the production-like homepage candidate;
+- only four current projects appear in the production-like homepage candidate under `Полезное`;
+- every visible card has canonical media;
 - a live card may optionally display `NEW`;
 - a coming-soon card is visibly marked and genuinely non-clickable;
 - a hidden project is absent from rendering;
