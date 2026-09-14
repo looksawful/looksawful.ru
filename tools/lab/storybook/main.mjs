@@ -9,7 +9,12 @@ const config = {
   addons: [
     "@storybook/addon-docs",
     "@storybook/addon-a11y",
-    "storybook-design-token",
+    {
+      name: "storybook-design-token",
+      options: {
+        designTokenGlob: "src/**/*.css",
+      },
+    },
   ],
   framework: {
     name: "@storybook/html-vite",

@@ -93,6 +93,7 @@ test("Lab design system is a static Storybook viewer over canonical source", asy
   assert.match(main, /@storybook\/addon-docs/);
   assert.match(main, /@storybook\/addon-a11y/);
   assert.match(main, /storybook-design-token/);
+  assert.match(main, /designTokenGlob:\s*"src\/\*\*\/\*\.css"/);
   assert.match(main, /src\/lab\/stories/);
   assert.match(main, /@storybook\/builder-vite/);
   assert.match(main, /viteConfigPath:\s*storybookViteConfig/);
