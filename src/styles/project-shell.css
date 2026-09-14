@@ -94,6 +94,34 @@
   text-underline-offset: 0.18em;
 }
 
+.project-preview-entry {
+  inline-size: min(calc(100% - (var(--project-gutter) * 2)), var(--content-max-width));
+  margin-inline: auto;
+  padding-block: clamp(1rem, 2.2cqi, 2rem) clamp(3.5rem, 7cqi, 7rem);
+}
+
+.project-preview-entry__link {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--size-300);
+  padding-block: clamp(1rem, 2cqi, 1.5rem);
+  border-block: var(--border-width-100) solid currentColor;
+  font-size: clamp(1.35rem, 1rem + 1.25cqi, 2.25rem);
+  font-weight: var(--fw-600);
+  line-height: var(--lh-heading);
+  letter-spacing: var(--ls-heading);
+  text-decoration: none;
+}
+
+.project-preview-entry__arrow {
+  transition: transform 180ms ease;
+}
+
+.project-preview-entry__link:is(:hover, :focus-visible) .project-preview-entry__arrow {
+  transform: translateX(0.35em);
+}
+
 .project__section {
   --wrapper-max-width: var(--content-max-width);
   --stack-space: var(--project-section-gap);

@@ -23,8 +23,13 @@ const compactContracts = [
   {
     path: "/work/jestei-pool/",
     articleId: "project-jestei",
-    keptSections: ["jestei-featured", "jestei-home"],
-    standaloneOnlySection: "jestei-brand",
+    keptSections: [
+      "jestei-featured",
+      "jestei-home",
+      "jestei-brand",
+      "jestei-event",
+    ],
+    standaloneOnlySection: "jestei-interface",
   },
   {
     path: "/work/styx/",
@@ -53,8 +58,7 @@ test("homepage presentation uses compact previews in the canonical portfolio ord
   );
   assert.doesNotThrow(() => assertHomepagePresentationSupported(homepageEntries));
 });
-
-test("compact homepage previews keep canonical intro and two opening sections without emitting the full standalone body", () => {
+test("compact homepage previews render curated Jestei sections while leaving standalone content intact", () => {
   const homepage = renderHomepagePage(indexSource);
 
   for (const contract of compactContracts) {
@@ -69,4 +73,15 @@ test("compact homepage previews keep canonical intro and two opening sections wi
     const standalone = renderStandaloneEntityPage(page);
     assert.match(standalone, new RegExp(`id="${contract.standaloneOnlySection}"`));
   }
+});
+
+test("Jestei compact preview exposes both intro and terminal links to the full canonical case", () => {
+  const homepage = renderHomepagePage(indexSource);
+  const start = homepage.indexOf('id="project-jestei"');
+  const end = homepage.indexOf('id="project-styx"');
+  assert.ok(start >= 0 && end > start);
+
+  const jestei = homepage.slice(start, end);
+  assert.match(jestei, /class="project__links cluster"[\s\S]*href="\/work\/jestei-pool\/"[\s\S]*>Полный кейс<\/a>/);
+  assert.match(jestei, /class="project-preview-entry"[\s\S]*href="\/work\/jestei-pool\/"[\s\S]*Полный кейс Jestei Pool/);
 });
