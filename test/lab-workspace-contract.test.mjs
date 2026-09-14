@@ -178,3 +178,17 @@ test("immutable Lab verification tolerates Cloudflare static propagation after a
   assert.match(verification, /sleep 3/);
   assert.match(verification, /did not expose exact Lab identity/);
 });
+
+test("immutable Lab bundle verification polls real Lab and Storybook routes until Pages propagation completes", async () => {
+  const workflow = await read(".github/workflows/lab-preview.yml");
+  const start = workflow.indexOf("Verify immutable Lab entry and design system");
+  const end = workflow.indexOf("Verify stable Lab branch alias");
+  const verification = workflow.slice(start, end);
+
+  assert.match(verification, /for attempt in \{1\.\.20\}/);
+  assert.match(verification, /\$PREVIEW_URL\/lab\/\?sha=\$GITHUB_SHA/);
+  assert.match(verification, /\$PREVIEW_URL\/lab\/system\//);
+  assert.match(verification, /\$PREVIEW_URL\/lab\/system\/inventory\.html/);
+  assert.match(verification, /immutable Lab bundle was not ready/);
+  assert.match(verification, /sleep 3/);
+});
