@@ -24,6 +24,7 @@ const SESSION_COOKIE = "__Host-media_desk_session";
 const SESSION_MAX_AGE = 12 * 60 * 60;
 const MAX_LOGIN_BYTES = 8 * 1024;
 const MAX_JSON_BYTES = 256 * 1024;
+const MAX_REMOTE_MEDIA_BYTES = 16 * 1024 * 1024;
 const MEDIA_MUTATION_PATHS = new Set([
   "/api/media/upload",
   "/api/media/replace",
@@ -135,6 +136,12 @@ async function readMultipartPayload(request) {
   if (!contentType.toLowerCase().startsWith("multipart/form-data")) {
     throw new Error("Expected multipart/form-data request");
   }
+  const declared = Number(request.headers.get("content-length") ?? "0");
+  if (Number.isFinite(declared) && declared > MAX_REMOTE_MEDIA_BYTES) {
+    const error = new Error("Remote media transport exceeds 16 MiB limit");
+    error.status = 413;
+    throw error;
+  }
   const form = await request.formData();
   const metadataSource = form.get("metadata");
   const file = form.get("file");
@@ -143,6 +150,11 @@ async function readMultipartPayload(request) {
   }
   const metadata = JSON.parse(metadataSource);
   const bytes = new Uint8Array(await file.arrayBuffer());
+  if (bytes.byteLength > MAX_REMOTE_MEDIA_BYTES) {
+    const error = new Error("Remote media transport exceeds 16 MiB limit");
+    error.status = 413;
+    throw error;
+  }
   return {
     metadata,
     file: {
@@ -189,9 +201,10 @@ function conflict(message) {
 
 function mutationError(error) {
   const message = error instanceof Error ? error.message : "Media mutation failed";
-  const status = error?.status === 409 || /stale branch head|stale source revision/iu.test(message)
-    ? 409
-    : 400;
+  const explicitStatus = Number(error?.status);
+  const status = Number.isInteger(explicitStatus) && explicitStatus >= 400 && explicitStatus <= 599
+    ? explicitStatus
+    : /stale branch head|stale source revision/iu.test(message) ? 409 : 400;
   return json(status, {
     ok: false,
     error: message,
