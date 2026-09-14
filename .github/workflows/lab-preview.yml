@@ -211,13 +211,41 @@ jobs:
           set -euo pipefail
           test -n "$PREVIEW_URL"
 
-          anonymous_status="$(curl --silent --show-error \
-            --dump-header /tmp/lab-anonymous-headers.txt \
-            --output /tmp/lab-anonymous-body.txt \
-            --write-out '%{http_code}' \
-            "$PREVIEW_URL/lab-version.json?sha=$GITHUB_SHA")"
-          test "$anonymous_status" = "401"
-          grep -Eqi '^www-authenticate:[[:space:]]*Basic realm="looksawful lab"' /tmp/lab-anonymous-headers.txt
+          auth_ready=0
+          for attempt in {1..20}; do
+            anonymous_status="$(curl --silent --show-error \
+              --dump-header /tmp/lab-anonymous-headers.txt \
+              --output /tmp/lab-anonymous-body.txt \
+              --write-out '%{http_code}' \
+              "$PREVIEW_URL/lab-version.json?sha=$GITHUB_SHA" 2>/dev/null || true)"
+
+            if [[ "$anonymous_status" =~ ^[23] ]]; then
+              echo "anonymous access bypassed Lab authentication: HTTP $anonymous_status" >&2
+              exit 1
+            fi
+
+            if [[ "$anonymous_status" == "401" ]]; then
+              if ! grep -Eqi '^www-authenticate:[[:space:]]*Basic realm="looksawful lab"' /tmp/lab-anonymous-headers.txt; then
+                echo "immutable Lab returned 401 without the expected WWW-Authenticate Basic realm" >&2
+                exit 1
+              fi
+              auth_ready=1
+              break
+            fi
+
+            if [[ "$anonymous_status" == "000" || "$anonymous_status" == "404" || "$anonymous_status" =~ ^5 ]]; then
+              sleep 3
+              continue
+            fi
+
+            echo "immutable Lab returned unexpected anonymous HTTP status ${anonymous_status:-empty}" >&2
+            exit 1
+          done
+
+          if [[ "$auth_ready" != "1" ]]; then
+            echo "$PREVIEW_URL did not converge to fail-closed Basic Auth" >&2
+            exit 1
+          fi
 
           identity_ready=0
           for attempt in {1..20}; do
