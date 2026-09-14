@@ -235,7 +235,6 @@ python -m src.main 25 --mute`,
 /** Historical Berserk Timer case content, mounted through the canonical EntityPage boundary. */
 export function renderBerserkTimerShowcase(): string {
   return `<section class="project__section wrapper stack" id="berserk-timer-showcase" data-section-type="specialized" data-project-id="berserk-timer" data-media-caption-scope data-media-caption-numbering="off">
-    <h1 class="visually-hidden">Berserk Timer</h1>
     <figure class="media terminal" data-presentation="banner" data-terminal-theme="dark">
       <pre aria-hidden="true">${escapeHtml(BERSERK_ASCII)}</pre>
       ${renderCaption("CLI-таймер с режимом свидетеля и гибкой настройкой длительности.", "Целью было сделать простой CLI-таймер для Windows, который после каждой сессии спрашивает: «Чем вы занимались?». Он сочетает гибкость, простоту и отсутствие рекламы.")}
