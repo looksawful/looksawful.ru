@@ -50,10 +50,6 @@ export function buildSitemapFiles(urls, maxUrls = MAX_URLS_PER_SITEMAP) {
   return files;
 }
 
-function isLabDesignSystemHtml(filePath, distDir) {
-  const relative = path.relative(distDir, filePath).replaceAll(path.sep, "/");
-  return relative.startsWith("lab/system/");
-}
 
 export async function collectIndexableCanonicals(distDir) {
   const htmlFiles = await collectHtmlFiles(distDir);
