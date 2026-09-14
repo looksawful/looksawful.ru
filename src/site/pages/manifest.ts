@@ -111,7 +111,7 @@ export const sitePages = [
     type: "project",
     entityId: "berserk-timer",
     path: "/work/berserk-timer/",
-    enabled: true,
+    enabled: false,
     renderer: "entity",
     build: VITE_BUILD,
     discovery: {
@@ -124,7 +124,7 @@ export const sitePages = [
     type: "project",
     entityId: "awful-studio",
     path: "/work/awful-studio/",
-    enabled: true,
+    enabled: false,
     renderer: "entity",
     build: VITE_BUILD,
     discovery: {
