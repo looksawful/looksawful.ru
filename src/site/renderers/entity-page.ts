@@ -50,8 +50,14 @@ function getEntityPageCopy(page: EntityPageDefinition): {
 function renderCanonicalEntityArticle(page: EntityPageDefinition): string {
   const content = getEntityPageContent(entityPageContentRegistry, page.id);
   const presentation = getEntityShellPresentation(page.id);
+  const standaloneContent = page.id === "case:jestei-pool"
+    ? {
+        ...content,
+        intro: { ...content.intro, head: undefined, role: undefined, period: undefined },
+      }
+    : content;
 
-  return renderEntityShell(content, {
+  return renderEntityShell(standaloneContent, {
     ...presentation,
     introHeadingLevel: 1,
     specialized: {
