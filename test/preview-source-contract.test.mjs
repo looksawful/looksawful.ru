@@ -15,8 +15,8 @@ test("generated Lab starts from dev and orders explicit same-repo PRs determinis
     repository: "looksawful/looksawful.ru",
     devSha: "a".repeat(40),
     selectedPrs: [
-      { number: 42, state: "open", headRepo: "looksawful/looksawful.ru", headSha: "c".repeat(40) },
-      { number: 7, state: "open", headRepo: "looksawful/looksawful.ru", headSha: "b".repeat(40) },
+      { number: 42, state: "open", baseRef: "dev", headRepo: "looksawful/looksawful.ru", headSha: "c".repeat(40) },
+      { number: 7, state: "open", baseRef: "dev", headRepo: "looksawful/looksawful.ru", headSha: "b".repeat(40) },
     ],
   });
   assert.equal(plan.baseBranch, "dev");
@@ -25,11 +25,12 @@ test("generated Lab starts from dev and orders explicit same-repo PRs determinis
   assert.equal(plan.promotableToDev, false);
 });
 
-test("generated Lab rejects forks, closed PRs and non-exact identities", () => {
+test("generated Lab rejects forks, closed PRs, wrong-base PRs and non-exact identities", () => {
   const base = { repository: "looksawful/looksawful.ru", devSha: "a".repeat(40) };
-  assert.throws(() => planLabComposition({ ...base, selectedPrs: [{ number: 1, state: "open", headRepo: "fork/repo", headSha: "b".repeat(40) }] }));
-  assert.throws(() => planLabComposition({ ...base, selectedPrs: [{ number: 1, state: "closed", headRepo: "looksawful/looksawful.ru", headSha: "b".repeat(40) }] }));
-  assert.throws(() => planLabComposition({ ...base, selectedPrs: [{ number: 1, state: "open", headRepo: "looksawful/looksawful.ru", headSha: "main" }] }));
+  assert.throws(() => planLabComposition({ ...base, selectedPrs: [{ number: 1, state: "open", baseRef: "dev", headRepo: "fork/repo", headSha: "b".repeat(40) }] }));
+  assert.throws(() => planLabComposition({ ...base, selectedPrs: [{ number: 1, state: "closed", baseRef: "dev", headRepo: "looksawful/looksawful.ru", headSha: "b".repeat(40) }] }));
+  assert.throws(() => planLabComposition({ ...base, selectedPrs: [{ number: 1, state: "open", baseRef: "prod", headRepo: "looksawful/looksawful.ru", headSha: "b".repeat(40) }] }), /target dev/);
+  assert.throws(() => planLabComposition({ ...base, selectedPrs: [{ number: 1, state: "open", baseRef: "dev", headRepo: "looksawful/looksawful.ru", headSha: "main" }] }));
 });
 
 test("selected PR input is bounded, unique and sorted", () => {
@@ -67,6 +68,7 @@ test("CMS snapshot reuses fail-closed publication scope", () => {
 test("Lab composer is source-only and cannot mutate dev or prod", () => {
   const workflow = readFileSync(new URL("../.github/workflows/lab-compose.yml", import.meta.url), "utf8");
   assert.match(workflow, /ref: dev/);
+  assert.match(workflow, /\.base\.ref/);
   assert.match(workflow, /HEAD:refs\/heads\/lab/);
   assert.doesNotMatch(workflow, /HEAD:refs\/heads\/(?:dev|prod)/);
   assert.doesNotMatch(workflow, /CLOUDFLARE|API_TOKEN|ACCOUNT_ID|PASSWORD|SESSION_SECRET/i);
