@@ -46,9 +46,11 @@ jobs:
             [[ -n "$number" ]] || continue
             json="$(gh api "repos/$REPOSITORY/pulls/$number")"
             state="$(jq -r .state <<<"$json")"
+            base_ref="$(jq -r .base.ref <<<"$json")"
             head_repo="$(jq -r .head.repo.full_name <<<"$json")"
             head_sha="$(jq -r .head.sha <<<"$json")"
             [[ "$state" == open ]] || { echo "PR #$number is not open" >&2; exit 1; }
+            [[ "$base_ref" == dev ]] || { echo "PR #$number does not target dev" >&2; exit 1; }
             [[ "$head_repo" == "$REPOSITORY" ]] || { echo "PR #$number is not same-repo" >&2; exit 1; }
             [[ "$head_sha" =~ ^[0-9a-f]{40}$ ]] || { echo "PR #$number head is not exact SHA" >&2; exit 1; }
             printf '%s\t%s\n' "$number" "$head_sha" >> "$RUNNER_TEMP/lab-heads.tsv"
