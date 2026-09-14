@@ -7,6 +7,7 @@ import {
   type GalleryState,
   type GalleryViewerHistoryCause,
 } from "./gallery-state.ts";
+import { createGalleryVideoPlayback } from "./gallery-video-playback.ts";
 
 type Destroy = () => void;
 type WritableHistoryMode = "push" | "replace";
@@ -22,6 +23,7 @@ export function createGalleryController(root: HTMLElement): Destroy {
   let viewerHistoryEntryOwned = false;
 
   const masonry = createGalleryMasonry(root);
+  const videoPlayback = createGalleryVideoPlayback(root);
 
   const writeHistory = (next: GalleryState, mode: WritableHistoryMode): void => {
     const url = galleryUrl(next);
@@ -94,6 +96,7 @@ export function createGalleryController(root: HTMLElement): Destroy {
 
   return () => {
     window.removeEventListener("popstate", handlePopState);
+    videoPlayback.destroy();
     lightbox.destroy();
     masonry.destroy();
   };
