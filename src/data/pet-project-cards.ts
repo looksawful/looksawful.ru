@@ -43,8 +43,9 @@ export const petProjectCards = [
     description: "Консольный помодоро-таймер для Windows.",
     coverEntryId: "berserk-timer-cover-use-01",
     shape: "landscape",
+    href: "/work/berserk-timer/",
     source: "site",
-    state: "coming-soon",
+    state: "live",
   },
   {
     id: "awful-studio",
