@@ -16,7 +16,12 @@ import {
   planReplace,
   planUpload,
 } from "./media-mutations.mjs";
-import { assignProjectCover } from "../../../src/devtools/media-desk/cover-assignment.ts";
+import {
+  assignProjectCover,
+  assignSubprojectCardCoverOverride,
+} from "../../../src/devtools/media-desk/cover-assignment.ts";
+import { mediaEntries } from "../../../src/data/media/entries/index.ts";
+import { petProjectCards } from "../../../src/data/subproject-cards.ts";
 
 const LOGIN_PATH = "/login";
 const LOGOUT_PATH = "/logout";
@@ -303,40 +308,63 @@ async function handleAssign(request, env) {
   if (!target || typeof target !== "object") {
     throw new Error("Media assignment target is required");
   }
-  if (target.kind !== "project-cover") {
-    throw new Error(`Media assignment target is not authorable yet: ${String(target.kind)}`);
-  }
   if (typeof target.ownerId !== "string" || target.ownerId.length === 0) {
     throw new Error("Media assignment owner is required");
   }
-  const asset = payload?.asset;
-  if (!asset || typeof asset !== "object" || typeof asset.id !== "string") {
-    throw new Error("Media assignment asset is required");
+
+  if (target.kind === "project-cover") {
+    const asset = payload?.asset;
+    if (!asset || typeof asset !== "object" || typeof asset.id !== "string") {
+      throw new Error("Media assignment asset is required");
+    }
+    const current = await assertCurrentSource({
+      env,
+      path: "src/content/projects.json",
+      expectedRevision: payload?.expectedRevision,
+      expectedHead: payload?.expectedHead,
+    });
+    const projects = JSON.parse(current.text);
+    if (!Array.isArray(projects)) throw new Error("Project cover source must be an array");
+    const assignment = assignProjectCover({ projects, ownerId: target.ownerId, assetId: asset.id, catalog: [{ asset }] });
+    const committed = await commitRepositoryFiles({
+      token: requiredSecret(env, "MEDIA_DESK_GITHUB_TOKEN"),
+      expectedHead: payload.expectedHead,
+      files: [{ path: assignment.sourcePath, content: `${JSON.stringify(assignment.value, null, 2)}\n` }],
+      message: `media(media-desk): assign ${target.ownerId} project cover`,
+      fetchImpl: githubFetch(env),
+    });
+    return json(200, { ok: true, target, ...committed });
   }
 
-  const current = await assertCurrentSource({
-    env,
-    path: "src/content/projects.json",
-    expectedRevision: payload?.expectedRevision,
-    expectedHead: payload?.expectedHead,
-  });
-  const projects = JSON.parse(current.text);
-  if (!Array.isArray(projects)) throw new Error("Project cover source must be an array");
-  const assignment = assignProjectCover({
-    projects,
-    ownerId: target.ownerId,
-    assetId: asset.id,
-    catalog: [{ asset }],
-  });
-  const nextSource = `${JSON.stringify(assignment.value, null, 2)}\n`;
-  const committed = await commitRepositoryFiles({
-    token: requiredSecret(env, "MEDIA_DESK_GITHUB_TOKEN"),
-    expectedHead: payload.expectedHead,
-    files: [{ path: assignment.sourcePath, content: nextSource }],
-    message: `media(media-desk): assign ${target.ownerId} project cover`,
-    fetchImpl: githubFetch(env),
-  });
-  return json(200, { ok: true, target, ...committed });
+  if (target.kind === "pet-cover") {
+    const current = await assertCurrentSource({
+      env,
+      path: "src/content/subproject-card-covers.json",
+      expectedRevision: payload?.expectedRevision,
+      expectedHead: payload?.expectedHead,
+    });
+    const overrides = JSON.parse(current.text);
+    if (!overrides || typeof overrides !== "object" || Array.isArray(overrides)) {
+      throw new Error("Subproject card cover source must be an object");
+    }
+    const assignment = assignSubprojectCardCoverOverride({
+      overrides,
+      cards: petProjectCards,
+      ownerId: target.ownerId,
+      entryId: payload?.entryId,
+      entries: mediaEntries,
+    });
+    const committed = await commitRepositoryFiles({
+      token: requiredSecret(env, "MEDIA_DESK_GITHUB_TOKEN"),
+      expectedHead: payload.expectedHead,
+      files: [{ path: assignment.sourcePath, content: `${JSON.stringify(assignment.value, null, 2)}\n` }],
+      message: `media(media-desk): assign ${target.ownerId} pet cover`,
+      fetchImpl: githubFetch(env),
+    });
+    return json(200, { ok: true, target, ...committed });
+  }
+
+  throw new Error(`Media assignment target is not authorable yet: ${String(target.kind)}`);
 }
 
 async function handleMediaMutation(path, request, env) {

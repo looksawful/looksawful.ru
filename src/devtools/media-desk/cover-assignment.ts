@@ -93,6 +93,25 @@ export function assignPetCover<T extends PetCardLike>(options: {
   return { sourcePath: "src/data/subproject-cards.ts", value: next };
 }
 
+export function assignSubprojectCardCoverOverride(options: {
+  readonly overrides: Readonly<Record<string, string>>;
+  readonly cards: readonly { readonly id: string }[];
+  readonly ownerId: string;
+  readonly entryId: string;
+  readonly entries: readonly EntryLike[];
+}): { readonly sourcePath: string; readonly value: Readonly<Record<string, string>> } {
+  if (!options.entries.some(({ id }) => id === options.entryId)) {
+    throw new Error(`Unknown media entry: ${options.entryId}`);
+  }
+  if (!options.cards.some(({ id }) => id === options.ownerId)) {
+    throw new Error(`Unknown subproject card cover owner: ${options.ownerId}`);
+  }
+  return {
+    sourcePath: "src/content/subproject-card-covers.json",
+    value: { ...options.overrides, [options.ownerId]: options.entryId },
+  };
+}
+
 export function assignCharacterCover(_options: {
   readonly ownerId: string;
   readonly assetId: string;

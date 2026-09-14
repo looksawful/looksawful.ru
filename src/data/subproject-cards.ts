@@ -1,4 +1,7 @@
-import type { MediaEntryId } from "./media/index.ts";
+import coverOverridesSource from "../content/subproject-card-covers.json" with { type: "json" };
+import { mediaEntries, type MediaEntryId } from "./media/index.ts";
+
+const coverOverrides = coverOverridesSource as Readonly<Record<string, string>>;
 
 export type SubprojectCardShape = "landscape" | "square" | "portrait";
 
@@ -17,6 +20,27 @@ export interface SubprojectCardGroupData {
   title: string;
   description?: string;
   cards: readonly SubprojectCardData[];
+}
+
+export function applySubprojectCardCoverOverrides<T extends SubprojectCardData>(
+  cards: readonly T[],
+  overrides: Readonly<Record<string, string>>,
+): readonly T[] {
+  const cardIds = new Set(cards.map(({ id }) => id));
+  for (const ownerId of Object.keys(overrides)) {
+    if (!cardIds.has(ownerId)) throw new Error(`Unknown subproject card cover owner: ${ownerId}`);
+  }
+  return cards.map((card) => {
+    const coverEntryId = overrides[card.id];
+    return coverEntryId ? { ...card, coverEntryId: coverEntryId as MediaEntryId } as T : card;
+  });
+}
+
+function coverOverridesFor(cards: readonly SubprojectCardData[]): Readonly<Record<string, string>> {
+  const ids = new Set(cards.map(({ id }) => id));
+  return Object.fromEntries(
+    Object.entries(coverOverrides).filter(([ownerId]) => ids.has(ownerId)),
+  );
 }
 
 const photographedCards = [
@@ -407,23 +431,23 @@ export const shootingCardGroups = [
     id: "photographed",
     title: "снимал",
     description: "Фотографии, лукбуки, портреты, обложки и авторские серии.",
-    cards: photographedCards,
+    cards: applySubprojectCardCoverOverrides(photographedCards, coverOverridesFor(photographedCards)),
   },
   {
     id: "produced",
     title: "продюсировал",
     description: "Коммерческие и редакционные съёмки с подтверждённым продюсерским кредитом.",
-    cards: producedCards,
+    cards: applySubprojectCardCoverOverrides(producedCards, coverOverridesFor(producedCards)),
   },
   {
     id: "sensetique",
     title: "Sensetique / production",
     description: "Другие коммерческие и редакционные съёмки команды Sensetique.",
-    cards: sensetiqueCards,
+    cards: applySubprojectCardCoverOverrides(sensetiqueCards, coverOverridesFor(sensetiqueCards)),
   },
 ] as const satisfies readonly SubprojectCardGroupData[];
 
-export const petProjectCards = [
+const petProjectCardsBase = [
   {
     id: "awful-cases",
     title: "Awful Cases",
@@ -451,3 +475,22 @@ export const petProjectCards = [
     source: "site",
   },
 ] as const satisfies readonly SubprojectCardData[];
+
+export const petProjectCards = applySubprojectCardCoverOverrides(
+  petProjectCardsBase,
+  coverOverridesFor(petProjectCardsBase),
+);
+
+const allSubprojectCardIds = new Set<string>([
+  ...shootingCardGroups.flatMap(({ cards }) => cards.map(({ id }) => id)),
+  ...petProjectCards.map(({ id }) => id),
+]);
+const mediaEntryIds = new Set<string>(mediaEntries.map(({ id }) => id));
+for (const [ownerId, entryId] of Object.entries(coverOverrides)) {
+  if (!allSubprojectCardIds.has(ownerId)) {
+    throw new Error(`Unknown subproject card cover owner: ${ownerId}`);
+  }
+  if (!mediaEntryIds.has(entryId)) {
+    throw new Error(`Unknown subproject card cover media entry: ${entryId}`);
+  }
+}

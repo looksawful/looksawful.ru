@@ -65,3 +65,37 @@ test("project-cover assignment changes one owner and commits only projects.json"
   const treeCall = calls.find(({ url, method }) => url === `${API}/git/trees` && method === "POST");
   assert.deepEqual(treeCall.body.tree.map(({ path }) => path), ["src/content/projects.json"]);
 });
+
+
+test("pet-cover assignment commits only the CMS cover override mapping", async () => {
+  const overrideSource = "{}\n";
+  const overrideRevision = createHash("sha256").update(overrideSource).digest("hex");
+  const calls = [];
+  const githubFetch = async (url, init = {}) => {
+    const request = { url: String(url), method: init.method ?? "GET", body: init.body ? JSON.parse(init.body) : undefined };
+    calls.push(request);
+    if (request.url === `${API}/git/ref/heads/content/text-cms`) return json({ object: { sha: "head-a" } });
+    if (request.url.startsWith(`${API}/contents/src/content/subproject-card-covers.json?`)) return json({ sha: "blob-a", encoding: "base64", content: Buffer.from(overrideSource).toString("base64") });
+    if (request.url === `${API}/git/commits/head-a`) return json({ tree: { sha: "tree-a" } });
+    if (request.url === `${API}/git/blobs` && request.method === "POST") return json({ sha: "blob-b" }, 201);
+    if (request.url === `${API}/git/trees` && request.method === "POST") return json({ sha: "tree-b" }, 201);
+    if (request.url === `${API}/git/commits` && request.method === "POST") return json({ sha: "commit-b" }, 201);
+    if (request.url === `${API}/git/refs/heads/content/text-cms` && request.method === "PATCH") return json({ object: { sha: "commit-b" } });
+    throw new Error(`unexpected request: ${request.method} ${request.url}`);
+  };
+  const env = await envWith(githubFetch);
+  const cookie = await login(env);
+  const target = { kind: "pet-cover", ownerId: "awful-cases" };
+  const response = await worker.fetch(new Request(`${ORIGIN}/api/media/assign`, {
+    method: "POST",
+    headers: { origin: ORIGIN, cookie, "content-type": "application/json" },
+    body: JSON.stringify({ target, entryId: "berserk-timer-cover-use-01", expectedRevision: overrideRevision, expectedHead: "head-a" }),
+  }), env);
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(await response.json(), { ok: true, target, branchHead: "commit-b", commitSha: "commit-b" });
+  const blobCall = calls.find(({ url, method }) => url === `${API}/git/blobs` && method === "POST");
+  assert.deepEqual(JSON.parse(Buffer.from(blobCall.body.content, "base64").toString("utf8")), { "awful-cases": "berserk-timer-cover-use-01" });
+  const treeCall = calls.find(({ url, method }) => url === `${API}/git/trees` && method === "POST");
+  assert.deepEqual(treeCall.body.tree.map(({ path }) => path), ["src/content/subproject-card-covers.json"]);
+});

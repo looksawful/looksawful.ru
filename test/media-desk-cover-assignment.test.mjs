@@ -5,6 +5,7 @@ import {
   assignPetCover,
   assignProjectCover,
   assignCharacterCover,
+  assignSubprojectCardCoverOverride,
 } from "../src/devtools/media-desk/cover-assignment.ts";
 
 const catalog = [
@@ -88,4 +89,19 @@ test("character cover assignment fails closed until a canonical character source
     () => assignCharacterCover({ ownerId: "venus", assetId: "alternate-cover" }),
     /character cover source is not configured/i,
   );
+});
+
+
+test("authorable subproject cover override mutates only selected mapping", () => {
+  const result = assignSubprojectCardCoverOverride({
+    overrides: { other: "old-entry" },
+    cards: [{ id: "awful-cases", coverEntryId: "old", title: "A", description: "", shape: "landscape" }],
+    ownerId: "awful-cases",
+    entryId: "new-entry",
+    entries: [{ id: "new-entry", assetId: "asset-new" }],
+  });
+  assert.equal(result.sourcePath, "src/content/subproject-card-covers.json");
+  assert.deepEqual(result.value, { other: "old-entry", "awful-cases": "new-entry" });
+  assert.throws(() => assignSubprojectCardCoverOverride({ overrides: {}, cards: [], ownerId: "missing", entryId: "new-entry", entries: [{ id: "new-entry", assetId: "asset-new" }] }), /unknown subproject card cover owner/i);
+  assert.throws(() => assignSubprojectCardCoverOverride({ overrides: {}, cards: [{ id: "awful-cases", coverEntryId: "old" }], ownerId: "awful-cases", entryId: "missing-entry", entries: [] }), /unknown media entry/i);
 });
