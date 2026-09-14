@@ -1,6 +1,9 @@
 import "../../styles/subproject-cards.css";
 import "./pet-projects.stories.css";
 
+const AWFUL_STUDIO_UI_COVER =
+  "https://raw.githubusercontent.com/looksawful/awful-studio/22d0598c34fa500bf2c7aca2b7004f22a9a66751/scene_lab/ui_screens_v2/white_studio_v2_rendered_ui.png";
+
 const cards = [
   {
     id: "awful-cases",
@@ -71,7 +74,7 @@ function coverMarkup(card) {
       return `
         <div class="lab-pet-cover lab-pet-cover--awful-studio">
           <img
-            src="/lab-assets/awful-studio-hero.webp"
+            src="${AWFUL_STUDIO_UI_COVER}"
             alt=""
             loading="eager"
           >
