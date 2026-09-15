@@ -165,11 +165,13 @@ const NO_STORY_INFRASTRUCTURE = new Set([
   "src/components/composition/index.ts",
   "src/components/content/index.ts",
   "src/components/deferred-video-source.ts",
+  "src/components/embla-deck.ts",
   "src/components/gallery/gallery-entry.ts",
   "src/components/gallery/gallery-state.ts",
   "src/components/jestei-theme-organism/jestei-theme-organism-data.ts",
   "src/components/jestei-theme-organism/jestei-theme-organism-shaders.ts",
   "src/components/site-analytics.ts",
+  "src/components/media-caption-numbering.ts",
   "src/components/media-runtime-health.ts",
   "src/components/motion-preference.ts",
   "src/components/runtime/index.ts",
@@ -190,11 +192,16 @@ const NO_STORY_INFRASTRUCTURE = new Set([
   "src/site/shell/metadata.ts",
 ]);
 
+const NEEDS_CLASSIFICATION = new Set([
+  "src/templates/subproject-card.ts",
+]);
+
 function sourceLifecycle(sourcePath) {
   return NO_STORY_INFRASTRUCTURE.has(sourcePath) ? "infrastructure" : "production";
 }
 
 function sourceStatus(source, refs) {
+  if (source.storyPolicy === "needs-classification") return "needs-classification";
   if (source.lifecycle === "experimental") return "experimental";
   if (source.lifecycle === "infrastructure") return "exempt-no-story";
   const canonical = refs.filter((ref) => ref.canonical === true);
@@ -332,7 +339,11 @@ export async function collectDesignSystemInventory(root) {
         path: file,
         sourceKind,
         lifecycle,
-        storyPolicy: lifecycle === "infrastructure" ? "no-story" : null,
+        storyPolicy: lifecycle === "infrastructure"
+          ? "no-story"
+          : NEEDS_CLASSIFICATION.has(file)
+            ? "needs-classification"
+            : null,
         storyRefs: refs,
         layer: layerFor(refs, stories),
         routeRefs: [],

@@ -27,11 +27,13 @@ const exemptPaths = [
   "src/components/composition/index.ts",
   "src/components/content/index.ts",
   "src/components/deferred-video-source.ts",
+  "src/components/embla-deck.ts",
   "src/components/gallery/gallery-entry.ts",
   "src/components/gallery/gallery-state.ts",
   "src/components/jestei-theme-organism/jestei-theme-organism-data.ts",
   "src/components/jestei-theme-organism/jestei-theme-organism-shaders.ts",
   "src/components/site-analytics.ts",
+  "src/components/media-caption-numbering.ts",
   "src/components/media-runtime-health.ts",
   "src/components/motion-preference.ts",
   "src/components/runtime/index.ts",
@@ -89,4 +91,19 @@ test("declared no-story sources remain supporting evidence, not UI owners", asyn
   const inventory = await collectDesignSystemInventory(root);
   const story = inventory.stories.at(0);
   assert.equal(story?.declaredSourceChecks?.at(0)?.role, "supporting-source");
+});
+
+test("orphan UI candidates remain explicit needs-classification instead of false missing", async (t) => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "looksawful-needs-classification-"));
+  t.after(async () => rm(root, { recursive: true, force: true }));
+
+  const sourcePath = "src/templates/subproject-card.ts";
+  await mkdir(path.join(root, "src/templates"), { recursive: true });
+  await writeFile(path.join(root, sourcePath), "export const renderSubprojectCard = true;", "utf8");
+
+  const inventory = await collectDesignSystemInventory(root);
+  const source = inventory.sources.find((item) => item.path === sourcePath);
+  assert.equal(source?.storyPolicy, "needs-classification");
+  assert.equal(source?.overallStatus, "needs-classification");
+  assert.equal(inventory.structuralIssues.length, 0);
 });
