@@ -42,7 +42,11 @@ function entityPages(): readonly EntityPageDefinition[] {
 }
 
 function routeDiscovery(page: EntityPageDefinition): StorybookRouteDiscovery {
-  return { path: page.path, listed: page.discovery.listed, indexable: page.discovery.indexable };
+  return {
+    path: page.path,
+    listed: page.discovery.listed,
+    indexable: page.discovery.indexable,
+  };
 }
 
 function contentFor(page: EntityPageDefinition): EntityPageContent {
@@ -52,13 +56,14 @@ function contentFor(page: EntityPageDefinition): EntityPageContent {
 function renderCanonicalArticle(page: EntityPageDefinition): string {
   const content = contentFor(page);
   const presentation = getEntityShellPresentation(page.id);
-  return renderEntityShell(content, { ...presentation, introHeadingLevel: 1 });
+  return renderEntityShell(content, {
+    ...presentation,
+    introHeadingLevel: 1,
+  });
 }
 
-function firstRenderableSection(page: EntityPageDefinition): Section {
-  const section = contentFor(page).sections.find((candidate) => candidate.type !== "specialized");
-  if (!section) throw new Error(`Storybook fixture has no ordinary section: ${page.id}`);
-  return section;
+function renderableSections(page: EntityPageDefinition): readonly Section[] {
+  return contentFor(page).sections.filter((section) => section.type !== "specialized");
 }
 
 function pageLabel(page: EntityPageDefinition): string {
@@ -66,16 +71,18 @@ function pageLabel(page: EntityPageDefinition): string {
 }
 
 function templateFixtures(): StorybookFixture[] {
-  return entityPages().map((page) => ({
-    id: `template:${page.id}`,
-    label: `${pageLabel(page)} · section owner`,
-    kind: "template" as const,
-    variant: "compact" as const,
-    owner: "src/site/renderers/entity/section.ts → renderSection",
-    viewports: VIEWPORTS,
-    route: routeDiscovery(page),
-    render: () => renderSection(firstRenderableSection(page)),
-  }));
+  return entityPages().flatMap((page) =>
+    renderableSections(page).map((section) => ({
+      id: `template:${page.id}:${section.id}`,
+      label: `${pageLabel(page)} · ${section.id}`,
+      kind: "template" as const,
+      variant: "compact" as const,
+      owner: "src/site/renderers/entity/section.ts → renderSection",
+      viewports: VIEWPORTS,
+      route: routeDiscovery(page),
+      render: () => renderSection(section),
+    })),
+  );
 }
 
 function compositionFixtures(): StorybookFixture[] {
