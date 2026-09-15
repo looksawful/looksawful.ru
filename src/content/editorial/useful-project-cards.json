@@ -6,33 +6,23 @@
   "cards": {
     "awful-cases": {
       "title": "Awful Cases",
-      "description": "Утилита для Windows, которая меняет регистр и типографику выделенного текста.",
+      "description": "Утилита для Windows: регистр и типографика выделенного текста.",
       "badge": ""
     },
     "moves-awful": {
       "title": "Moves Awful",
-      "description": "Библиотека анимированных галерей для лендингов.",
+      "description": "Библиотека с шаблонами анимированных canvas галерей для лендингов.",
       "badge": ""
     },
     "berserk-timer": {
       "title": "Berserk Timer",
-      "description": "CLI-таймер с режимом свидетеля и гибкой настройкой длительности.",
+      "description": "Консольный помодоро-таймер для Windows.",
       "badge": "NEW"
     },
     "awful-studio": {
-      "title": "Awful Studio",
-      "description": "Blender-native студия для виртуального продакшна и продуктовой рекламы.",
-      "badge": "В разработке"
-    },
-    "awful-mockups": {
-      "title": "Awful Mockups",
-      "description": "Набор PSD-мокапов для презентации интерфейсов и графики.",
-      "badge": "В разработке"
-    },
-    "awful-3d-mockups": {
-      "title": "Awful 3D Mockups",
-      "description": "Набор 3D-мокапов устройств для интерфейсов, анимации и рендера.",
-      "badge": "В разработке"
+      "title": "AWFUL STUDIO",
+      "description": "Расширение Blender для сборки виртуальной предметной студии.",
+      "badge": ""
     }
   }
 }
