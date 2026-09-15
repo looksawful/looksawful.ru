@@ -24,77 +24,46 @@ export interface ContentBlockRenderOptions {
   suppressCaptions?: boolean;
 }
 
-function stripFigureCaptions(html: string): string {
-  return html.replace(/\s*<figcaption\b[^>]*class="[^"]*\bmedia__caption\b[^"]*"[^>]*>[\s\S]*?<\/figcaption>/gi, "");
-}
-
-function stripMediaGroupHead(html: string): string {
-  return html.replace(/\s*<header\b[^>]*class="[^"]*\bmedia-group__head\b[^"]*"[^>]*>[\s\S]*?<\/header>/gi, "");
-}
-
-function renderCaptionless(block: ContentBlock, html: string): string {
-  if (block.type === "media-group") return stripMediaGroupHead(stripFigureCaptions(html));
-  if (block.type === "mockup" || block.type === "media-figure" || block.type === "before-after") {
-    return stripFigureCaptions(html);
-  }
-  return html;
-}
-
 export function renderContentBlock(
   block: ContentBlock,
   options: ContentBlockRenderOptions = {},
 ): string {
-  let html: string;
+  const editorialCopy = { showEditorialCopy: options.suppressCaptions !== true };
 
   switch (block.type) {
     case "code-block":
-      html = renderCodeBlock(block.data);
-      break;
+      return renderCodeBlock(block.data);
     case "media-figure":
-      html = renderMediaFigure(block.data, {
+      return renderMediaFigure(block.data, {
+        ...editorialCopy,
         ...(options.reveal === false ? { reveal: false as const } : {}),
         ...(block.presentation?.mediaDimensions !== undefined
           ? { mediaDimensions: block.presentation.mediaDimensions }
           : {}),
       });
-      break;
     case "media-group":
-      html = renderMediaGroup(block.data);
-      break;
+      return renderMediaGroup(block.data, editorialCopy);
     case "media-slider":
-      html = renderMediaSlider(block.data);
-      break;
+      return renderMediaSlider(block.data, editorialCopy);
     case "mockup":
-      html = renderMockup(block.data);
-      break;
+      return renderMockup(block.data, editorialCopy);
     case "mockup-deck":
-      html = renderMockupDeck(
-        options.suppressCaptions ? { ...block.data, captions: false } : block.data,
-      );
-      break;
+      return renderMockupDeck(block.data, editorialCopy);
     case "justified-gallery":
-      html = renderJustifiedGallery(block.data);
-      break;
+      return renderJustifiedGallery(block.data, editorialCopy);
     case "before-after":
-      html = renderBeforeAfter(block.data);
-      break;
+      return renderBeforeAfter(block.data, editorialCopy);
     case "page-flip":
-      html = renderPageFlip(block.data);
-      break;
+      return renderPageFlip(block.data, editorialCopy);
     case "animated-canvas-gallery":
-      html = renderAnimatedCanvasGallery(block.data);
-      break;
+      return renderAnimatedCanvasGallery(block.data, editorialCopy);
     case "jestei-theme":
-      html = renderJesteiThemeOrganismMockup(block.data);
-      break;
+      return renderJesteiThemeOrganismMockup(block.data);
     case "awful-cases-game":
-      html = renderAwfulCasesGame();
-      break;
+      return renderAwfulCasesGame();
     default:
       return assertNeverContentBlock(block);
   }
-
-  return options.suppressCaptions ? renderCaptionless(block, html) : html;
 }
 
 export function renderContentBlocks(
