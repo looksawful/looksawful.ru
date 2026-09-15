@@ -25,10 +25,12 @@ function createMasonry(grid: HTMLElement, column: 2 | 3 | 4 | 5): MasonryInfinit
     gap: { horizontal: gap, vertical: gap },
     // SSR cards intentionally start at width:100% as a usable no-JS fallback.
     // Stretch makes MasonryGrid assign the computed column width before
-    // positioning those cards, avoiding full-width items being placed side by side.
+    // positioning those cards. Child observation stays off because intrinsic
+    // media geometry is already known and observing the unchanged SSR width
+    // prevents the initial stretch width from being committed by ItemRenderer.
     align: "stretch",
     useResizeObserver: true,
-    observeChildren: true,
+    observeChildren: false,
     autoResize: true,
     preserveUIOnDestroy: false,
     useRecycle: false,
