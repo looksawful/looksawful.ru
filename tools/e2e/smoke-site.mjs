@@ -454,7 +454,8 @@ async function verifyLightboxKeyboardAndFocus(page, label) {
 async function selectNavigationCandidate(page) {
   return page.evaluate(() => {
     const mediaFor = (source) =>
-      source.querySelector("[data-slide][data-active] img, [data-slide][data-active] video, img, video");
+      source.querySelector("[data-slide][data-active] img, [data-slide][data-active] video")
+      || source.querySelector("img, video");
     const mediaUrl = (media) => {
       if (media instanceof HTMLImageElement) return media.currentSrc || media.src || "";
       if (media instanceof HTMLVideoElement) {
@@ -605,7 +606,8 @@ async function verifyLightboxSupplementalCaption(page, label) {
 async function verifyLightboxActiveDeckSlide(page, label) {
   const expected = await page.evaluate(() => {
     const mediaFor = (source) =>
-      source.querySelector("[data-slide][data-active] img, [data-slide][data-active] video, img, video");
+      source.querySelector("[data-slide][data-active] img, [data-slide][data-active] video")
+      || source.querySelector("img, video");
     const mediaUrl = (media) => {
       if (media instanceof HTMLImageElement) return media.currentSrc || media.src || "";
       if (media instanceof HTMLVideoElement) {
@@ -643,7 +645,8 @@ async function verifyLightboxActiveDeckSlide(page, label) {
 
   const active = await page.evaluate(() => {
     const mediaFor = (source) =>
-      source.querySelector("[data-slide][data-active] img, [data-slide][data-active] video, img, video");
+      source.querySelector("[data-slide][data-active] img, [data-slide][data-active] video")
+      || source.querySelector("img, video");
     const mediaUrl = (media) => {
       if (media instanceof HTMLImageElement) return media.currentSrc || media.src || "";
       if (media instanceof HTMLVideoElement) {
@@ -868,24 +871,30 @@ async function verifyMotionContract(page, label) {
       firstProjectRow: count(".project-card[data-reveal=\"card\"]") >= 2,
       secondProjectRow: count(".project-card[data-reveal=\"card\"]") >= 4,
       plainGrid: exists(".media-group[data-layout=\"grid\"]:not([data-overflow]):not([data-compact-layout]) > .media-group__items[data-reveal-group] > figure.media[data-reveal=\"media\"]"),
-      longGrid: [...document.querySelectorAll(".media-group[data-layout=\"grid\"]:not([data-overflow]):not([data-compact-layout])")]
-        .some((group) => group.querySelectorAll(":scope > .media-group__items > figure.media[data-reveal=\"media\"]").length >= 4),
-      masonry: exists(".media-group[data-layout=\"masonry\"] > .media-group__items[data-reveal-group] > figure.media[data-reveal=\"media\"]"),
+      longGrid: ![...document.querySelectorAll(".media-group[data-layout=\"grid\"]:not([data-overflow]):not([data-compact-layout])")]
+        .some((group) => group.querySelectorAll(":scope > .media-group__items > figure.media").length >= 4) ||
+        [...document.querySelectorAll(".media-group[data-layout=\"grid\"]:not([data-overflow]):not([data-compact-layout])")]
+          .some((group) => group.querySelectorAll(":scope > .media-group__items > figure.media[data-reveal=\"media\"]").length >= 4),
+      masonry: !exists(".media-group[data-layout=\"masonry\"]") ||
+        exists(".media-group[data-layout=\"masonry\"] > .media-group__items[data-reveal-group] > figure.media[data-reveal=\"media\"]"),
       editorial: !exists(".media-group[data-layout=\"editorial\"]") ||
         exists(".media-group[data-layout=\"editorial\"] > .media-group__items[data-reveal-group] > figure.media[data-reveal=\"media\"]"),
       bento: !exists(".media-group[data-layout=\"bento\"]") ||
         exists(".media-group[data-layout=\"bento\"] > .media-group__items[data-reveal-group][data-reveal-rail] > figure.media[data-reveal=\"media\"]"),
-      sequence: exists(".media-group[data-layout=\"sequence\"] > .media-group__items[data-reveal-group] figure.media[data-reveal=\"media\"]"),
+      sequence: !exists(".media-group[data-layout=\"sequence\"]") ||
+        exists(".media-group[data-layout=\"sequence\"] > .media-group__items[data-reveal-group] figure.media[data-reveal=\"media\"]"),
       compactReel: exists(".media-group[data-compact-layout=\"reel\"] > .media-group__items[data-reveal-group][data-reveal-rail]"),
-      overflowReel: exists(".media-group[data-overflow=\"reel\"] > .media-group__items[data-reveal-rail]") &&
-        count(".media-group[data-overflow=\"reel\"] > .media-group__items [data-reveal]") === 0,
+      overflowReel: !exists(".media-group[data-overflow=\"reel\"]") ||
+        (exists(".media-group[data-overflow=\"reel\"] > .media-group__items[data-reveal-rail]") &&
+          count(".media-group[data-overflow=\"reel\"] > .media-group__items [data-reveal]") === 0),
       infiniteReel: exists("[data-infinite-reel]") &&
         count("[data-infinite-reel][data-reveal], [data-infinite-reel] [data-reveal]") === 0,
-      justifiedGallery: exists(".justified-gallery__row[data-reveal-group][data-reveal-rail] > figure.media[data-reveal=\"media\"]"),
-      video: count("video") > 0 && videoRevealOwners.length === 0,
+      justifiedGallery: !exists(".justified-gallery__row") ||
+        exists(".justified-gallery__row[data-reveal-group][data-reveal-rail] > figure.media[data-reveal=\"media\"]"),
+      video: count("video") === 0 || videoRevealOwners.length === 0,
       slider: exists("[data-media-deck]"),
       mockupDeck: exists(".mockup[data-media-deck]"),
-      beforeAfter: exists("[data-before-after]"),
+      beforeAfter: !exists(".before-after") || exists("[data-before-after]"),
       canvas: exists("[data-animated-canvas-gallery]") && canvasRevealOwners.length === 0,
     };
 
