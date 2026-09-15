@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 
 import { petProjectCards } from "../src/data/pet-project-cards.ts";
+import { renderHomepage } from "../src/site/renderers/home/home-slots.ts";
 import { renderPetProjectCards } from "../src/templates/subproject-card.ts";
 
 const approvedCards = [
@@ -101,4 +102,47 @@ test("homepage owns Pet Projects composition while CSS owns presentation", () =>
   assert.match(source, /<h2 id="pet-projects-title"[^>]*>Полезное<\/h2>/);
   assert.doesNotMatch(source, /petProjectsPreviewStyles/);
   assert.doesNotMatch(source, /<style>\$\{/);
+});
+
+test("disabled Pet Projects are absent from generated Homepage output", () => {
+  const indexHtml = readFileSync(new URL("../index.html", import.meta.url), "utf8");
+  const rendered = renderHomepage(indexHtml);
+
+  assert.doesNotMatch(rendered, /class="pet-projects"/);
+  assert.doesNotMatch(rendered, /id="pet-projects-title"/);
+  assert.doesNotMatch(rendered, />Полезное</);
+});
+
+test("Pet Projects presentation keeps a uniform 4:3 frame and 1 / 2 / 3 column grid", () => {
+  const css = readFileSync(
+    new URL("../src/styles/subproject-cards.css", import.meta.url),
+    "utf8",
+  );
+  const start = css.indexOf(".pet-projects__grid");
+  const end = css.indexOf("@container subproject-card", start);
+
+  assert.notEqual(start, -1, "Pet Projects grid styles must exist");
+  assert.notEqual(end, -1, "Pet Projects responsive styles must have a stable boundary");
+
+  const petProjectStyles = css.slice(start, end);
+
+  assert.match(
+    css,
+    /\.pet-projects \.subproject-card\[data-shape\] \.subproject-card__media\s*\{\s*aspect-ratio:\s*4\s*\/\s*3;\s*\}/,
+  );
+  assert.match(
+    petProjectStyles,
+    /\.pet-projects__grid\s*\{[\s\S]*?grid-template-columns:\s*minmax\(0,\s*1fr\);/,
+  );
+  assert.match(
+    petProjectStyles,
+    /@container pet-projects \(width > 42rem\)[\s\S]*?grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\);/,
+  );
+  assert.match(
+    petProjectStyles,
+    /@container pet-projects \(width > 68rem\)[\s\S]*?grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\);/,
+  );
+  assert.doesNotMatch(petProjectStyles, /repeat\(4,/);
+  assert.doesNotMatch(petProjectStyles, /grid-auto-flow:\s*column/);
+  assert.doesNotMatch(petProjectStyles, /scroll-snap-type/);
 });
