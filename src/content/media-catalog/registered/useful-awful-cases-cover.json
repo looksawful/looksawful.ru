@@ -1,0 +1,23 @@
+{
+  "id": "useful-awful-cases-cover",
+  "title": "Awful Cases",
+  "alt": "Пиксельный рыцарь на белом коне из Awful Cases",
+  "description": "",
+  "date": "2024–2026",
+  "workAreaIds": [
+    "motion"
+  ],
+  "projectTypeIds": [
+    "motion-project",
+    "video-project"
+  ],
+  "deliverableIds": [
+    "cover"
+  ],
+  "tags": [
+    "моушен"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}
