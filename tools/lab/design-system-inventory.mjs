@@ -102,6 +102,10 @@ function fieldStringArray(text, name) {
   const body = text.match(pattern)?.[1] ?? "";
   return [...body.matchAll(/[\"'\`]([^\"'\`]*)[\"'\`]/g)].map((match) => match[1]);
 }
+function fieldObjectBody(text, name) {
+  const pattern = new RegExp("(?:^|[,\\s])" + name + "\\s*:[ \t\r\n]*\\{([\\s\\S]*?)\\}");
+  return text.match(pattern)?.[1] ?? null;
+}
 function looksawfulBlock(text) {
   return balancedObjects(text).find((object) => /(?:^|[,\s])looksawful\s*:/.test(object)) ?? "";
 }
@@ -125,13 +129,18 @@ function parseStory(text, storyPath) {
   const canonicalValue = fieldBoolean(looksawful, "canonical");
   const state = fieldString(looksawful, "state");
   const visibility = fieldStringArray(looksawful, "visibility");
+  const routeDiscoveryBody = fieldObjectBody(looksawful, "routeDiscovery");
+  const routeDiscovery = routeDiscoveryBody === null ? null : {
+    listed: fieldBoolean(routeDiscoveryBody, "listed"),
+    indexable: fieldBoolean(routeDiscoveryBody, "indexable"),
+  };
   const title = fieldString(text, "title");
   const experimental = canonicalValue === false || layer === "experimental" || policy === "experimental" || title?.startsWith("90 Experimental/");
   return {
     id: `story:${storyPath}`, path: storyPath, kind: "story", title,
     status: experimental ? "experimental" : canonicalValue === true ? "canonical" : "unclassified",
     declaredSources, importedSources: [...new Set(importedSources)].sort(),
-    layer, policy, canonical: canonicalValue, state, visibility,
+    layer, policy, canonical: canonicalValue, state, visibility, routeDiscovery,
   };
 }
 
