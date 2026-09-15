@@ -102,6 +102,6 @@ This slice expands the existing isolated Lab with a production-derived Storybook
 - noindex artifact;
 - absence of a Lab entry from the public production artifact.
 
-The focused Storybook architecture contract is `test/lab-storybook-architecture.test.mjs`. It verifies that inventory ownership remains connected to the production page manifest, PageContent registry, section renderer and entity-shell renderer rather than copied Storybook markup.
+Storybook ownership is intentionally covered by the existing TypeScript/build boundary rather than a new permanent source-shape test. The implementation imports the production page manifest, PageContent registry, section renderer and entity-shell renderer directly, so drift becomes a compiler/build failure instead of a duplicated fixture contract.
 
 A green repository build proves the repository-owned OAuth/Lab contract only. It must not be used to claim that Cloudflare runtime secrets, the production OAuth app/callback, the custom domain or remote Admin deployment are operational.
