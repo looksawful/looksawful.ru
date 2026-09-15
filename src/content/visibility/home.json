@@ -1,4 +1,4 @@
 [
   { "id": "client-logo-wall", "visible": false },
-  { "id": "pet-projects", "visible": false }
+  { "id": "pet-projects", "visible": true }
 ]
