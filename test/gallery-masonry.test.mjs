@@ -23,6 +23,11 @@ test("Gallery masonry gives InfiniteGrid sole geometry ownership with equal gaps
     /align:\s*["']stretch["']/,
     "SSR Gallery cards begin at width:100%; Masonry must stretch them to the computed column width instead of positioning full-width cards side-by-side",
   );
+  assert.match(
+    masonrySource,
+    /observeChildren:\s*false/,
+    "Stretch must own the initial card width update instead of waiting for a child ResizeObserver cycle that cannot start while SSR cards remain width:100%",
+  );
   assert.match(masonrySource, /renderItems\(\)/);
   assert.match(masonrySource, /updateItems\(\)/);
   assert.match(masonrySource, /ResizeObserver/);
