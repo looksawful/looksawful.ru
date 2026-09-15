@@ -11,10 +11,7 @@ export const sitePages = [
     enabled: true,
     renderer: "home",
     build: VITE_BUILD,
-    discovery: {
-      listed: true,
-      indexable: true,
-    },
+    discovery: { listed: true, indexable: true },
   },
   {
     id: "case:jestei-pool",
@@ -24,10 +21,7 @@ export const sitePages = [
     enabled: true,
     renderer: "entity",
     build: VITE_BUILD,
-    discovery: {
-      listed: true,
-      indexable: true,
-    },
+    discovery: { listed: true, indexable: true },
   },
   {
     id: "case:styx",
@@ -37,10 +31,7 @@ export const sitePages = [
     enabled: true,
     renderer: "entity",
     build: VITE_BUILD,
-    discovery: {
-      listed: true,
-      indexable: true,
-    },
+    discovery: { listed: true, indexable: true },
   },
   {
     id: "case:sensetique",
@@ -50,10 +41,7 @@ export const sitePages = [
     enabled: true,
     renderer: "entity",
     build: VITE_BUILD,
-    discovery: {
-      listed: true,
-      indexable: true,
-    },
+    discovery: { listed: true, indexable: true },
   },
   {
     id: "collection:music-photography",
@@ -63,10 +51,7 @@ export const sitePages = [
     enabled: true,
     renderer: "entity",
     build: VITE_BUILD,
-    discovery: {
-      listed: true,
-      indexable: true,
-    },
+    discovery: { listed: true, indexable: true },
   },
   {
     id: "project:awful-cases",
@@ -76,10 +61,7 @@ export const sitePages = [
     enabled: true,
     renderer: "entity",
     build: VITE_BUILD,
-    discovery: {
-      listed: false,
-      indexable: false,
-    },
+    discovery: { listed: false, indexable: false },
   },
   {
     id: "project:moves-awful",
@@ -89,10 +71,37 @@ export const sitePages = [
     enabled: true,
     renderer: "entity",
     build: VITE_BUILD,
-    discovery: {
-      listed: false,
-      indexable: false,
-    },
+    discovery: { listed: false, indexable: false },
+  },
+  {
+    id: "project:awful-studio",
+    type: "project",
+    entityId: "awful-studio",
+    path: "/work/awful-studio/",
+    enabled: false,
+    renderer: "entity",
+    build: VITE_BUILD,
+    discovery: { listed: false, indexable: false },
+  },
+  {
+    id: "project:awful-mockups",
+    type: "project",
+    entityId: "awful-mockups",
+    path: "/work/awful-mockups/",
+    enabled: false,
+    renderer: "entity",
+    build: VITE_BUILD,
+    discovery: { listed: false, indexable: false },
+  },
+  {
+    id: "project:awful-3d-mockups",
+    type: "project",
+    entityId: "awful-3d-mockups",
+    path: "/work/awful-3d-mockups/",
+    enabled: false,
+    renderer: "entity",
+    build: VITE_BUILD,
+    discovery: { listed: false, indexable: false },
   },
   {
     id: "project:berry-social-content-2020",
@@ -102,10 +111,7 @@ export const sitePages = [
     enabled: true,
     renderer: "entity",
     build: VITE_BUILD,
-    discovery: {
-      listed: false,
-      indexable: false,
-    },
+    discovery: { listed: false, indexable: false },
   },
   {
     id: "cv",
@@ -113,14 +119,8 @@ export const sitePages = [
     path: "/cv/",
     enabled: true,
     renderer: "cv",
-    build: {
-      kind: "public-static",
-      sourcePath: "public/cv/index.html",
-    },
-    discovery: {
-      listed: true,
-      indexable: true,
-    },
+    build: { kind: "public-static", sourcePath: "public/cv/index.html" },
+    discovery: { listed: true, indexable: true },
   },
   {
     id: "privacy",
@@ -128,14 +128,8 @@ export const sitePages = [
     path: "/privacy/",
     enabled: true,
     renderer: "privacy",
-    build: {
-      kind: "public-static",
-      sourcePath: "public/privacy/index.html",
-    },
-    discovery: {
-      listed: true,
-      indexable: true,
-    },
+    build: { kind: "public-static", sourcePath: "public/privacy/index.html" },
+    discovery: { listed: true, indexable: true },
   },
   {
     id: "not-found",
@@ -144,10 +138,7 @@ export const sitePages = [
     enabled: true,
     renderer: "not-found",
     build: VITE_BUILD,
-    discovery: {
-      listed: false,
-      indexable: false,
-    },
+    discovery: { listed: false, indexable: false },
   },
 ] as const satisfies readonly SitePageDefinition[];
 
