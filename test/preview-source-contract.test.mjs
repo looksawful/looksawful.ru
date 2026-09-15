@@ -3,6 +3,12 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 
 import {
+  classifyCmsRefDeleteFailure,
+  CMS_PREVIEW_TTL_HOURS,
+  cmsRefDeleteLeaseArgument,
+  planCmsRefGc,
+} from "../tools/preview/cms-ref-gc.mjs";
+import {
   cmsPreviewLeaseArgument,
   validateCmsSnapshot,
 } from "../tools/preview/cms-snapshot.mjs";
@@ -88,4 +94,56 @@ test("Lab composer is source-only and cannot mutate dev or prod", () => {
   assert.doesNotMatch(workflow, /HEAD:refs\/heads\/(?:dev|prod)/);
   assert.doesNotMatch(workflow, /CLOUDFLARE|API_TOKEN|ACCOUNT_ID|PASSWORD|SESSION_SECRET/i);
   assert.doesNotMatch(workflow, /repository_dispatch|workflow_dispatch.*awful-control/s);
+});
+
+test("CMS ref GC expires at 72h, retains fresh refs and is bounded", () => {
+  assert.equal(CMS_PREVIEW_TTL_HOURS, DEFAULT_CMS_PREVIEW_TTL_HOURS);
+  const now = Date.parse("2026-09-15T00:00:00Z");
+  const plan = planCmsRefGc({
+    now,
+    maxDeletes: 1,
+    refs: [
+      { ref: "refs/heads/cms-preview/fresh", sha: "a".repeat(40), committed_at: "2026-09-12T01:00:01Z" },
+      { ref: "refs/heads/cms-preview/boundary", sha: "b".repeat(40), committed_at: "2026-09-12T00:00:00Z" },
+      { ref: "refs/heads/cms-preview/older", sha: "c".repeat(40), committed_at: "2026-09-11T23:00:00Z" },
+    ],
+  });
+  assert.deepEqual(plan.retain.map((item) => item.id), ["fresh"]);
+  assert.deepEqual(plan.delete.map((item) => item.id), ["older"]);
+  assert.deepEqual(plan.deferred_delete.map((item) => item.id), ["boundary"]);
+});
+
+test("CMS ref GC rejects foreign namespaces and stale delete leases", () => {
+  assert.throws(() => planCmsRefGc({ refs: [{ ref: "refs/heads/dev", sha: "a".repeat(40), committed_at: "2026-09-01T00:00:00Z" }] }), /namespace/);
+  const ref = "refs/heads/cms-preview/styx-copy";
+  assert.equal(cmsRefDeleteLeaseArgument(ref, "a".repeat(40)), `--force-with-lease=${ref}:${"a".repeat(40)}`);
+  assert.throws(() => cmsRefDeleteLeaseArgument("refs/heads/lab", "a".repeat(40)), /namespace/);
+  assert.throws(() => cmsRefDeleteLeaseArgument(ref, "main"), /exact SHA/);
+});
+
+test("CMS ref GC classifies already-gone and refreshed refs as idempotent delete races", () => {
+  const expectedSha = "a".repeat(40);
+  assert.equal(classifyCmsRefDeleteFailure({ expectedSha, remoteSha: null }), "already-gone");
+  assert.equal(classifyCmsRefDeleteFailure({ expectedSha, remoteSha: "b".repeat(40) }), "refreshed");
+  assert.equal(classifyCmsRefDeleteFailure({ expectedSha, remoteSha: expectedSha }), "unexpected-push-failure");
+  assert.throws(() => classifyCmsRefDeleteFailure({ expectedSha: "main", remoteSha: null }), /exact SHA/);
+  assert.throws(() => classifyCmsRefDeleteFailure({ expectedSha, remoteSha: "main" }), /exact SHA/);
+});
+
+test("CMS ref GC workflow is source-only, scheduled and lease-protected", () => {
+  const workflow = readFileSync(new URL("../.github/workflows/cms-preview-ref-gc.yml", import.meta.url), "utf8");
+  assert.match(workflow, /schedule:/);
+  assert.match(workflow, /dry_run:/);
+  assert.match(workflow, /contents: write/);
+  assert.match(workflow, /cmsRefDeleteLeaseArgument/);
+  assert.match(workflow, /classifyCmsRefDeleteFailure/);
+  assert.match(workflow, /git push "\$lease" origin ":\$ref"/);
+  assert.match(workflow, /refs\/heads\/cms-preview\//);
+  assert.doesNotMatch(workflow, /refs\/heads\/(?:dev|prod|lab)/);
+  assert.doesNotMatch(workflow, /CLOUDFLARE|API_TOKEN|ACCOUNT_ID|PASSWORD|SESSION_SECRET/i);
+});
+
+test("Preview Source Contract watches CMS ref GC workflow changes", () => {
+  const workflow = readFileSync(new URL("../.github/workflows/preview-source-contract.yml", import.meta.url), "utf8");
+  assert.match(workflow, /\.github\/workflows\/cms-preview-ref-gc\.yml/);
 });

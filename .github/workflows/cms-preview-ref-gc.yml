@@ -1,0 +1,149 @@
+name: CMS Preview Source Ref GC
+
+on:
+  schedule:
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Plan only; scheduled runs apply expiry automatically
+        required: true
+        type: boolean
+        default: true
+      max_deletes:
+        description: Maximum expired refs to delete this run
+        required: true
+        default: "10"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: cms-preview-source-ref-gc
+  cancel-in-progress: false
+
+jobs:
+  gc:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: dev
+          fetch-depth: 1
+          persist-credentials: true
+
+      - name: Inventory disposable CMS refs
+        shell: bash
+        run: |
+          set -euo pipefail
+          git ls-remote --heads origin 'refs/heads/cms-preview/*' > "$RUNNER_TEMP/cms-refs.tsv"
+          count="$(wc -l < "$RUNNER_TEMP/cms-refs.tsv" | tr -d ' ')"
+          if (( count > 100 )); then
+            echo "CMS preview source-ref inventory exceeded bounded limit: $count > 100" >&2
+            exit 1
+          fi
+          : > "$RUNNER_TEMP/cms-refs.jsonl"
+          while IFS=$'\t' read -r sha ref; do
+            [[ -n "$sha" ]] || continue
+            [[ "$sha" =~ ^[0-9a-f]{40}$ ]] || { echo "Invalid CMS ref SHA" >&2; exit 1; }
+            [[ "$ref" =~ ^refs/heads/cms-preview/[a-z0-9]([a-z0-9-]{0,46}[a-z0-9])?$ ]] || { echo "Ref escaped CMS preview namespace" >&2; exit 1; }
+            git fetch --no-tags --depth=1 origin "$sha" >/dev/null 2>&1
+            committed_at="$(git show -s --format=%cI "$sha")"
+            jq -cn --arg ref "$ref" --arg sha "$sha" --arg committed_at "$committed_at" '{ref:$ref,sha:$sha,committed_at:$committed_at}' >> "$RUNNER_TEMP/cms-refs.jsonl"
+          done < "$RUNNER_TEMP/cms-refs.tsv"
+          jq -s . "$RUNNER_TEMP/cms-refs.jsonl" > "$RUNNER_TEMP/cms-refs.json"
+
+      - name: Plan bounded expiry
+        id: plan
+        env:
+          REQUESTED_MAX_DELETES: ${{ github.event_name == 'workflow_dispatch' && inputs.max_deletes || '10' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE' > "$RUNNER_TEMP/cms-ref-gc-plan.json"
+          import fs from "node:fs";
+          import { planCmsRefGc } from "./tools/preview/cms-ref-gc.mjs";
+          const refs = JSON.parse(fs.readFileSync(process.env.RUNNER_TEMP + "/cms-refs.json", "utf8"));
+          const maxDeletes = Number(process.env.REQUESTED_MAX_DELETES);
+          const plan = planCmsRefGc({ refs, maxDeletes });
+          process.stdout.write(JSON.stringify(plan, null, 2));
+          NODE
+          jq . "$RUNNER_TEMP/cms-ref-gc-plan.json"
+          echo "delete_count=$(jq '.delete | length' "$RUNNER_TEMP/cms-ref-gc-plan.json")" >> "$GITHUB_OUTPUT"
+
+      - name: Delete only exact observed expired refs
+        if: github.event_name == 'schedule' || inputs.dry_run == false
+        shell: bash
+        run: |
+          set -euo pipefail
+          jq -r '.delete[] | [.ref, .sha] | @tsv' "$RUNNER_TEMP/cms-ref-gc-plan.json" |
+          while IFS=$'\t' read -r ref sha; do
+            [[ "$ref" =~ ^refs/heads/cms-preview/[a-z0-9]([a-z0-9-]{0,46}[a-z0-9])?$ ]] || { echo "Ref escaped CMS preview namespace" >&2; exit 1; }
+            lease="$(node --input-type=module - "$ref" "$sha" <<'NODE'
+          import { cmsRefDeleteLeaseArgument } from "./tools/preview/cms-ref-gc.mjs";
+          process.stdout.write(cmsRefDeleteLeaseArgument(process.argv[2], process.argv[3]));
+          NODE
+            )"
+
+            push_err="$RUNNER_TEMP/cms-ref-push.err"
+            if git push "$lease" origin ":$ref" 2>"$push_err"; then
+              echo "Deleted expired CMS Preview ref $ref at $sha"
+              continue
+            fi
+
+            remote_err="$RUNNER_TEMP/cms-ref-remote.err"
+            set +e
+            remote_line="$(git ls-remote --exit-code origin "$ref" 2>"$remote_err")"
+            remote_status=$?
+            set -e
+
+            if [[ $remote_status -eq 0 ]]; then
+              remote_sha="${remote_line%%$'\t'*}"
+            elif [[ $remote_status -eq 2 ]]; then
+              remote_sha=""
+            else
+              cat "$push_err" >&2 || true
+              cat "$remote_err" >&2 || true
+              exit "$remote_status"
+            fi
+
+            classification="$(node --input-type=module - "$sha" "$remote_sha" <<'NODE'
+          import { classifyCmsRefDeleteFailure } from "./tools/preview/cms-ref-gc.mjs";
+          const remoteSha = process.argv[3] || null;
+          process.stdout.write(classifyCmsRefDeleteFailure({ expectedSha: process.argv[2], remoteSha }));
+          NODE
+            )"
+
+            case "$classification" in
+              already-gone)
+                echo "CMS Preview ref $ref was already deleted; continuing"
+                ;;
+              refreshed)
+                echo "CMS Preview ref $ref changed after planning; leaving refreshed ref untouched"
+                ;;
+              unexpected-push-failure)
+                cat "$push_err" >&2 || true
+                echo "Delete failed while $ref still matches planned SHA $sha" >&2
+                exit 1
+                ;;
+              *)
+                echo "Unknown CMS Preview delete classification: $classification" >&2
+                exit 1
+                ;;
+            esac
+          done
+
+      - name: Summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "### CMS Preview source-ref GC"
+            echo ""
+            echo "- namespace: refs/heads/cms-preview/* only"
+            echo "- TTL: 72h"
+            echo "- scheduled runs: apply bounded expiry"
+            echo "- manual runs: dry-run by default"
+            echo "- stale/already-gone refs: skipped safely"
+            echo "- production/provider resources: untouched"
+          } >> "$GITHUB_STEP_SUMMARY"
