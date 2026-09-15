@@ -10,44 +10,45 @@ const approvedCards = [
   {
     id: "awful-cases",
     title: "Awful Cases",
-    description: "Утилита для Windows, которая меняет регистр и типографику выделенного текста.",
+    description: "Утилита для Windows: регистр и типографика выделенного текста.",
     state: "live",
     href: "/work/awful-cases/",
   },
   {
     id: "moves-awful",
     title: "Moves Awful",
-    description: "Библиотека анимированных галерей для лендингов.",
+    description: "Библиотека с шаблонами анимированных canvas галерей для лендингов.",
     state: "live",
     href: "/work/moves-awful/",
   },
   {
     id: "berserk-timer",
     title: "Berserk Timer",
-    description: "CLI-таймер с режимом свидетеля и гибкой настройкой длительности.",
+    description: "Консольный помодоро-таймер для Windows.",
     state: "live",
-    href: "/pets/berserk-timer/",
-  },  {
+    href: "/work/berserk-timer/",
+  },
+  {
     id: "awful-studio",
-    title: "Awful Studio",
-    description: "Blender-native студия для виртуального продакшна и продуктовой рекламы.",
+    title: "AWFUL STUDIO",
+    description: "Расширение Blender для сборки виртуальной предметной студии.",
     state: "coming-soon",
     href: undefined,
   },
-  {
-    id: "awful-mockups",
-    title: "Awful Mockups",
-    description: "Набор PSD-мокапов для презентации интерфейсов и графики.",
-    state: "coming-soon",
-    href: undefined,
-  },
-  {
-    id: "awful-3d-mockups",
-    title: "Awful 3D Mockups",
-    description: "Набор 3D-мокапов устройств для интерфейсов, анимации и рендера.",
-    state: "coming-soon",
-    href: undefined,
-  },
+];
+
+const hiddenFuturePetIds = [
+  "awful-mockups",
+  "awful-3d-mockups",
+  "awful-textures",
+  "photoshop-translation",
+  "keys",
+  "sea",
+  "comfy-workflows",
+  "photoshop-workflows",
+  "blender-scenes",
+  "shaders",
+  "3d-assets",
 ];
 
 test("Useful exposes exactly the approved cards, copy and release state", () => {
@@ -56,6 +57,7 @@ test("Useful exposes exactly the approved cards, copy and release state", () => 
     approvedCards,
   );
 });
+
 test("live Useful cards are links and NEW is an authored badge", () => {
   const html = renderPetProjectCards([
     {
@@ -73,7 +75,7 @@ test("live Useful cards are links and NEW is an authored badge", () => {
 
   assert.match(html, /<a\b[^>]*href="\/work\/preview-new\/"/);
   assert.match(html, /class="subproject-card__badge"[^>]*>NEW<\/span>/);
-  assert.doesNotMatch(html, /В разработке/);
+  assert.doesNotMatch(html, /COMING SOON/);
 });
 
 test("coming-soon Useful cards are semantic non-links", () => {
@@ -85,25 +87,34 @@ test("coming-soon Useful cards are semantic non-links", () => {
       coverEntryId: "awful-cases-assets-screenshot-2026-08-14-174113-use-01",
       shape: "portrait",
       source: "site",
-      state: "coming-soon",    },
+      state: "coming-soon",
+    },
   ]);
 
   assert.match(html, /<article\b/);
-  assert.match(html, /class="subproject-card__badge"[^>]*>В разработке<\/span>/);
+  assert.match(html, /class="subproject-card__badge"[^>]*>COMING SOON<\/span>/);
   assert.doesNotMatch(html, /<a\b/);
   assert.doesNotMatch(html, /href=/);
 });
 
-test("homepage renders the CMS-backed Useful section", () => {
+test("homepage renders only the currently approved Useful cards", () => {
   const indexHtml = readFileSync(new URL("../index.html", import.meta.url), "utf8");
   const rendered = renderHomepage(indexHtml);
 
   assert.match(rendered, /class="pet-projects"/);
   assert.match(rendered, /id="pet-projects-title"[^>]*>Полезное<\/h2>/);
   assert.match(rendered, />Полезные инструменты, которые я создаю на досуге<\/p>/);
-  assert.match(rendered, /data-subproject-id="awful-3d-mockups"/);
+
+  for (const { id } of approvedCards) {
+    assert.match(rendered, new RegExp(`data-subproject-id="${id}"`));
+  }
+
+  for (const id of hiddenFuturePetIds) {
+    assert.doesNotMatch(rendered, new RegExp(`data-subproject-id="${id}"`));
+  }
+
   assert.match(rendered, />NEW<\/span>/);
-  assert.match(rendered, />В разработке<\/span>/);
+  assert.match(rendered, />COMING SOON<\/span>/);
 });
 
 test("Useful presentation is a uniform portrait snap reel", () => {
@@ -114,7 +125,8 @@ test("Useful presentation is a uniform portrait snap reel", () => {
 
   assert.match(source, /--pet-card-width:\s*clamp\(/);
   assert.match(source, /grid-auto-flow:\s*column/);
-  assert.match(source, /scroll-snap-type:\s*inline mandatory/);  assert.match(source, /aspect-ratio:\s*4\s*\/\s*5/);
+  assert.match(source, /scroll-snap-type:\s*inline mandatory/);
+  assert.match(source, /aspect-ratio:\s*4\s*\/\s*5/);
   assert.match(source, /animation-timeline:\s*view\(inline\)/);
   assert.match(source, /prefers-reduced-motion:\s*reduce/);
   assert.doesNotMatch(source, /grid-template-columns:\s*repeat\(3,/);
