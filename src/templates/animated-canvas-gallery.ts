@@ -4,6 +4,7 @@ import type {
   MovesAnimatedCanvasGalleryData,
   ProductionAnimatedCanvasGalleryData,
 } from "../types/animated-canvas-gallery.ts";
+import type { EditorialCopyRenderOptions } from "../types/render-options.ts";
 import { escapeHtml } from "../utils/html.ts";
 
 function assetSrc(entryId: MediaEntryId): string {
@@ -13,6 +14,7 @@ function assetSrc(entryId: MediaEntryId): string {
 
 function renderProductionGallery(
   data: ProductionAnimatedCanvasGalleryData<MediaEntryId>,
+  options: EditorialCopyRenderOptions,
 ): string {
   const className = data.className ? ` class="${escapeHtml(data.className)}"` : "";
   const sources = data.sources
@@ -23,10 +25,10 @@ function renderProductionGallery(
         typeof source.sourceIndex === "number"
           ? `data-source-index="${source.sourceIndex}"`
           : "",
-        source.mediaTitle
+        options.showEditorialCopy !== false && source.mediaTitle
           ? `data-media-title="${escapeHtml(source.mediaTitle)}"`
           : "",
-        source.mediaCredits
+        options.showEditorialCopy !== false && source.mediaCredits
           ? `data-media-credits="${escapeHtml(source.mediaCredits)}"`
           : "",
         source.fallbackSrc
@@ -49,12 +51,15 @@ function safeJson(value: unknown): string {
   return JSON.stringify(value, null, 2).replaceAll("<", "\\u003c");
 }
 
-function renderMovesGallery(data: MovesAnimatedCanvasGalleryData<MediaEntryId>): string {
+function renderMovesGallery(
+  data: MovesAnimatedCanvasGalleryData<MediaEntryId>,
+  options: EditorialCopyRenderOptions,
+): string {
   const id = data.id ? ` id="${escapeHtml(data.id)}"` : "";
   const className = data.className ? ` class="${escapeHtml(data.className)}"` : "";
   const items = data.items.map((item) => ({
     src: assetSrc(item.entryId),
-    title: item.title ?? "",
+    title: options.showEditorialCopy === false ? "" : item.title ?? "",
   }));
 
   return `<div${className} data-animated-canvas-gallery="" data-gallery-profile="moves" data-gallery-variant="${escapeHtml(data.variant)}"${id}><canvas data-animated-canvas-gallery-canvas=""></canvas><script data-gallery-items="" type="application/json">\n${safeJson(items)}\n</script></div>`;
@@ -62,8 +67,9 @@ function renderMovesGallery(data: MovesAnimatedCanvasGalleryData<MediaEntryId>):
 
 export function renderAnimatedCanvasGallery(
   data: AnimatedCanvasGalleryData<MediaEntryId>,
+  options: EditorialCopyRenderOptions = {},
 ): string {
   return data.profile === "production"
-    ? renderProductionGallery(data)
-    : renderMovesGallery(data);
+    ? renderProductionGallery(data, options)
+    : renderMovesGallery(data, options);
 }
