@@ -7,12 +7,12 @@ const STYLE_ID = "model-viewer-awful-studio-device-styles";
 
 const DEVICES = {
   iphone17: {
-    name: "iPhone 17 · v20",
+    name: "iPhone 17 · v21",
     src: "/media/projects/awful-studio/device-viewer/iphone-17.glb",
     aria: "3D-модель iPhone 17",
     view: [0.32, 0.12, 1],
-    exposure: 1.02,
-    envIntensity: 0.72,
+    exposure: 1.10,
+    envIntensity: 0.24,
   },
   ipad11: {
     name: "iPad Pro 11 M5 · v6",
