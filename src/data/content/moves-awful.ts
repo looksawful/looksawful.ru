@@ -12,8 +12,6 @@ import type { LogoUsageId } from "../logos/index.ts";
 export const movesAwfulIntro = {
   head: { type: "text", text: "Moves Awful" },
   title: { type: "text", text: "Moves Awful" },
-  role: "Разработчик",
-  period: "2025",
   summary: "Библиотека анимированных галерей для лендингов.",
 } as const satisfies ProjectIntroData<LogoUsageId>;
 
