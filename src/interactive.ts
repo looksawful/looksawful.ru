@@ -14,12 +14,61 @@ type ScaledMockupFitOptions = {
 
 const noop: Destroy = () => {};
 
-function initPlaylistFilter(host: Element): void {
+function syncPlaylistSummaryVisibility(root: ShadowRoot): void {
+  const shell = root.querySelector(".contains-shell");
+  if (!(shell instanceof HTMLElement)) return;
+
+  const pills = Array.from(
+    shell.querySelectorAll<HTMLElement>(".summary-pill"),
+  );
+
+  pills.forEach((pill) => pill.removeAttribute("data-summary-clipped"));
+
+  const shellRect = shell.getBoundingClientRect();
+  const tolerance = 1;
+
+  pills.forEach((pill) => {
+    const style = getComputedStyle(pill);
+    const rect = pill.getBoundingClientRect();
+    if (
+      style.display === "none" ||
+      rect.width <= 0 ||
+      rect.height <= 0
+    ) {
+      return;
+    }
+
+    const visibleLeft = Math.max(rect.left, shellRect.left);
+    const visibleRight = Math.min(rect.right, shellRect.right);
+    const visibleWidth = Math.max(0, visibleRight - visibleLeft);
+    const isPartiallyVisible =
+      visibleWidth > tolerance && visibleWidth < rect.width - tolerance;
+
+    if (isPartiallyVisible) {
+      pill.dataset.summaryClipped = "true";
+    }
+  });
+}
+
+function initPlaylistFilter(host: Element): Destroy {
   const root = host.shadowRoot;
-  if (!root) return;
+  if (!root) return noop;
 
   const form = root.querySelector(".filter");
-  if (!(form instanceof HTMLFormElement)) return;
+  if (!(form instanceof HTMLFormElement)) return noop;
+
+  const summaryShell = root.querySelector(".contains-shell");
+  let summaryFrame = 0;
+
+  const syncSummaryVisibility = (): void => {
+    summaryFrame = 0;
+    syncPlaylistSummaryVisibility(root);
+  };
+
+  const queueSummaryVisibilitySync = (): void => {
+    if (summaryFrame) return;
+    summaryFrame = requestAnimationFrame(syncSummaryVisibility);
+  };
 
   const cycle = (element: HTMLElement): void => {
     const current = element.dataset.selection || "neutral";
@@ -32,7 +81,7 @@ function initPlaylistFilter(host: Element): void {
     form.dataset.hasFilters = "true";
   };
 
-  root.addEventListener("click", (event) => {
+  const handleClick = (event: Event): void => {
     const target = (event.target as Element).closest("[data-action]") as HTMLElement | null;
     if (!(target instanceof Element)) return;
 
@@ -98,9 +147,41 @@ function initPlaylistFilter(host: Element): void {
             : "inactive";
       });
     }
-  });
 
-  form.addEventListener("submit", (event) => event.preventDefault());
+    queueSummaryVisibilitySync();
+  };
+
+  const handleSubmit = (event: Event): void => event.preventDefault();
+
+  root.addEventListener("click", handleClick);
+  form.addEventListener("submit", handleSubmit);
+
+  if (summaryShell instanceof HTMLElement) {
+    summaryShell.addEventListener("scroll", queueSummaryVisibilitySync, {
+      passive: true,
+    });
+  }
+
+  const summaryObserver =
+    summaryShell instanceof HTMLElement && typeof ResizeObserver === "function"
+      ? new ResizeObserver(queueSummaryVisibilitySync)
+      : null;
+
+  if (summaryShell instanceof HTMLElement) {
+    summaryObserver?.observe(summaryShell);
+  }
+
+  queueSummaryVisibilitySync();
+
+  return () => {
+    root.removeEventListener("click", handleClick);
+    form.removeEventListener("submit", handleSubmit);
+    if (summaryShell instanceof HTMLElement) {
+      summaryShell.removeEventListener("scroll", queueSummaryVisibilitySync);
+    }
+    summaryObserver?.disconnect();
+    if (summaryFrame) cancelAnimationFrame(summaryFrame);
+  };
 }
 
 function initScaledMockupFit(
@@ -165,7 +246,9 @@ export function initSiteInteractive(
   destroys.push(initProjectNavigationBackToTop(root));
   destroys.push(initProjectNavigationFallback(root));
 
-  root.querySelectorAll("playlist-filter-workflow").forEach(initPlaylistFilter);
+  root.querySelectorAll("playlist-filter-workflow").forEach((host) => {
+    destroys.push(initPlaylistFilter(host));
+  });
 
   root.querySelectorAll(".jestei-filter-mockup").forEach((mockup) => {
     destroys.push(
