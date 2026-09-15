@@ -5,11 +5,11 @@ export function classifyToken(name, value) {
   const v = String(value).trim().toLowerCase();
   if (/gradient\(/.test(v) || n.includes("gradient")) return "gradient";
   if (/^--clr-|color|colour/.test(n) || /^(#|rgb\(|rgba\(|hsl\(|hsla\(|oklch\(|oklab\(|color\()/.test(v)) return "color";
-  if (/font-family|font-face/.test(n) || /(^|-)font$/.test(n)) return "font-family";
   if (/font-size|type-size|text-size/.test(n)) return "font-size";
   if (/font-weight|weight/.test(n)) return "font-weight";
   if (/line-height|leading/.test(n)) return "line-height";
   if (/letter-spacing|tracking/.test(n)) return "letter-spacing";
+  if (/font-family|font-face|^--font(?:-|$)/.test(n)) return "font-family";
   if (/radius|rounded/.test(n)) return "radius";
   if (/shadow/.test(n)) return "shadow";
   if (/opacity|alpha/.test(n)) return "opacity";
