@@ -10,7 +10,7 @@ The current Storybook installation is a valid LAB component catalogue, but the c
 
 There are four Storybook modules in `src/lab/stories/`:
 
-- `foundations.stories.js`: canonical foundation/token coverage, sourced from loaded canonical CSS.
+- `foundations.stories.js`: canonical production-derived foundation coverage for colors, typography, sizing/spacing, radii, surfaces, gradients, motion/reduced-motion, and raw CSS custom-property inspection; values are read from the loaded canonical production stylesheet graph rather than copied into Storybook.
 - `before-after.stories.js`: canonical UI coverage. It directly imports the production renderer `src/templates/before-after.ts`, runtime `src/components/before-after.ts`, and real Jestei data.
 - `code-block.stories.js`: canonical UI coverage. It directly imports the production renderer `src/components/content/code-block.ts` and runtime `src/components/code-block.ts`.
 - `model-viewer-controls.stories.js`: LAB experiment/prototype. It must not count as production UI coverage unless a production owner is explicitly linked later.
