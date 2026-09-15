@@ -1,0 +1,165 @@
+{
+  "schemaVersion": 1,
+  "auditedAt": "2026-09-14",
+  "repository": "looksawful/looksawful.ru",
+  "branch": "storybook/audit-inventory",
+  "baselineCommit": "d2fa1a10cefda1be5d7f49e3adb1bfa334fb600c",
+  "method": {
+    "principle": "Canonical coverage is established by source ownership and explicit import/runtime relationships, never filename-stem equality alone.",
+    "evidenceLevels": ["direct-import", "directory-contract", "route-manifest", "source-inspection", "needs-classification"],
+    "storyStatuses": ["covered", "partial", "missing", "experimental", "exempt-no-story", "needs-classification"]
+  },
+  "summary": {
+    "existingStoryModules": 4,
+    "canonicalUiStoryModules": 2,
+    "foundationStoryModules": 1,
+    "experimentalStoryModules": 1,
+    "enabledRoutes": 12,
+    "discoveryHiddenRoutes": 4,
+    "canonicalTemplateFiles": 16,
+    "inventoryBlindSpots": [
+      "src/site/** is not scanned",
+      "template story coverage is not computed",
+      ".stories.mjs is accepted by Storybook but ignored by inventory",
+      "story/source association is basename-only",
+      "multi-source stories cannot be represented",
+      "experimental LAB stories are not separated from canonical coverage"
+    ]
+  },
+  "stories": [
+    {
+      "id": "foundations",
+      "path": "src/lab/stories/foundations.stories.js",
+      "class": "foundation",
+      "canonical": true,
+      "status": "covered",
+      "sources": ["src/styles/index.css"],
+      "notes": "Runtime CSSOM token catalogue; not component coverage."
+    },
+    {
+      "id": "before-after",
+      "path": "src/lab/stories/before-after.stories.js",
+      "class": "molecule",
+      "canonical": true,
+      "status": "covered",
+      "sources": [
+        "src/templates/before-after.ts",
+        "src/components/before-after.ts",
+        "src/data/content/jestei-pool.ts"
+      ],
+      "states": ["default", "auto-reveal"],
+      "visibility": ["always"],
+      "motion": ["motion-enabled", "reduced-motion-aware"],
+      "evidence": "direct-import"
+    },
+    {
+      "id": "code-block",
+      "path": "src/lab/stories/code-block.stories.js",
+      "class": "molecule",
+      "canonical": true,
+      "status": "covered",
+      "sources": [
+        "src/components/content/code-block.ts",
+        "src/components/code-block.ts"
+      ],
+      "states": ["default", "long-content"],
+      "visibility": ["always"],
+      "evidence": "direct-import"
+    },
+    {
+      "id": "model-viewer-controls",
+      "path": "src/lab/stories/model-viewer-controls.stories.js",
+      "class": "experimental",
+      "canonical": false,
+      "status": "experimental",
+      "sources": ["src/lab/model-viewer-controls-prototype.css"],
+      "notes": "Large self-contained LAB prototype; does not prove production component coverage."
+    }
+  ],
+  "routes": [
+    {"id":"home","path":"/","renderer":"home","listed":true,"indexable":true},
+    {"id":"gallery","path":"/gallery/","renderer":"gallery","listed":true,"indexable":true},
+    {"id":"case:jestei-pool","path":"/work/jestei-pool/","renderer":"entity","listed":true,"indexable":true},
+    {"id":"case:styx","path":"/work/styx/","renderer":"entity","listed":true,"indexable":true},
+    {"id":"case:sensetique","path":"/work/sensetique/","renderer":"entity","listed":true,"indexable":true},
+    {"id":"collection:music-photography","path":"/shootings/","renderer":"entity","listed":true,"indexable":true},
+    {"id":"project:awful-cases","path":"/work/awful-cases/","renderer":"entity","listed":false,"indexable":false},
+    {"id":"project:moves-awful","path":"/work/moves-awful/","renderer":"entity","listed":false,"indexable":false},
+    {"id":"project:berry-social-content-2020","path":"/work/berry-social-content-2020/","renderer":"entity","listed":false,"indexable":false},
+    {"id":"cv","path":"/cv/","renderer":"cv","listed":true,"indexable":true,"build":"public-static"},
+    {"id":"privacy","path":"/privacy/","renderer":"privacy","listed":true,"indexable":true,"build":"public-static"},
+    {"id":"not-found","path":"/404.html","renderer":"not-found","listed":false,"indexable":false}
+  ],
+  "owners": [
+    {"id":"template:animated-canvas-gallery","layer":"organism","kind":"template+runtime","paths":["src/templates/animated-canvas-gallery.ts","src/components/specialized/animated-canvas-gallery.ts","src/components/animated-canvas-gallery.js"],"storyPolicy":"isolated","storyStatus":"missing","axes":["interaction","responsive","motion"],"confidence":"high"},
+    {"id":"template:before-after","layer":"molecule","kind":"template+runtime","paths":["src/templates/before-after.ts","src/components/content/before-after.ts","src/components/before-after.ts"],"storyPolicy":"isolated","storyStatus":"covered","storyRefs":["before-after"],"axes":["interaction","motion","reduced-motion"],"confidence":"high"},
+    {"id":"component:code-block","layer":"molecule","kind":"renderer+runtime","paths":["src/components/content/code-block.ts","src/components/code-block.ts"],"storyPolicy":"isolated","storyStatus":"covered","storyRefs":["code-block"],"axes":["interaction","overflow"],"confidence":"high"},
+    {"id":"template:client-logo","layer":"atom","kind":"template","paths":["src/templates/client-logo.ts","src/components/composition/client-logo.ts"],"storyPolicy":"isolated","storyStatus":"missing","confidence":"high"},
+    {"id":"template:jestei-theme-organism","layer":"organism","kind":"template+runtime+shader","paths":["src/templates/jestei-theme-organism.ts","src/components/specialized/jestei-theme.ts","src/components/jestei-theme-organism/jestei-theme-organism.js","src/components/jestei-theme-organism/jestei-theme-organism-data.ts","src/components/jestei-theme-organism/jestei-theme-organism-shaders.ts","src/components/jestei-theme-organism/jestei-theme-organism.css"],"storyPolicy":"isolated","storyStatus":"missing","axes":["interaction","responsive","motion","async"],"confidence":"high"},
+    {"id":"template:justified-gallery","layer":"organism","kind":"template","paths":["src/templates/justified-gallery.ts","src/components/content/justified-gallery.ts"],"storyPolicy":"isolated","storyStatus":"missing","axes":["responsive"],"confidence":"high"},
+    {"id":"template:media-figure","layer":"molecule","kind":"template","paths":["src/templates/media-figure.ts","src/components/content/media-figure.ts"],"storyPolicy":"isolated","storyStatus":"missing","axes":["responsive","async","caption"],"confidence":"high"},
+    {"id":"template:media-group","layer":"organism","kind":"template","paths":["src/templates/media-group.ts","src/components/content/media-group.ts"],"storyPolicy":"composition","storyStatus":"missing","axes":["responsive","layout"],"confidence":"high"},
+    {"id":"template:media-slider","layer":"organism","kind":"template+runtime","paths":["src/templates/media-slider.ts","src/components/content/media-slider.ts","src/components/media-deck.ts","src/components/embla-deck.ts"],"storyPolicy":"isolated","storyStatus":"missing","axes":["interaction","responsive","selected","disabled"],"confidence":"high"},
+    {"id":"template:mockup-deck","layer":"organism","kind":"template+runtime","paths":["src/templates/mockup-deck.ts","src/components/content/mockup-deck.ts","src/components/media-deck.ts"],"storyPolicy":"composition","storyStatus":"missing","axes":["interaction","responsive"],"confidence":"high"},
+    {"id":"template:mockup","layer":"molecule","kind":"template","paths":["src/templates/mockup.ts","src/components/content/mockup.ts"],"storyPolicy":"isolated","storyStatus":"missing","axes":["responsive"],"confidence":"high"},
+    {"id":"template:page-flip","layer":"organism","kind":"template+runtime","paths":["src/templates/page-flip.ts","src/components/content/page-flip.ts","src/components/page-flip.ts"],"storyPolicy":"isolated","storyStatus":"missing","axes":["interaction","responsive","motion","reduced-motion"],"confidence":"high"},
+    {"id":"template:project-card","layer":"molecule","kind":"template","paths":["src/templates/project-card.ts","src/components/composition/portfolio-entity-card.ts"],"storyPolicy":"isolated","storyStatus":"missing","axes":["responsive","hover","focus-visible"],"confidence":"medium"},
+    {"id":"template:project-intro","layer":"organism","kind":"template","paths":["src/templates/project-intro.ts","src/components/composition/entity-intro.ts"],"storyPolicy":"composition","storyStatus":"missing","axes":["responsive"],"confidence":"medium"},
+    {"id":"template:responsive-image","layer":"atom","kind":"template","paths":["src/templates/responsive-image.ts","src/components/composition/responsive-image.ts"],"storyPolicy":"isolated","storyStatus":"missing","axes":["responsive","async"],"confidence":"high"},
+    {"id":"template:section-intro","layer":"molecule","kind":"template","paths":["src/templates/section-intro.ts","src/components/composition/section-intro.ts"],"storyPolicy":"isolated","storyStatus":"missing","axes":["responsive","motion"],"confidence":"high"},
+    {"id":"template:subproject-card","layer":"molecule","kind":"template","paths":["src/templates/subproject-card.ts","src/components/composition/project-teaser.ts"],"storyPolicy":"isolated","storyStatus":"missing","axes":["responsive","hover","focus-visible"],"confidence":"medium"},
+    {"id":"composition:resource-links","layer":"molecule","kind":"renderer","paths":["src/components/composition/resource-links.ts"],"storyPolicy":"isolated","storyStatus":"missing","axes":["responsive","focus-visible"],"confidence":"high"},
+    {"id":"runtime:berserk-audio-player","layer":"organism","kind":"runtime","paths":["src/components/berserk-audio-player.ts"],"storyPolicy":"behavior-fixture","storyStatus":"missing","axes":["interaction","async","media","disabled"],"confidence":"medium"},
+    {"id":"runtime:experience","layer":"organism","kind":"runtime","paths":["src/components/experience.ts"],"storyPolicy":"behavior-fixture","storyStatus":"missing","axes":["interaction","responsive"],"confidence":"medium"},
+    {"id":"runtime:expertise","layer":"organism","kind":"runtime","paths":["src/components/expertise.ts"],"storyPolicy":"behavior-fixture","storyStatus":"missing","axes":["interaction","responsive"],"confidence":"medium"},
+    {"id":"runtime:infinite-reel","layer":"organism","kind":"runtime","paths":["src/components/infinite-reel.ts"],"storyPolicy":"behavior-fixture","storyStatus":"missing","axes":["interaction","motion","reduced-motion","responsive"],"confidence":"medium"},
+    {"id":"runtime:media-lightbox","layer":"organism","kind":"overlay-runtime","paths":["src/components/media-lightbox.ts","src/components/photoswipe-lightbox.ts"],"storyPolicy":"behavior-fixture","storyStatus":"missing","axes":["overlay","open","closed","keyboard","media","caption"],"confidence":"high","evidence":"Source defines lightbox source/exclusion/interactive selectors and PhotoSwipe item creation."},
+    {"id":"runtime:project-navigation","layer":"organism","kind":"navigation-runtime","paths":["src/components/project-navigation.ts"],"storyPolicy":"behavior-fixture","storyStatus":"missing","axes":["responsive","interaction","focus-visible"],"confidence":"medium"},
+    {"id":"runtime:site-navigation","layer":"organism","kind":"navigation-runtime","paths":["src/components/site-navigation.ts","src/site/navigation/model.ts","src/site/navigation/primary.ts","src/site/shell/navigation.ts"],"storyPolicy":"composition","storyStatus":"missing","axes":["responsive","interaction","open","closed","focus-visible"],"confidence":"high"},
+    {"id":"gallery:controller","layer":"organism","kind":"controller+state+overlay","paths":["src/components/gallery/gallery-controller.ts","src/components/gallery/gallery-entry.ts","src/components/gallery/gallery-lightbox.ts","src/components/gallery/gallery-state.ts"],"storyPolicy":"behavior-fixture","storyStatus":"missing","axes":["interaction","overlay","selected","responsive"],"confidence":"high"},
+    {"id":"specialized:awful-cases-game","layer":"organism","kind":"specialized-runtime","paths":["src/components/specialized/awful-cases-game.ts","src/components/awful-cases-game.js"],"storyPolicy":"behavior-fixture","storyStatus":"missing","routeRefs":["project:awful-cases"],"axes":["interaction","responsive","motion","async"],"confidence":"high"},
+    {"id":"specialized:jestei-track-filter","layer":"organism","kind":"specialized-renderer","paths":["src/components/specialized/jestei-track-filter.ts","src/components/specialized/jestei-track-filter-canonical.ts"],"storyPolicy":"isolated","storyStatus":"missing","routeRefs":["case:jestei-pool"],"axes":["interaction","responsive","selected","disabled","conditional"],"confidence":"high"},
+    {"id":"specialized:moves-canvas-demo","layer":"organism","kind":"specialized-renderer","paths":["src/components/specialized/moves-canvas-demo.ts"],"storyPolicy":"behavior-fixture","storyStatus":"missing","routeRefs":["project:moves-awful"],"axes":["interaction","motion","responsive"],"confidence":"high"},
+    {"id":"page:home","layer":"page","kind":"page-renderer","paths":["src/site/pages/homepage.ts","src/site/renderers/home/home-page.ts","src/site/renderers/home/home-slots.ts","src/site/renderers/home/home-image-deferral.ts","src/site/renderers/home/home-media-deferral.ts"],"storyPolicy":"page","storyStatus":"missing","routeRefs":["home"],"axes":["responsive","conditional","async","offscreen-or-virtualized","motion"],"confidence":"high"},
+    {"id":"page:entity","layer":"page","kind":"page-renderer","paths":["src/site/pages/entity-presentation.ts","src/site/renderers/entity-page.ts","src/site/renderers/entity/entity-shell.ts","src/site/renderers/entity/section.ts","src/site/renderers/entity/content-block.ts"],"storyPolicy":"page","storyStatus":"missing","routeRefs":["case:jestei-pool","case:styx","case:sensetique","collection:music-photography","project:awful-cases","project:moves-awful","project:berry-social-content-2020"],"axes":["responsive","conditional","layout","motion","reduced-motion"],"confidence":"high","evidence":"section renderer owns stack, split-always, media-stack, mockup-grid-reel and infinite-media-reel presentations and section-owned/global reveal behavior."},
+    {"id":"page:gallery","layer":"page","kind":"page-renderer","paths":["src/site/renderers/gallery-page.ts"],"storyPolicy":"page","storyStatus":"missing","routeRefs":["gallery"],"axes":["responsive","interaction","overlay","async"],"confidence":"high"},
+    {"id":"page:cv","layer":"page","kind":"page-renderer+static-build","paths":["src/site/renderers/cv-page.ts","public/cv/index.html"],"storyPolicy":"page","storyStatus":"missing","routeRefs":["cv"],"confidence":"high"},
+    {"id":"page:not-found","layer":"page","kind":"page-renderer","paths":["src/site/renderers/not-found-page.ts"],"storyPolicy":"page","storyStatus":"missing","routeRefs":["not-found"],"confidence":"high"},
+    {"id":"shell:page","layer":"template","kind":"site-shell","paths":["src/site/shell/page-shell.ts","src/site/shell/navigation.ts"],"storyPolicy":"composition","storyStatus":"missing","axes":["responsive","navigation"],"confidence":"high"}
+  ],
+  "excludedOrNonVisualSources": [
+    {"path":"src/components/caption-trust.ts","reason":"text normalization/helper; no standalone visual ownership established"},
+    {"path":"src/components/deferred-video-source.ts","reason":"media loading behavior; behavior fixture only if needed"},
+    {"path":"src/components/media-caption-numbering.ts","reason":"DOM enhancement; not standalone visual component"},
+    {"path":"src/components/media-runtime-health.ts","reason":"runtime health infrastructure"},
+    {"path":"src/components/motion-preference.ts","reason":"motion policy infrastructure"},
+    {"path":"src/components/site-analytics.ts","reason":"analytics infrastructure; LAB must not activate production analytics"},
+    {"path":"src/components/site-analytics-consent.ts","reason":"analytics/consent runtime; classify separately from design-system denominator until visual ownership is isolated"},
+    {"path":"src/site/rendering/html.ts","reason":"HTML infrastructure helper, not a UI owner"},
+    {"path":"src/site/shell/metadata.ts","reason":"document metadata infrastructure"},
+    {"path":"src/site/pages/manifest.ts","reason":"route registry/source of page ownership, not itself a visual component"},
+    {"path":"src/site/pages/content-validation.ts","reason":"validation infrastructure"},
+    {"path":"src/site/pages/validation.ts","reason":"validation infrastructure"},
+    {"path":"src/site/pages/types.ts","reason":"type contracts"},
+    {"path":"src/site/pages/search-presentation.ts","reason":"presentation/search metadata; no standalone visual owner established"},
+    {"path":"src/site/pages/project-card-routes.ts","reason":"routing data helper"}
+  ],
+  "visibilityTaxonomyObservedOrRequired": [
+    "always",
+    "breakpoint",
+    "conditional-data",
+    "disclosure-open-closed",
+    "overlay-open-closed",
+    "route-discovery-listed-indexable",
+    "feature-or-experiment",
+    "offscreen-or-virtualized",
+    "reduced-motion",
+    "disabled"
+  ],
+  "auditNotes": [
+    "Route discovery visibility must remain distinct from visual hidden state. The manifest contains enabled routes that are deliberately unlisted and non-indexable.",
+    "Current Storybook proves canonical component coverage only for Before After and Code Block. Foundations proves token exposure; Model Viewer Controls is experimental.",
+    "Some owner relationships marked medium confidence need AST/import-graph confirmation in inventory v2 before they become CI facts.",
+    "This snapshot is audit evidence, not a replacement inventory implementation. Track E should evolve tools/lab/design-system-inventory.mjs rather than introduce a second generator."
+  ]
+}
