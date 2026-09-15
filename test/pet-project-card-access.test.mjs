@@ -4,19 +4,19 @@ import test from "node:test";
 import { USEFUL_PROJECT_DEFINITIONS } from "../src/data/content/useful-projects.ts";
 import { petProjectCards } from "../src/data/pet-project-cards.ts";
 
-const hiddenFuturePetIds = [
-  "awful-mockups",
-  "awful-3d-mockups",
-  "awful-textures",
-  "photoshop-translation",
-  "keys",
-  "sea",
-  "comfy-workflows",
-  "photoshop-workflows",
-  "blender-scenes",
-  "shaders",
-  "3d-assets",
-];
+const hiddenFuturePets = {
+  "awful-mockups": "asset-library",
+  "awful-3d-mockups": "asset-library",
+  "awful-textures": "asset-library",
+  "photoshop-translation": "project",
+  keys: "project",
+  sea: "project",
+  "comfy-workflows": "workflow",
+  "photoshop-workflows": "workflow",
+  "blender-scenes": "scene-library",
+  shaders: "shader-library",
+  "3d-assets": "asset-library",
+};
 
 test("Berserk Timer uses its canonical work route while AWFUL STUDIO stays gated", () => {
   const berserk = petProjectCards.find((candidate) => candidate.id === "berserk-timer");
@@ -30,12 +30,13 @@ test("Berserk Timer uses its canonical work route while AWFUL STUDIO stays gated
   assert.equal("href" in awfulStudio, false);
 });
 
-test("future Pet Projects are registered but hidden until explicitly published", () => {
-  for (const id of hiddenFuturePetIds) {
+test("future Pet Projects are registered with a kind but hidden until explicitly published", () => {
+  for (const [id, kind] of Object.entries(hiddenFuturePets)) {
     const definition = USEFUL_PROJECT_DEFINITIONS.find((candidate) => candidate.id === id);
     assert.ok(definition, `missing future Pet Project definition: ${id}`);
     assert.equal(definition.state, "hidden");
     assert.equal(definition.visible, false);
+    assert.equal(definition.kind, kind);
     assert.equal(petProjectCards.some((candidate) => candidate.id === id), false);
   }
 });
