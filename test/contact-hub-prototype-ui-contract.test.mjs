@@ -20,6 +20,15 @@ test("Contact Hub keeps the shared AI/Form surface without obsolete mode tabs", 
   assert.match(component, /textContent = "отправить"/);
 });
 
+test("form submit is a real visible touch target rather than link-like text", () => {
+  assert.match(component, /submitButton\.type = "submit"/);
+  assert.match(component, /contact-hub__submit/);
+  assert.match(css, /\.contact-hub__submit\s*\{[\s\S]*min-block-size:\s*44px;/);
+  assert.match(css, /\.contact-hub__submit\s*\{[\s\S]*padding:\s*[^;]+;/);
+  assert.match(css, /\.contact-hub__submit\s*\{[\s\S]*border:\s*var\(--border-width-100\) solid currentColor;/);
+  assert.match(css, /\.contact-hub__submit\s*\{[\s\S]*background:\s*var\(--clr-text\);/);
+});
+
 test("AI composer preserves the approved simple input language", () => {
   assert.match(component, /documentRef\.createElement\("input"\)/);
   assert.match(component, /placeholder = "спросить"/);
