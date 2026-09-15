@@ -26,9 +26,9 @@ const meta = {
       layer: "organism",
       policy: "behavior-fixture",
       canonical: true,
-      state: "slide-selected",
+      state: "selected-slide",
       visibility: ["offscreen-or-virtualized"],
-      interaction: ["selected", "active-or-pressed"],
+      interaction: ["default", "selected"],
       motion: ["motion-enabled", "reduced-motion"],
       responsive: { review: ["desktop", "tablet", "mobile"] },
     },
@@ -43,9 +43,10 @@ export const NextSelected = {
     const next = context.canvasElement.querySelector("[data-deck-next]");
     if (next instanceof HTMLButtonElement) next.click();
   },
-  parameters: { looksawful: { state: "next-selected", interaction: ["selected", "active-or-pressed"] } },
+  parameters: { looksawful: { state: "next-selected", interaction: ["default", "selected"] } },
 };
 export const ReducedMotion = {
   play: (context) => initialize(context, reducedMotion),
   parameters: { looksawful: { state: "reduced-motion", motion: ["reduced-motion"] } },
 };
+

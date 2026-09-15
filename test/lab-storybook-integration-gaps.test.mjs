@@ -9,7 +9,7 @@ test("project navigation reuses production Home markup and runtime", async () =>
   assert.match(story, /index\.html\?raw/);
   assert.match(story, /extractElementContainingMarker/);
   assert.match(story, /src\/components\/project-navigation\.ts/);
-  assert.doesNotMatch(story, /aria-label="Проекты"|>A<|>B</);
+  assert.doesNotMatch(story, /aria-label="РџСЂРѕРµРєС‚С‹"|>A<|>B</);
   assert.match(story, /"offscreen-or-virtualized"/);
   assert.match(story, /"selected"/);
   assert.match(story, /review:\s*\["desktop",\s*"tablet",\s*"mobile"\]/);
@@ -49,10 +49,11 @@ test("homepage visibility uses the real legacy Home section and production remov
 
 test("media lightbox uses production renderer and PhotoSwipe lifecycle", async () => {
   const story = await read("src/lab/stories/media-lightbox.stories.js");
-  assert.match(story, /renderMediaFigure/);
+  assert.match(story, /renderMediaGroup/);
   assert.match(story, /createMediaLightbox/);
-  assert.match(story, /awfulCasesDemo/);
+  assert.match(story, /sensetiqueOlovoBookletGroup/);
   assert.match(story, /visibility:\s*\["overlay"\]/);
   assert.match(story, /interaction:\s*\[[^\]]*"closed"[^\]]*"focus-visible"/s);
-  assert.match(story, /state:\s*"lightbox-open"/);
+  assert.match(story, /state:\s*"overlay-open"/);
 });
+
