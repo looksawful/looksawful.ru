@@ -135,8 +135,34 @@ function parseStory(text, storyPath) {
   };
 }
 
+const NO_STORY_INFRASTRUCTURE = new Set([
+  "src/components/caption-trust.ts",
+  "src/components/composition/index.ts",
+  "src/components/content/index.ts",
+  "src/components/deferred-video-source.ts",
+  "src/components/gallery/gallery-entry.ts",
+  "src/components/gallery/gallery-state.ts",
+  "src/components/media-runtime-health.ts",
+  "src/components/motion-preference.ts",
+  "src/components/runtime/index.ts",
+  "src/components/specialized/index.ts",
+  "src/site/navigation/model.ts",
+  "src/site/navigation/primary.ts",
+  "src/site/pages/content-validation.ts",
+  "src/site/pages/entity-presentation.ts",
+  "src/site/pages/homepage.ts",
+  "src/site/pages/manifest.ts",
+  "src/site/pages/search-presentation.ts",
+  "src/site/pages/types.ts",
+  "src/site/pages/validation.ts",
+  "src/site/renderers/home/home-image-deferral.ts",
+  "src/site/renderers/home/home-media-deferral.ts",
+  "src/site/rendering/html.ts",
+  "src/site/shell/metadata.ts",
+]);
+
 function sourceLifecycle(sourcePath) {
-  return sourcePath === "src/site/pages/manifest.ts" ? "infrastructure" : "production";
+  return NO_STORY_INFRASTRUCTURE.has(sourcePath) ? "infrastructure" : "production";
 }
 
 function sourceStatus(source, refs) {
@@ -289,7 +315,7 @@ export async function collectDesignSystemInventory(root) {
   }
   sourceRecords.sort((a, b) => a.path.localeCompare(b.path));
 
-  const uiSourcePaths = new Set(sourceRecords.map((source) => source.path));
+  const uiSourcePaths = new Set(sourceRecords.filter((source) => source.lifecycle === "production").map((source) => source.path));
   for (const story of stories) {
     story.declaredSourceChecks = await Promise.all(
       story.declaredSources.map((sourcePath) => checkDeclaredSource(root, sourcePath, uiSourcePaths)),
