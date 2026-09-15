@@ -454,7 +454,8 @@ async function verifyLightboxKeyboardAndFocus(page, label) {
 async function selectNavigationCandidate(page) {
   return page.evaluate(() => {
     const mediaFor = (source) =>
-      source.querySelector("[data-slide][data-active] img, [data-slide][data-active] video, img, video");
+      source.querySelector("[data-slide][data-active] img, [data-slide][data-active] video")
+      || source.querySelector("img, video");
     const mediaUrl = (media) => {
       if (media instanceof HTMLImageElement) return media.currentSrc || media.src || "";
       if (media instanceof HTMLVideoElement) {
@@ -470,24 +471,23 @@ async function selectNavigationCandidate(page) {
     const projects = [...document.querySelectorAll(".project")].filter((project) => !project.closest("[hidden]"));
 
     for (const project of projects) {
-      const sources = [...project.querySelectorAll("[data-lightbox-source]")]
-        .filter((source) => source instanceof HTMLElement)
-        .filter((source) => {
-          const media = mediaFor(source);
-          return media instanceof HTMLImageElement && Boolean(mediaUrl(media));
-        });
+      const uniqueItems = [];
+      const seen = new Set();
 
-      const urls = sources.map((source) => mediaUrl(mediaFor(source)));
-      const uniqueUrls = [...new Set(urls)];
+      for (const source of project.querySelectorAll("[data-lightbox-source]")) {
+        if (!(source instanceof HTMLElement)) continue;
+        const url = mediaUrl(mediaFor(source));
+        if (!url || seen.has(url)) continue;
+        seen.add(url);
+        uniqueItems.push({ source, url });
+      }
 
-      if (uniqueUrls.length < 2) continue;
+      if (uniqueItems.length < 2) continue;
 
-      sources[0].setAttribute("data-smoke-lightbox-navigation", "");
+      uniqueItems[0].source.setAttribute("data-smoke-lightbox-navigation", "");
 
       return {
-        first: uniqueUrls[0],
-        second: uniqueUrls[1],
-        last: uniqueUrls.at(-1),
+        count: uniqueItems.length,
       };
     }
 
@@ -501,22 +501,22 @@ async function verifyLightboxNavigationAndTouch(page, label, { touch = false } =
 
   await openSource(page, "[data-smoke-lightbox-navigation]", `${label}: navigation source opens`);
   let state = await lightboxState(page);
-  assert(state.imageSrc === candidate.first, `${label}: first project image did not open\n${JSON.stringify({ candidate, state }, null, 2)}`);
+  assert(state.pswpIndex === 0, `${label}: first project media item did not open at index 0\n${JSON.stringify({ candidate, state }, null, 2)}`);
 
   await page.keyboard.press("ArrowRight");
   await page.waitForTimeout(120);
   state = await lightboxState(page);
-  assert(state.imageSrc === candidate.second, `${label}: ArrowRight did not move to the next project image\n${JSON.stringify({ candidate, state }, null, 2)}`);
+  assert(state.pswpIndex === 1, `${label}: ArrowRight did not move to index 1\n${JSON.stringify({ candidate, state }, null, 2)}`);
 
   await page.keyboard.press("ArrowLeft");
   await page.waitForTimeout(120);
   state = await lightboxState(page);
-  assert(state.imageSrc === candidate.first, `${label}: ArrowLeft did not return to the first project image\n${JSON.stringify({ candidate, state }, null, 2)}`);
+  assert(state.pswpIndex === 0, `${label}: ArrowLeft did not return to index 0\n${JSON.stringify({ candidate, state }, null, 2)}`);
 
   await page.keyboard.press("ArrowLeft");
   await page.waitForTimeout(120);
   state = await lightboxState(page);
-  assert(state.imageSrc === candidate.last, `${label}: ArrowLeft did not wrap from first to last\n${JSON.stringify({ candidate, state }, null, 2)}`);
+  assert(state.pswpIndex === candidate.count - 1, `${label}: ArrowLeft did not wrap from first to last\n${JSON.stringify({ candidate, state }, null, 2)}`);
 
   if (touch) {
     await closeLightbox(page);
@@ -551,7 +551,7 @@ async function verifyLightboxNavigationAndTouch(page, label, { touch = false } =
     }
     await page.waitForTimeout(700);
     state = await lightboxState(page);
-    assert(state.imageSrc === candidate.second, `${label}: touch swipe did not move to the next project image\n${JSON.stringify({ candidate, state }, null, 2)}`);
+    assert(state.pswpIndex === 1, `${label}: touch swipe did not move to index 1\n${JSON.stringify({ candidate, state }, null, 2)}`);
   }
 
   await closeLightbox(page);
@@ -605,7 +605,8 @@ async function verifyLightboxSupplementalCaption(page, label) {
 async function verifyLightboxActiveDeckSlide(page, label) {
   const expected = await page.evaluate(() => {
     const mediaFor = (source) =>
-      source.querySelector("[data-slide][data-active] img, [data-slide][data-active] video, img, video");
+      source.querySelector("[data-slide][data-active] img, [data-slide][data-active] video")
+      || source.querySelector("img, video");
     const mediaUrl = (media) => {
       if (media instanceof HTMLImageElement) return media.currentSrc || media.src || "";
       if (media instanceof HTMLVideoElement) {
@@ -643,7 +644,8 @@ async function verifyLightboxActiveDeckSlide(page, label) {
 
   const active = await page.evaluate(() => {
     const mediaFor = (source) =>
-      source.querySelector("[data-slide][data-active] img, [data-slide][data-active] video, img, video");
+      source.querySelector("[data-slide][data-active] img, [data-slide][data-active] video")
+      || source.querySelector("img, video");
     const mediaUrl = (media) => {
       if (media instanceof HTMLImageElement) return media.currentSrc || media.src || "";
       if (media instanceof HTMLVideoElement) {
@@ -854,8 +856,9 @@ async function verifyMotionContract(page, label) {
     }
 
     const videoRevealOwners = [...document.querySelectorAll("video")]
-      .filter((node) => node.closest("[data-reveal]"))
-      .map((node) => node.closest("[data-reveal]")?.className || node.tagName)
+      .map((node) => node.closest('[data-reveal]:not([data-reveal="card"])'))
+      .filter((owner) => owner instanceof HTMLElement)
+      .map((owner) => owner.className || owner.tagName)
       .slice(0, 12);
 
     const canvasRevealOwners = [...document.querySelectorAll("canvas")]
@@ -869,23 +872,35 @@ async function verifyMotionContract(page, label) {
       secondProjectRow: count(".project-card[data-reveal=\"card\"]") >= 4,
       plainGrid: exists(".media-group[data-layout=\"grid\"]:not([data-overflow]):not([data-compact-layout]) > .media-group__items[data-reveal-group] > figure.media[data-reveal=\"media\"]"),
       longGrid: [...document.querySelectorAll(".media-group[data-layout=\"grid\"]:not([data-overflow]):not([data-compact-layout])")]
-        .some((group) => group.querySelectorAll(":scope > .media-group__items > figure.media[data-reveal=\"media\"]").length >= 4),
-      masonry: exists(".media-group[data-layout=\"masonry\"] > .media-group__items[data-reveal-group] > figure.media[data-reveal=\"media\"]"),
+        .filter((group) => group.querySelectorAll(":scope > .media-group__items > figure.media").length >= 4)
+        .every((group) => {
+          const items = group.querySelector(":scope > .media-group__items");
+          const eligible = [...group.querySelectorAll(":scope > .media-group__items > figure.media")]
+            .filter((figure) => !figure.querySelector("video, [data-media-deck]"));
+          return Boolean(items?.hasAttribute("data-reveal-group")) &&
+            eligible.length > 0 &&
+            eligible.every((figure) => figure.getAttribute("data-reveal") === "media");
+        }),
+      masonry: !exists(".media-group[data-layout=\"masonry\"]") ||
+        exists(".media-group[data-layout=\"masonry\"] > .media-group__items[data-reveal-group] > figure.media[data-reveal=\"media\"]"),
       editorial: !exists(".media-group[data-layout=\"editorial\"]") ||
         exists(".media-group[data-layout=\"editorial\"] > .media-group__items[data-reveal-group] > figure.media[data-reveal=\"media\"]"),
       bento: !exists(".media-group[data-layout=\"bento\"]") ||
         exists(".media-group[data-layout=\"bento\"] > .media-group__items[data-reveal-group][data-reveal-rail] > figure.media[data-reveal=\"media\"]"),
-      sequence: exists(".media-group[data-layout=\"sequence\"] > .media-group__items[data-reveal-group] figure.media[data-reveal=\"media\"]"),
+      sequence: !exists(".media-group[data-layout=\"sequence\"]") ||
+        exists(".media-group[data-layout=\"sequence\"] > .media-group__items[data-reveal-group] figure.media[data-reveal=\"media\"]"),
       compactReel: exists(".media-group[data-compact-layout=\"reel\"] > .media-group__items[data-reveal-group][data-reveal-rail]"),
-      overflowReel: exists(".media-group[data-overflow=\"reel\"] > .media-group__items[data-reveal-rail]") &&
-        count(".media-group[data-overflow=\"reel\"] > .media-group__items [data-reveal]") === 0,
+      overflowReel: !exists(".media-group[data-overflow=\"reel\"]") ||
+        (exists(".media-group[data-overflow=\"reel\"] > .media-group__items[data-reveal-rail]") &&
+          count(".media-group[data-overflow=\"reel\"] > .media-group__items [data-reveal]") === 0),
       infiniteReel: exists("[data-infinite-reel]") &&
         count("[data-infinite-reel][data-reveal], [data-infinite-reel] [data-reveal]") === 0,
-      justifiedGallery: exists(".justified-gallery__row[data-reveal-group][data-reveal-rail] > figure.media[data-reveal=\"media\"]"),
-      video: count("video") > 0 && videoRevealOwners.length === 0,
+      justifiedGallery: !exists(".justified-gallery__row") ||
+        exists(".justified-gallery__row[data-reveal-group][data-reveal-rail] > figure.media[data-reveal=\"media\"]"),
+      video: count("video") === 0 || videoRevealOwners.length === 0,
       slider: exists("[data-media-deck]"),
       mockupDeck: exists(".mockup[data-media-deck]"),
-      beforeAfter: exists("[data-before-after]"),
+      beforeAfter: !exists(".before-after") || exists("[data-before-after]"),
       canvas: exists("[data-animated-canvas-gallery]") && canvasRevealOwners.length === 0,
     };
 

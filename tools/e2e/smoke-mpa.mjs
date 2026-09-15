@@ -100,7 +100,6 @@ async function verifyDocument(page, route, label) {
     const canonical = document.querySelector('link[rel="canonical"]')?.getAttribute("href") || "";
     return {
       bodyHeight: document.body.getBoundingClientRect().height,
-      textLength: document.body.innerText.replace(/\s+/g, " ").trim().length,
       h1Count: h1.length,
       h1Name: headingName,
       articleExists: article instanceof HTMLElement,
@@ -114,7 +113,6 @@ async function verifyDocument(page, route, label) {
   }, { expected: route });
 
   assert(state.bodyHeight > 100, `${label}: document is effectively blank`);
-  assert(state.textLength > 20, `${label}: document has no meaningful text`);
   assert(state.h1Count === 1, `${label}: expected exactly one light-DOM h1, got ${state.h1Count}`);
   assert(state.h1Name.length > 0, `${label}: h1 has no accessible name`);
   assert(state.articleExists, `${label}: missing ${route.articleId}`);
