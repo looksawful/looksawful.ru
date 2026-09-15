@@ -6,6 +6,7 @@ import {
 } from "../../../data/content/awful-cases.ts";
 import { berryIntro, berryStoryMockups } from "../../../data/content/berry.ts";
 import { isHomeSectionVisible } from "../../../data/content/home-visibility.ts";
+import { usefulProjectsContent } from "../../../data/content/useful-projects.ts";
 import { liNeAgencyIntro } from "../../../data/content/li-ne-agency.ts";
 import { madCowFilmsIntro } from "../../../data/content/mad-cow-films.ts";
 import { moskovskieNovostiIntro } from "../../../data/content/moskovskie-novosti.ts";
@@ -43,10 +44,100 @@ import {
   type HtmlSlot,
 } from "../../rendering/html.ts";
 
+const petProjectsStyles = `
+  .pet-projects {
+    --section-inline: max(var(--page-padding-inline), calc((100% - var(--content-wide-width)) / 2 + var(--page-padding-inline)));
+    --pet-card-width: clamp(14rem, 72cqi, 19rem);
+    --pet-card-gap: clamp(var(--size-200), 2cqi, var(--size-400));
+    --pet-edge-space: max(var(--section-inline), calc((100cqi - var(--pet-card-width)) / 2));
+    container: pet-projects / inline-size;
+    padding-block: var(--size-700);
+    overflow: clip;
+    border-block-start: var(--border-width-100) solid var(--clr-border);
+  }
+
+  .pet-projects > :is(h2, .pet-projects__lead) { margin-inline: var(--section-inline); }
+  .pet-projects > h2 { margin-block-end: var(--size-100); font-size: var(--fs-300); font-weight: var(--fw-600); }
+  .pet-projects__lead { max-inline-size: 48ch; margin-block-end: var(--size-500); color: var(--clr-text-muted); font-size: var(--fs-300); line-height: var(--lh-copy); }
+
+  .pet-projects__grid {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: var(--pet-card-width);
+    align-items: start;
+    gap: var(--pet-card-gap);
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scroll-snap-type: inline mandatory;
+    scroll-padding-inline: var(--pet-edge-space);
+    padding: var(--size-200) var(--pet-edge-space) var(--size-400);
+    scrollbar-width: none;
+  }
+  .pet-projects__grid::-webkit-scrollbar { display: none; }
+
+  .pet-projects .subproject-card { display: block; min-inline-size: 0; color: inherit; text-decoration: none; scroll-snap-align: center; }
+  .pet-projects .subproject-card__figure { display: grid; min-inline-size: 0; margin: 0; transform-origin: center; }
+  .pet-projects .subproject-card__media {
+    position: relative;
+    display: grid;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    background: var(--clr-surface-raised);
+    border-radius: clamp(0.875rem, 2.2cqi, 1.375rem);
+  }
+  .pet-projects .subproject-card__media :is(img, video) { display: block; inline-size: 100%; block-size: 100%; max-inline-size: none; object-fit: cover; object-position: center; }
+  .pet-projects .subproject-card__badge {
+    position: absolute;
+    inset-block-start: var(--size-200);
+    inset-inline-start: var(--size-200);
+    z-index: 1;
+    padding: 0.38em 0.62em;
+    border-radius: 999px;
+    background: rgb(0 0 0 / 76%);
+    color: #fff;
+    font-size: var(--fs-100);
+    font-weight: var(--fw-600);
+    line-height: 1;
+    letter-spacing: 0.02em;
+  }
+  .pet-projects .subproject-card__caption { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--size-100); min-block-size: 6rem; padding-block: var(--size-200) 0; }
+  .pet-projects .subproject-card__title { color: var(--clr-text); font-size: var(--fs-300); font-weight: var(--fw-600); line-height: var(--lh-tight); }
+  .pet-projects .subproject-card__description {
+    display: -webkit-box;
+    max-inline-size: 32ch;
+    overflow: hidden;
+    color: var(--clr-text-muted);
+    font-size: var(--fs-200);
+    line-height: var(--lh-caption);
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+  .pet-projects a.subproject-card:focus-visible { outline: var(--border-width-200) solid currentColor; outline-offset: var(--size-100); border-radius: clamp(0.875rem, 2.2cqi, 1.375rem); }
+
+  @keyframes pet-project-card-focus {
+    from, to { scale: 0.95; }
+    50% { scale: 1; }
+  }
+  @supports (animation-timeline: view(inline)) {
+    @media (prefers-reduced-motion: no-preference) {
+      .pet-projects .subproject-card__figure {
+        animation: pet-project-card-focus linear both;
+        animation-timeline: view(inline);
+        animation-range: cover 20% cover 80%;
+      }
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .pet-projects .subproject-card__figure { animation: none; scale: 1; }
+  }
+`;
+
 function renderPetProjectsSection(): string {
   return `
+      <style>${petProjectsStyles}</style>
       <section class="pet-projects" aria-labelledby="pet-projects-title" data-reveal-group>
-        <h2 id="pet-projects-title" data-reveal="copy">Полезное</h2>
+        <h2 id="pet-projects-title" data-reveal="copy">${usefulProjectsContent.section.title}</h2>
+        <p class="pet-projects__lead" data-reveal="copy">${usefulProjectsContent.section.description}</p>
         <div class="pet-projects__grid" data-reveal-group>
           ${renderPetProjectCards(petProjectCards)}
         </div>

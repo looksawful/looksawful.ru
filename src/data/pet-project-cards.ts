@@ -1,61 +1,36 @@
+import { usefulProjectsContent, USEFUL_PROJECT_DEFINITIONS } from "./content/useful-projects.ts";
 import type { SubprojectCardData } from "./subproject-cards.ts";
+import type { MediaEntryId } from "./media/index.ts";
 
-export type PetProjectBadge = "new";
+export type PetProjectBadge = string;
 
 type PetProjectCardBase = Omit<SubprojectCardData, "href"> & {
   badge?: PetProjectBadge;
 };
 
 export type PetProjectCardData =
-  | (PetProjectCardBase & {
-      state: "live";
-      href: string;
-    })
-  | (PetProjectCardBase & {
-      state: "coming-soon";
-      href?: never;
-    });
+  | (PetProjectCardBase & { state: "live"; href: string })
+  | (PetProjectCardBase & { state: "coming-soon"; href?: never });
 
-export const petProjectCards = [
-  {
-    id: "awful-cases",
-    title: "Awful Cases",
-    description: "Утилита для Windows: регистр и типографика выделенного текста.",
-    coverEntryId: "awful-cases-assets-screenshot-2026-08-14-174113-use-01",
-    shape: "landscape",
-    href: "/work/awful-cases/",
-    source: "site",
-    state: "live",
-  },
-  {
-    id: "moves-awful",
-    title: "Moves Awful",
-    description: "Библиотека с шаблонами анимированных canvas галерей для лендингов.",
-    coverEntryId: "moves-awful-jestei-landing-animation-01-use-01",
-    shape: "landscape",
-    href: "/work/moves-awful/",
-    source: "site",
-    state: "live",
-  },
-  {
-    id: "berserk-timer",
-    title: "Berserk Timer",
-    description: "Консольный помодоро-таймер для Windows.",
-    coverEntryId: "berserk-timer-cover-use-01",
-    shape: "landscape",
-    href: "/work/berserk-timer/",
-    source: "site",
-    state: "live",
-  },
-  {
-    id: "awful-studio",
-    title: "AWFUL STUDIO",
-    description: "Расширение Blender для сборки виртуальной предметной студии.",
-    // Temporary canonical-catalog placeholder. The final card art is connected
-    // only when AWFUL STUDIO is ready to leave the preview-only state.
-    coverEntryId: "berserk-timer-cover-use-01",
-    shape: "landscape",
-    source: "site",
-    state: "coming-soon",
-  },
-] as const satisfies readonly PetProjectCardData[];
+export const petProjectCards: readonly PetProjectCardData[] = usefulProjectsContent.cards
+  .filter((card) => card.visible)
+  .map((card) => {
+    const definition = USEFUL_PROJECT_DEFINITIONS.find(({ id }) => id === card.id);
+    if (!definition) throw new Error(`Missing useful project definition: ${card.id}`);
+
+    const base = {
+      id: card.id,
+      title: card.title,
+      description: card.description,
+      coverEntryId: definition.coverEntryId as MediaEntryId,
+      shape: "portrait" as const,
+      source: "site" as const,
+      ...(card.badge ? { badge: card.badge } : {}),
+    };
+
+    if (card.state === "live" && "href" in definition) {
+      return { ...base, state: "live", href: definition.href } as const;
+    }
+
+    return { ...base, state: "coming-soon" } as const;
+  });

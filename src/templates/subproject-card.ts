@@ -66,7 +66,7 @@ export function renderSubprojectCard(
 }
 
 function renderPetProjectCard(card: PetProjectCardData): string {
-  const badge = card.state === "coming-soon" ? "COMING SOON" : card.badge === "new" ? "NEW" : undefined;
+  const badge = card.state === "coming-soon" ? "В разработке" : card.badge || undefined;
   const body = renderCardBody(card, badge);
   const attributes = renderCardAttributes(card, { reveal: true }, card.state);
 
