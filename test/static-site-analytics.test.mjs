@@ -34,6 +34,15 @@ test("static analytics injects Cloudflare, consent-gated Yandex and conversion g
   assert.doesNotMatch(html, /<noscript/i, "consent-gated analytics must not be bypassed by a noscript pixel");
 });
 
+test("static CV analytics adds semantic engagement, project-open and completion goals", () => {
+  const html = injectStaticSiteAnalytics(source, { yandexCounterId: 112065623 });
+  assert.match(html, /cv_engaged/);
+  assert.match(html, /cv_project_open/);
+  assert.match(html, /cv_end/);
+  assert.match(html, /setTimeout\([^)]*30000/);
+  assert.doesNotMatch(html, /scroll_25|scroll_50|scroll_75/);
+});
+
 test("static analytics auto-starts Yandex only for RU sessions and keeps an external geo fallback", () => {
   const html = injectStaticSiteAnalytics(source, { yandexCounterId: 112065623 });
   assert.match(html, /looksawful:analytics-region/);

@@ -1,4 +1,5 @@
 import "./lab.css";
+import { renderStorybook } from "./storybook/render.ts";
 
 declare const __LAB_BRANCH__: string;
 declare const __LAB_COMMIT__: string;
@@ -14,6 +15,9 @@ function setText(id: string, value: string): void {
 setText("lab-branch", __LAB_BRANCH__);
 setText("lab-commit", __LAB_COMMIT__);
 setText("lab-build-time", __LAB_BUILD_TIME__);
+
+const storybook = document.getElementById("lab-storybook");
+if (storybook !== null) storybook.innerHTML = renderStorybook();
 
 document.documentElement.dataset.labMode = LAB_MODE.toLowerCase().replaceAll(" ", "-");
 document.documentElement.dataset.labBranch = __LAB_BRANCH__;
