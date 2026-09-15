@@ -14,7 +14,10 @@ const packageJson = JSON.parse(await readFile("package.json", "utf8"));
 
 test("Media Desk has isolated Cloudflare build and dry-run scripts", () => {
   assert.equal(typeof packageJson.scripts["media-desk:build"], "string");
-  assert.match(packageJson.scripts["media-desk:build"], /tools\/cloudflare\/media-desk\/build\.mjs/);
+  assert.match(
+    packageJson.scripts["media-desk:build"],
+    /tools\/cloudflare\/media-desk\/build\.mjs/,
+  );
   assert.equal(typeof packageJson.scripts["media-desk:cf:dry-run"], "string");
   assert.match(packageJson.scripts["media-desk:cf:dry-run"], /wrangler.*--dry-run/i);
   assert.doesNotMatch(packageJson.scripts["build:site"], /media-desk|dist-media-desk/i);
@@ -39,7 +42,10 @@ test("Cloudflare PR verification never receives Media Desk runtime secrets", asy
   assert.match(workflow, /npm run media-desk:cf:dry-run/);
 
   const pullRequestSection = workflow.split(/\n\s*deploy:/, 1)[0];
-  assert.doesNotMatch(pullRequestSection, /MEDIA_DESK_(?:GITHUB_TOKEN|PASSWORD_HASH|SESSION_SECRET)/);
+  assert.doesNotMatch(
+    pullRequestSection,
+    /MEDIA_DESK_(?:GITHUB_TOKEN|PASSWORD_HASH|SESSION_SECRET)/,
+  );
 
   const deploySection = workflow.split(/\n\s*deploy:/u)[1] ?? "";
   assert.match(deploySection, /github\.ref\s*==\s*'refs\/heads\/dev'/);
@@ -48,6 +54,23 @@ test("Cloudflare PR verification never receives Media Desk runtime secrets", asy
   assert.doesNotMatch(deploySection, /github\.event_name\s*!=\s*'pull_request'/);
 });
 
+test("Media Desk deploy uses real Cloudflare repo secrets and fails closed when missing", async () => {
+  const workflow = await source(".github/workflows/media-desk-cloudflare.yml");
+  const deploySection = workflow.split(/\n\s*deploy:/u)[1] ?? "";
+
+  assert.match(
+    deploySection,
+    /CLOUDFLARE_API_TOKEN:\s*\$\{\{\s*secrets\.CLOUDFLARE_API_TOKEN\s*\}\}/,
+  );
+  assert.match(
+    deploySection,
+    /CLOUDFLARE_ACCOUNT_ID:\s*\$\{\{\s*secrets\.CLOUDFLARE_ACCOUNT_ID\s*\}\}/,
+  );
+  assert.doesNotMatch(deploySection, /CLOUDFLARE_MEDIA_DESK_API_TOKEN/);
+  assert.match(deploySection, /Cloudflare deployment credentials are not configured/);
+  assert.match(deploySection, /exit 1/);
+  assert.doesNotMatch(deploySection, /repository verification already passed/);
+});
 test("isolated Desk build declares remote write provenance without enabling local server writes", async () => {
   const build = await source("tools/cloudflare/media-desk/build.mjs");
   const vite = await source("tools/cloudflare/media-desk/vite.config.mjs");
