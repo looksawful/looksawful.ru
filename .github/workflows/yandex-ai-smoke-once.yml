@@ -1,0 +1,80 @@
+name: Yandex AI Manual Smoke
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    env:
+      YANDEX_AI_API_KEY: ${{ secrets.YANDEX_AI_API_KEY }}
+      YANDEX_AI_FOLDER_ID: b1gccfh8f63ut5b9eogf
+      YANDEX_AI_MODEL_URI: gpt://b1gccfh8f63ut5b9eogf/yandexgpt-5-lite/latest
+    steps:
+      - name: Verify secret is configured
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${YANDEX_AI_API_KEY:-}" ]; then
+            echo "YANDEX_AI_API_KEY is missing"
+            exit 1
+          fi
+          echo "Yandex AI secret is configured; value is intentionally not printed."
+
+      - name: One paid Lite request
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          payload=$(jq -nc \
+            --arg model "$YANDEX_AI_MODEL_URI" \
+            '{
+              modelUri: $model,
+              completionOptions: {
+                stream: false,
+                temperature: 0,
+                maxTokens: "12"
+              },
+              messages: [
+                {role: "system", text: "Ответь максимально кратко. Это только техническая проверка API."},
+                {role: "user", text: "Ответь одним словом: работает"}
+              ]
+            }')
+
+          http_code=$(curl --silent --show-error \
+            --connect-timeout 10 \
+            --max-time 30 \
+            --output "$RUNNER_TEMP/yandex-ai-response.json" \
+            --write-out '%{http_code}' \
+            --request POST \
+            --header "Authorization: Api-Key ${YANDEX_AI_API_KEY}" \
+            --header 'Content-Type: application/json' \
+            --data "$payload" \
+            'https://ai.api.cloud.yandex.net/foundationModels/v1/completion')
+
+          if [ "$http_code" -lt 200 ] || [ "$http_code" -ge 300 ]; then
+            echo "Yandex AI request failed with HTTP ${http_code}. Response body is not printed to avoid accidental sensitive output."
+            exit 1
+          fi
+
+          answer=$(jq -r '.result.alternatives[0].message.text // empty' "$RUNNER_TEMP/yandex-ai-response.json")
+          input_tokens=$(jq -r '.result.usage.inputTextTokens // "?"' "$RUNNER_TEMP/yandex-ai-response.json")
+          output_tokens=$(jq -r '.result.usage.completionTokens // "?"' "$RUNNER_TEMP/yandex-ai-response.json")
+          total_tokens=$(jq -r '.result.usage.totalTokens // "?"' "$RUNNER_TEMP/yandex-ai-response.json")
+          model_version=$(jq -r '.result.modelVersion // ""' "$RUNNER_TEMP/yandex-ai-response.json")
+
+          if [ -z "$answer" ]; then
+            echo "Yandex AI returned HTTP 2xx but no assistant text."
+            exit 1
+          fi
+
+          echo "YandexGPT 5 Lite smoke: OK"
+          echo "Answer: ${answer}"
+          echo "Tokens: input=${input_tokens}, output=${output_tokens}, total=${total_tokens}"
+          if [ -n "$model_version" ]; then
+            echo "Model version: ${model_version}"
+          fi

@@ -145,11 +145,114 @@ async function runJesteiFilterArtworkSanity({ browser, baseUrl }) {
   }
 }
 
+async function inspectSubmitTarget(submit, label) {
+  await submit.waitFor({ state: "visible", timeout: 10_000 });
+  await submit.scrollIntoViewIfNeeded();
+  const result = await submit.evaluate((element) => {
+    const rect = element.getBoundingClientRect();
+    const style = getComputedStyle(element);
+    return {
+      width: rect.width,
+      height: rect.height,
+      left: rect.left,
+      right: rect.right,
+      top: rect.top,
+      bottom: rect.bottom,
+      viewportWidth: innerWidth,
+      viewportHeight: innerHeight,
+      backgroundColor: style.backgroundColor,
+      borderTopStyle: style.borderTopStyle,
+      visible: rect.width > 0
+        && rect.height >= 40
+        && rect.right > 0
+        && rect.left < innerWidth
+        && rect.bottom > 0
+        && rect.top < innerHeight
+        && style.display !== "none"
+        && style.visibility !== "hidden"
+        && Number.parseFloat(style.opacity || "1") > 0,
+    };
+  });
+
+  console.log(`[contact-hub] ${label}: ${JSON.stringify(result)}`);
+  if (!result.visible || result.width < 80 || result.borderTopStyle === "none" || result.backgroundColor === "rgba(0, 0, 0, 0)") {
+    throw new Error(`[contact-hub] ${label} is not a clearly actionable visible button`);
+  }
+}
+
+async function runContactHubSanity({ browser, baseUrl }) {
+  const previewHost = new URL(baseUrl).hostname.endsWith(".looksawful-ru-preview.pages.dev");
+  const desktop = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+
+  try {
+    await desktop.goto(new URL("/", baseUrl).href, { waitUntil: "domcontentloaded", timeout: 30_000 });
+
+    const directContact = desktop.locator('.contact a[href="mailto:i@lookawful.ru"]').first();
+    await directContact.waitFor({ state: "visible", timeout: 10_000 });
+    await directContact.scrollIntoViewIfNeeded();
+    await directContact.click();
+
+    const hub = desktop.locator("[data-contact-hub]");
+    await hub.waitFor({ state: "visible", timeout: 10_000 });
+    if (await hub.getAttribute("data-mode") !== "form") {
+      throw new Error("[contact-hub] direct contact entry must open form mode");
+    }
+    if (await desktop.locator(".contact-hub__modes, [data-contact-hub-mode]").count() !== 0) {
+      throw new Error("[contact-hub] direct form entry exposed obsolete AI/Form mode controls");
+    }
+    await inspectSubmitTarget(desktop.locator(".contact-hub__submit"), "desktop submit");
+
+    await desktop.locator("[data-contact-hub-close]").click();
+    await hub.waitFor({ state: "hidden", timeout: 5_000 });
+
+    if (previewHost) {
+      const pets = desktop.locator("[data-portfolio-pet-launcher]");
+      if (await pets.count() !== 1) {
+        throw new Error(`[contact-hub] expected exactly one Awful launcher, found ${await pets.count()}`);
+      }
+      const pet = pets.first();
+      await pet.waitFor({ state: "visible", timeout: 10_000 });
+      const petBox = await pet.boundingBox();
+      if (!petBox || petBox.width < 64 || petBox.height < 64) {
+        throw new Error("[contact-hub] Awful launcher has invalid visible geometry");
+      }
+      await pet.click();
+      await hub.waitFor({ state: "visible", timeout: 10_000 });
+      if (await hub.getAttribute("data-mode") !== "ai") {
+        throw new Error("[contact-hub] Awful entry must open the shared Hub in AI mode");
+      }
+      if (await desktop.locator("[data-contact-hub]").count() !== 1) {
+        throw new Error("[contact-hub] more than one Contact Hub was mounted");
+      }
+    }
+  } finally {
+    await desktop.close();
+  }
+
+  const mobile = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  try {
+    await mobile.goto(new URL("/", baseUrl).href, { waitUntil: "domcontentloaded", timeout: 30_000 });
+    const directContact = mobile.locator('.contact a[href="mailto:i@lookawful.ru"]').first();
+    await directContact.waitFor({ state: "visible", timeout: 10_000 });
+    await directContact.scrollIntoViewIfNeeded();
+    await directContact.click();
+    const hub = mobile.locator("[data-contact-hub]");
+    await hub.waitFor({ state: "visible", timeout: 10_000 });
+    if (await hub.getAttribute("data-mode") !== "form") {
+      throw new Error("[contact-hub] mobile direct contact entry must open form mode");
+    }
+    await inspectSubmitTarget(mobile.locator(".contact-hub__submit"), "mobile submit");
+  } finally {
+    await mobile.close();
+  }
+}
+
 export async function runProductionE2E({ browser, baseUrl }) {
   const analyticsSafeBrowser = createInternalAnalyticsBrowser(browser);
   await runQuickSmoke({ browser: analyticsSafeBrowser, baseUrl, cvMode: "production" });
   await runMediaSanity({ browser: analyticsSafeBrowser, baseUrl });
   await runJesteiFilterArtworkSanity({ browser: analyticsSafeBrowser, baseUrl });
+  await runContactHubSanity({ browser: analyticsSafeBrowser, baseUrl });
 }
 
 if (isDirectExecution(import.meta.url)) {
