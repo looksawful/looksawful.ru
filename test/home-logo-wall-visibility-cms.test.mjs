@@ -19,21 +19,31 @@ import {
 const indexUrl = new URL("../index.html", import.meta.url);
 const visibilityUrl = new URL("../src/content/visibility/home.json", import.meta.url);
 
-test("Homepage logo-wall visibility keeps stable identity and is disabled by content state", async () => {
+test("Homepage section visibility keeps stable identities and disabled content state", async () => {
   const visibility = JSON.parse(await readFile(visibilityUrl, "utf8"));
 
-  assert.deepEqual(homeSectionIds, ["client-logo-wall"]);
-  assert.deepEqual(visibility, [{ id: "client-logo-wall", visible: false }]);
+  assert.deepEqual(homeSectionIds, ["client-logo-wall", "pet-projects"]);
+  assert.deepEqual(visibility, [
+    { id: "client-logo-wall", visible: false },
+    { id: "pet-projects", visible: false },
+  ]);
   assert.equal(isHomeSectionVisible("client-logo-wall"), false);
+  assert.equal(isHomeSectionVisible("pet-projects"), false);
 });
 
-test("Homepage logo-wall visibility remains a reversible boolean contract", () => {
+test("Homepage section visibility remains a reversible boolean contract", () => {
   assert.deepEqual(
     parseSectionVisibility(
-      [{ id: "client-logo-wall", visible: true }],
+      [
+        { id: "client-logo-wall", visible: true },
+        { id: "pet-projects", visible: true },
+      ],
       homeSectionIds,
     ),
-    [{ id: "client-logo-wall", visible: true }],
+    [
+      { id: "client-logo-wall", visible: true },
+      { id: "pet-projects", visible: true },
+    ],
   );
 });
 
@@ -57,7 +67,7 @@ test("logo-wall visibility removes the complete outer section without a hidden w
   assert.match(hidden, /<section id="after">after<\/section>/);
 });
 
-test("disabled logo wall is absent from generated Homepage output", async () => {
+test("disabled Homepage sections are absent from generated output", async () => {
   const indexHtml = await readFile(indexUrl, "utf8");
   const rendered = renderHomepage(indexHtml);
 
@@ -65,6 +75,10 @@ test("disabled logo wall is absent from generated Homepage output", async () => 
   assert.doesNotMatch(rendered, /id="portfolio-clients-title"/);
   assert.doesNotMatch(rendered, /portfolio-logo-wall/);
   assert.doesNotMatch(rendered, /data-infinite-reel-track[^>]*>[\s\S]*?CLIENT_LOGOS/);
+
+  assert.doesNotMatch(rendered, /class="pet-projects"/);
+  assert.doesNotMatch(rendered, /id="pet-projects-title"/);
+  assert.doesNotMatch(rendered, />Полезное</);
 });
 
 test("Homepage visibility content is explicitly authorized for CMS publication", () => {
