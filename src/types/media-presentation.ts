@@ -13,7 +13,6 @@ export type MediaFit = "cover" | "contain";
 
 export interface MediaVideoOptions {
   autoplay?: boolean;
-  autoplayWhenMotionAllowed?: boolean;
   loop?: boolean;
   muted?: boolean;
   playsInline?: boolean;
