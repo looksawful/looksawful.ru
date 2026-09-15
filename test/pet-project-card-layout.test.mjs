@@ -15,12 +15,12 @@ async function readPetProjectStyles() {
   return { css, petProjectStyles: css.slice(start, end) };
 }
 
-test("Pet Projects cards keep a uniform 4:3 preview frame", async () => {
+test("Pet Projects cards keep a winning uniform 4:3 preview override", async () => {
   const { css } = await readPetProjectStyles();
 
   assert.match(
     css,
-    /\.pet-projects \.subproject-card__media\s*\{\s*aspect-ratio:\s*4\s*\/\s*3;\s*\}/,
+    /\.pet-projects \.subproject-card\[data-shape\] \.subproject-card__media\s*\{\s*aspect-ratio:\s*4\s*\/\s*3;\s*\}/,
   );
 });
 
