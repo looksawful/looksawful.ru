@@ -16,94 +16,86 @@ function gitStatus(repoRoot, args) {
 export function inspectCmsPublicationTopology({
   repoRoot = process.cwd(),
   prodRef = "origin/prod",
-  devRef = "origin/dev",
+  sourceRef = "origin/cms-source",
 } = {}) {
   const root = path.resolve(repoRoot);
   const prodSha = runGit(root, ["rev-parse", prodRef]);
-  const devSha = runGit(root, ["rev-parse", devRef]);
+  const sourceSha = runGit(root, ["rev-parse", sourceRef]);
   const prodTree = runGit(root, ["rev-parse", `${prodRef}^{tree}`]);
-  const devTree = runGit(root, ["rev-parse", `${devRef}^{tree}`]);
+  const sourceTree = runGit(root, ["rev-parse", `${sourceRef}^{tree}`]);
 
-  if (prodTree === devTree) {
+  if (prodTree === sourceTree) {
     return {
       safe: true,
       nothingToPublish: true,
-      mode: prodSha === devSha ? "identical-ref" : "identical-tree",
+      mode: prodSha === sourceSha ? "identical-ref" : "identical-tree",
       prodSha,
-      devSha,
+      sourceSha,
       prodTree,
-      devTree,
-      mergedTree: devTree,
+      sourceTree,
     };
   }
 
-  const ancestor = gitStatus(root, ["merge-base", "--is-ancestor", prodRef, devRef]);
-  if (ancestor.status === 0) {
+  const prodAncestor = gitStatus(root, ["merge-base", "--is-ancestor", prodRef, sourceRef]);
+  if (prodAncestor.status === 0) {
     return {
       safe: true,
       nothingToPublish: false,
       mode: "linear-descendant",
       prodSha,
-      devSha,
+      sourceSha,
       prodTree,
-      devTree,
-      mergedTree: devTree,
+      sourceTree,
     };
   }
 
-  if (ancestor.status !== 1) {
+  if (prodAncestor.status !== 1) {
     return {
       safe: false,
       nothingToPublish: false,
       mode: "topology-error",
       prodSha,
-      devSha,
+      sourceSha,
       prodTree,
-      devTree,
-      mergedTree: null,
-      detail: (ancestor.stderr || ancestor.stdout || "git merge-base failed").trim(),
+      sourceTree,
+      detail: (prodAncestor.stderr || prodAncestor.stdout || "git merge-base failed").trim(),
     };
   }
 
-  const merge = gitStatus(root, ["merge-tree", "--write-tree", devRef, prodRef]);
-  const mergedTree = (merge.stdout || "").trim().split(/\r?\n/, 1)[0] || null;
-
-  if (merge.status !== 0 || !mergedTree || !/^[0-9a-f]{40,64}$/i.test(mergedTree)) {
+  const sourceAncestor = gitStatus(root, ["merge-base", "--is-ancestor", sourceRef, prodRef]);
+  if (sourceAncestor.status === 0) {
     return {
       safe: false,
       nothingToPublish: false,
-      mode: "diverged-conflict",
+      mode: "source-stale",
       prodSha,
-      devSha,
+      sourceSha,
       prodTree,
-      devTree,
-      mergedTree,
-      detail: (merge.stderr || merge.stdout || "git merge-tree failed").trim(),
+      sourceTree,
     };
   }
 
-  if (mergedTree !== devTree) {
+  if (sourceAncestor.status !== 1) {
     return {
       safe: false,
       nothingToPublish: false,
-      mode: "prod-content-not-in-dev",
+      mode: "topology-error",
       prodSha,
-      devSha,
+      sourceSha,
       prodTree,
-      devTree,
-      mergedTree,
+      sourceTree,
+      detail: (sourceAncestor.stderr || sourceAncestor.stdout || "git merge-base failed").trim(),
     };
   }
 
   return {
-    safe: true,
+    safe: false,
     nothingToPublish: false,
-    mode: "history-diverged-content-aligned",
+    mode: "source-diverged",
     prodSha,
-    devSha,
+    sourceSha,
     prodTree,
-    devTree,
-    mergedTree,
+    sourceTree,
   };
 }
 
@@ -112,29 +104,24 @@ export function formatCmsPublicationTopologySummary(result) {
     "## CMS publication branch topology",
     "",
     `- prod: \`${result.prodSha}\``,
-    `- dev: \`${result.devSha}\``,
+    `- source: \`${result.sourceSha}\``,
     `- mode: \`${result.mode}\``,
   ];
 
   if (result.nothingToPublish) {
-    lines.push("", "Nothing to publish: dev and prod have identical content trees.");
+    lines.push("", "Nothing to publish: the authoring source and prod have identical content trees.");
   } else if (result.safe) {
-    lines.push(
-      "",
-      result.mode === "history-diverged-content-aligned"
-        ? "Publication topology: ALLOW. Merging prod back into dev would not change the dev content tree."
-        : "Publication topology: ALLOW.",
-    );
+    lines.push("", "Publication topology: ALLOW. The temporary authoring source descends from current prod.");
   } else {
-    lines.push(
-      "",
-      "CMS publication blocked.",
-      "",
-      result.mode === "prod-content-not-in-dev"
-        ? "prod contains content that a merge into dev would add. Synchronize dev before publishing."
-        : "prod and dev cannot be proven content-aligned. Synchronize them through the normal engineering workflow before publishing.",
-      "Use the normal engineering release workflow; do not bypass this guard.",
-    );
+    lines.push("", "CMS publication blocked.", "");
+    if (result.mode === "source-stale") {
+      lines.push("The authoring source is stale because current prod has advanced. Reconcile onto a fresh prod-based content branch before publishing.");
+    } else if (result.mode === "source-diverged") {
+      lines.push("The authoring source and prod have diverged. Reconcile through a fresh prod-based content branch before publishing.");
+    } else {
+      lines.push("The authoring source topology could not be proven safe.");
+    }
+    lines.push("Do not bypass this guard.");
     if (result.detail) lines.push("", `Git detail: ${result.detail}`);
   }
 
@@ -151,7 +138,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.a
   const result = inspectCmsPublicationTopology({
     repoRoot: argumentValue(args, "--repo") ?? process.cwd(),
     prodRef: argumentValue(args, "--prod") ?? "origin/prod",
-    devRef: argumentValue(args, "--dev") ?? "origin/dev",
+    sourceRef: argumentValue(args, "--source") ?? "origin/cms-source",
   });
 
   console.log(JSON.stringify(result, null, 2));
@@ -161,7 +148,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.a
   if (process.env.GITHUB_OUTPUT) {
     appendFileSync(
       process.env.GITHUB_OUTPUT,
-      `safe=${result.safe}\nnothing_to_publish=${result.nothingToPublish}\nmode=${result.mode}\nprod_sha=${result.prodSha}\ndev_sha=${result.devSha}\n`,
+      `safe=${result.safe}\nnothing_to_publish=${result.nothingToPublish}\nmode=${result.mode}\nprod_sha=${result.prodSha}\nsource_sha=${result.sourceSha}\n`,
     );
   }
   if (!result.safe) process.exitCode = 1;
