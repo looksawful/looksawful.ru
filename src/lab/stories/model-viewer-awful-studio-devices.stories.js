@@ -1,10 +1,8 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-import { HDRLoader } from "three/addons/loaders/HDRLoader.js";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 
-const HDRI_URL = "/media/shared/3d/white-studio-04-1k.hdr";
 const STYLE_ID = "model-viewer-awful-studio-device-styles";
 
 const DEVICES = {
@@ -13,32 +11,32 @@ const DEVICES = {
     src: "/media/projects/awful-studio/device-viewer/iphone-17.glb",
     aria: "3D-модель iPhone 17",
     view: [0.32, 0.12, 1],
-    exposure: 1.06,
-    envIntensity: 1.12,
+    exposure: 1.02,
+    envIntensity: 0.72,
   },
   ipad11: {
     name: "iPad Pro 11 M5 · v6",
     src: "/media/projects/awful-studio/device-viewer/ipad-pro-11.glb",
     aria: "3D-модель iPad Pro 11 M5",
     view: [0.34, 0.16, 1],
-    exposure: 1.06,
-    envIntensity: 1.1,
+    exposure: 1.0,
+    envIntensity: 0.68,
   },
   ipad13: {
     name: "iPad Pro 13 M5 · v6",
     src: "/media/projects/awful-studio/device-viewer/ipad-pro-13.glb",
     aria: "3D-модель iPad Pro 13 M5",
     view: [0.34, 0.16, 1],
-    exposure: 1.06,
-    envIntensity: 1.1,
+    exposure: 1.0,
+    envIntensity: 0.68,
   },
   macbook14: {
     name: "MacBook Pro 14 M5 · current",
     src: "/media/projects/awful-studio/device-viewer/macbook-pro-14.glb",
     aria: "3D-модель MacBook Pro 14 M5",
     view: [0.95, 0.52, 1],
-    exposure: 0.98,
-    envIntensity: 1.0,
+    exposure: 1.0,
+    envIntensity: 0.72,
   },
 };
 
@@ -196,24 +194,31 @@ const ensureStyles = () => {
 };
 const loadEnvironment = async (renderer, scene) => {
   const pmrem = new THREE.PMREMGenerator(renderer);
-  pmrem.compileEquirectangularShader();
+  const room = new RoomEnvironment();
   try {
-    const source = await new HDRLoader().loadAsync(HDRI_URL);
-    const environment = pmrem.fromEquirectangular(source).texture;
-    source.dispose();
-    scene.environment = environment;
-    scene.environmentRotation.set(0, Math.PI * 0.22, 0);
-    return environment;
-  } catch (error) {
-    console.warn("Device viewer HDRI failed; using neutral PMREM fallback.", error);
-    const room = new RoomEnvironment();
     const environment = pmrem.fromScene(room, 0.04).texture;
-    room.dispose();
     scene.environment = environment;
     return environment;
   } finally {
+    room.dispose();
     pmrem.dispose();
   }
+};
+
+const createStudioLightRig = () => {
+  const rig = new THREE.Group();
+  const lights = [
+    [0xffffff, 9.0, 4.8, 5.6, [3.2, 3.4, 4.4]],
+    [0xf5f7ff, 4.2, 5.8, 6.4, [-3.8, 1.2, 3.0]],
+    [0xffffff, 6.5, 4.2, 5.0, [-1.8, 3.0, -4.0]],
+  ];
+  lights.forEach(([color, intensity, width, height, position]) => {
+    const light = new THREE.RectAreaLight(color, intensity, width, height);
+    light.position.set(...position);
+    light.lookAt(0, 0, 0);
+    rig.add(light);
+  });
+  return rig;
 };
 
 const disposeMaterial = (material) => {
@@ -240,12 +245,12 @@ const fitModel = (model, camera, controls, view) => {
   const fittedSphere = new THREE.Box3().setFromObject(model, true)
     .getBoundingSphere(new THREE.Sphere());
   const halfFov = THREE.MathUtils.degToRad(camera.fov * 0.5);
-  const distance = fittedSphere.radius / Math.sin(halfFov) * 1.12;
+  const distance = fittedSphere.radius / Math.sin(halfFov) * 1.2;
   const direction = new THREE.Vector3(...view).normalize();
 
   camera.position.copy(fittedSphere.center).addScaledVector(direction, distance);
-  camera.near = Math.max(0.01, distance / 100);
-  camera.far = distance * 100;
+  camera.near = Math.max(0.03, fittedSphere.radius * 0.025);
+  camera.far = distance * 5 + fittedSphere.radius * 2;
   camera.updateProjectionMatrix();
 
   controls.target.copy(fittedSphere.center);
@@ -277,12 +282,14 @@ const mountViewer = async (root, device) => {
     powerPreference: "high-performance",
   });
   renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.toneMapping = THREE.NeutralToneMapping;
+  renderer.toneMapping = THREE.AgXToneMapping;
   renderer.toneMappingExposure = device.exposure;
   renderer.setClearColor(0x000000, 0);
 
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(34, 1, 0.01, 100);
+  scene.environmentIntensity = device.envIntensity;
+  scene.add(createStudioLightRig());
+  const camera = new THREE.PerspectiveCamera(28, 1, 0.01, 100);
   const controls = new OrbitControls(camera, canvas);
   controls.enableDamping = false;
   controls.enablePan = false;
@@ -358,7 +365,6 @@ const mountViewer = async (root, device) => {
       meshMaterials.forEach((material) => {
         if (!material) return;
         material.side = THREE.FrontSide;
-        if ("envMapIntensity" in material) material.envMapIntensity = device.envIntensity;
         material.needsUpdate = true;
         materials.add(material);
       });

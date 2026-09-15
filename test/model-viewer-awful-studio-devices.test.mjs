@@ -9,10 +9,9 @@ const assets = [
   "public/media/projects/awful-studio/device-viewer/ipad-pro-11.glb",
   "public/media/projects/awful-studio/device-viewer/ipad-pro-13.glb",
   "public/media/projects/awful-studio/device-viewer/macbook-pro-14.glb",
-  "public/media/shared/3d/white-studio-04-1k.hdr",
 ];
 
-test("AWFUL Studio device viewer ships four local GLB assets and shared HDRI", () => {
+test("AWFUL Studio device viewer ships four local GLB assets", () => {
   assets.forEach((path) => assert.equal(existsSync(new URL(path, root)), true, path));
 });
 
@@ -20,5 +19,6 @@ test("AWFUL Studio device stories use the ordinary media shell and event-driven 
   assert.match(story, /className = "media mv-device-story"/);
   assert.match(story, /data-device-canvas/);
   assert.match(story, /ensureEdges/);
-  assert.doesNotMatch(story, /requestAnimationFrame/);
+  assert.match(story, /RoomEnvironment/);
+  assert.doesNotMatch(story, /HDRLoader|white-studio-04|requestAnimationFrame/);
 });
