@@ -1,4 +1,4 @@
-import { createInfiniteReel } from "../../components/infinite-reel.ts";
+﻿import { createInfiniteReel } from "../../components/infinite-reel.ts";
 import { jesteiInstagramPlayerStrip } from "../../data/content/jestei-pool.ts";
 import { renderMediaGroup } from "../../templates/media-group.ts";
 
@@ -23,7 +23,7 @@ const meta = {
       policy: "behavior-fixture",
       canonical: true,
       state: "runtime-ready",
-      visibility: ["always"],
+      visibility: ["offscreen-or-virtualized"],
       motion: ["motion-enabled", "reduced-motion"],
       responsive: {
         review: ["desktop", "tablet", "mobile"],

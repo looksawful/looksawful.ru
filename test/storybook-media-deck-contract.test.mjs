@@ -1,4 +1,4 @@
-import test from "node:test";
+﻿import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 
@@ -13,7 +13,11 @@ test("Storybook exposes the production media deck as a canonical organism fixtur
   assert.match(story, /layer:\s*["']organism["']/);
   assert.match(story, /policy:\s*["']behavior-fixture["']/);
   assert.match(story, /canonical:\s*true/);
-  assert.match(story, /motion-enabled/);
-  assert.match(story, /reduced-motion/);
+  assert.match(story, /state:\s*["']selected-slide["']/);
+  assert.match(story, /visibility:\s*\[["']offscreen-or-virtualized["']\]/);
+  assert.match(story, /interaction:\s*\[["']default["'],\s*["']selected["']\]/);
+  assert.match(story, /motion:\s*\[["']motion-enabled["'],\s*["']reduced-motion["']\]/);
   assert.match(story, /review:\s*\[["']desktop["'],\s*["']tablet["'],\s*["']mobile["']\]/);
+  assert.match(story, /export const NextSelected/);
+  assert.match(story, /data-deck-next/);
 });

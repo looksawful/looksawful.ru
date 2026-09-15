@@ -1,13 +1,10 @@
-import { createMediaLightbox, markLightboxSources } from "../../components/media-lightbox.ts";
+﻿import { createMediaLightbox } from "../../components/media-lightbox.ts";
 import { sensetiqueOlovoBookletGroup } from "../../data/content/sensetique.ts";
 import { renderMediaGroup } from "../../templates/media-group.ts";
 
 const renderFixture = () => `<section class="project">${renderMediaGroup(sensetiqueOlovoBookletGroup)}</section>`;
 
-const mountLightbox = (canvasElement) => {
-  markLightboxSources(canvasElement);
-  return createMediaLightbox({ root: canvasElement });
-};
+const mountLightbox = (canvasElement) => createMediaLightbox({ root: canvasElement });
 
 const meta = {
   title: "03 Organisms/Media Lightbox",
@@ -25,9 +22,9 @@ const meta = {
       layer: "organism",
       policy: "behavior-fixture",
       canonical: true,
-      state: ["closed", "overlay-open", "keyboard-open"],
-      visibility: ["always"],
-      motion: ["motion-enabled", "reduced-motion"],
+      state: "closed",
+      visibility: ["overlay"],
+      interaction: ["closed", "open", "focus-visible"],
       responsive: {
         review: ["desktop", "tablet", "mobile"],
       },
@@ -52,7 +49,13 @@ export const OverlayOpen = {
   play: ({ canvasElement }) => {
     mountLightbox(canvasElement);
     const source = canvasElement.querySelector("[data-lightbox-source]");
-    source?.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }));
+    if (source instanceof HTMLElement) source.click();
+  },
+  parameters: {
+    looksawful: {
+      state: "overlay-open",
+      interaction: ["open"],
+    },
   },
 };
 
@@ -60,7 +63,14 @@ export const KeyboardOpen = {
   play: ({ canvasElement }) => {
     mountLightbox(canvasElement);
     const source = canvasElement.querySelector("[data-lightbox-source]");
-    source?.focus();
-    source?.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true, cancelable: true }));
+    if (!(source instanceof HTMLElement)) return;
+    source.focus();
+    source.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true, cancelable: true }));
+  },
+  parameters: {
+    looksawful: {
+      state: "keyboard-open",
+      interaction: ["open", "focus-visible"],
+    },
   },
 };

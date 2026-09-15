@@ -1,4 +1,4 @@
-import test from "node:test";
+﻿import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 
@@ -13,7 +13,8 @@ test("Storybook exposes the production infinite reel as a canonical organism fix
   assert.match(story, /layer:\s*["']organism["']/);
   assert.match(story, /policy:\s*["']behavior-fixture["']/);
   assert.match(story, /canonical:\s*true/);
-  assert.match(story, /motion-enabled/);
-  assert.match(story, /reduced-motion/);
+  assert.match(story, /state:\s*["']runtime-ready["']/);
+  assert.match(story, /visibility:\s*\[["']offscreen-or-virtualized["']\]/);
+  assert.match(story, /motion:\s*\[["']motion-enabled["'],\s*["']reduced-motion["']\]/);
   assert.match(story, /review:\s*\[["']desktop["'],\s*["']tablet["'],\s*["']mobile["']\]/);
 });
