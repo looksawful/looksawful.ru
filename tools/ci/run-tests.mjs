@@ -41,6 +41,7 @@ export const fastTests = new Set([
   "test/editorial-copy-optional.test.mjs",
   "test/homepage-compact-curation-834.test.mjs",
   "test/jestei-event-migration.test.mjs",
+  "test/lab-project-component-parity.test.mjs",
   "test/lighthouse-ci-config.test.mjs",
   "test/media-desk-launcher-policy.test.mjs",
   "test/media-desk-model.test.mjs",
