@@ -8,7 +8,7 @@ import { renderEntityShell } from "../../site/renderers/entity/entity-shell.ts";
 import { renderSection } from "../../site/renderers/entity/section.ts";
 import { getEntityShellPresentation } from "../../site/pages/entity-presentation.ts";
 import { sitePages } from "../../site/pages/manifest.ts";
-import type { EntityPageDefinition, SitePageDefinition } from "../../site/pages/types.ts";
+import type { EntityPageDefinition } from "../../site/pages/types.ts";
 
 export type StorybookViewport = "desktop" | "tablet" | "mobile";
 export type StorybookKind = "template" | "composition" | "page";
@@ -33,12 +33,17 @@ export interface StorybookFixture {
 
 const VIEWPORTS = ["desktop", "tablet", "mobile"] as const satisfies readonly StorybookViewport[];
 
-function isEntityPage(page: SitePageDefinition): page is EntityPageDefinition {
-  return page.enabled && (page.type === "case" || page.type === "collection" || page.type === "project");
-}
-
 function entityPages(): readonly EntityPageDefinition[] {
-  return sitePages.filter(isEntityPage);
+  const pages: EntityPageDefinition[] = [];
+
+  for (const page of sitePages) {
+    if (!page.enabled) continue;
+    if (page.type === "case" || page.type === "collection" || page.type === "project") {
+      pages.push(page);
+    }
+  }
+
+  return pages;
 }
 
 function routeDiscovery(page: EntityPageDefinition): StorybookRouteDiscovery {
