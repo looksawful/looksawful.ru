@@ -25,10 +25,10 @@ export function enhanceAwfulCases(root) {
 
   const SESSION_LENGTH = 16;
   const TRAINING_SEQUENCE = [
-    'upper','upper','upper','upper',
-    'lower','lower','lower','lower',
-    'toggle','toggle','toggle','toggle',
-    'title','title','title','title'
+    'upper','upper','lower','lower',
+    'toggle','toggle','title','title',
+    'upper','toggle','lower','title',
+    'toggle','upper','title','lower'
   ];
   const HINTS = {
     upper: '↑',
@@ -526,7 +526,32 @@ export function enhanceAwfulCases(root) {
     for (const task of game.obstacles) drawTask(task);
     drawKnight();
     ctx.restore();
+    drawSessionHud();
     drawPinnedHint();
+  }
+
+  function drawSessionHud() {
+    if (game.mode !== 'running') return;
+    const label = `${game.solved}/${SESSION_LENGTH} · mistakes ${game.mistakes}`;
+    const fontSize = Math.round(clamp(11 * view.scale, 8, 12));
+    const padX = Math.round(clamp(10 * view.scale, 8, 12));
+    const padY = Math.round(clamp(7 * view.scale, 5, 8));
+    const left = Math.round(clamp(12 * view.scale, 8, 14));
+    const top = Math.round(clamp(44 * view.scale, 28, 46));
+
+    ctx.save();
+    ctx.font = `700 ${fontSize}px "Press Start 2P", monospace`;
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+    const boxW = Math.ceil(ctx.measureText(label).width + padX * 2);
+    const boxH = Math.ceil(fontSize + padY * 2);
+    rect(left, top, boxW, boxH, '#fff');
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = Math.max(1, Math.round(view.scale));
+    ctx.strokeRect(left + .5, top + .5, boxW - 1, boxH - 1);
+    ctx.fillStyle = '#000';
+    ctx.fillText(label, left + padX, top + padY);
+    ctx.restore();
   }
 
   function envTileScale() {
@@ -682,6 +707,7 @@ export function enhanceAwfulCases(root) {
     const hideAfterX = view.playerX - 42 * view.scale;
 
     for (const task of game.obstacles) {
+      if (task.solved) continue;
       const w = taskWidth(task);
       const taskRight = task.x + w;
       if (task.x > showFromX) continue;
@@ -696,6 +722,7 @@ export function enhanceAwfulCases(root) {
     if (game.mode !== 'running') return;
     const task = hintTask();
     if (!task) return;
+    if (!task.showHint && !task.failed) return;
 
     const w = taskWidth(task);
     const taskRight = task.x + w;
@@ -712,6 +739,8 @@ export function enhanceAwfulCases(root) {
     const title = task.errorTime > 0 ? 'wrong action' : actionTitle(task.type);
     const hint = HINTS[task.type];
     const preview = `${task.input} → ${task.output}`;
+    const shortcut = `APP: Ctrl+Alt+Shift+${hint}`;
+    const microSize = Math.round(clamp(10 * view.scale, 8, 12));
     const padX = Math.round(16 * view.scale);
     const padY = Math.round(10 * view.scale);
     const gap = Math.round(5 * view.scale);
@@ -724,8 +753,10 @@ export function enhanceAwfulCases(root) {
     const w1 = ctx.measureText(`${hint}  ${title}`).width;
     ctx.font = `400 ${smallSize}px "Press Start 2P", monospace`;
     const w2 = ctx.measureText(preview).width;
-    const boxW = Math.ceil(Math.max(w1, w2) + padX * 2);
-    const boxH = Math.ceil(fontSize + smallSize + padY * 2 + gap);
+    ctx.font = `400 ${microSize}px "Press Start 2P", monospace`;
+    const w3 = ctx.measureText(shortcut).width;
+    const boxW = Math.ceil(Math.max(w1, w2, w3) + padX * 2);
+    const boxH = Math.ceil(fontSize + smallSize + microSize + padY * 2 + gap * 2);
     const left = Math.round((view.w - boxW) / 2);
     const top = Math.round(view.h - boxH - clamp(24 * view.scale, 18, 38));
     const cx = Math.round(view.w / 2);
@@ -740,6 +771,8 @@ export function enhanceAwfulCases(root) {
     ctx.fillText(`${hint}  ${title}`, cx, top + padY);
     ctx.font = `400 ${smallSize}px "Press Start 2P", monospace`;
     ctx.fillText(preview, cx, top + padY + fontSize + gap);
+    ctx.font = `400 ${microSize}px "Press Start 2P", monospace`;
+    ctx.fillText(shortcut, cx, top + padY + fontSize + gap + smallSize + gap);
     ctx.restore();
   }
 

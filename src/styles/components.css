@@ -1404,6 +1404,10 @@
   }
 
   @container awful-cases (width <= 32.5rem) {
+    &[data-device="browser"] .mockup__viewport {
+      aspect-ratio: 1 / 1;
+    }
+
     & .game-title {
       inset-block-start: 7px;
       font-size: 10px;
@@ -1419,6 +1423,12 @@
         padding: 4px 2px;
       }
     }
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .awful-cases-game .runner-controls {
+    display: none;
   }
 }
 
