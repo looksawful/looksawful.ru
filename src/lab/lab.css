@@ -34,8 +34,8 @@ dt { color: #999; font-size: .75rem; } dd { margin: .25rem 0 0; overflow-wrap: a
 .lab-story__viewport { min-width: 0; padding: .75rem; background: #111; overflow: auto; }
 .lab-story__viewport > strong { display: block; margin-bottom: .5rem; color: #999; }
 .lab-story__canvas { container-type: inline-size; min-width: 0; overflow: hidden; background: #fff; color: #111; }
-[data-story-viewport="desktop"] .lab-story__canvas { width: 100%; }
-[data-story-viewport="tablet"] .lab-story__canvas { width: min(100%, 48rem); }
-[data-story-viewport="mobile"] .lab-story__canvas { width: min(100%, 24rem); }
+[data-story-viewport="desktop"] .lab-story__canvas { width: 90rem; max-width: none; }
+[data-story-viewport="tablet"] .lab-story__canvas { width: 48rem; max-width: none; }
+[data-story-viewport="mobile"] .lab-story__canvas { width: 24rem; max-width: none; }
 @media (max-width: 70rem) { .lab-tools { grid-template-columns: repeat(2, minmax(0, 1fr)); } .lab-story__viewports { grid-template-columns: 1fr; } }
 @media (max-width: 42rem) { .lab-shell { width: min(100% - 1rem, 112rem); } .lab-header { grid-template-columns: 1fr; } .lab-provenance, .lab-tools { grid-template-columns: 1fr; } .lab-panel { padding: .75rem; } }
