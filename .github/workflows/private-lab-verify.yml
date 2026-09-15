@@ -2,16 +2,23 @@ name: Private Lab Verify
 
 on:
   pull_request:
-    branches: [dev]
+    branches: [lab]
     paths:
       - "lab/**"
       - "src/lab/**"
+      - "src/content/contracts/**"
+      - "src/components/**"
+      - "src/site/renderers/entity/**"
+      - "src/templates/**"
+      - "tools/lab/**"
       - "vite.lab.config.ts"
+      - "test/lab-*.test.mjs"
       - "test/private-admin-github-oauth.test.mjs"
       - "test/private-lab-shell.test.mjs"
       - "tools/ci/run-tests.mjs"
       - ".github/workflows/private-lab-verify.yml"
       - "docs/private-lab.md"
+      - "docs/storybook/**"
   workflow_dispatch:
 
 permissions:
@@ -43,7 +50,7 @@ jobs:
         run: npm run typecheck
 
       - name: Protected Admin/Lab contracts
-        run: node --test test/private-lab-shell.test.mjs test/private-admin-github-oauth.test.mjs
+        run: node --test test/private-lab-shell.test.mjs test/private-admin-github-oauth.test.mjs test/lab-project-component-parity.test.mjs
 
       - name: Build isolated Lab
         env:
@@ -52,11 +59,21 @@ jobs:
           LAB_BUILD_TIME: ${{ github.event.pull_request.updated_at || github.event.repository.updated_at }}
         run: npx vite build --config vite.lab.config.ts
 
+      - name: Build Storybook approval surface and project parity inventory
+        run: node tools/lab/build-storybook.mjs
+
+      - name: Build design-system inventory
+        run: node tools/lab/design-system-inventory.mjs
+
       - name: Verify Lab artifact and public isolation
         shell: bash
         run: |
           test -f dist-lab/lab/index.html
           grep -q 'noindex,nofollow,noarchive' dist-lab/lab/index.html
+          test -f dist/lab/system/index.html
+          test -f dist/lab/system/inventory.html
+          test -f dist/lab/system/project-surfaces.html
+          test -f dist/lab/system/project-surfaces.json
           if test -e dist/lab/index.html; then
             echo "Public production artifact unexpectedly contains Lab" >&2
             exit 1

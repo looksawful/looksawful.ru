@@ -1,6 +1,7 @@
 import { rm } from "node:fs/promises";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
+import { writeProjectSurfaceInventory } from "./project-surface-inventory.mjs";
 
 const root = process.cwd();
 const outputDir = path.join(root, "dist", "lab", "system");
@@ -51,4 +52,6 @@ run(npmCommand, [
   "--quiet",
 ]);
 
-console.log("[lab-storybook] built dist/lab/system");
+await writeProjectSurfaceInventory(root);
+
+console.log("[lab-storybook] built dist/lab/system with project surface parity inventory");
