@@ -8,7 +8,7 @@ export async function runMediaDeckSmoke({ browser, baseUrl }) {
   try {
     await page.goto(baseUrl, { waitUntil: "domcontentloaded", timeout: 30_000 });
     const deck = page.locator("[data-media-deck]:has([data-deck-track]):has([data-deck-next])").first();
-    assert.equal(await deck.count(), 1, "expected a production Embla-backed media deck");
+    assert.equal(await deck.count(), 1, "expected a production media deck");
     await deck.evaluate((node) => {
       const hiddenOwner = node.closest("[hidden]");
       if (hiddenOwner instanceof HTMLElement) hiddenOwner.hidden = false;
@@ -24,16 +24,22 @@ export async function runMediaDeckSmoke({ browser, baseUrl }) {
         selected: dots.findIndex((dot) => dot.getAttribute("aria-current") === "true"),
       };
     });
+    const deckHandle = await deck.elementHandle();
+    assert.ok(deckHandle, "expected selected media deck element");
+    const waitForSelected = (index) => page.waitForFunction(
+      (node, expectedIndex) => {
+        const dots = [...node.querySelectorAll("[data-deck-dot]")];
+        return dots.findIndex((dot) => dot.getAttribute("aria-current") === "true") === expectedIndex;
+      },
+      deckHandle,
+      index,
+    );
 
     const initial = await snapshot();
     assert.ok(initial.slides > 1 && initial.dots === initial.slides, "deck must expose one dot per slide");
     assert.equal(initial.selected, 0, "deck must start on the first slide");
     await deck.locator("[data-deck-next]").click({ force: true });
-    await page.waitForFunction(() => {
-      const target = document.querySelector("[data-media-deck]:has([data-deck-track])");
-      const dots = target ? [...target.querySelectorAll("[data-deck-dot]")] : [];
-      return dots.findIndex((dot) => dot.getAttribute("aria-current") === "true") === 1;
-    });
+    await waitForSelected(1);
     assert.equal((await snapshot()).selected, 1, "Next must select the second slide");
 
     await page.setViewportSize({ width: 1024, height: 768 });
@@ -41,11 +47,7 @@ export async function runMediaDeckSmoke({ browser, baseUrl }) {
     assert.equal((await snapshot()).selected, 1, "resize/reInit must preserve the selected slide");
 
     await deck.locator("[data-deck-dot]").first().click({ force: true });
-    await page.waitForFunction(() => {
-      const target = document.querySelector("[data-media-deck]:has([data-deck-track])");
-      const first = target?.querySelector("[data-deck-dot]");
-      return first?.getAttribute("aria-current") === "true";
-    });
+    await waitForSelected(0);
     assert.equal((await snapshot()).selected, 0, "dot navigation must return to the first slide");
 
     console.log("[smoke-media-deck] next + resize/reInit + dot navigation: OK");
