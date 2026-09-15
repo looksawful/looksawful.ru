@@ -44,6 +44,16 @@ export async function runPortfolioPetProductionSanity({ browser, baseUrl }) {
     if (await page.locator("[data-contact-hub-ai], [data-contact-hub-ai-composer]").count()) {
       throw new Error("AI controls are present in the contact-only release");
     }
+    const dismiss = page.locator("[data-portfolio-pet-dismiss]");
+    if (await dismiss.isVisible()) throw new Error("pet dismiss control stayed visible behind contact form");
+    const messageField = form.locator('textarea[name="message"]');
+    await messageField.focus();
+    const quietFocus = await messageField.evaluate((node) => {
+      const inputStyle = getComputedStyle(node);
+      const fieldStyle = getComputedStyle(node.closest(".contact-form-hub__field"));
+      return inputStyle.outlineStyle === "none" && fieldStyle.boxShadow === "none";
+    });
+    if (!quietFocus) throw new Error("contact text field shows a heavy focus ring");
     const formBody = form.locator("[data-contact-form]");
     await formBody.evaluate((node) => {
       const formElement = node;
@@ -72,6 +82,8 @@ export async function runPortfolioPetProductionSanity({ browser, baseUrl }) {
     await page.mouse.move(after.x + after.width / 2, after.y + after.height / 2);
     await page.mouse.down();
     await page.mouse.move(after.x + after.width / 2 - 72, after.y + after.height / 2, { steps: 4 });
+    await page.mouse.move(after.x + after.width / 2 - 69, after.y + after.height / 2, { steps: 1 });
+    if ((await pet.getAttribute("data-facing")) !== "left") throw new Error("pet facing flipped on pointer jitter");
     await page.mouse.up();
     if ((await pet.getAttribute("data-facing")) !== "left") throw new Error("pet did not face left after left drag");
     const visualOk = await pet.locator(".portfolio-pet__viewport").evaluate((node) => {
@@ -93,6 +105,24 @@ export async function runPortfolioPetProductionSanity({ browser, baseUrl }) {
     console.log(`[portfolio-pet-production] ${viewport.width}x${viewport.height}: OK`);
     await context.close();
   }
+
+  const forcedContext = await browser.newContext({ viewport: { width: 1440, height: 900 }, forcedColors: "active" });
+  const forcedPage = await forcedContext.newPage();
+  await forcedPage.goto(baseUrl, { waitUntil: "domcontentloaded" });
+  const forcedPet = forcedPage.locator("[data-portfolio-pet-launcher]");
+  if ((await forcedPet.count()) > 0) await forcedPet.click();
+  else await forcedPage.locator('a[href="mailto:i@lookawful.ru"]').first().dispatchEvent("click");
+  const forcedForm = forcedPage.locator("[data-contact-form-hub]");
+  await forcedForm.waitFor({ state: "visible" });
+  const forcedMessage = forcedForm.locator('textarea[name="message"]');
+  await forcedMessage.focus();
+  await forcedPage.waitForFunction(() => document.activeElement?.getAttribute("name") === "message");
+  const forcedFocusVisible = await forcedMessage.evaluate((node) => {
+    const style = getComputedStyle(node.closest(".contact-form-hub__field"));
+    return style.outlineStyle !== "none" && Number.parseFloat(style.outlineWidth) > 0;
+  });
+  if (!forcedFocusVisible) throw new Error("forced-colors text field has no visible focus indicator");
+  await forcedContext.close();
 }
 
 if (isDirectExecution(import.meta.url)) {

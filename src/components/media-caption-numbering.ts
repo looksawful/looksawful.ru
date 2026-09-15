@@ -10,6 +10,10 @@ function formatMediaIndex(index: number): string {
 
 export function numberMediaCaptions(root: ParentNode = document): void {
   root.querySelectorAll<HTMLElement>(CAPTION_SCOPE_SELECTOR).forEach((scope) => {
+    if (scope.dataset.mediaCaptionNumbering === "off") {
+      return;
+    }
+
     const lines = [...scope.querySelectorAll<HTMLElement>(CAPTION_LINE_SELECTOR)].filter(
       (line) => line.closest(CAPTION_SCOPE_SELECTOR) === scope,
     );
