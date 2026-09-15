@@ -15,7 +15,10 @@ const packages = [
 ];
 
 function run(command, args) {
-  const result = spawnSync(command, args, {
+  const isWindows = process.platform === "win32";
+  const executable = isWindows ? process.env.ComSpec || "cmd.exe" : command;
+  const executableArgs = isWindows ? ["/d", "/s", "/c", command, ...args] : args;
+  const result = spawnSync(executable, executableArgs, {
     cwd: root,
     stdio: "inherit",
     env: process.env,

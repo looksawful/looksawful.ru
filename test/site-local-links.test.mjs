@@ -65,3 +65,18 @@ test("runtime template references in generated HTML are not treated as static fi
   await put(dir, "index.html", html('<a href="${doc}">runtime</a><img src="${asset}">'));
   await checkLocalLinks({ distDir: dir });
 }));
+
+test("Lab generated Storybook routes are deferred until the Lab artifact stage", () => withDist(async (dir) => {
+  await put(dir, "lab/index.html", html(
+    '<a href="/lab/system/">system</a><a href="/lab/system/inventory.html">inventory</a>',
+  ));
+  await checkLocalLinks({ distDir: dir });
+}));
+
+test("Lab deferred-route allowance does not hide arbitrary broken Storybook links", () => withDist(async (dir) => {
+  await put(dir, "lab/index.html", html('<a href="/lab/system/missing.html">broken</a>'));
+  await assert.rejects(
+    () => checkLocalLinks({ distDir: dir }),
+    /lab\\index\.html \| href \| \/lab\/system\/missing\.html/,
+  );
+}));
