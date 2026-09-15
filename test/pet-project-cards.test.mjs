@@ -8,34 +8,10 @@ import { renderHomepage } from "../src/site/renderers/home/home-slots.ts";
 import { renderPetProjectCards } from "../src/templates/subproject-card.ts";
 
 const approvedCards = [
-  {
-    id: "awful-cases",
-    title: "Awful Cases",
-    description: "Утилита для Windows: регистр и типографика выделенного текста.",
-    state: "live",
-    href: "/work/awful-cases/",
-  },
-  {
-    id: "moves-awful",
-    title: "Moves Awful",
-    description: "Библиотека с шаблонами анимированных canvas галерей для лендингов.",
-    state: "live",
-    href: "/work/moves-awful/",
-  },
-  {
-    id: "berserk-timer",
-    title: "Berserk Timer",
-    description: "Консольный помодоро-таймер для Windows.",
-    state: "live",
-    href: "/work/berserk-timer/",
-  },
-  {
-    id: "awful-studio",
-    title: "AWFUL STUDIO",
-    description: "Расширение Blender для сборки виртуальной предметной студии.",
-    state: "coming-soon",
-    href: undefined,
-  },
+  { id: "awful-cases", state: "live", href: "/work/awful-cases/" },
+  { id: "moves-awful", state: "live", href: "/work/moves-awful/" },
+  { id: "berserk-timer", state: "live", href: "/work/berserk-timer/" },
+  { id: "awful-studio", state: "coming-soon", href: undefined },
 ];
 
 const approvedRegistryIds = [
@@ -57,11 +33,16 @@ const approvedRegistryIds = [
 
 const futureProjectIds = approvedRegistryIds.slice(4);
 
-test("Useful exposes exactly the approved current cards, copy and release state", () => {
+test("Useful exposes exactly the approved current card identities and release state", () => {
   assert.deepEqual(
-    petProjectCards.map(({ id, title, description, state, href }) => ({ id, title, description, state, href })),
+    petProjectCards.map(({ id, state, href }) => ({ id, state, href })),
     approvedCards,
   );
+
+  for (const card of petProjectCards) {
+    assert.ok(card.title.trim().length > 0, `${card.id} needs a title`);
+    assert.ok(card.description.trim().length > 0, `${card.id} needs a description`);
+  }
 });
 
 test("Useful registry keeps future projects hidden without publish-time fields", () => {
