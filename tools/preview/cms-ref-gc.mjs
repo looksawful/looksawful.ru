@@ -1,7 +1,9 @@
+import { DEFAULT_CMS_PREVIEW_TTL_HOURS } from "./source-contract.mjs";
+
 const EXACT_SHA = /^[0-9a-f]{40}$/i;
 const CMS_REF = /^refs\/heads\/cms-preview\/([a-z0-9](?:[a-z0-9-]{0,46}[a-z0-9])?)$/;
 
-export const CMS_PREVIEW_TTL_HOURS = 72;
+export const CMS_PREVIEW_TTL_HOURS = DEFAULT_CMS_PREVIEW_TTL_HOURS;
 export const DEFAULT_CMS_REF_MAX_DELETES = 10;
 export const HARD_CMS_REF_MAX_DELETES = 25;
 
@@ -36,6 +38,19 @@ export function cmsRefDeleteLeaseArgument(ref, expectedSha) {
   if (typeof ref !== "string" || !CMS_REF.test(ref)) throw new Error("CMS preview delete ref is outside the disposable namespace");
   if (typeof expectedSha !== "string" || !EXACT_SHA.test(expectedSha)) throw new Error("CMS preview delete lease requires an exact SHA");
   return `--force-with-lease=${ref}:${expectedSha.toLowerCase()}`;
+}
+
+export function classifyCmsRefDeleteFailure({ expectedSha, remoteSha }) {
+  if (typeof expectedSha !== "string" || !EXACT_SHA.test(expectedSha)) {
+    throw new Error("CMS preview delete classification requires an exact SHA");
+  }
+  if (remoteSha === null) return "already-gone";
+  if (typeof remoteSha !== "string" || !EXACT_SHA.test(remoteSha)) {
+    throw new Error("CMS preview remote delete state must be null or an exact SHA");
+  }
+  return remoteSha.toLowerCase() === expectedSha.toLowerCase()
+    ? "unexpected-push-failure"
+    : "refreshed";
 }
 
 export function planCmsRefGc({ refs = [], now = Date.now(), maxDeletes = DEFAULT_CMS_REF_MAX_DELETES } = {}) {
