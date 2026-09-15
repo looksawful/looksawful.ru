@@ -24,16 +24,18 @@ export async function runMediaDeckSmoke({ browser, baseUrl }) {
         selected: dots.findIndex((dot) => dot.getAttribute("aria-current") === "true"),
       };
     });
-    const deckHandle = await deck.elementHandle();
-    assert.ok(deckHandle, "expected selected media deck element");
-    const waitForSelected = (index) => page.waitForFunction(
-      (node, expectedIndex) => {
-        const dots = [...node.querySelectorAll("[data-deck-dot]")];
-        return dots.findIndex((dot) => dot.getAttribute("aria-current") === "true") === expectedIndex;
-      },
-      deckHandle,
-      index,
-    );
+    const waitForSelected = async (index) => {
+      const deadline = Date.now() + 3_000;
+      while (Date.now() < deadline) {
+        if ((await snapshot()).selected === index) return;
+        await page.waitForTimeout(25);
+      }
+      assert.equal(
+        (await snapshot()).selected,
+        index,
+        `deck must select slide ${index + 1}`,
+      );
+    };
 
     const initial = await snapshot();
     assert.ok(initial.slides > 1 && initial.dots === initial.slides, "deck must expose one dot per slide");
