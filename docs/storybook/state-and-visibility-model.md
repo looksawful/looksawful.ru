@@ -193,3 +193,16 @@ The story must use the canonical visibility decision or an exact contract fixtur
 8. Omit unsupported axes instead of filling them with guessed defaults.
 9. A page story can be route-discovery hidden and visually `always` visible at the same time. That is not a contradiction.
 10. Validation failures are authoring errors. The validator is strict on enum values, duplicate sources/axis values, unknown keys and route-discovery booleans so inventory/CI can trust the metadata later.
+
+
+## Verified state-coverage slices
+
+The first cross-cutting pass deliberately enriches existing canonical stories instead of multiplying fixtures.
+
+- `Code Block` now records the real copy-control interaction axis (`default`, `focus-visible`, `active-or-pressed`) plus desktop/tablet/mobile review targets. Its `Copied` variant exercises the production copy runtime and confirmation state.
+- `Before After` now records the real manual comparison interaction, desktop/tablet/mobile review targets and both motion environments. Its existing `AutoReveal` variant is explicitly documented as production runtime state rather than a second implementation.
+- `Project Card` records the real keyboard focus axis (`default`, `focus-visible`) plus desktop/tablet/mobile review targets.
+- `Page Flip` records real edge-control states (`default`, `active-or-pressed`, `disabled`), portrait/landscape runtime conditions, motion-enabled/reduced-motion, and desktop/tablet/mobile review evidence; the reduced-motion runtime regression remains covered by `test/page-flip.test.mjs`.
+- Media Lightbox overlay/focus lifecycle remains a real organism-level gap and is tracked separately in GitHub issue #863 rather than duplicated in this state-focused branch.
+
+These additions do not create new schema values. They reuse the canonical taxonomy above and therefore increase evidence quality without changing the denominator model.

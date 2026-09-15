@@ -17,9 +17,23 @@ const meta = {
   render: () => renderBeforeAfter(jesteiSubscriptionBeforeAfter),
   parameters: {
     layout: "padded",
+    looksawful: {
+      sources: [
+        "src/components/before-after.ts",
+        "src/templates/before-after.ts",
+      ],
+      layer: "molecule",
+      policy: "behavior-fixture",
+      canonical: true,
+      state: "comparison-ready",
+      visibility: ["always"],
+      interaction: ["default", "active-or-pressed"],
+      motion: ["motion-enabled", "reduced-motion"],
+      responsive: { review: ["desktop", "tablet", "mobile"] },
+    },
     docs: {
       description: {
-        component: "Uses the canonical Jestei data, src/templates/before-after.ts renderer and src/components/before-after.ts runtime.",
+        component: "Uses canonical Jestei data, the production before-after renderer and runtime. Manual and auto-reveal are real runtime states; reduced motion follows the browser preference.",
       },
     },
   },
@@ -31,6 +45,28 @@ export const Default = {
   play: (context) => initialize(context, false),
 };
 
+export const ManualAdjusted = {
+  play: (context) => {
+    initialize(context, false);
+    const range = context.canvasElement.querySelector(".before-after__range");
+    if (range instanceof HTMLInputElement) {
+      range.value = "72";
+      range.dispatchEvent(new Event("input", { bubbles: true }));
+    }
+  },
+  parameters: {
+    looksawful: {
+      state: "manual-adjusted",
+      interaction: ["active-or-pressed"],
+    },
+  },
+};
 export const AutoReveal = {
   play: (context) => initialize(context, true),
+  parameters: {
+    looksawful: {
+      state: "auto-reveal",
+      motion: ["motion-enabled", "reduced-motion"],
+    },
+  },
 };

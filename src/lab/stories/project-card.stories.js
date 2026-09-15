@@ -20,13 +20,14 @@ const meta = {
       canonical: true,
       state: "default",
       visibility: ["always"],
+      interaction: ["default", "focus-visible"],
       responsive: {
         review: ["desktop", "tablet", "mobile"],
       },
     },
     docs: {
       description: {
-        component: "Uses a visibility-filtered canonical ProjectCardPresentation and the production project-card renderer, including canonical route resolution and responsive media data.",
+        component: "Uses a visibility-filtered canonical ProjectCardPresentation and the production project-card renderer, including canonical route resolution, keyboard focus styling and responsive media data.",
       },
     },
   },
@@ -35,3 +36,16 @@ const meta = {
 export default meta;
 
 export const Default = {};
+
+export const FocusVisible = {
+  play: ({ canvasElement }) => {
+    const link = canvasElement.querySelector(".project-card");
+    if (link instanceof HTMLAnchorElement) link.focus();
+  },
+  parameters: {
+    looksawful: {
+      state: "focus-visible",
+      interaction: ["focus-visible"],
+    },
+  },
+};
