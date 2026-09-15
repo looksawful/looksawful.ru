@@ -122,17 +122,28 @@ test("homepage renders only the current Useful cards", () => {
   }
 });
 
-test("Useful presentation remains the existing portrait snap reel in this architecture wave", () => {
-  const source = readFileSync(
+test("Useful presentation is CSS-owned and remains the existing portrait snap reel", () => {
+  const css = readFileSync(
+    new URL("../src/styles/pet-projects.css", import.meta.url),
+    "utf8",
+  );
+  const homeRenderer = readFileSync(
     new URL("../src/site/renderers/home/home-slots.ts", import.meta.url),
     "utf8",
   );
+  const stylesIndex = readFileSync(
+    new URL("../src/styles/index.css", import.meta.url),
+    "utf8",
+  );
 
-  assert.match(source, /--pet-card-width:\s*clamp\(/);
-  assert.match(source, /grid-auto-flow:\s*column/);
-  assert.match(source, /scroll-snap-type:\s*inline mandatory/);
-  assert.match(source, /aspect-ratio:\s*4\s*\/\s*5/);
-  assert.match(source, /animation-timeline:\s*view\(inline\)/);
-  assert.match(source, /prefers-reduced-motion:\s*reduce/);
-  assert.doesNotMatch(source, /grid-template-columns:\s*repeat\(3,/);
+  assert.match(stylesIndex, /@import\s+"\.\/pet-projects\.css"\s+layer\(components\)/);
+  assert.match(css, /--pet-card-width:\s*clamp\(/);
+  assert.match(css, /grid-auto-flow:\s*column/);
+  assert.match(css, /scroll-snap-type:\s*inline mandatory/);
+  assert.match(css, /aspect-ratio:\s*4\s*\/\s*5/);
+  assert.match(css, /animation-timeline:\s*view\(inline\)/);
+  assert.match(css, /prefers-reduced-motion:\s*reduce/);
+  assert.doesNotMatch(css, /grid-template-columns:\s*repeat\(3,/);
+  assert.doesNotMatch(homeRenderer, /const petProjectsStyles/);
+  assert.doesNotMatch(homeRenderer, /<style>\$\{petProjectsStyles\}<\/style>/);
 });
