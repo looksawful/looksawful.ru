@@ -192,7 +192,7 @@
   min-inline-size: 0;
 }
 
-.pet-projects .subproject-card__media {
+.pet-projects .subproject-card[data-shape] .subproject-card__media {
   aspect-ratio: 4 / 3;
 }
 
