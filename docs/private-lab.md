@@ -14,6 +14,20 @@ The Lab is built into `dist-lab/` independently from the public production Vite 
 
 Local Lab serving/preview defaults to `127.0.0.1`.
 
+## Storybook inventory
+
+The Lab Storybook is a read-only projection of production architecture. It does not own a parallel component tree, authored copy, media fixtures, DOM contract or CSS implementation.
+
+Current inventory classes:
+
+- **Templates**: compact section-owner fixtures rendered through `src/site/renderers/entity/section.ts`.
+- **Compositions**: compact canonical entity articles rendered through `src/site/renderers/entity/entity-shell.ts`.
+- **Pages**: representative standalone Case, Collection and Project archetypes selected from `src/site/pages/manifest.ts`.
+
+Fixture data comes from `src/content/pages/index.ts` and the existing typed production PageContent registry. Page shell presentation comes from `src/site/pages/entity-presentation.ts`. Every entity fixture carries route-discovery evidence (`path`, `listed`, `indexable`) from the canonical manifest and exposes desktop, tablet and mobile inspection canvases.
+
+The Storybook therefore follows production changes instead of preserving Storybook-only copies that can drift from the public site.
+
 ## Access boundary
 
 The repository-owned authentication candidate uses application-level GitHub OAuth for the private Admin/Lab surface. It does not use a parallel Basic Auth/password mechanism.
@@ -75,7 +89,7 @@ Authentication does not change those write gates.
 
 ## Scope boundary
 
-This slice provides the authentication boundary for the existing isolated Lab foundation. It does not claim to complete the broader #732 product scope for the full LIVE/HIDDEN/WIP page and organism catalog, viewport/debug tooling or Berserk visibility.
+This slice expands the existing isolated Lab with a production-derived Storybook inventory while preserving the authentication and read-only boundaries. It does not make Lab a CMS, a route owner or a second source of production markup.
 
 ## Verification
 
@@ -88,4 +102,6 @@ This slice provides the authentication boundary for the existing isolated Lab fo
 - noindex artifact;
 - absence of a Lab entry from the public production artifact.
 
-A green repository build proves the repository-owned OAuth/Lab contract only. It must not be used to claim that Cloudflare runtime secrets, the production OAuth app/callback, the custom domain or the full #732 Lab workspace are deployed and operational.
+The focused Storybook architecture contract is `test/lab-storybook-architecture.test.mjs`. It verifies that inventory ownership remains connected to the production page manifest, PageContent registry, section renderer and entity-shell renderer rather than copied Storybook markup.
+
+A green repository build proves the repository-owned OAuth/Lab contract only. It must not be used to claim that Cloudflare runtime secrets, the production OAuth app/callback, the custom domain or remote Admin deployment are operational.
