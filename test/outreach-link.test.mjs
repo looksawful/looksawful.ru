@@ -20,17 +20,32 @@ test("builds deterministic canonical hunter links from bounded UTM inputs", asyn
   );
 });
 
-test("supports approved recruiter and Instagram attribution pairs", async () => {
+test("supports approved recruiter and portfolio attribution pairs", async () => {
   const { buildOutreachUrl } = await import(builderUrl.href);
 
   const approved = [
     ["hh", "message", "job_search"],
+    ["hh", "profile", "portfolio"],
     ["telegram", "dm", "job_search"],
-    ["email", "outreach", "job_search"],
-    ["linkedin", "dm", "job_search"],
+    ["telegram", "channel", "portfolio"],
+    ["telegram", "profile", "portfolio"],
     ["instagram", "dm", "job_search"],
     ["instagram", "bio", "portfolio"],
     ["instagram", "story", "portfolio"],
+    ["instagram", "post", "portfolio"],
+    ["instagram", "reel", "portfolio"],
+    ["linkedin", "dm", "job_search"],
+    ["linkedin", "profile", "portfolio"],
+    ["linkedin", "post", "portfolio"],
+    ["behance", "profile", "portfolio"],
+    ["behance", "project", "portfolio"],
+    ["vk", "profile", "portfolio"],
+    ["vk", "dm", "job_search"],
+    ["vk", "post", "portfolio"],
+    ["fashionbank", "profile", "portfolio"],
+    ["fashionbank", "project", "portfolio"],
+    ["email", "outreach", "job_search"],
+    ["email", "signature", "portfolio"],
   ];
 
   for (const [source, medium, campaign] of approved) {
@@ -43,6 +58,8 @@ test("supports approved recruiter and Instagram attribution pairs", async () => 
     { source: "telegram", medium: "message", campaign: "job_search" },
     { source: "instagram", medium: "bio", campaign: "job_search" },
     { source: "instagram", medium: "dm", campaign: "portfolio" },
+    { source: "behance", medium: "profile", campaign: "job_search" },
+    { source: "fashionbank", medium: "message", campaign: "portfolio" },
   ]) {
     assert.throws(
       () => buildOutreachUrl({ destination: "/", ...input }),
@@ -51,32 +68,17 @@ test("supports approved recruiter and Instagram attribution pairs", async () => 
   }
 });
 
-test("builds canonical Instagram URLs without PII", async () => {
+test("builds canonical social and portfolio URLs without PII", async () => {
   const { buildOutreachUrl } = await import(builderUrl.href);
 
-  assert.equal(
-    buildOutreachUrl({
-      destination: "/cv/",
-      source: "instagram",
-      medium: "dm",
-      campaign: "job_search",
-      content: "cv",
-      batch: "2026w38a",
-    }),
-    "https://www.looksawful.ru/cv/?utm_source=instagram&utm_medium=dm&utm_campaign=job_search&utm_content=cv&utm_id=2026w38a",
-  );
+  const cases = [
+    [{ destination: "/cv/", source: "instagram", medium: "dm", campaign: "job_search", content: "cv", batch: "2026w38a" }, "https://www.looksawful.ru/cv/?utm_source=instagram&utm_medium=dm&utm_campaign=job_search&utm_content=cv&utm_id=2026w38a"],
+    [{ destination: "/", source: "instagram", medium: "bio", campaign: "portfolio", content: "home", batch: "2026w38a" }, "https://www.looksawful.ru/?utm_source=instagram&utm_medium=bio&utm_campaign=portfolio&utm_content=home&utm_id=2026w38a"],
+    [{ destination: "/cv/", source: "behance", medium: "profile", campaign: "portfolio", content: "cv", batch: "2026w38a" }, "https://www.looksawful.ru/cv/?utm_source=behance&utm_medium=profile&utm_campaign=portfolio&utm_content=cv&utm_id=2026w38a"],
+    [{ destination: "/work/jestei-pool/", source: "linkedin", medium: "post", campaign: "portfolio", content: "jestei-pool", batch: "2026w38a" }, "https://www.looksawful.ru/work/jestei-pool/?utm_source=linkedin&utm_medium=post&utm_campaign=portfolio&utm_content=jestei-pool&utm_id=2026w38a"],
+  ];
 
-  assert.equal(
-    buildOutreachUrl({
-      destination: "/",
-      source: "instagram",
-      medium: "bio",
-      campaign: "portfolio",
-      content: "home",
-      batch: "2026w38a",
-    }),
-    "https://www.looksawful.ru/?utm_source=instagram&utm_medium=bio&utm_campaign=portfolio&utm_content=home&utm_id=2026w38a",
-  );
+  for (const [input, expected] of cases) assert.equal(buildOutreachUrl(input), expected);
 });
 
 test("rejects PII-like or unbounded free-form attribution values", async () => {
