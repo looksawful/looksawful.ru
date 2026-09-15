@@ -11,7 +11,7 @@ export type UsefulProjectState = "live" | "coming-soon" | "hidden";
 export const USEFUL_PROJECT_DEFINITIONS = [
   { id: "awful-cases", visible: true, state: "live", href: "/work/awful-cases/", coverEntryId: "useful-awful-cases-cover-use-01" },
   { id: "moves-awful", visible: true, state: "live", href: "/work/moves-awful/", coverEntryId: "useful-moves-awful-cover-use-01" },
-  { id: "berserk-timer", visible: true, state: "live", href: "/pets/berserk-timer/", coverEntryId: "useful-berserk-timer-cover-use-01" },
+  { id: "berserk-timer", visible: true, state: "live", href: "/work/berserk-timer/", coverEntryId: "useful-berserk-timer-cover-use-01" },
   { id: "awful-studio", visible: true, state: "coming-soon", coverEntryId: "useful-awful-studio-cover-use-01" },
   { id: "awful-mockups", visible: true, state: "coming-soon", coverEntryId: "useful-awful-mockups-cover-use-01" },
   { id: "awful-3d-mockups", visible: true, state: "coming-soon", coverEntryId: "useful-awful-3d-mockups-cover-use-01" },
