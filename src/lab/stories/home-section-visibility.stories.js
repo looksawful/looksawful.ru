@@ -1,21 +1,29 @@
-import homeVisibility from "../../content/visibility/home.json" with { type: "json" };
-import { parseSectionVisibility } from "../../data/content/section-visibility.ts";
+import homeHtml from "../../../index.html?raw";
+import { isHomeSectionVisible } from "../../data/content/home-visibility.ts";
+import {
+  applyClientLogoWallVisibility,
+} from "../../site/renderers/home/home-slots.ts";
+import { extractElementContainingMarker } from "../../site/rendering/html.ts";
 
-const records = parseSectionVisibility(homeVisibility, ["client-logo-wall"]);
-const clientLogoWall = records.find((record) => record.id === "client-logo-wall");
-
-const render = () => `<section data-home-section="client-logo-wall"${clientLogoWall?.visible ? "" : " hidden"}></section>`;
+const clientLogoWallSection = extractElementContainingMarker(
+  homeHtml,
+  "section",
+  'aria-labelledby="portfolio-clients-title"',
+);
+const authoredVisible = isHomeSectionVisible("client-logo-wall");
 
 const meta = {
   title: "03 Organisms/Home Section Visibility",
   tags: ["autodocs", "stable"],
-  render,
+  render: () => applyClientLogoWallVisibility(clientLogoWallSection, authoredVisible),
   parameters: {
     layout: "padded",
     looksawful: {
       sources: [
+        "src/site/renderers/home/home-slots.ts",
+        "src/data/content/home-visibility.ts",
         "src/content/visibility/home.json",
-        "src/data/content/section-visibility.ts",
+        "index.html",
       ],
       layer: "organism",
       policy: "behavior-fixture",
@@ -29,4 +37,12 @@ const meta = {
 };
 
 export default meta;
-export const Hidden = {};
+export const Authored = {};
+export const Hidden = {
+  render: () => applyClientLogoWallVisibility(clientLogoWallSection, false),
+  parameters: { looksawful: { state: "section-hidden" } },
+};
+export const Visible = {
+  render: () => applyClientLogoWallVisibility(clientLogoWallSection, true),
+  parameters: { looksawful: { state: "section-visible" } },
+};
