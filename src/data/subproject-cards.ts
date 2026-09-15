@@ -1,4 +1,5 @@
 import coverOverridesSource from "../content/subproject-card-covers.json" with { type: "json" };
+import { usefulProjectsContent, USEFUL_PROJECT_DEFINITIONS } from "./content/useful-projects.ts";
 import { mediaEntries, type MediaEntryId } from "./media/index.ts";
 
 const coverOverrides = coverOverridesSource as Readonly<Record<string, string>>;
@@ -13,6 +14,8 @@ export interface SubprojectCardData {
   shape: SubprojectCardShape;
   href?: string;
   source?: "site" | "behance";
+  badge?: string;
+  state?: "live" | "coming-soon";
 }
 
 export interface SubprojectCardGroupData {
@@ -447,34 +450,23 @@ export const shootingCardGroups = [
   },
 ] as const satisfies readonly SubprojectCardGroupData[];
 
-export const petProjectCardsBase = [
-  {
-    id: "awful-cases",
-    title: "Awful Cases",
-    description: "Утилита для Windows, которая меняет регистр и типографику выделенного текста. · Разработчик · 2024–2026",
-    coverEntryId: "awful-cases-assets-screenshot-2026-08-14-174113-use-01",
-    shape: "landscape",
-    href: "https://github.com/looksawful/awful-cases",
-    source: "site",
-  },
-  {
-    id: "moves-awful",
-    title: "Moves Awful",
-    description: "Библиотека анимированных галерей для лендингов. · Разработчик · 2025",
-    coverEntryId: "moves-awful-jestei-landing-animation-01-use-01",
-    shape: "landscape",
-    source: "site",
-  },
-  {
-    id: "berserk-timer",
-    title: "Berserk Timer",
-    description: "CLI-таймер с режимом свидетеля и гибкой настройкой длительности. · Разработчик",
-    coverEntryId: "berserk-timer-cover-use-01",
-    shape: "landscape",
-    href: "/pets/berserk-timer/",
-    source: "site",
-  },
-] as const satisfies readonly SubprojectCardData[];
+export const petProjectCardsBase: readonly SubprojectCardData[] = usefulProjectsContent.cards
+  .filter((card) => card.visible)
+  .map((card) => {
+    const definition = USEFUL_PROJECT_DEFINITIONS.find(({ id }) => id === card.id);
+    if (!definition) throw new Error(`Missing useful project definition: ${card.id}`);
+    return {
+      id: card.id,
+      title: card.title,
+      description: card.description,
+      coverEntryId: definition.coverEntryId as MediaEntryId,
+      shape: "portrait",
+      ...(card.state === "live" && "href" in definition ? { href: definition.href } : {}),
+      source: "site",
+      ...(card.badge ? { badge: card.badge } : {}),
+      state: card.state === "live" ? "live" : "coming-soon",
+    };
+  });
 
 export const petProjectCards = applySubprojectCardCoverOverrides(
   petProjectCardsBase,

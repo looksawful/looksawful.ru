@@ -17,6 +17,7 @@ import { sandsMediaAssets } from "./sands.ts";
 import { sensetiqueMediaAssets } from "./sensetique.ts";
 import { styxMediaAssets } from "./styx.ts";
 import { unassignedMediaAssets } from "./unassigned.ts";
+import { usefulMediaAssets } from "./useful.ts";
 
 /**
  * Complete legacy registry. Low-level catalog migration/validation may still
@@ -40,6 +41,7 @@ export const registeredMediaAssets = [
   ...sensetiqueMediaAssets,
   ...styxMediaAssets,
   ...unassignedMediaAssets,
+  ...usefulMediaAssets,
 ] as const;
 
 export type RegisteredMediaAsset = (typeof registeredMediaAssets)[number];

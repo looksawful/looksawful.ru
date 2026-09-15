@@ -26,6 +26,7 @@ function renderCardBody(card: SubprojectCardData): string {
     <figure class="subproject-card__figure">
       <div class="subproject-card__media">
         ${media}
+        ${card.badge ? `<span class="subproject-card__badge">${escapeHtml(card.badge)}</span>` : ""}
       </div>
       <figcaption class="subproject-card__caption">
         <h3 class="subproject-card__title">${escapeHtml(card.title)}</h3>
@@ -41,7 +42,8 @@ export function renderSubprojectCard(
 ): string {
   const body = renderCardBody(card);
   const reveal = renderRevealAttribute(options.reveal ? "card" : false);
-  const attributes = `class="subproject-card" data-shape="${card.shape}" data-subproject-id="${escapeHtml(card.id)}"${reveal}`;
+  const state = card.state ? ` data-state="${escapeHtml(card.state)}"` : "";
+  const attributes = `class="subproject-card" data-shape="${card.shape}" data-subproject-id="${escapeHtml(card.id)}"${state}${reveal}`;
 
   if (!card.href) {
     return `<article ${attributes}>${body}</article>`;
