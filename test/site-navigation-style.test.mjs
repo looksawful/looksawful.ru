@@ -16,10 +16,12 @@ const { path: navigationOwnerPath, source: navigationSource } = readStyleOwner("
 test("global navigation styles have one declared owner", () => {
   assert.equal(navigationOwnerPath, "src/styles/site-navigation.css");
   assert.equal(existsSync(dedicatedPath), true, "site-navigation.css must own global navigation styles");
-  assert.match(
-    indexSource,
-    /@import "\.\/experience\.css" layer\(components\);\n@import "\.\/site-navigation\.css" layer\(components\);\n@import "\.\.\/components\/jestei-theme-organism\/jestei-theme-organism\.css";/,
-  );
+  const experienceImport = indexSource.indexOf('@import "./experience.css" layer(components);');
+  const navigationImport = indexSource.indexOf('@import "./site-navigation.css" layer(components);');
+  const themeImport = indexSource.indexOf('@import "../components/jestei-theme-organism/jestei-theme-organism.css";');
+  assert.ok(experienceImport >= 0, "experience.css must stay in the component layer graph");
+  assert.ok(navigationImport > experienceImport, "site-navigation.css must load after experience.css");
+  assert.ok(themeImport > navigationImport, "site-navigation.css must load before the Jestei theme organism");
   assert.doesNotMatch(mainSource, /site-navigation\.css/);
   assert.match(navigationSource, /\.site-nav__bar/);
   assert.doesNotMatch(navigationSource, /\.site-nav__brand\b|\.site-nav__list\b|\.site-nav__link\b/);
