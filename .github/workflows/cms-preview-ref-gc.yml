@@ -78,13 +78,59 @@ jobs:
           set -euo pipefail
           jq -r '.delete[] | [.ref, .sha] | @tsv' "$RUNNER_TEMP/cms-ref-gc-plan.json" |
           while IFS=$'\t' read -r ref sha; do
-            [[ "$ref" =~ ^refs/heads/cms-preview/ ]] || { echo "Ref escaped CMS preview namespace" >&2; exit 1; }
+            [[ "$ref" =~ ^refs/heads/cms-preview/[a-z0-9]([a-z0-9-]{0,46}[a-z0-9])?$ ]] || { echo "Ref escaped CMS preview namespace" >&2; exit 1; }
             lease="$(node --input-type=module - "$ref" "$sha" <<'NODE'
           import { cmsRefDeleteLeaseArgument } from "./tools/preview/cms-ref-gc.mjs";
           process.stdout.write(cmsRefDeleteLeaseArgument(process.argv[2], process.argv[3]));
           NODE
             )"
-            git push "$lease" origin ":$ref"
+
+            push_err="$RUNNER_TEMP/cms-ref-push.err"
+            if git push "$lease" origin ":$ref" 2>"$push_err"; then
+              echo "Deleted expired CMS Preview ref $ref at $sha"
+              continue
+            fi
+
+            remote_err="$RUNNER_TEMP/cms-ref-remote.err"
+            set +e
+            remote_line="$(git ls-remote --exit-code origin "$ref" 2>"$remote_err")"
+            remote_status=$?
+            set -e
+
+            if [[ $remote_status -eq 0 ]]; then
+              remote_sha="${remote_line%%$'\t'*}"
+            elif [[ $remote_status -eq 2 ]]; then
+              remote_sha=""
+            else
+              cat "$push_err" >&2 || true
+              cat "$remote_err" >&2 || true
+              exit "$remote_status"
+            fi
+
+            classification="$(node --input-type=module - "$sha" "$remote_sha" <<'NODE'
+          import { classifyCmsRefDeleteFailure } from "./tools/preview/cms-ref-gc.mjs";
+          const remoteSha = process.argv[3] || null;
+          process.stdout.write(classifyCmsRefDeleteFailure({ expectedSha: process.argv[2], remoteSha }));
+          NODE
+            )"
+
+            case "$classification" in
+              already-gone)
+                echo "CMS Preview ref $ref was already deleted; continuing"
+                ;;
+              refreshed)
+                echo "CMS Preview ref $ref changed after planning; leaving refreshed ref untouched"
+                ;;
+              unexpected-push-failure)
+                cat "$push_err" >&2 || true
+                echo "Delete failed while $ref still matches planned SHA $sha" >&2
+                exit 1
+                ;;
+              *)
+                echo "Unknown CMS Preview delete classification: $classification" >&2
+                exit 1
+                ;;
+            esac
           done
 
       - name: Summary
@@ -98,5 +144,6 @@ jobs:
             echo "- TTL: 72h"
             echo "- scheduled runs: apply bounded expiry"
             echo "- manual runs: dry-run by default"
+            echo "- stale/already-gone refs: skipped safely"
             echo "- production/provider resources: untouched"
           } >> "$GITHUB_STEP_SUMMARY"
