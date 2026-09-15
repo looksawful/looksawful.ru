@@ -1,4 +1,4 @@
-﻿import assert from "node:assert/strict";
+import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
 
@@ -24,4 +24,13 @@ test("Foundations exposes production-derived system groups without hard-coded to
 
 test("Foundations delegates CSSOM extraction to a focused support module", () => {
   assert.match(story, /storybook-support\/foundation-tokens\.js/);
+});
+
+test("Foundations demo styling does not invent motion timing or color literals", () => {
+  const cssPath = new URL("../src/lab/stories/foundations.css", import.meta.url);
+  const css = fs.readFileSync(cssPath, "utf8");
+  assert.doesNotMatch(css, /animation:\s*[^;]*\b\d+(?:\.\d+)?(?:ms|s)\b/i);
+  assert.doesNotMatch(css, /cubic-bezier\(/i);
+  assert.doesNotMatch(css, /#[0-9a-f]{3,8}\b/i);
+  assert.doesNotMatch(css, /rgb\([^)]*\)/i);
 });
