@@ -1,5 +1,9 @@
 import { escapeHtml } from "../../utils/html.ts";
-import { storybookInventory, storybookInventoryEvidence, type StorybookFixture } from "./inventory.ts";
+import {
+  storybookInventory,
+  storybookInventoryEvidence,
+  type StorybookFixture,
+} from "./inventory.ts";
 
 function renderDiscovery(fixture: StorybookFixture): string {
   if (!fixture.route) return "";
