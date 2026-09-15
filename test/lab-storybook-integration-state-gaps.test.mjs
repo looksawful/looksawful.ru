@@ -5,7 +5,7 @@ import test from "node:test";
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
 test("site navigation story uses production owners and covers disclosure, overlay, reduced motion and all review viewports", async () => {
-  const story = await read("src/lab/stories/site-navigation.stories.js");
+  const story = await read("src/lab/stories/site-navigation.stories.mjs");
 
   assert.match(story, /initSiteNavigation/);
   assert.match(story, /renderSiteNavigation/);

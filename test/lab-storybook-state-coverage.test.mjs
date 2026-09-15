@@ -35,7 +35,7 @@ test("code block and before-after expose only production-backed state variants",
 });
 
 test("site navigation uses production owners for disclosure overlay and reduced-motion evidence", async () => {
-  const story = await read("src/lab/stories/site-navigation.stories.js");
+  const story = await read("src/lab/stories/site-navigation.stories.mjs");
 
   assert.match(story, /renderSiteNavigation/);
   assert.match(story, /initSiteNavigation/);
