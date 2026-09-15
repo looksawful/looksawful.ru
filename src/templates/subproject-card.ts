@@ -72,13 +72,5 @@ export function renderSubprojectCardGroups(groups: readonly SubprojectCardGroupD
 }
 
 export function renderPetProjectCards(cards: readonly SubprojectCardData[]): string {
-  return cards
-    .map((card) => renderSubprojectCard(
-      {
-        ...card,
-        description: card.description.split(" · ", 1)[0],
-      },
-      { reveal: true },
-    ))
-    .join("\n");
+  return cards.map((card) => renderSubprojectCard(card, { reveal: true })).join("\n");
 }
