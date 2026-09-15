@@ -1,6 +1,8 @@
 import { projects } from "../../data/catalog/projects/index.ts";
 import { mediaCatalogItems } from "../../data/media/catalog-view.ts";
 import { mediaEntries } from "../../data/media/entries/index.ts";
+import { projectCardPresentations } from "../../data/projects.ts";
+import { petProjectCards } from "../../data/subproject-cards.ts";
 import {
   buildMediaDeskInventoryIndex,
   filterMediaDeskInventoryRecords,
@@ -8,10 +10,31 @@ import {
   type MediaDeskInventoryDiagnosticFilter,
   type MediaDeskInventoryRecord,
   type MediaDeskInventoryUsageFilter,
+  type MediaDeskUnifiedUsage,
 } from "./inventory-model.ts";
+import { pageUsageRecords, unresolvedPageUsages } from "./page-usage.ts";
+import { createInventoryRemoteControls } from "./inventory-remote-controls.ts";
+import { createRemoteUploadPanel } from "./inventory-remote-upload.ts";
+import {
+  galleryUsages,
+  mediaEntryUsages,
+  pageMediaUsages,
+  petCoverUsages,
+  projectCoverUsages,
+} from "./usage-sources.ts";
 import "./inventory-readonly.css";
 
-const records = buildMediaDeskInventoryIndex(mediaCatalogItems, mediaEntries);
+const REMOTE_MODE = import.meta.env.VITE_CONTENT_DESK_REMOTE === "1";
+const remoteDeletedAssetIds = new Set<string>();
+
+const unifiedBindings = [
+  ...galleryUsages(mediaCatalogItems),
+  ...mediaEntryUsages(mediaEntries),
+  ...projectCoverUsages(projectCardPresentations, mediaCatalogItems),
+  ...petCoverUsages(petProjectCards, mediaEntries),
+  ...pageMediaUsages(pageUsageRecords),
+];
+const records = buildMediaDeskInventoryIndex(mediaCatalogItems, mediaEntries, unifiedBindings);
 const summary = summarizeMediaDeskDiagnostics(records);
 const projectNames = new Map<string, string>(
   projects.map((project) => [project.id, project.name]),
@@ -75,6 +98,12 @@ function group(label: string, rows: readonly HTMLDivElement[]): HTMLElement {
   return section;
 }
 
+function usageValue(usage: MediaDeskUnifiedUsage): string {
+  const location = usage.route ? ` · ${usage.route}` : "";
+  const field = usage.fieldPath ? `#${usage.fieldPath}` : "";
+  return `${usage.ownerId}${location} · ${usage.sourcePath}${field}`;
+}
+
 function showInGallery(record: MediaDeskInventoryRecord): void {
   const search = document.querySelector<HTMLInputElement>(".md-search");
   if (!search) return;
@@ -112,7 +141,7 @@ function recordCard(record: MediaDeskInventoryRecord): HTMLElement {
   const badges = element("div", "md-inventory-badges");
   badges.append(
     element("span", "md-inventory-badge", `canonical · ${record.item.origin}`),
-    element("span", "md-inventory-badge", `placement · ${record.usage.total}`),
+    element("span", "md-inventory-badge", `usage · ${record.usages.length}`),
   );
   for (const diagnostic of record.diagnostics) {
     badges.append(
@@ -146,6 +175,13 @@ function recordCard(record: MediaDeskInventoryRecord): HTMLElement {
     row("Placement projects", projectLabels(record.usage.projectIds)),
   ]);
 
+  const provenance = group(
+    "Usage provenance",
+    record.usages.length > 0
+      ? record.usages.map((usage) => row(usage.kind, usageValue(usage)))
+      : [row("Usage", "—")],
+  );
+
   const derived = group("Derived diagnostics", [
     row(
       "State",
@@ -155,7 +191,42 @@ function recordCard(record: MediaDeskInventoryRecord): HTMLElement {
     ),
   ]);
 
-  card.append(header, badges, canonical, placement, derived);
+  card.append(header, badges, canonical, placement, provenance, derived);
+  if (REMOTE_MODE) {
+    card.append(createInventoryRemoteControls(record, () => {
+      remoteDeletedAssetIds.add(record.assetId);
+      card.remove();
+    }));
+  }
+  return card;
+}
+
+function unresolvedCard(index: number): HTMLElement {
+  const record = unresolvedPageUsages[index];
+  const card = element("article", "md-inventory-card");
+  const header = element("header", "md-inventory-card__header");
+  const titleWrap = element("div", "md-inventory-card__title-wrap");
+  titleWrap.append(
+    element("strong", "md-inventory-card__title", record.referencedPath),
+    element("code", "md-inventory-card__id", record.ownerId),
+  );
+  header.append(titleWrap);
+
+  const badges = element("div", "md-inventory-badges");
+  badges.append(
+    element("span", "md-inventory-badge md-inventory-badge--diagnostic", "unresolved page media"),
+  );
+
+  card.append(
+    header,
+    badges,
+    group("Reference", [
+      row("Owner", record.ownerId),
+      row("Route", record.route),
+      row("Source", record.sourcePath),
+      row("Referenced path", record.referencedPath),
+    ]),
+  );
   return card;
 }
 
@@ -170,7 +241,7 @@ function mount(): void {
     element(
       "span",
       "md-inventory__summary-counts",
-      `${records.length} assets · ${summary.orphan} orphan · ${summary["missing-source"]} missing source · ${summary["duplicate-path"]} duplicate path`,
+      `${records.length} assets · ${summary.orphan} orphan · ${summary["missing-source"]} missing source · ${summary["duplicate-path"]} duplicate path · ${unresolvedPageUsages.length} unresolved page media`,
     ),
   );
 
@@ -179,7 +250,7 @@ function mount(): void {
 
   const search = element("input", "md-control md-inventory-search");
   search.type = "search";
-  search.placeholder = "ID, path, placement, caption…";
+  search.placeholder = "ID, path, placement, cover, route, caption…";
   search.setAttribute("aria-label", "Поиск по inventory metadata");
 
   const usage = element("select", "md-control");
@@ -203,6 +274,13 @@ function mount(): void {
   const resultMeta = element("span", "md-inventory-controls__meta");
   controls.append(search, usage, diagnostic, resultMeta);
 
+  const unresolved = element("details", "md-inventory");
+  const unresolvedSummary = element("summary", "md-inventory__summary");
+  unresolvedSummary.textContent = `Unresolved standalone page media · ${unresolvedPageUsages.length}`;
+  const unresolvedList = element("div", "md-inventory-list");
+  unresolvedList.append(...unresolvedPageUsages.map((_, index) => unresolvedCard(index)));
+  unresolved.append(unresolvedSummary, unresolvedList);
+
   const list = element("div", "md-inventory-list");
   list.setAttribute("aria-live", "polite");
 
@@ -211,22 +289,21 @@ function mount(): void {
       search: search.value,
       usage: usage.value as MediaDeskInventoryUsageFilter,
       diagnostic: diagnostic.value as MediaDeskInventoryDiagnosticFilter,
-    });
+    }).filter((record) => !remoteDeletedAssetIds.has(record.assetId));
     const visible = filtered.slice(0, 120);
     resultMeta.textContent = filtered.length > visible.length
       ? `${visible.length} / ${filtered.length}`
       : String(filtered.length);
     list.replaceChildren(...visible.map(recordCard));
-    if (visible.length === 0) {
-      list.append(element("p", "md-inventory-empty", "Совпадений нет"));
-    }
+    if (visible.length === 0) list.append(element("p", "md-inventory-empty", "Совпадений нет"));
   };
 
   search.addEventListener("input", render);
   usage.addEventListener("change", render);
   diagnostic.addEventListener("change", render);
 
-  body.append(controls, list);
+  if (REMOTE_MODE) body.append(createRemoteUploadPanel());
+  body.append(controls, unresolved, list);
   panel.append(summaryNode, body);
   status.insertAdjacentElement("afterend", panel);
   render();

@@ -1,0 +1,19 @@
+{
+  "$schema": "https://raw.githubusercontent.com/cloudflare/workers-sdk/main/packages/wrangler/config-schema.json",
+  "name": "looksawful-media-desk",
+  "main": "./worker.mjs",
+  "compatibility_date": "2026-09-13",
+  "workers_dev": false,
+  "routes": [
+    {
+      "pattern": "media.looksawful.ru",
+      "custom_domain": true
+    }
+  ],
+  "assets": {
+    "directory": "../../../dist-media-desk",
+    "binding": "ASSETS",
+    "run_worker_first": true,
+    "html_handling": "auto-trailing-slash"
+  }
+}

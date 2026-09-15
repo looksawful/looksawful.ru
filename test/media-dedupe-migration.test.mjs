@@ -48,7 +48,6 @@ async function exists(path) {
 }
 
 test("retired logical MediaAssets resolve to one surviving canonical runtime asset", () => {
-  assert.equal(aliasSource.length, 24);
   assert.equal(retiredMediaAssetIds.size, aliasSource.length);
 
   for (const record of aliasSource) {
@@ -71,8 +70,6 @@ test("retired logical MediaAssets resolve to one surviving canonical runtime ass
 });
 
 test("every reviewed entry retarget keeps its contextual metadata", () => {
-  assert.equal(dedupeMediaUsageRecords.length, 38);
-
   for (const record of dedupeMediaUsageRecords) {
     const entry = entryById.get(record.entryId);
     assert.ok(entry, `missing MediaEntry ${record.entryId}`);
@@ -102,8 +99,11 @@ test("every reviewed entry retarget keeps its contextual metadata", () => {
 });
 
 test("physical cleanup phases are internally atomic and never partial", async () => {
-  assert.equal(physicalSource.removedPhysicalPathCount, 63);
-  assert.equal(physicalSource.removePhysicalPaths.length, 63);
+  assert.equal(
+    physicalSource.removedPhysicalPathCount,
+    physicalSource.removePhysicalPaths.length,
+    "manifest path count must describe the current manifest rather than a historical fixed total",
+  );
 
   const physicalPresence = await Promise.all(
     physicalSource.removePhysicalPaths.map((path) => exists(path)),

@@ -1,0 +1,85 @@
+name: Media Desk Cloudflare
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/media-desk-cloudflare.yml"
+      - "src/devtools/media-desk/**"
+      - "tools/cloudflare/media-desk/**"
+      - "tools/media-desk/hash-password.mjs"
+      - "test/media-desk-cloudflare*.test.mjs"
+      - "package.json"
+      - "package-lock.json"
+  push:
+    branches: [dev]
+    paths:
+      - ".github/workflows/media-desk-cloudflare.yml"
+      - "src/devtools/media-desk/**"
+      - "tools/cloudflare/media-desk/**"
+      - "tools/media-desk/hash-password.mjs"
+      - "test/media-desk-cloudflare*.test.mjs"
+      - "package.json"
+      - "package-lock.json"
+  workflow_dispatch:
+
+concurrency:
+  group: media-desk-cloudflare-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run media-desk:page-usage:check
+      - run: npm run media-desk:static-usage:check
+      - run: >-
+          node --test
+          test/media-desk-cloudflare-auth.test.mjs
+          test/media-desk-cloudflare-login.test.mjs
+          test/media-desk-cloudflare-github.test.mjs
+          test/media-desk-cloudflare-worker.test.mjs
+          test/media-desk-cloudflare-destructive-authority.test.mjs
+          test/media-desk-cms-asset-resolver.test.mjs
+          test/media-desk-cms-delete-guard.test.mjs
+          test/media-desk-replace-validation.test.mjs
+          test/media-desk-cloudflare.test.mjs
+      - run: npm run media-desk:build
+      - run: npm run media-desk:cf:dry-run
+
+  deploy:
+    if: >-
+      github.ref == 'refs/heads/dev' &&
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    needs: verify
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run media-desk:build
+      - name: Deploy trusted Media Desk
+        shell: bash
+        run: |
+          if [ -z "${CLOUDFLARE_API_TOKEN:-}" ] || [ -z "${CLOUDFLARE_ACCOUNT_ID:-}" ]; then
+            echo "Cloudflare deployment credentials are not configured."
+            exit 1
+          fi
+          npx --yes wrangler@4 deploy --config tools/cloudflare/media-desk/wrangler.jsonc

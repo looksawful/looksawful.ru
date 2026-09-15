@@ -10,6 +10,38 @@
   "quality": 84,
   "assets": [
     {
+      "id": "awful-cases-atlas",
+      "src": "/media/interactive/awful-cases-atlas.png",
+      "sourceWidth": 1620,
+      "sourceHeight": 230,
+      "sourceBytes": 507338,
+      "sourceHash": "f4b314a36c7a34dae3e6e5e1229b71555856da10ae166d3142582f2d802c2244",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/interactive/awful-cases-atlas@480.webp",
+          "width": 480,
+          "height": 68,
+          "bytes": 20008,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/interactive/awful-cases-atlas@768.webp",
+          "width": 768,
+          "height": 109,
+          "bytes": 36788,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/interactive/awful-cases-atlas@1280.webp",
+          "width": 1280,
+          "height": 182,
+          "bytes": 69724,
+          "format": "webp"
+        }
+      ]
+    },
+    {
       "id": "awful-cases-assets-recording-2026-08-15-121210-poster",
       "src": "/pets/awful-cases/assets/recording-2026-08-15-121210-poster.webp",
       "sourceWidth": 1720,
