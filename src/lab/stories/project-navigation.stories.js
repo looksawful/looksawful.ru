@@ -1,22 +1,15 @@
+import homeHtml from "../../../index.html?raw";
 import {
   initProjectNavigationDock,
   initProjectNavigationFallback,
 } from "../../components/project-navigation.ts";
+import { extractElementContainingMarker } from "../../site/rendering/html.ts";
 
-const render = () => `
-  <section class="hero" id="top"></section>
-  <section class="projects">
-    <nav class="project-nav wrapper" aria-label="Проекты" data-projects-navigation>
-      <div class="project-nav__inner">
-        <ol class="project-nav__list reel">
-          <li><a class="project-nav__link" href="#project-a">A</a></li>
-          <li><a class="project-nav__link" href="#project-b">B</a></li>
-        </ol>
-      </div>
-    </nav>
-    <section id="project-a"></section>
-    <section id="project-b"></section>
-  </section>`;
+const projectsSection = extractElementContainingMarker(
+  homeHtml,
+  "section",
+  "data-projects-navigation",
+);
 
 const initialize = ({ canvasElement }) => {
   const destroyDock = initProjectNavigationDock(canvasElement);
@@ -27,11 +20,14 @@ const initialize = ({ canvasElement }) => {
 const meta = {
   title: "03 Organisms/Project Navigation",
   tags: ["autodocs", "stable", "a11y-reviewed"],
-  render,
+  render: () => projectsSection,
   parameters: {
     layout: "fullscreen",
     looksawful: {
-      sources: ["src/components/project-navigation.ts"],
+      sources: [
+        "src/components/project-navigation.ts",
+        "index.html",
+      ],
       layer: "organism",
       policy: "behavior-fixture",
       canonical: true,
