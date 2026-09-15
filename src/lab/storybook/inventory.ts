@@ -8,7 +8,7 @@ import { renderEntityShell } from "../../site/renderers/entity/entity-shell.ts";
 import { renderSection } from "../../site/renderers/entity/section.ts";
 import { getEntityShellPresentation } from "../../site/pages/entity-presentation.ts";
 import { sitePages } from "../../site/pages/manifest.ts";
-import type { EntityPageDefinition } from "../../site/pages/types.ts";
+import type { EntityPageDefinition, SitePageDefinition } from "../../site/pages/types.ts";
 
 export type StorybookViewport = "desktop" | "tablet" | "mobile";
 export type StorybookKind = "template" | "composition" | "page";
@@ -33,18 +33,16 @@ export interface StorybookFixture {
 
 const VIEWPORTS = ["desktop", "tablet", "mobile"] as const satisfies readonly StorybookViewport[];
 
+function isEntityPage(page: SitePageDefinition): page is EntityPageDefinition {
+  return page.enabled && (page.type === "case" || page.type === "collection" || page.type === "project");
+}
+
 function entityPages(): readonly EntityPageDefinition[] {
-  return sitePages.filter((page): page is EntityPageDefinition =>
-    page.enabled && (page.type === "case" || page.type === "collection" || page.type === "project"),
-  );
+  return sitePages.filter(isEntityPage);
 }
 
 function routeDiscovery(page: EntityPageDefinition): StorybookRouteDiscovery {
-  return {
-    path: page.path,
-    listed: page.discovery.listed,
-    indexable: page.discovery.indexable,
-  };
+  return { path: page.path, listed: page.discovery.listed, indexable: page.discovery.indexable };
 }
 
 function contentFor(page: EntityPageDefinition): EntityPageContent {
@@ -54,10 +52,7 @@ function contentFor(page: EntityPageDefinition): EntityPageContent {
 function renderCanonicalArticle(page: EntityPageDefinition): string {
   const content = contentFor(page);
   const presentation = getEntityShellPresentation(page.id);
-  return renderEntityShell(content, {
-    ...presentation,
-    introHeadingLevel: 1,
-  });
+  return renderEntityShell(content, { ...presentation, introHeadingLevel: 1 });
 }
 
 function firstRenderableSection(page: EntityPageDefinition): Section {
@@ -97,10 +92,9 @@ function compositionFixtures(): StorybookFixture[] {
 }
 
 function representativePageFixtures(): StorybookFixture[] {
-  const representativeTypes = new Set(["case", "collection", "project"]);
-  const seen = new Set<string>();
+  const seen = new Set<EntityPageDefinition["type"]>();
   const representatives = entityPages().filter((page) => {
-    if (!representativeTypes.has(page.type) || seen.has(page.type)) return false;
+    if (seen.has(page.type)) return false;
     seen.add(page.type);
     return true;
   });
