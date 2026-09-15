@@ -8,6 +8,8 @@
     "dev": "vite",
     "desk": "node tools/run-content-desk.mjs",
     "desk:write": "node tools/run-content-desk.mjs --write",
+    "media-desk:build": "node tools/cloudflare/media-desk/build.mjs",
+    "media-desk:cf:dry-run": "npm run media-desk:build && npx --yes wrangler@4 deploy --dry-run --config tools/cloudflare/media-desk/wrangler.jsonc",
     "design:capture": "node tools/design-capture/cli.mjs",
     "design:capture:pages": "node tools/design-capture/cli.mjs --mode=pages",
     "design:capture:components": "node tools/design-capture/cli.mjs --mode=components",
@@ -69,7 +71,9 @@
     "verify:core": "npm run typecheck && npm run test:core && npm run build:site && npm run test:e2e:full",
     "verify": "npm run media:ensure && npm run typecheck && npm run test:fast && npm run test:media:contract && npm run build:site && npm run test:e2e:smoke",
     "verify:full": "npm run media:sync && npm run verify:core",
-    "cv:prod:verify": "node tools/verify-cv-production.mjs"
+    "cv:prod:verify": "node tools/verify-cv-production.mjs",
+    "media-desk:page-usage:check": "node tools/media-desk/index-page-media.mjs --check",
+    "media-desk:static-usage:check": "node tools/media-desk/index-static-usage.mjs --check"
   },
   "devDependencies": {
     "@lhci/cli": "^0.15.1",

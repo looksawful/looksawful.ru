@@ -295,3 +295,42 @@ explicit authorized write session
 ```
 
 The Desk does not merge branches, deploy `prod`, expose mutation endpoints through the private Lab, or replace Git-backed authored sources with another database.
+
+## Remote Cloudflare Media Desk contract
+
+The remote Desk at `media.looksawful.ru` is a separate protocol from the local `__media-desk/*` filesystem API above. It runs through a Cloudflare Worker and GitHub's Git Data API, and its write authority is permanently fixed to `content/text-cms`.
+
+Remote browser/API access requires the signed Media Desk session. Mutations additionally require same-origin requests. The browser never receives the GitHub token or session-signing secret.
+
+Remote optimistic concurrency has two layers:
+
+- `expectedHead` is the captured `content/text-cms` Git head;
+- `expectedRevision` is the SHA-256 revision of the specific existing source being replaced or edited.
+
+Upload is the exception: a new canonical record has no existing source revision, so it requires `expectedHead` only. Replace, delete and typed assignment require the relevant source revision plus branch head. Stale state returns `409` and is never auto-retried with a refreshed guard.
+Remote endpoints:
+
+```text
+GET  /api/status
+GET  /api/media/revision?target=project-cover|pet-cover
+GET  /api/media/revision?assetId=cms-<uuid>&surface=catalog|source
+POST /api/media/upload
+POST /api/media/replace
+POST /api/media/delete
+POST /api/media/assign
+```
+
+`/api/status` exposes only the fixed branch name and current head. `/api/media/revision` never accepts a raw repository path: fixed cover sources use a target enum, while destructive media uses a `cms-<uuid>` identity plus `catalog`/`source` surface. The Worker resolves canonical Git paths server-side and returns only revision/head metadata, never source text.
+
+The mutation layer uses one Git tree/commit/ref update path. The branch head is checked before planning and rechecked immediately before the non-force fast-forward ref update. Delete uses the same atomic commit path with `sha: null`; it does not have a second deletion transport.
+The page-usage and static-usage snapshots have deterministic `--check` modes and are mandatory in the Cloudflare verification job so delete guards cannot deploy against stale dependency data.
+
+Remote upload/replace bodies are capped at `16 MiB` before multipart parsing. This is a Worker transport limit, not a reduction of the repository's local image/video policy limits.
+
+Remote replace/delete is available only for CMS-owned `cms-<uuid>` assets; registered/code-owned assets are read-only for destructive operations. Delete is dependency-safe: the Worker pins reads to `expectedHead`, resolves the CMS record itself, and derives gallery, project-cover, pet-cover, standalone-page, video-poster and direct-placement blockers from checked generated snapshots plus current authoring JSON. Client-supplied repository paths or usage arrays are ignored as authority.
+
+Remote replace currently supports only same-format CMS PNG/JPEG/GIF/WebP images. MIME, extension and binary signature must agree; dimensions and byte length are recomputed from the replacement and the source binary plus catalog JSON are committed together. Video/AVIF/SVG replacement fails closed remotely. Character-cover operations intentionally fail closed until a canonical character owner source exists.
+
+Authenticated preview requests under `/media/**` and `/pets/**` are proxied to the fixed public site origin only for rendering/preview. Session cookies are stripped, Range requests are preserved, and the proxy does not grant public-site mutation authority.
+
+See `docs/media-desk-cloudflare.md` for deployment, secret provisioning and activation verification.
