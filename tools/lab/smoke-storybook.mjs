@@ -58,8 +58,13 @@ try {
       const canvas = page.locator("#storybook-root");
       await canvas.waitFor({ state: "attached" });
       await page.locator(selector).first().waitFor({ state: "attached", timeout: 10000 });
-      const errors = await page.locator("#error-message, .sb-errordisplay").count();
-      assert.equal(errors, 0, `${viewportName}/${name}: Storybook error surface present`);
+      const errorSurfaces = page.locator("#error-message, .sb-errordisplay");
+      const errorCount = await errorSurfaces.count();
+      let visibleErrors = 0;
+      for (let index = 0; index < errorCount; index += 1) {
+        if (await errorSurfaces.nth(index).isVisible()) visibleErrors += 1;
+      }
+      assert.equal(visibleErrors, 0, `${viewportName}/${name}: Storybook error surface present`);
       if (name === "site-navigation-open") {
         assert.equal(await page.locator("[data-site-menu-toggle]").getAttribute("aria-expanded"), "true");
       }
