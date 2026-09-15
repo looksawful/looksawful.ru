@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <title>Styx prod approval review</title>
+  <style>
+    html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#fff;font-family:Inter,system-ui,sans-serif}
+    #stage{position:fixed;inset:0;width:100%;height:100%;border:0;background:#fff}
+    .toolbar{position:fixed;right:12px;bottom:12px;z-index:999999;display:flex;gap:6px;align-items:center;padding:6px;border:1px solid #111;background:rgba(255,255,255,.96);backdrop-filter:blur(8px);font-size:11px;letter-spacing:.04em;text-transform:uppercase}
+    .toolbar button{border:1px solid #111;background:#fff;padding:8px 10px;font:inherit;cursor:pointer}.toolbar button[aria-pressed="true"]{background:#111;color:#fff}
+    .panel{position:fixed;top:12px;right:12px;z-index:999998;width:min(430px,calc(100vw - 24px));max-height:calc(100vh - 84px);overflow:auto;padding:14px;border:1px solid #111;background:rgba(255,255,255,.97);font-size:12px;line-height:1.45;display:none}
+    body[data-review="true"] .panel{display:block}.panel h1{font-size:18px;margin:0 0 10px}.panel h2{font-size:12px;margin:18px 0 6px;text-transform:uppercase}.panel h3{font-size:12px;margin:12px 0 4px}.panel ul{margin:0;padding-left:18px}.panel code{background:#eee;padding:1px 3px}.panel blockquote{margin:6px 0;padding-left:9px;border-left:1px solid #111}.status{display:inline-block;padding:1px 4px;border:1px solid #111;margin-right:4px;font-size:10px;text-transform:uppercase}.muted{opacity:.62}
+  </style>
+</head>
+<body>
+  <iframe id="stage" src="/work/styx/" title="Styx production baseline"></iframe>
+  <aside class="panel" id="panel">
+    <h1>STYX review</h1>
+    <p><strong>Baseline:</strong> текущий production. REVIEW ничего не переставляет, не скрывает, не ресайзит и не переписывает внутри кейса.</p>
+
+    <h2>Решения S1–S5</h2>
+    <p><span class="status">S1 review</span> Полная перестройка допустима только как proposal. Сейчас визуально проверяем группировку, не применяя её.</p>
+    <p><span class="status">S2 keep</span> Lead оставить текущим.</p>
+    <blockquote>Разработал визуальную систему московского бренда украшений Styx Jewel. Создал айдентику, упаковку, фирменный стиль, продюсировал и снимал, создавал материалы для рекламы и соцсетей.</blockquote>
+    <p><span class="status">S3 keep</span> Текст айдентики оставить текущим.</p>
+    <blockquote>Разработал логотип, фирменный стиль, упаковку, печатные материалы, оформление соцсетей и рекламу.</blockquote>
+    <p><span class="status">S4 keep</span> Текст сканографии оставить текущим.</p>
+    <blockquote>Разработал для Styx Jewel технику сканографии: сканировал один объект на разных устройствах и вручную собирал кадры. Искажения и артефакты возникали во время сканирования, без цифровой имитации.</blockquote>
+    <p><span class="status">S5 draft</span> Social Instructions можно считать только направлением. Текст некорректен и должен быть переписан перед любым применением.</p>
+
+    <h2>Группировка, только proposal</h2>
+    <h3>Brand System</h3>
+    <p class="muted"><code>#styx-brand</code> <code>#styx-logo-banner</code> <code>#styx-production-media</code> <code>#styx-gift-certificate</code> <code>#styx-print-links</code> <code>#styx-social-instructions</code></p>
+    <ul>
+      <li>Айдентика, упаковка, печатные материалы и сертификаты рассматриваются как одна система.</li>
+      <li>Social Instructions предлагается включить в brand communication, но не менять визуально до отдельного согласования.</li>
+    </ul>
+    <h3>Scanography</h3>
+    <p class="muted"><code>#styx-scanography</code> <code>#styx-scanography-media</code> <code>#styx-scanography-campaign</code> <code>#styx-scanography-strip</code></p>
+    <ul><li>Остаётся отдельным и крупным визуальным элементом кейса.</li></ul>
+    <h3>Photography / Production</h3>
+    <p class="muted"><code>#styx-production</code> <code>#styx-brand-lookbook-2023</code> <code>#styx-catalog</code> <code>#styx-shootings</code> <code>#styx-lookbook-masonry</code> <code>#styx-lookbook</code> <code>#styx-lookbook-2025</code></p>
+    <ul>
+      <li>Текущий media order пока сохраняется.</li>
+      <li>Lookbook 2025 остаётся внутри фотографического блока, а не становится отдельной top-level главой.</li>
+    </ul>
+
+    <h2>Медиа на ручное решение</h2>
+    <p><strong>Кандидаты в дубли:</strong> <code>styx-07-02</code>, <code>styx-07-03</code>, <code>styx-07-04</code>, <code>styx-05-09</code>, <code>styx-05-14</code>, <code>styx-05-15</code>, <code>styx-05-16</code>, <code>styx-05-17</code>. Ничего не удалять автоматически.</p>
+    <p><strong>Product links:</strong> <code>styx-09-01</code>, <code>styx-09-02</code>, <code>styx-09-03</code>. Нужны прямые ссылки на товары, если они подтверждаются.</p>
+
+    <h2>Пока не решено</h2>
+    <ul>
+      <li>Формат показа credits.</li>
+      <li>Финальный текст S5.</li>
+      <li>Любое фактическое перемещение/удаление media.</li>
+      <li>Любое изменение canonical copy.</li>
+    </ul>
+  </aside>
+  <div class="toolbar"><span>prod baseline</span><button id="review" type="button" aria-pressed="false">review</button></div>
+  <script>
+    const frame=document.querySelector('#stage');
+    const button=document.querySelector('#review');
+    const groups={
+      brand:['styx-brand','styx-logo-banner','styx-production-media','styx-gift-certificate','styx-print-links','styx-social-instructions'],
+      scan:['styx-scanography','styx-scanography-media','styx-scanography-campaign','styx-scanography-strip'],
+      photo:['styx-production','styx-brand-lookbook-2023','styx-catalog','styx-shootings','styx-lookbook-masonry','styx-lookbook','styx-lookbook-2025']
+    };
+    function setReview(on){
+      document.body.dataset.review=String(on);button.setAttribute('aria-pressed',String(on));
+      const doc=frame.contentDocument;if(!doc)return;
+      let style=doc.querySelector('#styx-approval-review-style');
+      if(on&&!style){style=doc.createElement('style');style.id='styx-approval-review-style';style.textContent='[data-styx-review]{outline:1px dashed #ff2a2a!important;outline-offset:3px;position:relative}[data-styx-review]::before{content:attr(data-styx-review);position:absolute;z-index:99999;top:4px;left:4px;background:#ffef65;color:#111;padding:2px 4px;font:10px/1.2 ui-monospace,monospace;pointer-events:none}';doc.head.append(style)}
+      Object.entries(groups).forEach(([name,ids])=>ids.forEach(id=>{const el=doc.getElementById(id);if(el){if(on)el.setAttribute('data-styx-review',name);else el.removeAttribute('data-styx-review')}}));
+      if(!on&&style)style.remove();
+    }
+    button.addEventListener('click',()=>setReview(document.body.dataset.review!=='true'));
+    frame.addEventListener('load',()=>{document.body.dataset.review='false'});
+  </script>
+</body>
+</html>
