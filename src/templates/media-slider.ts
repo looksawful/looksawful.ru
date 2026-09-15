@@ -1,5 +1,6 @@
 import type { MediaEntryId } from "../data/media/index.ts";
 import type { MediaSliderData } from "../types/media-slider.ts";
+import type { EditorialCopyRenderOptions } from "../types/render-options.ts";
 import { escapeHtml } from "../utils/html.ts";
 import { renderMediaCaptionLine, renderMediaElement } from "./media-figure.ts";
 
@@ -21,7 +22,10 @@ function renderDeckAttributes(data: MediaSliderData<MediaEntryId>): string {
   return attributes.join(" ");
 }
 
-export function renderMediaSlider(data: MediaSliderData<MediaEntryId>): string {
+export function renderMediaSlider(
+  data: MediaSliderData<MediaEntryId>,
+  options: EditorialCopyRenderOptions = {},
+): string {
   const classes = ["media", "slider", data.className].filter(Boolean).join(" ");
   const deckAttributes = renderDeckAttributes(data);
 
@@ -40,7 +44,7 @@ export function renderMediaSlider(data: MediaSliderData<MediaEntryId>): string {
     )
     .join("\n");
 
-  const captions = data.slides
+  const captions = options.showEditorialCopy === false ? "" : data.slides
     .map(
       (slide, index) => `
         <div
@@ -68,9 +72,7 @@ export function renderMediaSlider(data: MediaSliderData<MediaEntryId>): string {
         </div>
       </div>
 
-      <div class="media__caption slider__captions pile" aria-live="polite">
-        ${captions}
-      </div>
+      ${options.showEditorialCopy === false ? "" : `<div class="media__caption slider__captions pile" aria-live="polite">${captions}</div>`}
 
       <div aria-label="Навигация по слайдам" class="slider-controls cluster" role="group">
         <button aria-label="Предыдущий кадр" class="slider-controls__button" data-deck-prev="" type="button">←</button>

@@ -28,6 +28,7 @@ test("CMS media routes registered image replacement through affected-only genera
   assert.match(noVideoCache, /has_media_change == 'true'/);
   assert.match(noVideoCache, /image_only != 'true'/);
   assert.match(noVideoCache, /has_video != 'true'/);
+  assert.match(noVideoCache, /requires_full_rebuild != 'true'/);
   assert.match(noVideoCache, /reference\/metadata/i);
   assert.doesNotMatch(noVideoCache, /image-only/i);
 
@@ -37,12 +38,18 @@ test("CMS media routes registered image replacement through affected-only genera
   assert.doesNotMatch(validationTooling, /has_video == 'true'/);
   assert.match(validationTooling, /ffmpeg/);
 
+  const fullRebuild = step(workflow, "Full explicit media cache rebuild");
+  assert.match(fullRebuild, /requires_full_rebuild == 'true'/);
+  assert.match(fullRebuild, /npm run media:sync/);
+
   const videoBuild = step(workflow, "Build video derivatives incrementally");
   assert.match(videoBuild, /has_video == 'true'/);
+  assert.match(videoBuild, /requires_full_rebuild != 'true'/);
 
   const broadImageBuild = step(workflow, "Build image derivatives incrementally");
   assert.match(broadImageBuild, /has_image == 'true'/);
   assert.match(broadImageBuild, /image_only != 'true'/);
+  assert.match(broadImageBuild, /requires_full_rebuild != 'true'/);
 
   const affectedImageBuild = step(workflow, "Build affected image derivatives only");
   assert.match(affectedImageBuild, /image_only == 'true'/);
@@ -61,6 +68,7 @@ test("CMS media routes registered image replacement through affected-only genera
   const sourceFast = step(workflow, "Final Fast validation for broad source mutation");
   assert.match(sourceFast, /image_only != 'true'/);
   assert.match(sourceFast, /has_image == 'true'.*has_video == 'true'.*rebuild == 'true'/s);
+  assert.match(sourceFast, /requires_full_rebuild == 'true'/);
   assert.match(sourceFast, /npm run typecheck/);
   assert.match(sourceFast, /npm run test:fast/);
   assert.match(sourceFast, /npm run build:site/);

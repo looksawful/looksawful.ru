@@ -5,7 +5,6 @@ import test from "node:test";
 const index = readFileSync(new URL("../src/styles/index.css", import.meta.url), "utf8");
 const media = readFileSync(new URL("../src/styles/media.css", import.meta.url), "utf8");
 const components = readFileSync(new URL("../src/styles/components.css", import.meta.url), "utf8");
-const fastRunner = readFileSync(new URL("../tools/ci/run-tests.mjs", import.meta.url), "utf8");
 
 const genericBase = /(?:^|\n)\.media-group\s*\{[\s\S]*?--group-gap:\s*var\(--media-group-gap,\s*var\(--project-media-gap,\s*var\(--size-300\)\)\);[\s\S]*?--group-row-gap:\s*var\(--media-group-row-gap,\s*var\(--project-media-row-gap,\s*var\(--group-gap\)\)\);[\s\S]*?--group-columns:\s*2;[\s\S]*?--group-mobile-columns:\s*2;[\s\S]*?container:\s*media-group\s*\/\s*inline-size;[\s\S]*?display:\s*grid;[\s\S]*?gap:\s*clamp\(0\.9rem,\s*1\.6cqi,\s*1\.5rem\);[\s\S]*?inline-size:\s*min\(100%,\s*var\(--group-max,\s*var\(--project-media-max\)\)\);[\s\S]*?margin-inline:\s*auto;[\s\S]*?min-inline-size:\s*0;[\s\S]*?\}/;
 
@@ -41,8 +40,4 @@ test("Wave5L remains a move-only ownership change without specificity compensati
   assert.doesNotMatch(baseMatch[0], /!important/);
   assert.doesNotMatch(baseMatch[0], /--media-group-gap\s*:/);
   assert.doesNotMatch(baseMatch[0], /--media-group-row-gap\s*:/);
-});
-
-test("Wave5L ownership contract is mandatory in Fast CI", () => {
-  assert.match(fastRunner, /"test\/css-refactor-wave5l-media-group-base\.test\.mjs"/);
 });

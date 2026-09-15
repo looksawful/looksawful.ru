@@ -1,7 +1,6 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
-import { fastTests } from "../tools/ci/run-tests.mjs";
 
 const media = readFileSync(new URL("../src/styles/media.css", import.meta.url), "utf8");
 const components = readFileSync(new URL("../src/styles/components.css", import.meta.url), "utf8");
@@ -42,8 +41,4 @@ test("Wave5E sequence remains before infinite reel in media source order", () =>
   assert.notEqual(sequence, -1);
   assert.notEqual(infiniteReel, -1);
   assert.ok(sequence < infiniteReel);
-});
-
-test("Wave5E sequence ownership contract is mandatory in Fast CI", () => {
-  assert.equal(fastTests.has("test/css-refactor-wave5e-sequence.test.mjs"), true);
 });

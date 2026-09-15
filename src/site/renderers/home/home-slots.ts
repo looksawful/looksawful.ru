@@ -211,6 +211,8 @@ function renderPetProjectsSection(): string {
 }
 
 function injectPetProjectsSection(html: string): string {
+  if (!isHomeSectionVisible("pet-projects")) return html;
+
   const insertionPoint = '<section class="expertise" hidden>';
   if (!html.includes(insertionPoint)) {
     throw new Error("Homepage Pet Projects insertion point is missing.");

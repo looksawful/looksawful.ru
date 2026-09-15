@@ -19,6 +19,7 @@ import type {
 } from "../types/media-group.ts";
 
 import type { MediaCaptionView, MediaFigureData } from "../types/media-presentation.ts";
+import type { EditorialCopyRenderOptions } from "../types/render-options.ts";
 
 import { renderRevealAttribute, renderRevealGroupAttribute, renderRevealRailAttribute } from "../motion-contract.ts";
 import { escapeHtml } from "../utils/html.ts";
@@ -328,58 +329,61 @@ function sequencePlacement(): MediaFigurePlacement {
    Grid
    ================================================== */
 
-function renderPlainGridItems(data: PlainGridMediaGroupData<MediaEntryId>): string {
+function renderPlainGridItems(data: PlainGridMediaGroupData<MediaEntryId>, options: EditorialCopyRenderOptions): string {
   return data.items
     .map((item) =>
       renderMediaFigure(toFigureData(item, data.captionView), {
         placement: gridPlacement(item),
+        showEditorialCopy: options.showEditorialCopy,
       }),
     )
     .join("\n");
 }
 
-function renderOverflowGridItems(data: OverflowReelGridMediaGroupData<MediaEntryId>): string {
+function renderOverflowGridItems(data: OverflowReelGridMediaGroupData<MediaEntryId>, options: EditorialCopyRenderOptions): string {
   return data.items
     .map((item) =>
       renderMediaFigure(toFigureData(item, data.captionView), {
         placement: gridPlacement(item),
         reveal: false,
+        showEditorialCopy: options.showEditorialCopy,
       }),
     )
     .join("\n");
 }
 
-function renderCompactGridItems(data: CompactReelGridMediaGroupData<MediaEntryId>): string {
+function renderCompactGridItems(data: CompactReelGridMediaGroupData<MediaEntryId>, options: EditorialCopyRenderOptions): string {
   return data.items
     .map((item) =>
       renderMediaFigure(toFigureData(item, data.captionView), {
         placement: gridPlacement(item),
+        showEditorialCopy: options.showEditorialCopy,
       }),
     )
     .join("\n");
 }
 
-function renderGridItems(data: GridMediaGroupData<MediaEntryId>): string {
+function renderGridItems(data: GridMediaGroupData<MediaEntryId>, options: EditorialCopyRenderOptions): string {
   if (data.mode === "overflow-reel") {
-    return renderOverflowGridItems(data);
+    return renderOverflowGridItems(data, options);
   }
 
   if (data.mode === "compact-reel") {
-    return renderCompactGridItems(data);
+    return renderCompactGridItems(data, options);
   }
 
-  return renderPlainGridItems(data);
+  return renderPlainGridItems(data, options);
 }
 
 /* ==================================================
    Strip
    ================================================== */
 
-function renderStripItems(data: StripMediaGroupData<MediaEntryId>): string {
+function renderStripItems(data: StripMediaGroupData<MediaEntryId>, options: EditorialCopyRenderOptions): string {
   const reveal: MediaFigureRevealPolicy = data.infiniteReel ? false : "auto";
 
   return data.items
-    .map((item) => renderMediaFigure(toFigureData(item, data.captionView), { reveal }))
+    .map((item) => renderMediaFigure(toFigureData(item, data.captionView), { reveal, showEditorialCopy: options.showEditorialCopy }))
     .join("\n");
 }
 
@@ -387,9 +391,9 @@ function renderStripItems(data: StripMediaGroupData<MediaEntryId>): string {
    Masonry
    ================================================== */
 
-function renderMasonryItems(data: MasonryMediaGroupData<MediaEntryId>): string {
+function renderMasonryItems(data: MasonryMediaGroupData<MediaEntryId>, options: EditorialCopyRenderOptions): string {
   return data.items
-    .map((item) => renderMediaFigure(toFigureData(item, data.captionView)))
+    .map((item) => renderMediaFigure(toFigureData(item, data.captionView), { showEditorialCopy: options.showEditorialCopy }))
     .join("\n");
 }
 
@@ -397,11 +401,12 @@ function renderMasonryItems(data: MasonryMediaGroupData<MediaEntryId>): string {
    Bento
    ================================================== */
 
-function renderBentoItems(data: BentoMediaGroupData<MediaEntryId>): string {
+function renderBentoItems(data: BentoMediaGroupData<MediaEntryId>, options: EditorialCopyRenderOptions): string {
   return data.items
     .map((item) =>
       renderMediaFigure(toFigureData(item, data.captionView), {
         placement: bentoPlacement(item),
+        showEditorialCopy: options.showEditorialCopy,
       }),
     )
     .join("\n");
@@ -411,11 +416,12 @@ function renderBentoItems(data: BentoMediaGroupData<MediaEntryId>): string {
    Editorial
    ================================================== */
 
-function renderEditorialItems(data: EditorialMediaGroupData<MediaEntryId>): string {
+function renderEditorialItems(data: EditorialMediaGroupData<MediaEntryId>, options: EditorialCopyRenderOptions): string {
   return data.items
     .map((item) =>
       renderMediaFigure(toFigureData(item, data.captionView), {
         placement: editorialPlacement(item),
+        showEditorialCopy: options.showEditorialCopy,
       }),
     )
     .join("\n");
@@ -425,17 +431,19 @@ function renderEditorialItems(data: EditorialMediaGroupData<MediaEntryId>): stri
    Sequence
    ================================================== */
 
-function renderSequenceItems(data: SequenceMediaGroupData<MediaEntryId>): string {
+function renderSequenceItems(data: SequenceMediaGroupData<MediaEntryId>, options: EditorialCopyRenderOptions): string {
   const leading = renderMediaFigure(toFigureData(data.leading, data.captionView), {
     placement: sequencePlacement(),
+    showEditorialCopy: options.showEditorialCopy,
   });
 
   const middle = data.middle
-    .map((item) => renderMediaFigure(toFigureData(item, data.captionView)))
+    .map((item) => renderMediaFigure(toFigureData(item, data.captionView), { showEditorialCopy: options.showEditorialCopy }))
     .join("\n");
 
   const trailing = renderMediaFigure(toFigureData(data.trailing, data.captionView), {
     placement: sequencePlacement(),
+    showEditorialCopy: options.showEditorialCopy,
   });
 
   const middleClasses = ["media-group__middle", data.middleOverflow === "reel" ? "reel" : undefined]
@@ -462,25 +470,25 @@ function renderSequenceItems(data: SequenceMediaGroupData<MediaEntryId>): string
    Layout dispatch
    ================================================== */
 
-function renderItems(data: MediaGroupData<MediaEntryId>): string {
+function renderItems(data: MediaGroupData<MediaEntryId>, options: EditorialCopyRenderOptions): string {
   switch (data.layout) {
     case "grid":
-      return renderGridItems(data);
+      return renderGridItems(data, options);
 
     case "strip":
-      return renderStripItems(data);
+      return renderStripItems(data, options);
 
     case "masonry":
-      return renderMasonryItems(data);
+      return renderMasonryItems(data, options);
 
     case "bento":
-      return renderBentoItems(data);
+      return renderBentoItems(data, options);
 
     case "editorial":
-      return renderEditorialItems(data);
+      return renderEditorialItems(data, options);
 
     case "sequence":
-      return renderSequenceItems(data);
+      return renderSequenceItems(data, options);
   }
 }
 
@@ -552,7 +560,10 @@ function renderItemsMotionAttributes(data: MediaGroupData<MediaEntryId>): string
    Media group
    ================================================== */
 
-export function renderMediaGroup(data: MediaGroupData<MediaEntryId>): string {
+export function renderMediaGroup(
+  data: MediaGroupData<MediaEntryId>,
+  options: EditorialCopyRenderOptions = {},
+): string {
   const classes = ["media-group", data.className].filter(Boolean).join(" ");
 
   const itemClasses = ["media-group__items", usesOuterReel(data) ? "reel" : undefined]
@@ -563,7 +574,9 @@ export function renderMediaGroup(data: MediaGroupData<MediaEntryId>): string {
 
   const style = renderGroupStyle(data);
 
-  const head = renderGroupHead(data.head, !(data.layout === "strip" && data.infiniteReel));
+  const head = options.showEditorialCopy === false
+    ? ""
+    : renderGroupHead(data.head, !(data.layout === "strip" && data.infiniteReel));
 
   const track = renderTrackAttribute(data);
 
@@ -579,7 +592,7 @@ export function renderMediaGroup(data: MediaGroupData<MediaEntryId>): string {
       <div
         class="${escapeHtml(itemClasses)}"${renderItemsMotionAttributes(data)}${track}
       >
-        ${renderItems(data)}
+        ${renderItems(data, options)}
       </div>
     </${element}>
   `;

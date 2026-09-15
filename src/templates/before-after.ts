@@ -1,5 +1,6 @@
 import { getMediaAsset, getMediaEntry, type MediaEntryId } from "../data/media/index.ts";
 import type { BeforeAfterData, BeforeAfterSideData } from "../types/before-after.ts";
+import type { EditorialCopyRenderOptions } from "../types/render-options.ts";
 import { escapeHtml } from "../utils/html.ts";
 
 function renderSide(
@@ -42,7 +43,10 @@ function renderCaption(data: BeforeAfterData<MediaEntryId>): string {
   `;
 }
 
-export function renderBeforeAfter(data: BeforeAfterData<MediaEntryId>): string {
+export function renderBeforeAfter(
+  data: BeforeAfterData<MediaEntryId>,
+  options: EditorialCopyRenderOptions = {},
+): string {
   const value = data.value ?? 50;
   const min = data.min ?? 0;
   const max = data.max ?? 100;
@@ -62,7 +66,7 @@ export function renderBeforeAfter(data: BeforeAfterData<MediaEntryId>): string {
         <span class="before-after__label before-after__label--after">${escapeHtml(data.after.label)}</span>
         <input aria-label="${escapeHtml(ariaLabel)}" class="before-after__range" max="${max}" min="${min}" step="${step}" type="range" value="${value}">
       </div>
-      ${renderCaption(data)}
+      ${options.showEditorialCopy === false ? "" : renderCaption(data)}
     </figure>
   `;
 }

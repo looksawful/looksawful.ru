@@ -1,7 +1,7 @@
 import visibilityJson from "../../content/visibility/home.json" with { type: "json" };
 import { parseSectionVisibility } from "./section-visibility.ts";
 
-export const homeSectionIds = ["client-logo-wall"] as const;
+export const homeSectionIds = ["client-logo-wall", "pet-projects"] as const;
 export type HomeSectionId = (typeof homeSectionIds)[number];
 
 const rawVisibility: unknown = visibilityJson;
