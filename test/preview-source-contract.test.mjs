@@ -128,3 +128,8 @@ test("CMS ref GC workflow is source-only, scheduled and lease-protected", () => 
   assert.doesNotMatch(workflow, /refs\/heads\/(?:dev|prod|lab)/);
   assert.doesNotMatch(workflow, /CLOUDFLARE|API_TOKEN|ACCOUNT_ID|PASSWORD|SESSION_SECRET/i);
 });
+
+test("Preview Source Contract watches CMS ref GC workflow changes", () => {
+  const workflow = readFileSync(new URL("../.github/workflows/preview-source-contract.yml", import.meta.url), "utf8");
+  assert.match(workflow, /\.github\/workflows\/cms-preview-ref-gc\.yml/);
+});
