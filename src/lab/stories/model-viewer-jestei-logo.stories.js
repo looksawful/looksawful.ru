@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-import { RGBELoader } from "three/addons/loaders/RGBELoader.js";
+import { HDRLoader } from "three/addons/loaders/HDRLoader.js";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 
 const MODEL_URL = "/media/projects/jestei/model-viewer/jestei-logo-web.glb";
@@ -202,7 +202,7 @@ const loadEnvironment = async (renderer, scene) => {
   pmrem.compileEquirectangularShader();
 
   try {
-    const source = await new RGBELoader().loadAsync(HDRI_URL);
+    const source = await new HDRLoader().loadAsync(HDRI_URL);
     const environment = pmrem.fromEquirectangular(source).texture;
     source.dispose();
     scene.environment = environment;
