@@ -13136,6 +13136,156 @@
           "format": "webp"
         }
       ]
+    },
+    {
+      "id": "useful-awful-cases-cover-poster",
+      "src": "/media/projects/useful/awful-cases-cover.webp",
+      "sourceWidth": 1080,
+      "sourceHeight": 1350,
+      "sourceBytes": 20630,
+      "sourceHash": "1e6c5bf2b90d9882cebb3ecdd7821b33fd30b25972e0652408d0871f247f9ca6",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/useful/awful-cases-cover@480.webp",
+          "width": 480,
+          "height": 600,
+          "bytes": 11208,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/useful/awful-cases-cover@768.webp",
+          "width": 768,
+          "height": 960,
+          "bytes": 18888,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "useful-moves-awful-cover-poster",
+      "src": "/media/projects/useful/moves-awful-cover.webp",
+      "sourceWidth": 1080,
+      "sourceHeight": 1350,
+      "sourceBytes": 52196,
+      "sourceHash": "f245fb42b9b031519a2f25ef666e890e0684ba7d20bd32db8830aafbc5d1d60e",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/useful/moves-awful-cover@480.webp",
+          "width": 480,
+          "height": 600,
+          "bytes": 22696,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/useful/moves-awful-cover@768.webp",
+          "width": 768,
+          "height": 960,
+          "bytes": 41760,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "useful-berserk-timer-cover",
+      "src": "/media/projects/useful/berserk-timer-cover.webp",
+      "sourceWidth": 1080,
+      "sourceHeight": 1350,
+      "sourceBytes": 46420,
+      "sourceHash": "7c05161941ab90bcdf045ba9fbeac89083ca4cd63aa3fdd208c14b93d3f7fd74",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/useful/berserk-timer-cover@480.webp",
+          "width": 480,
+          "height": 600,
+          "bytes": 16976,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/useful/berserk-timer-cover@768.webp",
+          "width": 768,
+          "height": 960,
+          "bytes": 28062,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "useful-awful-studio-cover",
+      "src": "/media/projects/useful/awful-studio-cover.webp",
+      "sourceWidth": 1080,
+      "sourceHeight": 1350,
+      "sourceBytes": 33846,
+      "sourceHash": "e8f67c8a3dc76159fc22c0eeb7ef299db2960be87f900af7b34f0cf46902e77e",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/useful/awful-studio-cover@480.webp",
+          "width": 480,
+          "height": 600,
+          "bytes": 12524,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/useful/awful-studio-cover@768.webp",
+          "width": 768,
+          "height": 960,
+          "bytes": 20944,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "useful-awful-mockups-cover",
+      "src": "/media/projects/useful/awful-mockups-cover.webp",
+      "sourceWidth": 1080,
+      "sourceHeight": 1350,
+      "sourceBytes": 57272,
+      "sourceHash": "912cd4f210da6d72b1786eed86e758a97f32c95662e8a0d46b7d34b6f18249b8",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/useful/awful-mockups-cover@480.webp",
+          "width": 480,
+          "height": 600,
+          "bytes": 12256,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/useful/awful-mockups-cover@768.webp",
+          "width": 768,
+          "height": 960,
+          "bytes": 22468,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "useful-awful-3d-mockups-cover",
+      "src": "/media/projects/useful/awful-3d-mockups-cover.webp",
+      "sourceWidth": 1080,
+      "sourceHeight": 1350,
+      "sourceBytes": 28018,
+      "sourceHash": "b41f5605805224e2e01e19ab00be7df4318f3f44a79b6eb6940a25ef04ee8aa4",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/useful/awful-3d-mockups-cover@480.webp",
+          "width": 480,
+          "height": 600,
+          "bytes": 10058,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/useful/awful-3d-mockups-cover@768.webp",
+          "width": 768,
+          "height": 960,
+          "bytes": 17386,
+          "format": "webp"
+        }
+      ]
     }
   ]
 }
