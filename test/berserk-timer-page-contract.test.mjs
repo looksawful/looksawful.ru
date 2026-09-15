@@ -10,12 +10,17 @@ function renderBerserkPage() {
   return renderStandaloneEntityPage(page);
 }
 
-test("Berserk Timer restores the legacy showcase without the standard project intro", () => {
+test("Berserk Timer renders its canonical project intro visibly before the specialized showcase", () => {
   const html = renderBerserkPage();
 
-  assert.doesNotMatch(html, /class="project__head"/);
-  assert.doesNotMatch(html, /class="project__intro\b/);
-  assert.match(html, /<h1[^>]*class="visually-hidden"[^>]*>Berserk Timer<\/h1>/);
+  assert.match(html, /class="project__head"/);
+  assert.match(html, /class="project__intro\b/);
+  assert.match(html, /<h1\b[^>]*class="project__title"[^>]*>\s*Berserk Timer\s*<\/h1>/);
+  assert.match(html, /Разработчик/);
+  assert.match(html, /Консольный помодоро-таймер для Windows\./);
+  assert.match(html, /Python CLI-таймер с гибким вводом длительности/);
+  assert.match(html, /href="https:\/\/github\.com\/looksawful\/berserk-timer"/);
+  assert.doesNotMatch(html, /<h1[^>]*class="visually-hidden"[^>]*>Berserk Timer<\/h1>/);
   assert.match(html, /class="media terminal"/);
   assert.match(html, /CLI-таймер с режимом свидетеля и гибкой настройкой длительности\./);
 });

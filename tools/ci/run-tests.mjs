@@ -54,6 +54,7 @@ export const fastTests = new Set([
   "test/pr-preview-workflow.test.mjs",
   "test/portfolio-pet-production-contact-form.test.mjs",
   "test/project-card-hover.test.mjs",
+  "test/project-component-surfaces.test.mjs",
   "test/repository-growth-policy.test.mjs",
   "test/search-presentation.test.mjs",
   "test/security-tooling.test.mjs",

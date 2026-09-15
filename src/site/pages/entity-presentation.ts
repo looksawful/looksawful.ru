@@ -50,7 +50,6 @@ export const entityShellPresentationRegistry: EntityShellPresentationRegistry = 
     articleId: "project-berserk-timer",
     theme: "neutral",
     navigationProject: false,
-    showIntro: false,
   }],
   ["project:awful-studio", {
     articleId: "project-awful-studio",
