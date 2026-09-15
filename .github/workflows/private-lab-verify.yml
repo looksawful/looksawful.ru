@@ -70,7 +70,13 @@ jobs:
         run: npm run lab:inventory
 
       - name: Storybook contracts
-        run: node --test test/lab-design-system-inventory.test.mjs test/lab-storybook-harness.test.mjs test/lab-storybook-molecule-coverage.test.mjs test/lab-storybook-state-coverage.test.mjs test/lab-storybook-state-schema.test.mjs test/model-viewer-lab-media-shell.test.mjs
+        run: node --test test/lab-design-system-inventory.test.mjs test/lab-storybook-harness.test.mjs test/lab-storybook-integration-gaps.test.mjs test/lab-storybook-molecule-coverage.test.mjs test/lab-storybook-smoke-contract.test.mjs test/lab-storybook-state-coverage.test.mjs test/lab-storybook-state-schema.test.mjs test/model-viewer-lab-media-shell.test.mjs
+
+      - name: Install pinned Chromium headless shell
+        run: npx playwright install --with-deps --only-shell chromium
+
+      - name: Targeted Storybook browser smoke
+        run: node tools/lab/smoke-storybook.mjs
 
       - name: Fast regression suite
         run: npm run test:fast
