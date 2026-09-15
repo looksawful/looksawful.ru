@@ -38,22 +38,101 @@ export interface MediaSurfacePresentation {
    * owns its geometry entirely in CSS. Defaults to true.
    */
   deriveRatio?: boolean;
+
+  /**
+   * Optional authored surface ratio.
+   *
+   * Ordinary single-media figures derive the ratio from MediaAsset dimensions.
+   * Compound or intentionally cropped surfaces can override that derived value.
+   */
+  ratio?: string;
+
   fit?: MediaFit;
   position?: string;
-  ratio?: string;
 }
 
-export interface MediaFigurePresentationOptions {
-  surface?: MediaSurfacePresentation;
-  captionView?: MediaCaptionView;
-}
+export type MediaSurfaceLayout = "pair" | "triptych";
 
-export interface MediaVideoPresentationOptions {
+export interface MediaSurfaceEntryData<EntryId extends string = string> {
+  entryId: EntryId;
+
+  loading?: MediaLoading;
+
+  mediaClassName?: string;
+
   video?: MediaVideoOptions;
 }
 
-export interface MediaElementOptions extends MediaVideoPresentationOptions {
+export interface MediaSurfaceOverlayData {
+  className: string;
+  text: string;
+}
+
+export type MediaDeckAutoplay = "off" | "forward" | "ping-pong";
+
+export interface EmbeddedMediaDeckData<EntryId extends string = string> {
   className?: string;
-  dimensions?: boolean;
+
+  slides: readonly MediaSurfaceEntryData<EntryId>[];
+
+  autoplay?: MediaDeckAutoplay;
+
+  advanceOnEnded?: boolean;
+}
+
+export interface MediaCaptionPresentation {
+  captionView: MediaCaptionView;
+}
+
+export interface MediaFigureData<EntryId extends string = string> extends MediaCaptionPresentation {
+  entryId: EntryId;
+
+  presentation?: MediaPresentation;
+
   loading?: MediaLoading;
+
+  className?: string;
+  mediaClassName?: string;
+  surfaceClassName?: string;
+  captionClassName?: string;
+
+  captionFields?: readonly MediaCaptionField[];
+
+  surface?: MediaSurfacePresentation;
+
+  surfaceLayout?: MediaSurfaceLayout;
+
+  surfaceEntries?: readonly MediaSurfaceEntryData<EntryId>[];
+
+  surfaceOverlay?: MediaSurfaceOverlayData;
+
+  surfaceDeck?: EmbeddedMediaDeckData<EntryId>;
+
+  /**
+   * false produces data-lightbox="off".
+   *
+   * true and undefined both mean that the ordinary
+   * lightbox mechanism may handle this media.
+   */
+  lightbox?: boolean;
+
+  video?: MediaVideoOptions;
+}
+
+export type MockupDevice = "desktop" | "mobile";
+
+export interface MockupData<EntryId extends string = string> extends MediaCaptionPresentation {
+  entryId: EntryId;
+
+  device: MockupDevice;
+
+  role?: string;
+  theme?: string;
+
+  loading?: MediaLoading;
+
+  className?: string;
+  mediaClassName?: string;
+
+  video?: MediaVideoOptions;
 }
