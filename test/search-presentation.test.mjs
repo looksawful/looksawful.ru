@@ -224,25 +224,36 @@ test("Pages deployment verifies Yandex-visible discovery files after publish", (
   assert.match(pagesWorkflow, /content-type:[^\n]*image\/png/);
 });
 
-test("Jestei filter UI is excluded from Yandex indexing and Google snippets", () => {
+test("Jestei search presentation keeps the widget out of Home and excludes it on the standalone case", () => {
   const page = getPageByPath("/work/jestei-pool/");
   assert.ok(page && page.type === "case");
 
-  const htmlVariants = [renderHomepagePage(indexSource), renderStandaloneEntityPage(page)];
+  const homepageHtml = renderHomepagePage(indexSource);
+  assert.doesNotMatch(
+    homepageHtml,
+    /<playlist-filter-workflow\b/,
+    "compact homepage Jestei preview must not embed the full filter widget",
+  );
+
+  const html = renderStandaloneEntityPage(page);
   const protectedViewport =
     /<!--noindex--><div class="mockup__viewport" data-nosnippet>([\s\S]*?<\/playlist-filter-workflow>)<\/div><!--\/noindex-->/;
+  const match = html.match(protectedViewport);
 
-  for (const html of htmlVariants) {
-    const match = html.match(protectedViewport);
-    assert.ok(match, "Jestei filter viewport must carry both Yandex noindex and Google data-nosnippet");
-    assert.doesNotMatch(
-      match[1],
-      /<!--\/?noindex-->/,
-      "Jestei filter viewport must not contain nested Yandex noindex markers",
-    );
+  assert.ok(
+    match,
+    "standalone Jestei filter viewport must carry both Yandex noindex and Google data-nosnippet",
+  );
+  assert.doesNotMatch(
+    match[1],
+    /<!--\/?noindex-->/,
+    "Jestei filter viewport must not contain nested Yandex noindex markers",
+  );
 
-    const protectedEnd = (match.index ?? -1) + match[0].length;
-    const captionIndex = html.indexOf('<figcaption class="media__caption"', protectedEnd);
-    assert.ok(captionIndex > protectedEnd, "the authored filter caption must stay outside the excluded widget viewport");
-  }
+  const protectedEnd = (match.index ?? -1) + match[0].length;
+  const captionIndex = html.indexOf('<figcaption class="media__caption"', protectedEnd);
+  assert.ok(
+    captionIndex > protectedEnd,
+    "the authored filter caption must stay outside the excluded widget viewport",
+  );
 });
