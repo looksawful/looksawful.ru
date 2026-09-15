@@ -28,7 +28,7 @@
 - [x] Run test and confirm missing-module failure.
 - [x] Implement minimal catalog.
 - [x] Run test green.
-- [ ] Commit.
+- [x] Commit.
 
 ### Task 2: Deterministic Blender SVG-to-GLB generator
 **Files:** Create `tools/logo-3d/generate-logo-3d.py`, `tools/logo-3d/logo-3d-manifest.json`; Test `test/logo-3d-generator-contract.test.mjs`.
@@ -64,3 +64,13 @@
 - [ ] Run `npm run typecheck` and relevant fast tests.
 - [ ] Inspect generated GLBs and repository diff/growth.
 - [ ] Push feature branch and open PR only after verification.
+
+## Quick pass status ? 2026-09-15
+
+- [x] Explicit requested-family catalog corrected, including S&S, Line, Progress Tradition and illumihand blockers.
+- [x] Jestei Pool catalog includes symbol, wordmark and lockup across pear, orange, blue and biloba.
+- [x] Canonical Awfulface source resolved to `public/favicon.svg`.
+- [x] SVG source audit automated: 176 real vector SVGs, 5 raster wrappers.
+- [x] Blender manifest created and contract-tested against the catalog.
+- [x] Feature branch pushed to GitHub.
+- [ ] Blender generator, generated GLBs, shared Storybook gallery and visual QA remain.
