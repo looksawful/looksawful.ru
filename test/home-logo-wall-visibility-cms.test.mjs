@@ -19,16 +19,16 @@ import {
 const indexUrl = new URL("../index.html", import.meta.url);
 const visibilityUrl = new URL("../src/content/visibility/home.json", import.meta.url);
 
-test("Homepage section visibility keeps stable identities and disabled content state", async () => {
+test("Homepage section visibility keeps stable identities and current content state", async () => {
   const visibility = JSON.parse(await readFile(visibilityUrl, "utf8"));
 
   assert.deepEqual(homeSectionIds, ["client-logo-wall", "pet-projects"]);
   assert.deepEqual(visibility, [
     { id: "client-logo-wall", visible: false },
-    { id: "pet-projects", visible: false },
+    { id: "pet-projects", visible: true },
   ]);
   assert.equal(isHomeSectionVisible("client-logo-wall"), false);
-  assert.equal(isHomeSectionVisible("pet-projects"), false);
+  assert.equal(isHomeSectionVisible("pet-projects"), true);
 });
 
 test("Homepage section visibility remains a reversible boolean contract", () => {
@@ -67,7 +67,7 @@ test("logo-wall visibility removes the complete outer section without a hidden w
   assert.match(hidden, /<section id="after">after<\/section>/);
 });
 
-test("disabled Homepage sections are absent from generated output", async () => {
+test("Homepage visibility state is reflected in generated output", async () => {
   const indexHtml = await readFile(indexUrl, "utf8");
   const rendered = renderHomepage(indexHtml);
 
@@ -76,9 +76,9 @@ test("disabled Homepage sections are absent from generated output", async () => 
   assert.doesNotMatch(rendered, /portfolio-logo-wall/);
   assert.doesNotMatch(rendered, /data-infinite-reel-track[^>]*>[\s\S]*?CLIENT_LOGOS/);
 
-  assert.doesNotMatch(rendered, /class="pet-projects"/);
-  assert.doesNotMatch(rendered, /id="pet-projects-title"/);
-  assert.doesNotMatch(rendered, />Полезное</);
+  assert.match(rendered, /class="pet-projects"/);
+  assert.match(rendered, /id="pet-projects-title"/);
+  assert.match(rendered, />Полезное</);
 });
 
 test("Homepage visibility content is explicitly authorized for CMS publication", () => {
