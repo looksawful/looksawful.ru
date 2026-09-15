@@ -71,6 +71,21 @@ export const otherProjects = [
     primaryRoleId: "developer",
     roleIds: ["developer"],
   },
+  {
+    id: "awful-studio",
+    name: "Awful Studio",
+    collectionIds: ["pet-projects"],
+  },
+  {
+    id: "awful-mockups",
+    name: "Awful Mockups",
+    collectionIds: ["pet-projects"],
+  },
+  {
+    id: "awful-3d-mockups",
+    name: "Awful 3D Mockups",
+    collectionIds: ["pet-projects"],
+  },
 ] as const satisfies readonly ProjectData[];
 
 export type OtherProject = (typeof otherProjects)[number];
