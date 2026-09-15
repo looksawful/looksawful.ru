@@ -123,7 +123,8 @@ test("CMS ref GC workflow is source-only, scheduled and lease-protected", () => 
   assert.match(workflow, /schedule:/);
   assert.match(workflow, /dry_run:/);
   assert.match(workflow, /contents: write/);
-  assert.match(workflow, /--force-with-lease=/);
+  assert.match(workflow, /cmsRefDeleteLeaseArgument/);
+  assert.match(workflow, /git push "\$lease" origin ":\$ref"/);
   assert.match(workflow, /refs\/heads\/cms-preview\//);
   assert.doesNotMatch(workflow, /refs\/heads\/(?:dev|prod|lab)/);
   assert.doesNotMatch(workflow, /CLOUDFLARE|API_TOKEN|ACCOUNT_ID|PASSWORD|SESSION_SECRET/i);
