@@ -1,26 +1,25 @@
+import { styxProductionMockupDeck } from "../../data/content/styx.ts";
 import { renderAnimatedCanvasGallery } from "../../templates/animated-canvas-gallery.ts";
 
-const productionFixture = {
-  profile: "production",
-  variant: "masonry",
-  ariaLabel: "Storybook production masonry gallery",
-  sources: [
-    { entryId: "styx-07-source-01-4x5-use-01" },
-    { entryId: "styx-07-source-02-4x5-use-01" },
-    { entryId: "styx-07-source-05-4x5-use-01" },
-  ],
-};
+const productionGallerySlide = styxProductionMockupDeck.slides.find(
+  (slide) => slide.kind === "canvas-gallery",
+);
+if (!productionGallerySlide || productionGallerySlide.kind !== "canvas-gallery") {
+  throw new Error("Styx production canvas gallery slide is missing.");
+}
+const productionGallery = productionGallerySlide.gallery;
 
 const meta = {
   title: "03 Organisms/Animated Canvas Gallery",
   tags: ["autodocs", "stable", "a11y-reviewed", "project:styx"],
-  render: () => renderAnimatedCanvasGallery(productionFixture),
+  render: () => renderAnimatedCanvasGallery(productionGallery),
   parameters: {
     layout: "padded",
     looksawful: {
       sources: [
         "src/templates/animated-canvas-gallery.ts",
         "src/components/animated-canvas-gallery.js",
+        "src/data/content/styx.ts",
       ],
       layer: "organism",
       policy: "behavior-fixture",
