@@ -9,7 +9,7 @@ const STYLE_ID = "model-viewer-awful-studio-device-styles";
 
 const DEVICES = {
   iphone17: {
-    name: "iPhone 17",
+    name: "iPhone 17 · v15",
     src: "/media/projects/awful-studio/device-viewer/iphone-17.glb",
     aria: "3D-модель iPhone 17",
     view: [0.32, 0.12, 1],
@@ -17,7 +17,7 @@ const DEVICES = {
     envIntensity: 1.12,
   },
   ipad11: {
-    name: "iPad Pro 11 M5",
+    name: "iPad Pro 11 M5 · v6",
     src: "/media/projects/awful-studio/device-viewer/ipad-pro-11.glb",
     aria: "3D-модель iPad Pro 11 M5",
     view: [0.34, 0.16, 1],
@@ -25,7 +25,7 @@ const DEVICES = {
     envIntensity: 1.1,
   },
   ipad13: {
-    name: "iPad Pro 13 M5",
+    name: "iPad Pro 13 M5 · v6",
     src: "/media/projects/awful-studio/device-viewer/ipad-pro-13.glb",
     aria: "3D-модель iPad Pro 13 M5",
     view: [0.34, 0.16, 1],
@@ -33,7 +33,7 @@ const DEVICES = {
     envIntensity: 1.1,
   },
   macbook14: {
-    name: "MacBook Pro 14 M5",
+    name: "MacBook Pro 14 M5 · current",
     src: "/media/projects/awful-studio/device-viewer/macbook-pro-14.glb",
     aria: "3D-модель MacBook Pro 14 M5",
     view: [0.95, 0.52, 1],
