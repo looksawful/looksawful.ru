@@ -146,7 +146,7 @@ jobs:
             .cache/media/generated-cache.json
           key: generated-media-v3-${{ runner.os }}-${{ steps.previous-media.outputs.fingerprint }}
       - name: Require exact base cache for broad non-video media mutation
-        if: github.event_name == 'push' && steps.scope.outputs.has_media_change == 'true' && steps.affected.outputs.image_only != 'true' && steps.scope.outputs.has_video != 'true' && steps.previous-cache.outputs.cache-hit != 'true'
+        if: github.event_name == 'push' && steps.scope.outputs.has_media_change == 'true' && steps.affected.outputs.image_only != 'true' && steps.scope.outputs.has_video != 'true' && steps.affected.outputs.requires_full_rebuild != 'true' && steps.previous-cache.outputs.cache-hit != 'true'
         shell: bash
         run: |
           echo "Exact previous generated-media cache is missing for a broad reference/metadata media update." >&2
@@ -180,13 +180,13 @@ jobs:
           sudo apt-get update
           sudo apt-get install --yes ffmpeg
       - name: Full explicit media cache rebuild
-        if: steps.scope.outputs.rebuild == 'true' || (steps.scope.outputs.has_video == 'true' && steps.previous-cache.outputs.cache-hit != 'true')
+        if: steps.scope.outputs.rebuild == 'true' || steps.affected.outputs.requires_full_rebuild == 'true' || (steps.scope.outputs.has_video == 'true' && steps.previous-cache.outputs.cache-hit != 'true')
         run: npm run media:sync
       - name: Build video derivatives incrementally
-        if: steps.scope.outputs.rebuild != 'true' && steps.scope.outputs.has_video == 'true' && steps.previous-cache.outputs.cache-hit == 'true'
+        if: steps.scope.outputs.rebuild != 'true' && steps.affected.outputs.requires_full_rebuild != 'true' && steps.scope.outputs.has_video == 'true' && steps.previous-cache.outputs.cache-hit == 'true'
         run: npm run media:video:build
       - name: Build image derivatives incrementally
-        if: steps.scope.outputs.rebuild != 'true' && steps.scope.outputs.has_image == 'true' && steps.affected.outputs.image_only != 'true' && steps.previous-cache.outputs.cache-hit == 'true'
+        if: steps.scope.outputs.rebuild != 'true' && steps.affected.outputs.requires_full_rebuild != 'true' && steps.scope.outputs.has_image == 'true' && steps.affected.outputs.image_only != 'true' && steps.previous-cache.outputs.cache-hit == 'true'
         run: npm run media:build
       - name: Build affected image derivatives only
         if: steps.affected.outputs.image_only == 'true'
@@ -236,7 +236,7 @@ jobs:
             .cache/media/generated-cache.json
           key: generated-media-v3-${{ runner.os }}-${{ steps.media.outputs.fingerprint }}
       - name: Final Fast validation for broad source mutation
-        if: steps.affected.outputs.image_only != 'true' && (steps.scope.outputs.has_image == 'true' || steps.scope.outputs.has_video == 'true' || steps.scope.outputs.rebuild == 'true')
+        if: steps.affected.outputs.image_only != 'true' && (steps.scope.outputs.has_image == 'true' || steps.scope.outputs.has_video == 'true' || steps.scope.outputs.rebuild == 'true' || steps.affected.outputs.requires_full_rebuild == 'true')
         shell: bash
         run: |
           set -euo pipefail
