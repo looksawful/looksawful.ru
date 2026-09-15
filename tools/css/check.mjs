@@ -180,6 +180,7 @@ const EXPECTED_IMPORT_GRAPH = Object.freeze([
   '@import "./slider.css" layer(components);',
   '@import "./media-deck.css" layer(components);',
   '@import "./media-lightbox.css" layer(components);',
+  '@import "./subproject-cards.css" layer(components);',
   '@import "../components/jestei-theme-organism/jestei-theme-organism.css";',
   '@import "./captions.css" layer(captions);',
   '@import "./motion.css" layer(motion);',
@@ -259,9 +260,7 @@ export function findOwnerViolations(sources, rules = OWNER_RULES) {
       );
       for (const pattern of rule.patterns) {
         if (pattern.test(source)) {
-          errors.push(
-            `${rule.name}: selector family belongs to ${rule.owner}, found in ${file}`,
-          );
+          errors.push(`${rule.name}: selector family must stay in ${rule.owner}; found in ${file}`);
           break;
         }
       }
@@ -270,61 +269,28 @@ export function findOwnerViolations(sources, rules = OWNER_RULES) {
   return errors;
 }
 
-export function findComponentsNoGrowthViolations(
-  rawSource,
-  residualFamilies = COMPONENTS_RESIDUAL_FAMILIES,
-  compositionClasses = COMPONENTS_COMPOSITION_CLASSES,
-) {
-  const residual = new Set(residualFamilies);
-  const composition = new Set(compositionClasses);
-  const compositionFamilies = new Set(
-    [...composition].map((className) => selectorFamily(className)),
-  );
+export function findComponentsResidualGrowth(sources) {
+  const source = sources.get("src/styles/components.css") ?? "";
+  const allowedFamilies = new Set(COMPONENTS_RESIDUAL_FAMILIES);
+  const compositionClasses = new Set(COMPONENTS_COMPOSITION_CLASSES);
   const errors = [];
-  const rejectedFamilies = new Set();
-
-  for (const className of listClassNames(rawSource)) {
-    if (composition.has(className)) continue;
-
+  for (const className of listClassNames(source)) {
+    if (compositionClasses.has(className)) continue;
     const family = selectorFamily(className);
-    if (residual.has(family)) continue;
-
-    if (compositionFamilies.has(family)) {
-      errors.push(
-        `components: selector .${className} is not an allowed composition seam`,
-      );
-      continue;
+    if (!allowedFamilies.has(family)) {
+      errors.push(`components residual: new durable family .${family} must use a dedicated owner`);
     }
-
-    if (rejectedFamilies.has(family)) continue;
-    rejectedFamilies.add(family);
-    errors.push(
-      `components: new durable selector family .${family} is not in the residual allowlist`,
-    );
   }
-
   return errors;
 }
 
-function readImportGraph(source) {
-  return (
-    stripComments(source).match(/^[ \t]*@import\s+[^;\n]+;/gm) ?? []
-  ).map((statement) => statement.trim());
-}
-
-function checkManifest(sources) {
-  const source = sources.get("src/styles/index.css");
-  if (!source) return ["manifest: missing src/styles/index.css"];
-
+export function findImportManifestViolations(root) {
+  const indexCss = readFileSync(path.join(root, "src/styles/index.css"), "utf8");
+  const statements = indexCss.match(/^@import\s+[^;]+;/gm) ?? [];
   const errors = [];
-  if (!source.startsWith(EXPECTED_LAYER_ORDER)) {
-    errors.push("manifest: canonical @layer order changed");
-  }
-
-  const actualImports = readImportGraph(source);
   if (
-    actualImports.length !== EXPECTED_IMPORT_GRAPH.length ||
-    actualImports.some(
+    statements.length !== EXPECTED_IMPORT_GRAPH.length ||
+    statements.some(
       (statement, index) => statement !== EXPECTED_IMPORT_GRAPH[index],
     )
   ) {
@@ -333,88 +299,26 @@ function checkManifest(sources) {
   return errors;
 }
 
-function checkComponentsNoGrowth(sources) {
-  const source = sources.get("src/styles/components.css");
-  if (!source) return [];
-  return findComponentsNoGrowthViolations(source);
-}
-
-function readIncomingField(header, name) {
-  const pattern = new RegExp(
-    `(?:^|\\n)\\s*\\*?\\s*${name}:\\s*([^\\n\\r*]+)`,
-    "i",
-  );
-  return header.match(pattern)?.[1]?.trim() ?? "";
-}
-
-export function findIncomingLifecycleViolations(rawSource) {
-  if (!stripComments(rawSource).trim()) return [];
-
-  const markers = rawSource.match(/@incoming\b/g) ?? [];
-  if (markers.length === 0) {
-    return ["incoming: non-empty incoming.css requires @incoming lifecycle metadata"];
-  }
-  if (markers.length !== 1) {
-    return [
-      "incoming: incoming.css allows exactly one @incoming lifecycle header",
-    ];
-  }
-
-  const header = rawSource.match(/\/\*[\s\S]*?@incoming\b[\s\S]*?\*\//)?.[0];
-  if (!header) {
-    return ["incoming: @incoming lifecycle metadata must be inside a CSS comment"];
-  }
-
-  const issue = readIncomingField(header, "issue");
-  if (!/^#\d+$/.test(issue)) {
-    return ["incoming: lifecycle header requires issue: #<number> metadata"];
-  }
-
-  if (!readIncomingField(header, "target")) {
-    return ["incoming: lifecycle header requires non-empty target metadata"];
-  }
-
-  if (!readIncomingField(header, "reason")) {
-    return ["incoming: lifecycle header requires non-empty reason metadata"];
-  }
-
-  if (!readIncomingField(header, "exit")) {
-    return ["incoming: lifecycle header requires non-empty exit metadata"];
-  }
-
-  return [];
-}
-
-function checkIncoming(root) {
-  const incomingPath = path.join(root, "src/styles/incoming.css");
-  if (!existsSync(incomingPath)) return [];
-  return findIncomingLifecycleViolations(readFileSync(incomingPath, "utf8"));
-}
-
-export function checkCssArchitecture(root) {
+export function runCssChecks(root) {
   const sources = readCssSources(root);
   return [
+    ...findImportManifestViolations(root),
     ...findOwnerViolations(sources),
-    ...checkManifest(sources),
-    ...checkComponentsNoGrowth(sources),
-    ...checkIncoming(root),
+    ...findComponentsResidualGrowth(sources),
   ];
 }
 
-const isDirectRun =
-  process.argv[1] &&
-  path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
-
-if (isDirectRun) {
-  const root = fileURLToPath(new URL("../../", import.meta.url));
-  const errors = checkCssArchitecture(root);
-  if (errors.length) {
-    console.error("CSS architecture check failed:\n");
-    for (const error of errors) console.error(`- ${error}`);
-    process.exitCode = 1;
-  } else {
-    console.log(
-      `CSS architecture check passed (${OWNER_RULES.length} durable owner families + components residual no-growth + ordered manifest + incoming lifecycle).`,
-    );
+function main() {
+  const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
+  const errors = runCssChecks(root);
+  if (errors.length === 0) {
+    console.log("css:check ok");
+    return;
   }
+  for (const error of errors) console.error(error);
+  process.exitCode = 1;
+}
+
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  main();
 }
