@@ -1,5 +1,7 @@
 import { getMediaAsset, getMediaEntry, type MediaEntryId } from "../data/media/index.ts";
 
+import type { EditorialCopyRenderOptions } from "../types/render-options.ts";
+
 import type {
   EmbeddedMediaDeckData,
   MediaCaptionField,
@@ -250,7 +252,7 @@ export type MediaFigurePlacement =
 
 export type MediaFigureRevealPolicy = "auto" | "media" | false;
 
-export interface RenderMediaFigureOptions {
+export interface RenderMediaFigureOptions extends EditorialCopyRenderOptions {
   placement?: MediaFigurePlacement;
 
   mediaDimensions?: boolean;
@@ -448,7 +450,7 @@ export function renderMediaFigure(
         ${overlay}
       </div>
 
-      ${renderMediaCaption(data.entryId, data.captionClassName, data.captionFields)}
+      ${options.showEditorialCopy === false ? "" : renderMediaCaption(data.entryId, data.captionClassName, data.captionFields)}
     </figure>
   `;
 }

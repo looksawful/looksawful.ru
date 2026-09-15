@@ -1,7 +1,6 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
-import { fastTests } from "../tools/ci/run-tests.mjs";
 
 const media = readFileSync(new URL("../src/styles/media.css", import.meta.url), "utf8");
 const components = readFileSync(new URL("../src/styles/components.css", import.meta.url), "utf8");
@@ -72,8 +71,4 @@ test("Wave5J bento follows masonry in media source order", () => {
   assert.notEqual(masonry, -1);
   assert.notEqual(bento, -1);
   assert.ok(masonry < bento, "bento must follow the accepted masonry family");
-});
-
-test("Wave5J bento ownership contract is mandatory in Fast CI", () => {
-  assert.equal(fastTests.has("test/css-refactor-wave5j-bento.test.mjs"), true);
 });

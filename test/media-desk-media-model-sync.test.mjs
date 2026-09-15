@@ -1,21 +1,24 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 
-import {
-  buildBulkMetadataRequest,
-} from "../src/devtools/media-desk/bulk-editor-model.ts";
-import {
-  buildMediaEditorialPatch,
-} from "../src/devtools/media-desk/editor-serialization.ts";
-import {
-  saveMediaDeskMetadata,
-} from "../src/devtools/media-desk/server.ts";
+import { buildBulkMetadataRequest } from "../src/devtools/media-desk/bulk-editor-model.ts";
+import { buildMediaEditorialPatch } from "../src/devtools/media-desk/editor-serialization.ts";
+import { saveMediaDeskMetadata } from "../src/devtools/media-desk/server.ts";
 
 const REGISTERED_ID = "jestei-02-source-01-16x10";
 const UPLOAD_ID = "11111111-1111-4111-8111-111111111111";
+
+function revision(source) {
+  return createHash("sha256").update(source).digest("hex");
+}
+
+async function currentRevision(file) {
+  return revision(await readFile(file, "utf8"));
+}
 
 const baseMetadata = {
   title: "Asset",
@@ -145,24 +148,18 @@ test("single editor omits projectIds when serializing registered media", () => {
 });
 
 test("single editor keeps projectIds when serializing CMS uploads", () => {
-  const patch = buildMediaEditorialPatch(
-    editorValues({ projectIds: ["jestei-event"] }),
-    "cms",
-  );
+  const patch = buildMediaEditorialPatch(editorValues({ projectIds: ["jestei-event"] }), "cms");
 
   assert.deepEqual(patch.projectIds, ["jestei-event"]);
 });
 
 test("bulk request applies project edits only to uploaded media", () => {
-  const batch = buildBulkMetadataRequest(
-    [registeredItem(), uploadedItem()],
-    {
-      arrays: [
-        { field: "projectIds", mode: "set", values: ["jestei-event"] },
-        { field: "tags", mode: "set", values: ["edited"] },
-      ],
-    },
-  );
+  const batch = buildBulkMetadataRequest([registeredItem(), uploadedItem()], {
+    arrays: [
+      { field: "projectIds", mode: "set", values: ["jestei-event"] },
+      { field: "tags", mode: "set", values: ["edited"] },
+    ],
+  });
 
   assert.equal(Object.hasOwn(batch[0].metadata, "projectIds"), false);
   assert.deepEqual(batch[1].metadata.projectIds, ["jestei-event"]);
@@ -171,11 +168,12 @@ test("bulk request applies project edits only to uploaded media", () => {
 });
 
 test("registered writer rejects projectIds as a protected field", async () => {
-  const { root } = await mediaFixture({ registered: true });
+  const { root, registeredDir } = await mediaFixture({ registered: true });
   try {
     await assert.rejects(
       saveMediaDeskMetadata(root, {
         id: REGISTERED_ID,
+        expectedRevision: await currentRevision(path.join(registeredDir, `${REGISTERED_ID}.json`)),
         metadata: { projectIds: ["jestei-event"] },
       }),
       /projectIds|protected|usage/i,
@@ -190,12 +188,11 @@ test("uploaded writer resolves runtime cms-prefixed IDs to persisted UUID record
   try {
     await saveMediaDeskMetadata(root, {
       id: `cms-${UPLOAD_ID}`,
+      expectedRevision: await currentRevision(path.join(uploadsDir, `${UPLOAD_ID}.json`)),
       metadata: { title: "Edited upload" },
     });
 
-    const saved = JSON.parse(
-      await readFile(path.join(uploadsDir, `${UPLOAD_ID}.json`), "utf8"),
-    );
+    const saved = JSON.parse(await readFile(path.join(uploadsDir, `${UPLOAD_ID}.json`), "utf8"));
     assert.equal(saved.id, UPLOAD_ID);
     assert.equal(saved.title, "Edited upload");
   } finally {

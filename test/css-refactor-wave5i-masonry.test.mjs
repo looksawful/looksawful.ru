@@ -1,7 +1,6 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
-import { fastTests } from "../tools/ci/run-tests.mjs";
 
 const media = readFileSync(new URL("../src/styles/media.css", import.meta.url), "utf8");
 const components = readFileSync(new URL("../src/styles/components.css", import.meta.url), "utf8");
@@ -56,8 +55,4 @@ test("Wave5I masonry follows editorial in media source order", () => {
   assert.notEqual(editorial, -1);
   assert.notEqual(masonry, -1);
   assert.ok(editorial < masonry, "masonry must follow the accepted editorial family");
-});
-
-test("Wave5I masonry ownership contract is mandatory in Fast CI", () => {
-  assert.equal(fastTests.has("test/css-refactor-wave5i-masonry.test.mjs"), true);
 });

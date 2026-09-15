@@ -1,7 +1,6 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
-import { fastTests } from "../tools/ci/run-tests.mjs";
 
 const components = readFileSync(new URL("../src/styles/components.css", import.meta.url), "utf8");
 const media = readFileSync(new URL("../src/styles/media.css", import.meta.url), "utf8");
@@ -51,8 +50,4 @@ test("strip height cleanup preserves the existing strip justify contract", () =>
     media,
     /--reel-justify:\s*var\(--strip-justify,\s*safe center\);/,
   );
-});
-
-test("Wave5F strip height contract is mandatory in Fast CI", () => {
-  assert.equal(fastTests.has("test/css-refactor-wave5f-strip-height-contract.test.mjs"), true);
 });

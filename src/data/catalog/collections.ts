@@ -4,7 +4,7 @@ export const collections = [
   {
     id: "music-photography",
     name: "Музыкальная фотография",
-    displayName: "Shootings",
+    displayName: "Съёмки",
     visibility: "public",
     summary:
       "Делаю дизайн обложек для российских музыкантов, продюсирую и снимаю контент-съёмки для музыкальных лейблов и для брендов одежды и публикую творческие работы в российских и европейских fashion- и арт-изданиях с 2017 года.",
@@ -64,7 +64,7 @@ export const collections = [
   {
     id: "pet-projects",
     name: "Pet Projects",
-    visibility: "hidden",
+    visibility: "public",
   },
 ] as const satisfies readonly CollectionData[];
 

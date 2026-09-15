@@ -38,13 +38,43 @@ Create these as **JavaScript event** goals in the Yandex Metrica counter. Goal I
 | Goal ID | Meaning | Parameters |
 | --- | --- | --- |
 | `project_open` | Visitor follows an internal link to `/work/...` | source page, target path |
+| `case_end` | Visitor reaches the document end of a standalone Case page | source page, bounded canonical case ID |
 | `cv_open` | Visitor opens `/cv/` from a tracked portfolio page | source page |
 | `contact_email` | Visitor activates an email link | source page |
 | `contact_phone` | Visitor activates a phone link | source page |
 | `contact_telegram` | Visitor activates a Telegram link | source page |
 | `download` | Visitor activates a link with the `download` attribute | source page, target path when available |
 
+`case_end` is semantic rather than a generic percentage-scroll goal. It is attached only when `body[data-page-type="case"]` exposes a bounded canonical `data-entity-id`, fires once when the document end becomes visible, and then removes its scroll/resize listeners.
+
 Do not turn generic clicks, slider changes, lightbox navigation or scroll depth into goals. Click maps, link tracking, scroll maps and Webvisor already cover exploratory behavior. Goals are reserved for meaningful intent/conversion signals.
+
+## Outreach attribution
+
+Hunter/recruiter links controlled by the portfolio owner use one bounded campaign vocabulary so outreach traffic does not collapse into undifferentiated Direct:
+
+| Channel | `utm_source` | `utm_medium` | `utm_campaign` |
+| --- | --- | --- | --- |
+| HH | `hh` | `message` | `job_search` |
+| Telegram | `telegram` | `dm` | `job_search` |
+| Email | `email` | `outreach` | `job_search` |
+| LinkedIn | `linkedin` | `dm` | `job_search` |
+
+Optional `utm_content` is limited to a technical destination/case token such as `jestei-pool`. Optional `utm_id` is an opaque batch token such as `2026w37a`. Never put recruiter names, email addresses, company/person pairs, message text or other PII in UTM values.
+
+Generate links through the repository-owned allowlisted utility instead of manually composing query strings:
+
+```bash
+npm run outreach:link -- --destination /work/jestei-pool/ --source hh --medium message --campaign job_search --content jestei-pool --batch 2026w37a
+```
+
+The utility accepts only canonical `https://www.looksawful.ru` paths, approved source/medium pairs, the approved campaign, bounded slug-like optional attribution values, and no unknown fields. It rejects existing query strings/fragments so canonical page identity stays clean before UTM parameters are added.
+
+Interpretation model:
+
+- `qualified_visit`: opened a project/CV and then completed at least one strong action (`case_end`, `download`, contact);
+- `recruiter_qualified_visit`: `utm_campaign=job_search` plus at least one strong intent action;
+- `contact_conversion`: contacts divided by qualified visits.
 
 ## Consent behavior
 
@@ -79,7 +109,7 @@ Localhost and `*.localhost` previews do not mount analytics.
 
 Before merging the analytics PR to a deployable branch:
 
-1. Create the six JavaScript event goals listed above in counter `112065623`.
+1. Create the seven JavaScript event goals listed above in counter `112065623`.
 2. Keep Webvisor, click map and link tracking enabled for the counter.
 3. Enable **Do not store full IP addresses of site visitors** when required by the site's privacy requirements.
 4. Accept the Yandex Metrica Data Processing Agreement when GDPR applies.

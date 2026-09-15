@@ -21,44 +21,42 @@ import {
 
 export interface ContentBlockRenderOptions {
   reveal?: boolean;
+  suppressCaptions?: boolean;
 }
 
-/**
- * Canonical renderer boundary for PageContent blocks.
- *
- * The discriminated union is deliberately closed: adding a new block family
- * requires both a contract change and an explicit renderer branch here.
- */
 export function renderContentBlock(
   block: ContentBlock,
   options: ContentBlockRenderOptions = {},
 ): string {
+  const editorialCopy = { showEditorialCopy: options.suppressCaptions !== true };
+
   switch (block.type) {
     case "code-block":
       return renderCodeBlock(block.data);
     case "media-figure":
       return renderMediaFigure(block.data, {
+        ...editorialCopy,
         ...(options.reveal === false ? { reveal: false as const } : {}),
         ...(block.presentation?.mediaDimensions !== undefined
           ? { mediaDimensions: block.presentation.mediaDimensions }
           : {}),
       });
     case "media-group":
-      return renderMediaGroup(block.data);
+      return renderMediaGroup(block.data, editorialCopy);
     case "media-slider":
-      return renderMediaSlider(block.data);
+      return renderMediaSlider(block.data, editorialCopy);
     case "mockup":
-      return renderMockup(block.data);
+      return renderMockup(block.data, editorialCopy);
     case "mockup-deck":
-      return renderMockupDeck(block.data);
+      return renderMockupDeck(block.data, editorialCopy);
     case "justified-gallery":
-      return renderJustifiedGallery(block.data);
+      return renderJustifiedGallery(block.data, editorialCopy);
     case "before-after":
-      return renderBeforeAfter(block.data);
+      return renderBeforeAfter(block.data, editorialCopy);
     case "page-flip":
-      return renderPageFlip(block.data);
+      return renderPageFlip(block.data, editorialCopy);
     case "animated-canvas-gallery":
-      return renderAnimatedCanvasGallery(block.data);
+      return renderAnimatedCanvasGallery(block.data, editorialCopy);
     case "jestei-theme":
       return renderJesteiThemeOrganismMockup(block.data);
     case "awful-cases-game":

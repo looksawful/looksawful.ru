@@ -23,10 +23,14 @@ function getCvPage() {
   return page;
 }
 
+export function normalizeCvPortfolioLinks(html: string): string {
+  return html.replaceAll('href="/#jestei-', 'href="/work/jestei-pool/#jestei-');
+}
+
 export async function renderCvDevHtml(html: string, root = process.cwd()): Promise<string> {
   const contentLib = await loadCvContentModule(root);
   const content = await contentLib.readCvContent(path.resolve(root, "src/content/cv.json"));
-  const rendered = contentLib.transformCvContent(html, content).html;
+  const rendered = normalizeCvPortfolioLinks(contentLib.transformCvContent(html, content).html);
   return replacePageMetadata(rendered, {
     page: getCvPage(),
     ...cvSearchPresentation,

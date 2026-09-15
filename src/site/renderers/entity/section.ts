@@ -22,6 +22,7 @@ export interface SpecializedSectionRenderers {
 
 export interface SectionRenderOptions {
   specialized?: SpecializedSectionRenderers;
+  suppressCaptions?: boolean;
 }
 
 function usesGlobalReveal(presentation?: SectionPresentation): boolean {
@@ -153,8 +154,9 @@ function renderStackBlocks(
   blocks: Extract<Section, { type: "content" | "project" }>["blocks"],
   presentation: SectionPresentation | undefined,
   reveal: boolean,
+  suppressCaptions = false,
 ): string {
-  const blockHtml = blocks.map((block) => renderContentBlock(block, { reveal }));
+  const blockHtml = blocks.map((block) => renderContentBlock(block, { reveal, suppressCaptions }));
 
   if (presentation?.separator === "between-blocks") {
     return blockHtml.join(`\n${renderInnerDivider()}\n`);
@@ -166,8 +168,9 @@ function renderStackBlocks(
 function renderMediaStackBlocks(
   blocks: readonly ProjectPresentation["blocks"][number][],
   reveal: boolean,
+  suppressCaptions = false,
 ): string {
-  const [first, ...rest] = blocks.map((block) => renderContentBlock(block, { reveal }));
+  const [first, ...rest] = blocks.map((block) => renderContentBlock(block, { reveal, suppressCaptions }));
   if (!first) return "";
   return `<div class="media-stack__hero">${first}</div>\n${rest.join("\n")}`;
 }
@@ -175,6 +178,7 @@ function renderMediaStackBlocks(
 function renderBlockBody(
   blocks: Extract<Section, { type: "content" | "project" }>["blocks"],
   presentation?: SectionPresentation,
+  suppressCaptions = false,
 ): string {
   const reveal = usesGlobalReveal(presentation);
   const layout = presentation?.layout ?? "stack";
@@ -187,19 +191,19 @@ function renderBlockBody(
   switch (layout) {
     case "stack":
     case "split-always": {
-      const blocksHtml = renderStackBlocks(blocks, presentation, reveal);
+      const blocksHtml = renderStackBlocks(blocks, presentation, reveal, suppressCaptions);
       return presentation?.separator === "before-blocks"
         ? `${renderInnerDivider()}\n${blocksHtml}`
         : blocksHtml;
     }
     case "media-stack":
-      return renderMediaStackBlocks(blocks, reveal);
+      return renderMediaStackBlocks(blocks, reveal, suppressCaptions);
     case "mockup-grid-reel": {
-      const blockHtml = renderContentBlocks(blocks, { reveal });
+      const blockHtml = renderContentBlocks(blocks, { reveal, suppressCaptions });
       return `<div class="media-group__items reel">${blockHtml}</div>`;
     }
     case "infinite-media-reel": {
-      const blockHtml = renderContentBlocks(blocks, { reveal });
+      const blockHtml = renderContentBlocks(blocks, { reveal, suppressCaptions });
       return `<div class="media-group__items reel" data-infinite-reel-track="">${blockHtml}</div>`;
     }
   }
@@ -213,7 +217,10 @@ function wrapSectionBody(body: string, presentation?: SectionPresentation): stri
   </div>`;
 }
 
-function renderIntroAndBlocks(section: Extract<Section, { type: "content" | "project" }>): string {
+function renderIntroAndBlocks(
+  section: Extract<Section, { type: "content" | "project" }>,
+  options: SectionRenderOptions = {},
+): string {
   const reveal = usesGlobalReveal(section.presentation);
   const intro = section.intro ? renderSectionIntro(section.intro, { reveal }) : "";
   const notePlacement = section.presentation?.notePlacement ?? "before-blocks";
@@ -224,7 +231,11 @@ function renderIntroAndBlocks(section: Extract<Section, { type: "content" | "pro
     section.presentation?.headOrder,
   );
   const heading = renderSectionHeading(section.heading, reveal);
-  const blocks = renderBlockBody(section.blocks, section.presentation);
+  const blocks = renderBlockBody(
+    section.blocks,
+    section.presentation,
+    options.suppressCaptions ?? false,
+  );
   const trailingNote =
     notePlacement === "after-blocks" ? renderSectionNote(section.note, reveal) : "";
   const resources = section.resources
@@ -332,7 +343,7 @@ export function renderSection(section: Section, options: SectionRenderOptions = 
   switch (section.type) {
     case "content":
     case "project":
-      return renderIntroAndBlocks(section);
+      return renderIntroAndBlocks(section, options);
     case "project-group":
       return renderProjectGroup(section);
     case "specialized":

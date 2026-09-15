@@ -1,6 +1,6 @@
 # CMS handbook
 
-Status: CURRENT Pages CMS operator handbook. Project branch policy, current executable behavior and open hardening work are separated explicitly.
+Status: CURRENT Pages CMS operator handbook. Project branch policy, executable authoring safeguards and release boundaries are separated explicitly.
 
 Pages CMS используется для обычного редакторского контента и разрешённых metadata. Маршруты, ID, layout, runtime и инженерный код через него менять не нужно.
 
@@ -12,11 +12,19 @@ Pages CMS используется для обычного редакторск�
 - `prod` — production/release/deploy branch;
 - `content/text-cms` — постоянная редакторская ветвь для Pages CMS/контентных циклов.
 
-Новые редакторские изменения не нужно сохранять напрямую в `dev` или `prod`. Перед новым циклом `content/text-cms` должна быть безопасно сверена с текущим `dev` без force-reset и без скрытого rebase открытой редакторской сессии. GitHub #451 владеет этим reconciliation contract.
+Новые редакторские изменения не нужно сохранять напрямую в `dev` или `prod`. Перед новым циклом `content/text-cms` должна быть безопасно сверена с текущим `dev` без force-reset и без скрытого rebase открытой редакторской сессии.
 
 Изменения остаются в `content/text-cms`, пока пользователь явно не подтвердит `готово`. После этого batch сверяется с fresh `dev`, проходит content-only validation и интегрируется в `dev`. Production publication остаётся отдельным `dev -> prod` release.
 
-Текущий executable tooling ещё не полностью защищает этот процесс автоматически. Поэтому branch provenance, stale-session checks и ready gate из #451 нельзя считать реализованными только потому, что политика уже зафиксирована.
+`tools/cms-authoring-topology.mjs` является read-only guard/provenance helper для этого процесса. Он проверяет branch/worktree/HEAD, dirty state, drift относительно `dev`, explicit READY и publication scope. Он не reset/rebase/merge/commit/push.
+
+Пример проверки кандидата после `готово`:
+
+```bash
+node tools/cms-authoring-topology.mjs --ready --files-json '["src/content/cases/styx.json"]'
+```
+
+Если `content/text-cms` и fresh `dev` разошлись в обе стороны, helper возвращает `reconciliation-required`; это сигнал для контролируемого сведения истории, а не разрешение на force-reset.
 
 ## Save
 
@@ -62,17 +70,45 @@ Pages CMS используется для обычного редакторск�
 
 Local Desk — отдельный developer/operator tool, а не второе имя Pages CMS.
 
-`npm run desk` CURRENTLY запускает write-capable mode: launcher включает `CONTENT_DESK_WRITE=1` / `VITE_CONTENT_DESK_WRITE=1`, а startup выполняет `media:ensure`, который может синхронизировать derived media state до открытия интерфейса.
+Обычный запуск:
 
-Поэтому текущий `npm run desk` нельзя считать read-only browser. Локальный HTTP/write contract описан в `docs/content-media-desk-api.md`.
+```bash
+npm run desk
+```
 
-GitHub #452/#453 владеют TARGET hardening: read-only-by-default launch, guarded write activation, более строгая source authorization, revision/conflict semantics и atomic persistence. #451 владеет branch/worktree authorization для `content/text-cms`. Не считать эти protections реализованными до появления executable evidence.
+работает в `READ ONLY` режиме, не запускает `media:ensure`, не активирует write endpoints и фиксирует Vite host на `127.0.0.1`.
+
+Явный локальный write-mode:
+
+```bash
+npm run desk:write
+```
+
+разрешён только на branch `content/text-cms`, вне CI/GitHub Actions и без переопределения loopback host. `dev`, `prod`, feature/fix branches и remote host override блокируются до запуска write-capable Desk.
+
+В интерфейсе Desk отображаются `READ ONLY`/`WRITE`, current branch, HEAD, dirty state и divergence относительно `dev`.
+
+Write API использует revision-aware optimistic concurrency: mutation требует `expectedRevision`; stale source возвращает `409`; validated single-file writes используют staged replacement; bulk writes prevalidate все candidates и имеют проверенный rollback на mid-bulk failure.
+
+Полный локальный HTTP/write contract описан в `docs/content-media-desk-api.md`.
+
+## Private Lab
+
+Private Lab — отдельная non-production read-only поверхность. Она не является CMS branch, source of truth, deployment authority или способом обойти Desk write policy.
+
+Текущий integration candidate предоставляет только foundation: отдельный build, exact branch/commit/build provenance, `noindex/nofollow/noarchive` и local-only serving на `127.0.0.1`.
+
+Он **не** вводит собственный пароль/Basic Auth. По актуальному #732 удалённый private access должен использовать существующий Admin/GitHub OAuth boundary либо оставаться local-only, пока этот security slice не реализован и не проверен.
+
+Даже успешная network authentication не даёт право на CMS/media mutation. Write authority по-прежнему определяется локальным `content/text-cms` contract.
+
+Foundation не считается завершением всего #732: full LIVE/HIDDEN/WIP catalog, hidden organisms/Berserk, viewport/debug tooling и GitHub OAuth/Admin integration остаются отдельным scope.
 
 ## Проверить сайт
 
 Текущие `Проверить сайт` actions проверяют `dev`; они не публикуют production.
 
-Для изменений, которые ещё находятся только в `content/text-cms`, #451 должен определить/реализовать безопасную branch-specific verification перед интеграцией. Не считать проверку `dev` доказательством непроинтегрированного editorial batch.
+Для изменений, которые ещё находятся только в `content/text-cms`, используй branch/topology verification до интеграции. Не считать проверку `dev` доказательством непроинтегрированного editorial batch.
 
 После интеграции в `dev` существующий verification flow используется как integration gate перед release.
 
@@ -82,12 +118,12 @@ GitHub #452/#453 владеют TARGET hardening: read-only-by-default launch, g
 
 После `готово`:
 
-1. получить fresh `dev` и проверить drift `content/text-cms`;
+1. получить fresh `dev` и проверить drift `content/text-cms` через topology guard;
 2. не выполнять force-reset и не прятать конфликт автоматическим rebase;
 3. убедиться, что batch содержит только ожидаемые editorial/media изменения;
-4. выполнить доступные content/media validation checks;
+4. выполнить content/media validation checks;
 5. интегрировать batch в `dev` через контролируемый review/merge flow;
-6. проверить resulting `dev`;
+6. проверить resulting `dev` на exact SHA;
 7. только после этого рассматривать отдельный `dev -> prod` release.
 
 ## Подготовить публикацию

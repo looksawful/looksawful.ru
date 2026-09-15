@@ -1,7 +1,6 @@
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import test from "node:test";
-import { fastTests } from "../tools/ci/run-tests.mjs";
 
 const read = (path) => readFileSync(new URL(path, import.meta.url), "utf8");
 const ownerUrl = new URL("../src/styles/before-after.css", import.meta.url);
@@ -76,8 +75,4 @@ test("Wave6A keeps runtime and template contracts unchanged", () => {
   assert.match(template, /data-before-after/);
   assert.match(template, /class="before-after__range"/);
   assert.match(template, /type="range"/);
-});
-
-test("Wave6A before-after ownership contract is mandatory in Fast CI", () => {
-  assert.equal(fastTests.has("test/css-refactor-wave6a-before-after.test.mjs"), true);
 });

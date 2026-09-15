@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -14,6 +15,16 @@ import {
 } from "../src/devtools/media-desk/server.ts";
 
 const ASSET_ID = "awful-cases-assets-recording-2026-08-15-121210-poster";
+
+function revision(source) {
+  return createHash("sha256").update(source).digest("hex");
+}
+
+async function currentRevision(file) {
+  return revision(await readFile(file, "utf8"));
+}
+
+const DUMMY_REVISION = "0".repeat(64);
 const ORIGINAL = {
   id: ASSET_ID,
   mediaType: "image",
@@ -38,13 +49,7 @@ const ORIGINAL = {
   archived: false,
 };
 
-const TEXT_DIRECTORIES = [
-  "editorial",
-  "cases",
-  "collections",
-  "shootings",
-  "standalone-projects",
-];
+const TEXT_DIRECTORIES = ["editorial", "cases", "collections", "shootings", "standalone-projects"];
 
 async function fixture() {
   const root = await mkdtemp(path.join(os.tmpdir(), "content-desk-"));
@@ -113,6 +118,7 @@ test("local writer updates editorial metadata and preserves tooling-owned values
   try {
     await saveMediaDeskMetadata(root, {
       id: ASSET_ID,
+      expectedRevision: await currentRevision(file),
       metadata: {
         title: "Edited title",
         alt: "Edited alt",
@@ -142,6 +148,7 @@ test("local writer rejects protected technical fields without touching the recor
     await assert.rejects(
       saveMediaDeskMetadata(root, {
         id: ASSET_ID,
+        expectedRevision: await currentRevision(file),
         metadata: { src: "/wrong.webp" },
       }),
       /protected field/i,
@@ -163,6 +170,7 @@ test("Content Desk quick edit updates an allowed string and preserves siblings",
     const entry = await saveContentDeskText(root, {
       sourcePath: "src/content/navigation.json",
       fieldPath: "title",
+      expectedRevision: await currentRevision(file),
       value: "New title",
     });
     const source = await readFile(file, "utf8");
@@ -171,6 +179,7 @@ test("Content Desk quick edit updates an allowed string and preserves siblings",
       sourcePath: "src/content/navigation.json",
       fieldPath: "title",
       value: "New title",
+      revision: revision(source),
     });
     assert.deepEqual(saved, { ...original, title: "New title" });
     assert.ok(source.endsWith("\n"));
@@ -185,6 +194,7 @@ test("Content Desk quick edit allows an empty string", async () => {
     await saveContentDeskText(root, {
       sourcePath: "src/content/navigation.json",
       fieldPath: "title",
+      expectedRevision: await currentRevision(file),
       value: "",
     });
     assert.equal(JSON.parse(await readFile(file, "utf8")).title, "");
@@ -201,6 +211,7 @@ test("Content Desk quick edit rejects a structural string field", async () => {
       saveContentDeskText(root, {
         sourcePath: "src/content/navigation.json",
         fieldPath: "route",
+        expectedRevision: await currentRevision(file),
         value: "/changed",
       }),
       /not editable/i,
@@ -218,6 +229,7 @@ test("Content Desk quick edit rejects an unknown source", async () => {
       saveContentDeskText(root, {
         sourcePath: "src/content/not-in-desk.json",
         fieldPath: "title",
+        expectedRevision: DUMMY_REVISION,
         value: "Changed",
       }),
       /not editable/i,
@@ -234,6 +246,7 @@ test("Content Desk quick edit rejects an unknown field path", async () => {
       saveContentDeskText(root, {
         sourcePath: "src/content/navigation.json",
         fieldPath: "missing",
+        expectedRevision: DUMMY_REVISION,
         value: "Changed",
       }),
       /not editable/i,
@@ -262,6 +275,7 @@ test("Content Desk quick edit supports an existing string through an array index
     await saveContentDeskText(root, {
       sourcePath: "src/content/navigation.json",
       fieldPath: "sections.0.heading",
+      expectedRevision: await currentRevision(file),
       value: "Edited heading",
     });
     assert.deepEqual(JSON.parse(await readFile(file, "utf8")), {
@@ -281,8 +295,16 @@ test("bulk writer updates multiple valid assets only after prevalidation", async
   const { root, files } = await bulkFixture([first, second]);
   try {
     const records = await saveMediaDeskMetadataBulk(root, [
-      { id: first.id, metadata: { title: "First edited", archived: true } },
-      { id: second.id, metadata: { alt: "Second alt", tags: ["edited"] } },
+      {
+        id: first.id,
+        expectedRevision: await currentRevision(files.get(first.id)),
+        metadata: { title: "First edited", archived: true },
+      },
+      {
+        id: second.id,
+        expectedRevision: await currentRevision(files.get(second.id)),
+        metadata: { alt: "Second alt", tags: ["edited"] },
+      },
     ]);
     assert.equal(records.length, 2);
     const firstSaved = JSON.parse(await readFile(files.get(first.id), "utf8"));
@@ -305,8 +327,16 @@ test("bulk writer rejects a protected field before writing any record", async ()
     const beforeSecond = await readFile(files.get(second.id), "utf8");
     await assert.rejects(
       saveMediaDeskMetadataBulk(root, [
-        { id: first.id, metadata: { title: "Would change" } },
-        { id: second.id, metadata: { src: "/wrong.webp" } },
+        {
+          id: first.id,
+          expectedRevision: await currentRevision(files.get(first.id)),
+          metadata: { title: "Would change" },
+        },
+        {
+          id: second.id,
+          expectedRevision: await currentRevision(files.get(second.id)),
+          metadata: { src: "/wrong.webp" },
+        },
       ]),
       /protected field/i,
     );
@@ -324,8 +354,16 @@ test("bulk writer rejects an unknown asset id before writing any record", async 
     const before = await readFile(files.get(first.id), "utf8");
     await assert.rejects(
       saveMediaDeskMetadataBulk(root, [
-        { id: first.id, metadata: { title: "Would change" } },
-        { id: "33333333-3333-4333-8333-333333333333", metadata: { title: "Missing" } },
+        {
+          id: first.id,
+          expectedRevision: await currentRevision(files.get(first.id)),
+          metadata: { title: "Would change" },
+        },
+        {
+          id: "33333333-3333-4333-8333-333333333333",
+          expectedRevision: DUMMY_REVISION,
+          metadata: { title: "Missing" },
+        },
       ]),
       /was not found/i,
     );
@@ -347,8 +385,16 @@ test("bulk writer rejects an invalid existing record before writing any record",
     const beforeInvalid = await readFile(files.get(invalid.id), "utf8");
     await assert.rejects(
       saveMediaDeskMetadataBulk(root, [
-        { id: first.id, metadata: { title: "Would change" } },
-        { id: invalid.id, metadata: { title: "Still invalid" } },
+        {
+          id: first.id,
+          expectedRevision: await currentRevision(files.get(first.id)),
+          metadata: { title: "Would change" },
+        },
+        {
+          id: invalid.id,
+          expectedRevision: await currentRevision(files.get(invalid.id)),
+          metadata: { title: "Still invalid" },
+        },
       ]),
       /mediaType/i,
     );
@@ -391,8 +437,8 @@ test("Content Desk middleware is registered only for explicit Desk mode", () => 
       "npm run desk mode must register only the Content Desk endpoints",
     );
     assert.ok(
-      routes.findIndex(([pathname]) => pathname === "/__media-desk/metadata/bulk")
-        < routes.findIndex(([pathname]) => pathname === "/__media-desk/metadata"),
+      routes.findIndex(([pathname]) => pathname === "/__media-desk/metadata/bulk") <
+        routes.findIndex(([pathname]) => pathname === "/__media-desk/metadata"),
       "bulk route must be registered before the metadata prefix route",
     );
   } finally {

@@ -1,5 +1,6 @@
 import type { MediaEntryId } from "../data/media/index.ts";
 import type { PageFlipData } from "../types/page-flip.ts";
+import type { EditorialCopyRenderOptions } from "../types/render-options.ts";
 import { escapeHtml } from "../utils/html.ts";
 import { renderMediaElement } from "./media-figure.ts";
 
@@ -18,7 +19,10 @@ function renderCredits(data: PageFlipData<MediaEntryId>["credits"]): string {
   return `<p class="credits">${title}${lines}</p>`;
 }
 
-export function renderPageFlip(data: PageFlipData<MediaEntryId>): string {
+export function renderPageFlip(
+  data: PageFlipData<MediaEntryId>,
+  options: EditorialCopyRenderOptions = {},
+): string {
   const pages = data.pages
     .map(
       (page) => `
@@ -39,7 +43,7 @@ export function renderPageFlip(data: PageFlipData<MediaEntryId>): string {
 
   return `
     <section class="page-flip"${lightbox} data-page-flip="">
-      ${renderCredits(data.credits)}
+      ${options.showEditorialCopy === false ? "" : renderCredits(data.credits)}
       <div class="page-flip__stage">
         <div class="page-flip__wrap">
           <div class="page-flip__book" data-page-flip-book="">

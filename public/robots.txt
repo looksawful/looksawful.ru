@@ -9,7 +9,7 @@ Allow: /
 
 User-agent: Yandex
 Allow: /
-Clean-param: sha
+Clean-param: sha&utm_source&utm_medium&utm_campaign&utm_content&utm_id
 
 User-agent: GPTBot
 Disallow: /

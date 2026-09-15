@@ -2,8 +2,13 @@ import type {
   SubprojectCardData,
   SubprojectCardGroupData,
 } from "../data/subproject-cards.ts";
+import { renderRevealAttribute } from "../motion-contract.ts";
 import { escapeHtml } from "../utils/html.ts";
 import { renderMediaElement } from "./media-figure.ts";
+
+interface RenderSubprojectCardOptions {
+  reveal?: boolean;
+}
 
 function renderCardBody(card: SubprojectCardData): string {
   const media = renderMediaElement(card.coverEntryId, {
@@ -21,6 +26,7 @@ function renderCardBody(card: SubprojectCardData): string {
     <figure class="subproject-card__figure">
       <div class="subproject-card__media">
         ${media}
+        ${card.badge ? `<span class="subproject-card__badge">${escapeHtml(card.badge)}</span>` : ""}
       </div>
       <figcaption class="subproject-card__caption">
         <h3 class="subproject-card__title">${escapeHtml(card.title)}</h3>
@@ -30,9 +36,14 @@ function renderCardBody(card: SubprojectCardData): string {
   `;
 }
 
-export function renderSubprojectCard(card: SubprojectCardData): string {
+export function renderSubprojectCard(
+  card: SubprojectCardData,
+  options: RenderSubprojectCardOptions = {},
+): string {
   const body = renderCardBody(card);
-  const attributes = `class="subproject-card" data-shape="${card.shape}" data-subproject-id="${escapeHtml(card.id)}"`;
+  const reveal = renderRevealAttribute(options.reveal ? "card" : false);
+  const state = card.state ? ` data-state="${escapeHtml(card.state)}"` : "";
+  const attributes = `class="subproject-card" data-shape="${card.shape}" data-subproject-id="${escapeHtml(card.id)}"${state}${reveal}`;
 
   if (!card.href) {
     return `<article ${attributes}>${body}</article>`;
@@ -52,7 +63,7 @@ export function renderSubprojectCardGroup(group: SubprojectCardGroupData): strin
         ${group.description ? `<p class="subproject-group__description">${escapeHtml(group.description)}</p>` : ""}
       </header>
       <div class="subproject-grid">
-        ${group.cards.map(renderSubprojectCard).join("\n")}
+        ${group.cards.map((card) => renderSubprojectCard(card)).join("\n")}
       </div>
     </section>
   `;
@@ -63,5 +74,5 @@ export function renderSubprojectCardGroups(groups: readonly SubprojectCardGroupD
 }
 
 export function renderPetProjectCards(cards: readonly SubprojectCardData[]): string {
-  return cards.map(renderSubprojectCard).join("\n");
+  return cards.map((card) => renderSubprojectCard(card, { reveal: true })).join("\n");
 }

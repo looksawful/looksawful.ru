@@ -16,6 +16,7 @@ import { escapeHtml } from "../utils/html.ts";
 
 export interface ProjectIntroRenderOptions {
   headingLevel?: 1 | 2;
+  visuallyHideTitle?: boolean;
 }
 
 function getLogoUsage(id: LogoUsageId): LogoUsageData<LogoFileId> {
@@ -88,7 +89,14 @@ function renderHead(head?: ProjectIntroHeadData<LogoUsageId>): string {
 
 function renderTitle(title: ProjectIntroTitleData<LogoUsageId>): string {
   if (title.type === "logo") {
-    return renderLogo(title.logoUsageId);
+    const logo = resolveLogoUsage(title.logoUsageId);
+    const accessibleTitle = logo.alt.trim();
+
+    if (!accessibleTitle) {
+      return renderLogo(title.logoUsageId);
+    }
+
+    return `<span class="visually-hidden">${escapeHtml(accessibleTitle)}</span><img aria-hidden="true" src="${escapeHtml(logo.src)}" alt="">`;
   }
 
   return escapeHtml(title.text);
@@ -143,8 +151,11 @@ export function renderProjectIntro(
   `
     : "";
   const title = renderTitle(data.title);
+  const titleClassName = options.visuallyHideTitle
+    ? "project__title visually-hidden"
+    : "project__title";
   const titleHtml = title
-    ? `<${headingTag} class="project__title"${renderRevealAttribute("copy")}>
+    ? `<${headingTag} class="${titleClassName}"${renderRevealAttribute("copy")}>
         ${title}
       </${headingTag}>`
     : "";
