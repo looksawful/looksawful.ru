@@ -93,6 +93,7 @@ export const fastTests = new Set([
   "test/site-analytics.test.mjs",
   "test/site-composition.test.mjs",
   "test/site-homepage-presentation.test.mjs",
+  "test/standalone-presentation-policy.test.mjs",
   "test/site-pages.test.mjs",
   "test/static-site-analytics.test.mjs",
   "test/stylelint-tooling.test.mjs",
