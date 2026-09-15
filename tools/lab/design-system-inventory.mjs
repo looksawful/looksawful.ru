@@ -164,6 +164,7 @@ const NO_STORY_INFRASTRUCTURE = new Set([
   "src/site/pages/search-presentation.ts",
   "src/site/pages/types.ts",
   "src/site/pages/validation.ts",
+  "src/site/renderers/cv-page.ts",
   "src/site/renderers/home/home-image-deferral.ts",
   "src/site/renderers/home/home-media-deferral.ts",
   "src/site/rendering/html.ts",
