@@ -1,0 +1,29 @@
+name: Gallery Preview Dispatch Temp
+
+on:
+  push:
+    branches:
+      - feature/gallery-media-wall-preview
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dispatch canonical PR Preview for exact Gallery head
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          jq -n \
+            --arg ref "prod" \
+            --arg sha "$GITHUB_SHA" \
+            '{ref: $ref, inputs: {target_sha: $sha, preview_number: "843"}}' \
+            | gh api \
+                --method POST \
+                "repos/${GITHUB_REPOSITORY}/actions/workflows/pr-preview.yml/dispatches" \
+                --input -
