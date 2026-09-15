@@ -29,12 +29,12 @@ Branch vocabulary is explicit:
 | `../AGENTS.md` | CURRENT POLICY | Repository-wide agent and change rules. |
 | `testing-policy.md` | CURRENT NORMATIVE | Testing ownership and verification policy. |
 | `testing-pipeline.md` | CURRENT OPERATIONAL | Current testing commands/groups and operator map. |
-| `cms-architecture.md` | CURRENT NORMATIVE, with open TARGET reconciliation | Content/media/CMS ownership and publication trust boundary. |
+| `cms-architecture.md` | CURRENT NORMATIVE | Content/media/CMS ownership and publication trust boundary. |
 | `cms-content-map.md` | CURRENT INVENTORY | Detailed content/CMS field mapping. |
 | `cms-handbook.md` | CURRENT OPERATOR | Owner-facing Pages CMS behavior and publication flow. |
 | `site-operations.md` | CURRENT OPERATOR | Branches, Pages CMS publication, media and release operations. |
 | `tooling-pipeline.md` | CURRENT OPERATIONAL | Local commands, CI/CMS tooling and branch assumptions. |
-| `content-media-desk-api.md` | CURRENT IMPLEMENTATION / TRANSITIONAL | Local Desk HTTP/write contract and known safety gaps owned by #452/#453. |
+| `content-media-desk-api.md` | CURRENT IMPLEMENTATION | Local Desk read-only/write-mode, revision/conflict and transactional persistence contract. |
 | `repository-structure.md` | CURRENT MAP | Repository area ownership/navigation. |
 
 ## Open target work

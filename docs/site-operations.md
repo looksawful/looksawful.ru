@@ -31,11 +31,11 @@ content/text-cms
 
 Pages CMS/Desk must not use `prod` as an ordinary editor. Direct editorial saves to `dev` are also not the normal authoring policy; `dev` is the integration target after the explicit ready gate.
 
-### Current executable gap
+### Current executable baseline
 
-The policy above is authoritative, but current tooling does not yet fully enforce it. GitHub #451 owns branch provenance, safe reconciliation of the long-lived `content/text-cms` branch, branch-specific validation and the explicit ready gate. #452/#453 own Desk read/write and persistence hardening.
+The core authoring safeguards from #451/#452/#453 are now executable on `dev`: `tools/cms-authoring-topology.mjs` provides read-only provenance/topology/READY checks; `npm run desk` is read-only by default; `npm run desk:write` is an explicit loopback-only write path restricted to the authorized `content/text-cms` context; Desk writes use revision-aware conflict handling and transactional persistence.
 
-At the 2026-09-11 reconciliation point, `content/text-cms` exists but is materially diverged from current `dev`; do not force-reset it or silently rebase an open editing session merely to restore topology.
+These safeguards do not grant merge or release authority. Reconciliation of a diverged editorial session remains deliberate: never force-reset or silently rebase an open editing session merely to restore topology.
 
 ## 2. Responsibility boundaries
 
@@ -101,11 +101,11 @@ The separate `CMS media` workflow is currently tied to `dev` media/content paths
 
 The local Desk is a separate operator surface from Pages CMS.
 
-`npm run desk` is CURRENTLY write-capable: the launcher enables `CONTENT_DESK_WRITE=1` / `VITE_CONTENT_DESK_WRITE=1`, and startup runs `media:ensure`, which may synchronize derived media state before the UI opens. It is therefore not a side-effect-free read-only inspection command.
+`npm run desk` is CURRENT read-only inspection mode. The launcher binds Vite to loopback, sets Desk write flags to `0`, does not run `media:ensure`, and does not register mutation routes.
 
-The local HTTP/write contract, limits and error behavior are documented in `docs/content-media-desk-api.md`.
+`npm run desk:write` is the separate explicit write mode. The launcher rejects CI/GitHub Actions, direct `dev`/`prod` and arbitrary branches, and host overrides; the authorized write context is `content/text-cms`. The UI receives branch/HEAD/dirty/divergence provenance.
 
-TARGET hardening is owned by #451/#452/#453: `content/text-cms` provenance and explicit ready gate, read-only-by-default launch, guarded write activation, stronger source authorization, stale-write/revision conflict handling and atomic persistence. These protections must not be claimed as executable CURRENT until code/tests verify them.
+Desk mutations require revision-aware `expectedRevision` handling and the current service implements validated staged replacement plus rollback-backed bulk persistence. The local HTTP/write contract, limits and error behavior are documented in `docs/content-media-desk-api.md`.
 
 ## 7. Проверить сайт
 
@@ -113,7 +113,7 @@ Configured `Проверить сайт` actions currently dispatch `.github/wor
 
 Therefore they validate `dev`, not an editorial batch that still exists only on `content/text-cms`. Do not use a green `dev` run as evidence for unintegrated content.
 
-#451 must define/implement the safe branch-specific pre-integration verification path. After an approved batch is integrated into `dev`, the existing Fast CI contract remains an integration/release gate.
+Use the executable authoring topology/provenance guard for the branch-specific pre-integration check. After an approved batch is integrated into `dev`, the existing Fast CI contract remains an integration/release gate.
 
 The action does not publish production.
 
@@ -126,7 +126,7 @@ After `готово`:
 1. fetch fresh `dev` and record exact SHA;
 2. compare/reconcile `content/text-cms` deliberately; never force-reset and never hide conflicts through an automatic rebase under an open editor;
 3. verify the changed-file set is the intended editorial/media scope;
-4. run available content/media checks, plus #451 branch-specific verification when implemented;
+4. run the authoring topology/provenance guard and the relevant content/media checks;
 5. integrate through a controlled review/merge flow into `dev`;
 6. verify exact resulting `dev` state;
 7. only then enter production release preparation.
