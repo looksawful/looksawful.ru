@@ -14,14 +14,14 @@ const patterns = [
   /@container media-group \(width > 42rem\)/,
 ];
 
-test("Wave5C grid and compact layout family has one canonical media owner", () => {
+test("grid and compact layout family has one canonical media owner", () => {
   for (const pattern of patterns) {
     assert.match(media, pattern, `media.css must own ${pattern}`);
     assert.doesNotMatch(components, pattern, `components.css must no longer own ${pattern}`);
   }
 });
 
-test("Wave5C preserves the authored grid/rail/compact contract", () => {
+test("preserves the authored grid/rail/compact contract", () => {
   assert.match(
     media,
     /\.media-group\[data-layout="grid"\]:not\(\[data-compact-layout="reel"\]\)\s*>\s*\.media-group__items\s*\{[\s\S]*?grid-template-columns:\s*repeat\(var\(--group-mobile-columns\),\s*minmax\(0,\s*1fr\)\);[\s\S]*?column-gap:\s*var\(--group-gap\);[\s\S]*?row-gap:\s*var\(--group-row-gap\);/,
@@ -40,7 +40,7 @@ test("Wave5C preserves the authored grid/rail/compact contract", () => {
   );
 });
 
-test("Wave5C does not absorb neighboring Brand/Jestei specialization", () => {
+test("does not absorb neighboring Brand/Jestei specialization", () => {
   const brandSystem = /(?:^|\n)\.media-group\.brand-system\s*\{/;
   assert.doesNotMatch(media, brandSystem);
   assert.match(components, brandSystem);

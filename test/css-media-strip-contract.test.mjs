@@ -12,14 +12,14 @@ const stripPatterns = [
   [/(?:^|\n)\.media-group\[data-layout="strip"\]\s+\.media__caption\s*\{/, "strip caption sizing"],
 ];
 
-test("Wave5G generic strip family has one canonical media owner", () => {
+test("generic strip family has one canonical media owner", () => {
   for (const [pattern, label] of stripPatterns) {
     assert.match(media, pattern, `media.css must own ${label}`);
     assert.doesNotMatch(components, pattern, `components.css must no longer own ${label}`);
   }
 });
 
-test("Wave5G preserves strip intrinsic geometry and resolved configuration", () => {
+test("preserves strip intrinsic geometry and resolved configuration", () => {
   assert.match(
     media,
     /\.media-group\[data-layout="strip"\]\s*\{[\s\S]*?>\s*\.media-group__items\s*>\s*\.media\s*\{[\s\S]*?inline-size:\s*max-content;[\s\S]*?max-inline-size:\s*none;/,
@@ -38,7 +38,7 @@ test("Wave5G preserves strip intrinsic geometry and resolved configuration", () 
   );
 });
 
-test("Wave5G keeps portfolio strip inputs in the component owner", () => {
+test("keeps portfolio strip inputs in the component owner", () => {
   assert.match(
     components,
     /\.portfolio-showcase__group\[data-layout="strip"\]\s*\{[\s\S]*?--strip-height:\s*var\(--portfolio-strip-height\);/,
@@ -50,7 +50,7 @@ test("Wave5G keeps portfolio strip inputs in the component owner", () => {
   assert.doesNotMatch(media, /portfolio-showcase/);
 });
 
-test("Wave5G strip remains before infinite reel in media source order", () => {
+test("strip remains before infinite reel in media source order", () => {
   const strip = media.search(/(?:^|\n)\s*\.media-group\[data-layout="strip"\]\s*\{/);
   const infiniteReel = media.search(/(?:^|\n)\s*\[data-infinite-reel\]\s*\{/);
   assert.notEqual(strip, -1);
@@ -58,7 +58,7 @@ test("Wave5G strip remains before infinite reel in media source order", () => {
   assert.ok(strip < infiniteReel);
 });
 
-test("Wave5G follows the already accepted sequence family in media source order", () => {
+test("follows the already accepted sequence family in media source order", () => {
   const sequence = media.search(/(?:^|\n)\s*\.media-group\[data-layout="sequence"\]\s*\{/);
   const strip = media.search(/(?:^|\n)\s*\.media-group\[data-layout="strip"\]\s*\{/);
   assert.notEqual(sequence, -1);

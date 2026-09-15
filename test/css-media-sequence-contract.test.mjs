@@ -13,14 +13,14 @@ const sequencePatterns = [
   [/@container media-group \(width > 48rem\)[\s\S]*?\.media-group\[data-layout="sequence"\]/, "sequence wide-container transition"],
 ];
 
-test("Wave5E sequence family has one canonical media owner", () => {
+test("sequence family has one canonical media owner", () => {
   for (const [pattern, label] of sequencePatterns) {
     assert.match(media, pattern, `media.css must own ${label}`);
     assert.doesNotMatch(components, pattern, `components.css must no longer own ${label}`);
   }
 });
 
-test("Wave5E sequence keeps authored configuration and intrinsic geometry contract", () => {
+test("sequence keeps authored configuration and intrinsic geometry contract", () => {
   assert.match(
     media,
     /\.media-group\[data-layout="sequence"\]\s*\{[\s\S]*?--sequence-cell:\s*clamp\(5\.5rem,\s*22cqi,\s*8\.5rem\);[\s\S]*?--sequence-ratio:\s*1\s*\/\s*1;[\s\S]*?--sequence-columns:\s*3;/,
@@ -35,7 +35,7 @@ test("Wave5E sequence keeps authored configuration and intrinsic geometry contra
   );
 });
 
-test("Wave5E sequence remains before infinite reel in media source order", () => {
+test("sequence remains before infinite reel in media source order", () => {
   const sequence = media.indexOf("Sequence = wide + middle collection + wide.");
   const infiniteReel = media.indexOf("Infinite reel");
   assert.notEqual(sequence, -1);

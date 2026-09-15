@@ -12,14 +12,14 @@ const movedSelectors = [
   /(?:^|\n)\.media-group\s*>\s*\.media-group__items\.reel,\n\.media-group\s+\.media-group__middle\.reel\s*\{/,
 ];
 
-test("Wave5B first safe slice moves only media-group substructure to the canonical media owner", () => {
+test("first safe slice moves only media-group substructure to the canonical media owner", () => {
   assert.match(
     index,
     /@import "\.\/patterns\.css" layer\(patterns\);\n@import "\.\/media\.css" layer\(components\);\n@import "\.\/components\.css" layer\(components\);/,
   );
 
   // Wave5L later moved the generic base into the same canonical media owner.
-  // Wave5B still guards the substructure and specialization boundaries.
+  // still guards the substructure and specialization boundaries.
   assert.match(media, /(?:^|\n)\.media-group\s*\{/);
   assert.doesNotMatch(components, /(?:^|\n)\.media-group\s*\{/);
 
@@ -58,9 +58,9 @@ test("media-group spacing resolves explicit specialization inputs before project
   );
 });
 
-test("Wave5B boundary still excludes neighboring authored specializations", () => {
+test("boundary still excludes neighboring authored specializations", () => {
   // Later ownership waves may move their own isolated layout families into
-  // media.css. Wave5B guards only the boundaries it actually owns.
+  // media.css. guards only the boundaries it actually owns.
   assert.doesNotMatch(media, /(?:^|\n)\.media-group\.brand-system\s*\{/);
   assert.match(components, /(?:^|\n)\.media-group\.brand-system\s*\{/);
 });

@@ -12,14 +12,14 @@ const masonryPatterns = [
   [/(?:^|\n)\.media-group\[data-layout="masonry"\]\s*>\s*\.media-group__items\s*>\s*\.media\s*\{/, "masonry item flow owner"],
 ];
 
-test("Wave5I masonry family has one canonical media owner", () => {
+test("masonry family has one canonical media owner", () => {
   for (const [pattern, label] of masonryPatterns) {
     assert.match(media, pattern, `media.css must own ${label}`);
     assert.doesNotMatch(components, pattern, `components.css must no longer own ${label}`);
   }
 });
 
-test("Wave5I preserves masonry responsive column geometry", () => {
+test("preserves masonry responsive column geometry", () => {
   assert.match(
     media,
     /\.media-group\[data-layout="masonry"\]\s*>\s*\.media-group__items\s*\{[\s\S]*?columns:\s*var\(--masonry-mobile-columns,\s*2\);[\s\S]*?column-gap:\s*var\(--group-gap\);/,
@@ -34,14 +34,14 @@ test("Wave5I preserves masonry responsive column geometry", () => {
   );
 });
 
-test("Wave5I keeps masonry authored inputs in the typed renderer", () => {
+test("keeps masonry authored inputs in the typed renderer", () => {
   assert.match(renderer, /pushVariable\(variables,\s*"--masonry-columns",\s*data\.columns\);/);
   assert.match(renderer, /pushVariable\(variables,\s*"--masonry-mobile-columns",\s*data\.mobileColumns\);/);
   assert.doesNotMatch(media, /--masonry-columns\s*:/);
   assert.doesNotMatch(media, /--masonry-mobile-columns\s*:/);
 });
 
-test("Wave5I masonry remains before infinite reel in media source order", () => {
+test("masonry remains before infinite reel in media source order", () => {
   const masonry = media.indexOf("Column masonry");
   const infiniteReel = media.indexOf("Infinite reel");
   assert.notEqual(masonry, -1);
@@ -49,7 +49,7 @@ test("Wave5I masonry remains before infinite reel in media source order", () => 
   assert.ok(masonry < infiniteReel);
 });
 
-test("Wave5I masonry follows editorial in media source order", () => {
+test("masonry follows editorial in media source order", () => {
   const editorial = media.indexOf("Explicit editorial grid");
   const masonry = media.indexOf("Column masonry");
   assert.notEqual(editorial, -1);

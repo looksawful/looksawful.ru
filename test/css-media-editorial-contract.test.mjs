@@ -10,14 +10,14 @@ const editorialPatterns = [
   [/(?:^|\n)\.media-group\[data-layout="editorial"\]\s*>\s*\.media-group__items\s*\{/, "editorial items owner"],
 ];
 
-test("Wave5H editorial family has one canonical media owner", () => {
+test("editorial family has one canonical media owner", () => {
   for (const [pattern, label] of editorialPatterns) {
     assert.match(media, pattern, `media.css must own ${label}`);
     assert.doesNotMatch(components, pattern, `components.css must no longer own ${label}`);
   }
 });
 
-test("Wave5H preserves authored editorial placement inputs and responsive grid geometry", () => {
+test("preserves authored editorial placement inputs and responsive grid geometry", () => {
   assert.match(
     media,
     /\.media-group\[data-layout="editorial"\]\s*>\s*\.media-group__items\s*\{[\s\S]*?grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\);[\s\S]*?column-gap:\s*var\(--group-gap\);[\s\S]*?row-gap:\s*var\(--group-row-gap\);/,
@@ -32,7 +32,7 @@ test("Wave5H preserves authored editorial placement inputs and responsive grid g
   );
 });
 
-test("Wave5H keeps editorial authored inputs in the renderer rather than inventing CSS writers", () => {
+test("keeps editorial authored inputs in the renderer rather than inventing CSS writers", () => {
   const figure = readFileSync(new URL("../src/templates/media-figure.ts", import.meta.url), "utf8");
 
   assert.match(figure, /variables\.push\(`--start: \$\{placement\.start\}`\)/);
@@ -41,7 +41,7 @@ test("Wave5H keeps editorial authored inputs in the renderer rather than inventi
   assert.doesNotMatch(media, /--span\s*:/);
 });
 
-test("Wave5H editorial remains before infinite reel in media source order", () => {
+test("editorial remains before infinite reel in media source order", () => {
   const editorial = media.indexOf("Explicit editorial grid");
   const infiniteReel = media.indexOf("Infinite reel");
   assert.notEqual(editorial, -1);
@@ -49,7 +49,7 @@ test("Wave5H editorial remains before infinite reel in media source order", () =
   assert.ok(editorial < infiniteReel);
 });
 
-test("Wave5H follows the accepted strip family in media source order", () => {
+test("follows the accepted strip family in media source order", () => {
   const strip = media.indexOf("Equal-height media strip");
   const editorial = media.indexOf("Explicit editorial grid");
   assert.notEqual(strip, -1);
