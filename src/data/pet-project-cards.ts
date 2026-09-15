@@ -1,8 +1,12 @@
-import { usefulProjectsContent, USEFUL_PROJECT_DEFINITIONS } from "./content/useful-projects.ts";
+import {
+  usefulProjectsContent,
+  USEFUL_PROJECT_DEFINITIONS,
+  type UsefulProjectBadge,
+  type UsefulProjectDefinition,
+} from "./content/useful-projects.ts";
 import type { SubprojectCardData } from "./subproject-cards.ts";
-import type { MediaEntryId } from "./media/index.ts";
 
-export type PetProjectBadge = string;
+export type PetProjectBadge = UsefulProjectBadge;
 
 type PetProjectCardBase = Omit<SubprojectCardData, "href"> & {
   badge?: PetProjectBadge;
@@ -12,25 +16,29 @@ export type PetProjectCardData =
   | (PetProjectCardBase & { state: "live"; href: string })
   | (PetProjectCardBase & { state: "coming-soon"; href?: never });
 
-export const petProjectCards: readonly PetProjectCardData[] = usefulProjectsContent.cards
-  .filter((card) => card.visible)
-  .map((card) => {
-    const definition = USEFUL_PROJECT_DEFINITIONS.find(({ id }) => id === card.id);
-    if (!definition) throw new Error(`Missing useful project definition: ${card.id}`);
+const definitionById = new Map(USEFUL_PROJECT_DEFINITIONS.map((definition) => [definition.id, definition] as const));
 
-    const base = {
-      id: card.id,
-      title: card.title,
-      description: card.description,
-      coverEntryId: definition.coverEntryId as MediaEntryId,
-      shape: "portrait" as const,
-      source: "site" as const,
-      ...(card.badge ? { badge: card.badge } : {}),
-    };
+export const petProjectCards: readonly PetProjectCardData[] = usefulProjectsContent.cards.map((card) => {
+  const definition = definitionById.get(card.id);
+  if (!definition || definition.state === "hidden") {
+    throw new Error(`Missing renderable useful project definition: ${card.id}`);
+  }
 
-    if (card.state === "live" && "href" in definition) {
-      return { ...base, state: "live", href: definition.href } as const;
-    }
+  const typedDefinition: UsefulProjectDefinition = definition;
+  const badge = typedDefinition.state === "live" ? typedDefinition.badge : undefined;
+  const base: PetProjectCardBase = {
+    id: card.id,
+    title: card.title,
+    description: card.description,
+    coverEntryId: definition.coverEntryId,
+    shape: "portrait",
+    source: "site",
+    ...(badge ? { badge } : {}),
+  };
 
-    return { ...base, state: "coming-soon" } as const;
-  });
+  if (definition.state === "live") {
+    return { ...base, state: "live", href: definition.href };
+  }
+
+  return { ...base, state: "coming-soon" };
+});

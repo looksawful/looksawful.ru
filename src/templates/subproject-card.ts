@@ -65,9 +65,14 @@ export function renderSubprojectCard(
   return `<a ${attributes} href="${escapeHtml(card.href)}"${target}>${body}</a>`;
 }
 
+function getPetProjectBadge(card: PetProjectCardData): string | undefined {
+  if (card.state === "coming-soon") return "COMING SOON";
+  if (card.badge === "new") return "NEW";
+  return undefined;
+}
+
 function renderPetProjectCard(card: PetProjectCardData): string {
-  const badge = card.state === "coming-soon" ? "В разработке" : card.badge || undefined;
-  const body = renderCardBody(card, badge);
+  const body = renderCardBody(card, getPetProjectBadge(card));
   const attributes = renderCardAttributes(card, { reveal: true }, card.state);
 
   if (card.state === "coming-soon") {
