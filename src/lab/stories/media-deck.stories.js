@@ -49,4 +49,3 @@ export const ReducedMotion = {
   play: (context) => initialize(context, reducedMotion),
   parameters: { looksawful: { state: "reduced-motion", motion: ["reduced-motion"] } },
 };
-

@@ -56,4 +56,3 @@ test("media lightbox uses production renderer and PhotoSwipe lifecycle", async (
   assert.match(story, /interaction:\s*\[[^\]]*"closed"[^\]]*"focus-visible"/s);
   assert.match(story, /state:\s*"overlay-open"/);
 });
-
