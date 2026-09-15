@@ -6,6 +6,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "lab": "vite --config vite.lab.config.ts --open /lab/",
+    "lab:build": "vite build --config vite.lab.config.ts && npm run lab:system && npm run lab:inventory",
+    "lab:system": "node tools/lab/build-storybook.mjs",
+    "lab:inventory": "node tools/lab/design-system-inventory.mjs",
     "desk": "node tools/run-content-desk.mjs",
     "desk:write": "node tools/run-content-desk.mjs --write",
     "design:capture": "node tools/design-capture/cli.mjs",
