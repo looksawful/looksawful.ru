@@ -3,6 +3,8 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 
 import {
+  classifyCmsRefDeleteFailure,
+  CMS_PREVIEW_TTL_HOURS,
   cmsRefDeleteLeaseArgument,
   planCmsRefGc,
 } from "../tools/preview/cms-ref-gc.mjs";
@@ -95,6 +97,7 @@ test("Lab composer is source-only and cannot mutate dev or prod", () => {
 });
 
 test("CMS ref GC expires at 72h, retains fresh refs and is bounded", () => {
+  assert.equal(CMS_PREVIEW_TTL_HOURS, DEFAULT_CMS_PREVIEW_TTL_HOURS);
   const now = Date.parse("2026-09-15T00:00:00Z");
   const plan = planCmsRefGc({
     now,
@@ -118,12 +121,22 @@ test("CMS ref GC rejects foreign namespaces and stale delete leases", () => {
   assert.throws(() => cmsRefDeleteLeaseArgument(ref, "main"), /exact SHA/);
 });
 
+test("CMS ref GC classifies already-gone and refreshed refs as idempotent delete races", () => {
+  const expectedSha = "a".repeat(40);
+  assert.equal(classifyCmsRefDeleteFailure({ expectedSha, remoteSha: null }), "already-gone");
+  assert.equal(classifyCmsRefDeleteFailure({ expectedSha, remoteSha: "b".repeat(40) }), "refreshed");
+  assert.equal(classifyCmsRefDeleteFailure({ expectedSha, remoteSha: expectedSha }), "unexpected-push-failure");
+  assert.throws(() => classifyCmsRefDeleteFailure({ expectedSha: "main", remoteSha: null }), /exact SHA/);
+  assert.throws(() => classifyCmsRefDeleteFailure({ expectedSha, remoteSha: "main" }), /exact SHA/);
+});
+
 test("CMS ref GC workflow is source-only, scheduled and lease-protected", () => {
   const workflow = readFileSync(new URL("../.github/workflows/cms-preview-ref-gc.yml", import.meta.url), "utf8");
   assert.match(workflow, /schedule:/);
   assert.match(workflow, /dry_run:/);
   assert.match(workflow, /contents: write/);
   assert.match(workflow, /cmsRefDeleteLeaseArgument/);
+  assert.match(workflow, /classifyCmsRefDeleteFailure/);
   assert.match(workflow, /git push "\$lease" origin ":\$ref"/);
   assert.match(workflow, /refs\/heads\/cms-preview\//);
   assert.doesNotMatch(workflow, /refs\/heads\/(?:dev|prod|lab)/);
