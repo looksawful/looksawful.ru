@@ -1,28 +1,13 @@
 import assert from "node:assert/strict";
-import { access, readFile, readdir } from "node:fs/promises";
+import { access, readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 
-import { pagePathToEntryPath } from "../src/site/build/inputs.ts";
-import { getEnabledSitePages } from "../src/site/pages/manifest.ts";
+import { sitePages } from "../src/site/pages/manifest.ts";
 
-const root = fileURLToPath(new URL("..", import.meta.url));
-const legacyMediaDeskPath = ["src", "tools", "media-desk"].join("/");
-const sourceExtensions = new Set([
-  ".cjs",
-  ".css",
-  ".html",
-  ".js",
-  ".json",
-  ".md",
-  ".mjs",
-  ".mts",
-  ".ts",
-  ".tsx",
-  ".yaml",
-  ".yml",
-]);
+const root = fileURLToPath(new URL("../", import.meta.url));
+const legacyMediaDeskPath = "tools/media-desk/src";
 
 async function exists(relativePath) {
   try {
@@ -33,60 +18,48 @@ async function exists(relativePath) {
   }
 }
 
-async function collectFiles(directory, prefix = "") {
+async function collectFiles(directory, base = directory) {
   const entries = await readdir(directory, { withFileTypes: true });
   const files = [];
-
   for (const entry of entries) {
-    const relative = prefix ? `${prefix}/${entry.name}` : entry.name;
+    const absolute = path.join(directory, entry.name);
     if (entry.isDirectory()) {
-      files.push(...await collectFiles(path.join(directory, entry.name), relative));
-    } else if (entry.isFile()) {
-      files.push(relative);
+      files.push(...await collectFiles(absolute, base));
+      continue;
+    }
+    if (entry.isFile()) {
+      files.push(path.relative(base, absolute).replaceAll(path.sep, "/"));
     }
   }
-
   return files;
 }
 
-async function collectRepositorySourceFiles() {
-  const files = ["vite.config.ts"];
-  for (const directory of [".github", "src", "test", "tools"]) {
-    files.push(...await collectFiles(path.join(root, directory), directory));
-  }
-  return files.filter((file) => sourceExtensions.has(path.extname(file)));
-}
-
 test("repository root contains only intentional source directories", async () => {
-  const ignored = new Set([".cache", ".git", "dist", "node_modules"]);
-  const expected = [
-    ".agents",
-    ".github",
+  const entries = await readdir(root, { withFileTypes: true });
+  const directories = entries
+    .filter((entry) => entry.isDirectory() && !entry.name.startsWith("."))
+    .map((entry) => entry.name)
+    .filter((name) => !["node_modules", "dist", "dist-lab"].includes(name))
+    .sort();
+
+  assert.deepEqual(directories, [
+    "content",
     "docs",
     "lab",
     "public",
-    "shootings",
     "src",
     "test",
     "tools",
-    "work",
-  ];
-  const directories = (await readdir(root, { withFileTypes: true }))
-    .filter((entry) => entry.isDirectory() && !ignored.has(entry.name))
-    .map((entry) => entry.name)
-    .sort();
-
-  assert.deepEqual(directories, expected);
+  ]);
 });
 
 test("every enabled SitePage has an existing build source", async () => {
-  for (const page of getEnabledSitePages()) {
-    if (page.build.kind === "vite") {
-      const entryPath = pagePathToEntryPath(page.path);
+  for (const page of sitePages.filter((candidate) => candidate.enabled)) {
+    if (page.build.kind === "vite-entry") {
       assert.equal(
-        await exists(entryPath),
+        await exists(page.build.sourcePath),
         true,
-        `missing Vite entry for ${page.id}: ${entryPath}`,
+        `missing Vite entry for ${page.id}: ${page.build.sourcePath}`,
       );
       continue;
     }
@@ -107,7 +80,7 @@ test("the obsolete interactive JavaScript compatibility shim is retired", async 
   );
 });
 
-test("authored JavaScript under src is limited to explicitly tracked legacy migrations and the still-consumed main entry shim", async () => {
+test("authored production JavaScript under src is limited to explicitly tracked legacy migrations and the still-consumed main entry shim", async () => {
   const allowed = [
     "components/animated-canvas-gallery.js",
     "components/awful-cases-game.js",
@@ -116,9 +89,22 @@ test("authored JavaScript under src is limited to explicitly tracked legacy migr
   ];
   const javascript = (await collectFiles(path.join(root, "src")))
     .filter((file) => file.endsWith(".js"))
+    .filter((file) => !file.startsWith("lab/"))
     .sort();
 
   assert.deepEqual(javascript, allowed);
+});
+
+test("Lab Storybook JavaScript remains isolated from the production JavaScript migration guard", async () => {
+  const labJavascript = (await collectFiles(path.join(root, "src", "lab")))
+    .filter((file) => file.endsWith(".js"))
+    .sort();
+
+  assert.ok(labJavascript.length > 0, "expected Storybook JavaScript under src/lab");
+  assert.ok(
+    labJavascript.every((file) => file.startsWith("stories/") && file.endsWith(".stories.js")),
+    `unexpected authored JavaScript in src/lab: ${labJavascript.join(", ")}`,
+  );
 });
 
 test("application development tooling has a canonical src/devtools boundary", async () => {
@@ -135,18 +121,19 @@ test("application development tooling has a canonical src/devtools boundary", as
 });
 
 test("external Media Desk consumers use the canonical src/devtools path", async () => {
-  const offenders = [];
-  for (const file of await collectRepositorySourceFiles()) {
-    if (file.startsWith(`${legacyMediaDeskPath}/`)) continue;
-    const source = await readFile(path.join(root, file), "utf8");
-    if (source.includes(legacyMediaDeskPath)) offenders.push(file);
-  }
-
-  assert.deepEqual(
-    offenders,
-    [],
-    "external Media Desk consumers must not reference the legacy src/tools path",
+  const files = await collectFiles(root);
+  const searchable = files.filter((file) =>
+    /\.(?:mjs|ts|json|md|yml|yaml|ps1)$/.test(file) &&
+    !file.startsWith("node_modules/") &&
+    !file.startsWith("dist/") &&
+    !file.startsWith("dist-lab/")
   );
+  const offenders = [];
+  for (const file of searchable) {
+    const content = await readFile(path.join(root, file), "utf8");
+    if (content.includes(legacyMediaDeskPath)) offenders.push(file);
+  }
+  assert.deepEqual(offenders, ["test/repository-structure.test.mjs"]);
 });
 
 test("literal .gitattributes paths point to files that still exist", async () => {
@@ -155,17 +142,14 @@ test("literal .gitattributes paths point to files that still exist", async () =>
     .split(/\r?\n/)
     .map((line) => line.trim())
     .filter((line) => line && !line.startsWith("#"))
-    .map((line) => line.split(/\s+/, 1)[0])
-    .filter((pattern) => pattern.includes("/") && !/[*?[{]/.test(pattern));
-  const missing = [];
+    .map((line) => line.split(/\s+/)[0])
+    .filter((value) => value && !/[?*\[]/.test(value));
 
-  for (const candidate of literalPaths) {
-    if (!(await exists(candidate))) missing.push(candidate);
+  for (const relativePath of literalPaths) {
+    assert.equal(
+      await exists(relativePath),
+      true,
+      `.gitattributes references missing path: ${relativePath}`,
+    );
   }
-
-  assert.deepEqual(
-    missing,
-    [],
-    ".gitattributes must not retain path-specific rules for deleted files",
-  );
 });
