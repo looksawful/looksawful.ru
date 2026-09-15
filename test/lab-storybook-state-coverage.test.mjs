@@ -5,7 +5,7 @@ import test from "node:test";
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
 test("project card records its real keyboard focus and responsive evidence", async () => {
-  const story = await read("src/lab/stories/project-card.stories.js");
+  const story = await read("src/lab/stories/project-card.stories.mjs");
 
   assert.match(story, /interaction:\s*\[[^\]]*"default"[^\]]*"focus-visible"/s);
   assert.match(story, /review:\s*\["desktop",\s*"tablet",\s*"mobile"\]/);
@@ -14,7 +14,7 @@ test("project card records its real keyboard focus and responsive evidence", asy
 });
 
 test("page flip records real control, orientation and motion axes", async () => {
-  const story = await read("src/lab/stories/page-flip.stories.js");
+  const story = await read("src/lab/stories/page-flip.stories.mjs");
 
   assert.match(story, /interaction:\s*\[[^\]]*"default"[^\]]*"active-or-pressed"[^\]]*"disabled"/s);
   assert.match(story, /conditions:\s*\[[^\]]*"portrait"[^\]]*"landscape"/s);
@@ -22,8 +22,8 @@ test("page flip records real control, orientation and motion axes", async () => 
 });
 
 test("code block and before-after expose only production-backed state variants", async () => {
-  const codeBlock = await read("src/lab/stories/code-block.stories.js");
-  const beforeAfter = await read("src/lab/stories/before-after.stories.js");
+  const codeBlock = await read("src/lab/stories/code-block.stories.mjs");
+  const beforeAfter = await read("src/lab/stories/before-after.stories.mjs");
 
   assert.match(codeBlock, /export const FocusVisible/);
   assert.match(codeBlock, /export const Copied/);

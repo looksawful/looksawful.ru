@@ -1,8 +1,8 @@
-﻿import assert from "node:assert/strict";
+import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-const storyUrl = (name) => new URL(`../src/lab/stories/${name}.stories.js`, import.meta.url);
+const storyUrl = (name) => new URL(`../src/lab/stories/${name}.stories.mjs`, import.meta.url);
 
 async function readStory(name) {
   return readFile(storyUrl(name), "utf8");

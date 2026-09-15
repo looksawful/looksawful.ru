@@ -1,8 +1,8 @@
-﻿import test from "node:test";
+import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
-const story = readFileSync(new URL("../src/lab/stories/model-viewer-controls.stories.js", import.meta.url), "utf8");
+const story = readFileSync(new URL("../src/lab/stories/model-viewer-controls.stories.mjs", import.meta.url), "utf8");
 
 test("model viewer lab prototype is presented as ordinary site media", () => {
   assert.match(story, /class="media mv-media"/);
