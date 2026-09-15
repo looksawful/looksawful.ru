@@ -5,10 +5,10 @@ export const projectSurfaceStoryCoverage = Object.freeze({
   "media-slider": { status: "direct", storyFile: "src/lab/stories/project-content-blocks.stories.mjs" },
   mockup: { status: "direct", storyFile: "src/lab/stories/project-content-blocks.stories.mjs" },
   "mockup-deck": { status: "direct", storyFile: "src/lab/stories/project-content-blocks.stories.mjs" },
-  "justified-gallery": { status: "direct", storyFile: "src/lab/stories/justified-gallery.stories.js" },
+  "justified-gallery": { status: "direct", storyFile: "src/lab/stories/project-content-blocks.stories.mjs" },
   "before-after": { status: "direct", storyFile: "src/lab/stories/before-after.stories.js" },
   "page-flip": { status: "direct", storyFile: "src/lab/stories/project-content-blocks.stories.mjs" },
-  "animated-canvas-gallery": { status: "direct", storyFile: "src/lab/stories/animated-canvas-gallery.stories.js" },
+  "animated-canvas-gallery": { status: "direct", storyFile: "src/lab/stories/project-content-blocks.stories.mjs" },
   "jestei-theme": { status: "direct", storyFile: "src/lab/stories/project-content-blocks.stories.mjs" },
   "awful-cases-game": { status: "direct", storyFile: "src/lab/stories/project-content-blocks.stories.mjs" },
 
