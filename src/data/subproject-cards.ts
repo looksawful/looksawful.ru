@@ -451,7 +451,7 @@ export const petProjectCardsBase = [
   {
     id: "awful-cases",
     title: "Awful Cases",
-    description: "Утилита для Windows, которая меняет регистр и типографику выделенного текста. · Разработчик · 2024–2026",
+    description: "Утилита для Windows, которая меняет регистр и типографику выделенного текста.",
     coverEntryId: "awful-cases-assets-screenshot-2026-08-14-174113-use-01",
     shape: "landscape",
     href: "https://github.com/looksawful/awful-cases",
@@ -460,7 +460,7 @@ export const petProjectCardsBase = [
   {
     id: "moves-awful",
     title: "Moves Awful",
-    description: "Библиотека анимированных галерей для лендингов. · Разработчик · 2025",
+    description: "Библиотека анимированных галерей для лендингов.",
     coverEntryId: "moves-awful-jestei-landing-animation-01-use-01",
     shape: "landscape",
     source: "site",
@@ -468,7 +468,7 @@ export const petProjectCardsBase = [
   {
     id: "berserk-timer",
     title: "Berserk Timer",
-    description: "CLI-таймер с режимом свидетеля и гибкой настройкой длительности. · Разработчик",
+    description: "CLI-таймер с режимом свидетеля и гибкой настройкой длительности.",
     coverEntryId: "berserk-timer-cover-use-01",
     shape: "landscape",
     href: "/pets/berserk-timer/",

@@ -17,6 +17,7 @@ import { escapeHtml } from "../src/utils/html.ts";
 const contentPath = "src/content/standalone-projects/awful-cases.json";
 const adapterPath = "src/data/content/awful-cases-editorial.ts";
 const introFields = ["head", "title", "role", "period", "summary", "lead"];
+const visibleIntroFields = ["head", "title", "summary", "lead"];
 
 const clone = (value) => structuredClone(value);
 
@@ -67,25 +68,29 @@ test("Awful Cases has a strict CMS-owned editorial source", async () => {
   assert.throws(() => parseAwfulCasesEditorialContent(invalid), /string/i);
 });
 
-test("Awful Cases CMS copy feeds intro, code blocks and matching catalog fields", async () => {
+test("Awful Cases CMS copy feeds the public intro without role or period and keeps matching catalog fields", async () => {
   const source = JSON.parse(await readFile(contentPath, "utf8"));
 
   assert.equal(awfulCasesIntro.head.type, "text");
   assert.equal(awfulCasesIntro.head.text, source.head);
   assert.equal(awfulCasesIntro.title.type, "text");
   assert.equal(awfulCasesIntro.title.text, source.title);
-  assert.equal(awfulCasesIntro.role, source.role);
-  assert.equal(awfulCasesIntro.period, source.period);
+  assert.equal("role" in awfulCasesIntro, false);
+  assert.equal("period" in awfulCasesIntro, false);
   assert.equal(awfulCasesIntro.summary, source.summary);
   assert.equal(awfulCasesIntro.lead, source.lead);
 
   const rendered = renderProjectIntro(awfulCasesIntro);
-  for (const field of introFields) {
+  for (const field of visibleIntroFields) {
     assert.ok(
       rendered.includes(escapeHtml(source[field])),
       `Rendered Awful Cases intro must contain the escaped current CMS value: ${field}`,
     );
   }
+  assert.ok(source.role, "CMS may retain role as internal/catalog metadata");
+  assert.ok(source.period, "CMS may retain period as internal/catalog metadata");
+  assert.doesNotMatch(rendered, new RegExp(escapeHtml(source.role)));
+  assert.doesNotMatch(rendered, new RegExp(escapeHtml(source.period)));
 
   assert.equal(awfulCasesCodeBlocks.install.title, source.codeBlocks.install.title);
   assert.equal(awfulCasesCodeBlocks.install.code, source.codeBlocks.install.code);
