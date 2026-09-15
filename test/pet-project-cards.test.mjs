@@ -26,8 +26,9 @@ const approvedCards = [
     title: "Berserk Timer",
     description: "CLI-таймер с режимом свидетеля и гибкой настройкой длительности.",
     state: "live",
-    href: "/pets/berserk-timer/",
-  },  {
+    href: "/work/berserk-timer/",
+  },
+  {
     id: "awful-studio",
     title: "Awful Studio",
     description: "Blender-native студия для виртуального продакшна и продуктовой рекламы.",
@@ -56,6 +57,7 @@ test("Useful exposes exactly the approved cards, copy and release state", () => 
     approvedCards,
   );
 });
+
 test("live Useful cards are links and NEW is an authored badge", () => {
   const html = renderPetProjectCards([
     {
@@ -73,10 +75,11 @@ test("live Useful cards are links and NEW is an authored badge", () => {
 
   assert.match(html, /<a\b[^>]*href="\/work\/preview-new\/"/);
   assert.match(html, /class="subproject-card__badge"[^>]*>NEW<\/span>/);
+  assert.doesNotMatch(html, /soon/);
   assert.doesNotMatch(html, /В разработке/);
 });
 
-test("coming-soon Useful cards are semantic non-links", () => {
+test("coming-soon Useful cards are semantic non-links with renderer-owned soon state", () => {
   const html = renderPetProjectCards([
     {
       id: "preview-coming-soon",
@@ -85,13 +88,22 @@ test("coming-soon Useful cards are semantic non-links", () => {
       coverEntryId: "awful-cases-assets-screenshot-2026-08-14-174113-use-01",
       shape: "portrait",
       source: "site",
-      state: "coming-soon",    },
+      state: "coming-soon",
+    },
   ]);
 
   assert.match(html, /<article\b/);
-  assert.match(html, /class="subproject-card__badge"[^>]*>В разработке<\/span>/);
+  assert.match(html, /class="subproject-card__badge"[^>]*>soon<\/span>/);
+  assert.doesNotMatch(html, /В разработке/);
   assert.doesNotMatch(html, /<a\b/);
   assert.doesNotMatch(html, /href=/);
+
+  const editorial = JSON.parse(
+    readFileSync(new URL("../src/content/editorial/useful-project-cards.json", import.meta.url), "utf8"),
+  );
+  for (const id of ["awful-studio", "awful-mockups", "awful-3d-mockups"]) {
+    assert.equal(editorial.cards[id].badge, "", `${id} lifecycle must not be duplicated as authored badge copy`);
+  }
 });
 
 test("homepage renders the CMS-backed Useful section", () => {
@@ -103,7 +115,8 @@ test("homepage renders the CMS-backed Useful section", () => {
   assert.match(rendered, />Полезные инструменты, которые я создаю на досуге<\/p>/);
   assert.match(rendered, /data-subproject-id="awful-3d-mockups"/);
   assert.match(rendered, />NEW<\/span>/);
-  assert.match(rendered, />В разработке<\/span>/);
+  assert.match(rendered, />soon<\/span>/);
+  assert.doesNotMatch(rendered, />В разработке<\/span>/);
 });
 
 test("Useful presentation is a uniform portrait snap reel", () => {
@@ -114,7 +127,8 @@ test("Useful presentation is a uniform portrait snap reel", () => {
 
   assert.match(source, /--pet-card-width:\s*clamp\(/);
   assert.match(source, /grid-auto-flow:\s*column/);
-  assert.match(source, /scroll-snap-type:\s*inline mandatory/);  assert.match(source, /aspect-ratio:\s*4\s*\/\s*5/);
+  assert.match(source, /scroll-snap-type:\s*inline mandatory/);
+  assert.match(source, /aspect-ratio:\s*4\s*\/\s*5/);
   assert.match(source, /animation-timeline:\s*view\(inline\)/);
   assert.match(source, /prefers-reduced-motion:\s*reduce/);
   assert.doesNotMatch(source, /grid-template-columns:\s*repeat\(3,/);
