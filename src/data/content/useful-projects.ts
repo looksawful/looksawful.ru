@@ -132,7 +132,7 @@ function parseSource(value: unknown) {
     },
     cards: parsedCards.map((card) => {
       const definition = definitionById.get(card.id);
-      if (!definition || !definition.visible || definition.state === "hidden") {
+      if (!definition || !definition.visible) {
         throw new Error(`Missing visible useful project definition: ${card.id}`);
       }
       return { ...card, visible: true, state: definition.state };
