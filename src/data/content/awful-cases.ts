@@ -7,8 +7,6 @@ import { awfulCasesEditorialContent } from "./awful-cases-editorial.ts";
 export const awfulCasesIntro = {
   head: { type: "text", text: awfulCasesEditorialContent.head },
   title: { type: "text", text: awfulCasesEditorialContent.title },
-  role: awfulCasesEditorialContent.role,
-  period: awfulCasesEditorialContent.period,
   summary: awfulCasesEditorialContent.summary,
   lead: awfulCasesEditorialContent.lead,
   links: [
