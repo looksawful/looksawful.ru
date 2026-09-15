@@ -111,6 +111,12 @@ test("Russia auto-consent is session-scoped and explicit consent still wins", as
   assert.equal(hasSiteAnalyticsConsent(target("denied", "RU")), false, "explicit denial should win");
 });
 
+test("country resolution matches the deployed topology without probing unavailable Cloudflare trace", async () => {
+  const source = await readFile(consentUrl, "utf8");
+  assert.doesNotMatch(source, /["']\/cdn-cgi\/trace["']/);
+  assert.match(source, /https:\/\/api\.country\.is\//);
+});
+
 test("the Yandex event taxonomy stays small and conversion-oriented", async () => {
   const source = await readFile(componentUrl, "utf8");
   for (const goal of ["project_open", "cv_open", "contact_email", "contact_phone", "contact_telegram", "download"]) {

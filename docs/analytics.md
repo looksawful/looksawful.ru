@@ -20,7 +20,7 @@ The browser tag at `https://mc.yandex.ru/metrika/tag.js` loads when either:
 
 A stored `denied` value always suppresses Yandex Metrica, including in an RU session. Global Privacy Control and `Do Not Track: 1` suppress site analytics before provider loading regardless of region or stored consent.
 
-Regional resolution is session-scoped, not permanent consent. A normalized two-letter country code is stored in `sessionStorage` under `looksawful:analytics-region`. When no explicit consent and no cached region exist, the runtime resolves the country from `/cdn-cgi/trace` and then `https://api.country.is/`. RU may auto-start Yandex; non-RU or unresolved sessions render the consent control instead.
+Regional resolution is session-scoped, not permanent consent. A normalized two-letter country code is stored in `sessionStorage` under `looksawful:analytics-region`. When no explicit consent and no cached region exist, the runtime resolves the country from `https://api.country.is/`. The current GitHub Pages production topology does not expose Cloudflare's `/cdn-cgi/trace` endpoint, so the runtime does not probe it. RU may auto-start Yandex; non-RU or unresolved sessions render the consent control instead.
 
 The counter initializes with:
 
