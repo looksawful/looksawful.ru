@@ -26,6 +26,7 @@ import { sensetiqueMediaEntries } from "./sensetique.ts";
 import { normalizeStyxCaption } from "./styx-normalization.ts";
 import { styxMediaEntries } from "./styx.ts";
 import { unassignedMediaEntries } from "./unassigned.ts";
+import { usefulMediaEntries } from "./useful.ts";
 
 const rawMediaEntries = [
   ...awfulCasesMediaEntries,
@@ -45,6 +46,7 @@ const rawMediaEntries = [
   ...sensetiqueMediaEntries.map(normalizeSensetiqueCaption),
   ...styxMediaEntries.map(normalizeStyxCaption),
   ...unassignedMediaEntries,
+  ...usefulMediaEntries,
 ] as const;
 
 export type MediaEntryId = (typeof rawMediaEntries)[number]["id"];
