@@ -64,6 +64,19 @@ test("compact homepage previews render the approved visual selections", () => {
   }
 });
 
+test("Useful preview uses one consistent portrait app-card presentation", () => {
+  const homepage = renderHomepagePage(indexSource);
+
+  assert.match(homepage, /--pet-card-width:\s*clamp\(13\.5rem,\s*58cqi,\s*20rem\)/);
+  assert.match(homepage, /--pet-card-radius:\s*clamp\(1\.125rem,\s*3cqi,\s*1\.75rem\)/);
+  assert.match(homepage, /\.pet-projects \.subproject-card\[data-shape\] \.subproject-card__media\s*\{[^}]*aspect-ratio:\s*4\s*\/\s*5/s);
+  assert.match(homepage, /\.subproject-card__media :is\(img, video\)\s*\{[^}]*object-fit:\s*cover/s);
+  assert.match(homepage, /\.subproject-card__caption\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)[^}]*padding:\s*var\(--size-200\)\s*var\(--size-100\)\s*0/s);
+  assert.match(homepage, /\.subproject-card__description\s*\{[^}]*display:\s*-webkit-box[^}]*-webkit-line-clamp:\s*2/s);
+  assert.match(homepage, /from,\s*to\s*\{[^}]*scale:\s*0\.94/s);
+  assert.doesNotMatch(homepage, /@container subproject-card \(width > 20rem\)/);
+});
+
 test("Jestei compact preview exposes only the terminal full-case CTA", () => {
   const homepage = renderHomepagePage(indexSource);
   const start = homepage.indexOf('id="project-jestei"');
