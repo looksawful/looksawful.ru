@@ -63,6 +63,7 @@
     "test:e2e": "node tools/e2e/smoke-site.mjs",
     "test:e2e:navigation": "node tools/e2e/smoke-site-navigation.mjs",
     "test:e2e:lightbox": "node tools/e2e/smoke-media-lightbox.mjs",
+    "test:e2e:deck": "node tools/e2e/smoke-media-deck.mjs",
     "test:e2e:mpa": "node tools/e2e/smoke-mpa.mjs",
     "test:e2e:projects": "node tools/e2e/smoke-project-pages.mjs",
     "test:e2e:cv": "node tools/e2e/smoke-cv.mjs",
