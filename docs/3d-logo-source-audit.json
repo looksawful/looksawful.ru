@@ -1,0 +1,1088 @@
+﻿[
+  {
+    "path": "public/favicon.svg",
+    "kind": "vector-svg",
+    "vectorElements": 7,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/jestei/10/source/29-720x289.svg",
+    "kind": "vector-svg",
+    "vectorElements": 8,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/jestei/logo/source/21-svg-full-text-icon-full-split.svg",
+    "kind": "vector-svg",
+    "vectorElements": 11,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/jestei/logo/source/25-svg-jestei-event-full-event.svg",
+    "kind": "vector-svg",
+    "vectorElements": 11,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/jestei/logo/source/26-svg-jestei-event-full-split.svg",
+    "kind": "vector-svg",
+    "vectorElements": 11,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/jestei/logo/source/28-svg-jestei-event-text-logo-event.svg",
+    "kind": "vector-svg",
+    "vectorElements": 10,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/jestei/logo/source/29-svg-text-only-text-logo-bright.svg",
+    "kind": "vector-svg",
+    "vectorElements": 10,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/jestei/logo/source/30-svg-text-only-text-logo-dark.svg",
+    "kind": "vector-svg",
+    "vectorElements": 10,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/jestei/logo/source/31-svg-text-only-text-logo-orange.svg",
+    "kind": "vector-svg",
+    "vectorElements": 10,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/jestei/logo/source/Logo-Jestei-Pool-dark.svg",
+    "kind": "vector-svg",
+    "vectorElements": 11,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/jestei/logo/source/Logo-Jestei-Pool.svg",
+    "kind": "vector-svg",
+    "vectorElements": 11,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/jestei/logo/source/logo-secondary.svg",
+    "kind": "vector-svg",
+    "vectorElements": 1,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/line/logo/source/01-line-logo.svg",
+    "kind": "raster-wrapper",
+    "vectorElements": 0,
+    "imageElements": 1
+  },
+  {
+    "path": "public/media/projects/lyve/logo/source/01-lyve-logo.svg",
+    "kind": "vector-svg",
+    "vectorElements": 2,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/madcow/logo/source/01-madcow-logo.svg",
+    "kind": "raster-wrapper",
+    "vectorElements": 0,
+    "imageElements": 1
+  },
+  {
+    "path": "public/media/projects/mn/logo/source/01-mn-logo.svg",
+    "kind": "raster-wrapper",
+    "vectorElements": 0,
+    "imageElements": 1
+  },
+  {
+    "path": "public/media/projects/progresstrad/logo/source/01-progresstrad-logo.svg",
+    "kind": "raster-wrapper",
+    "vectorElements": 0,
+    "imageElements": 1
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/01_marks/001_marks_r01_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 3,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/01_marks/002_marks_r01_c02.svg",
+    "kind": "vector-svg",
+    "vectorElements": 4,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/01_marks/003_marks_r01_c03.svg",
+    "kind": "vector-svg",
+    "vectorElements": 4,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/01_marks/004_marks_r02_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 5,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/01_marks/005_marks_r02_c02.svg",
+    "kind": "vector-svg",
+    "vectorElements": 5,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/01_marks/006_marks_r02_c03.svg",
+    "kind": "vector-svg",
+    "vectorElements": 5,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/01_marks/007_marks_r03_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 4,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/01_marks/008_marks_r03_c02.svg",
+    "kind": "vector-svg",
+    "vectorElements": 4,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/01_marks/009_marks_r03_c03.svg",
+    "kind": "vector-svg",
+    "vectorElements": 4,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/01_marks/010_marks_r04_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 5,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/01_marks/011_marks_r04_c02.svg",
+    "kind": "vector-svg",
+    "vectorElements": 5,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/01_marks/012_marks_r04_c03.svg",
+    "kind": "vector-svg",
+    "vectorElements": 5,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/01_marks/013_marks_r05_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 4,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/01_marks/014_marks_r05_c02.svg",
+    "kind": "vector-svg",
+    "vectorElements": 4,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/01_marks/015_marks_r05_c03.svg",
+    "kind": "vector-svg",
+    "vectorElements": 4,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/01_marks/016_marks_r06_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 5,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/01_marks/017_marks_r06_c02.svg",
+    "kind": "vector-svg",
+    "vectorElements": 5,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/01_marks/018_marks_r06_c03.svg",
+    "kind": "vector-svg",
+    "vectorElements": 5,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/01_marks/019_marks_r07_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 4,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/01_marks/020_marks_r07_c02.svg",
+    "kind": "vector-svg",
+    "vectorElements": 4,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/01_marks/021_marks_r07_c03.svg",
+    "kind": "vector-svg",
+    "vectorElements": 4,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/01_marks/022_marks_r08_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 5,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/01_marks/023_marks_r08_c02.svg",
+    "kind": "vector-svg",
+    "vectorElements": 5,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/01_marks/024_marks_r08_c03.svg",
+    "kind": "vector-svg",
+    "vectorElements": 5,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/01_marks/025_marks_r09_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 4,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/01_marks/026_marks_r09_c02.svg",
+    "kind": "vector-svg",
+    "vectorElements": 4,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/01_marks/027_marks_r09_c03.svg",
+    "kind": "vector-svg",
+    "vectorElements": 4,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/01_marks/028_marks_r10_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 5,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/01_marks/029_marks_r10_c02.svg",
+    "kind": "vector-svg",
+    "vectorElements": 5,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/01_marks/030_marks_r10_c03.svg",
+    "kind": "vector-svg",
+    "vectorElements": 5,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/01_marks/031_marks_r11_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 4,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/01_marks/032_marks_r11_c02.svg",
+    "kind": "vector-svg",
+    "vectorElements": 4,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/01_marks/033_marks_r11_c03.svg",
+    "kind": "vector-svg",
+    "vectorElements": 4,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/01_marks/034_marks_r12_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 5,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/01_marks/035_marks_r12_c02.svg",
+    "kind": "vector-svg",
+    "vectorElements": 5,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/01_marks/036_marks_r12_c03.svg",
+    "kind": "vector-svg",
+    "vectorElements": 5,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/01_marks/037_marks_r13_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 4,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/01_marks/038_marks_r13_c02.svg",
+    "kind": "vector-svg",
+    "vectorElements": 4,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/01_marks/039_marks_r13_c03.svg",
+    "kind": "vector-svg",
+    "vectorElements": 4,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/01_marks/040_marks_r14_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 5,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/01_marks/041_marks_r14_c02.svg",
+    "kind": "vector-svg",
+    "vectorElements": 5,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/01_marks/042_marks_r14_c03.svg",
+    "kind": "vector-svg",
+    "vectorElements": 5,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/01_marks/043_marks_r15_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 4,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/01_marks/044_marks_r15_c02.svg",
+    "kind": "vector-svg",
+    "vectorElements": 4,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/01_marks/045_marks_r15_c03.svg",
+    "kind": "vector-svg",
+    "vectorElements": 4,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/01_marks/046_marks_r16_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 5,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/01_marks/047_marks_r16_c02.svg",
+    "kind": "vector-svg",
+    "vectorElements": 5,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/01_marks/048_marks_r16_c03.svg",
+    "kind": "vector-svg",
+    "vectorElements": 5,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/01_marks/049_marks_r17_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 4,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/01_marks/050_marks_r17_c02.svg",
+    "kind": "vector-svg",
+    "vectorElements": 4,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/01_marks/051_marks_r17_c03.svg",
+    "kind": "vector-svg",
+    "vectorElements": 4,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/01_marks/052_marks_r18_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 5,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/01_marks/053_marks_r18_c02.svg",
+    "kind": "vector-svg",
+    "vectorElements": 5,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/01_marks/054_marks_r18_c03.svg",
+    "kind": "vector-svg",
+    "vectorElements": 5,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/01_marks/055_marks_r19_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 4,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/01_marks/056_marks_r19_c02.svg",
+    "kind": "vector-svg",
+    "vectorElements": 4,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/01_marks/057_marks_r19_c03.svg",
+    "kind": "vector-svg",
+    "vectorElements": 4,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/01_marks/058_marks_r20_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 5,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/01_marks/059_marks_r20_c02.svg",
+    "kind": "vector-svg",
+    "vectorElements": 5,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/01_marks/060_marks_r20_c03.svg",
+    "kind": "vector-svg",
+    "vectorElements": 5,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/061_lockups_r01_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 14,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/062_lockups_r01_c02.svg",
+    "kind": "vector-svg",
+    "vectorElements": 12,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/063_lockups_r01_c03.svg",
+    "kind": "vector-svg",
+    "vectorElements": 14,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/064_lockups_r02_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 15,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/065_lockups_r02_c02.svg",
+    "kind": "vector-svg",
+    "vectorElements": 15,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/066_lockups_r02_c03.svg",
+    "kind": "vector-svg",
+    "vectorElements": 15,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/067_lockups_r03_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 14,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/068_lockups_r03_c02.svg",
+    "kind": "vector-svg",
+    "vectorElements": 14,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/069_lockups_r03_c03.svg",
+    "kind": "vector-svg",
+    "vectorElements": 14,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/070_lockups_r04_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 15,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/071_lockups_r04_c02.svg",
+    "kind": "vector-svg",
+    "vectorElements": 15,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/072_lockups_r04_c03.svg",
+    "kind": "vector-svg",
+    "vectorElements": 15,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/073_lockups_r05_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 14,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/074_lockups_r05_c02.svg",
+    "kind": "vector-svg",
+    "vectorElements": 14,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/075_lockups_r05_c03.svg",
+    "kind": "vector-svg",
+    "vectorElements": 14,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/076_lockups_r06_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 15,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/077_lockups_r06_c02.svg",
+    "kind": "vector-svg",
+    "vectorElements": 15,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/078_lockups_r06_c03.svg",
+    "kind": "vector-svg",
+    "vectorElements": 15,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/079_lockups_r07_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 14,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/080_lockups_r07_c02.svg",
+    "kind": "vector-svg",
+    "vectorElements": 14,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/081_lockups_r07_c03.svg",
+    "kind": "vector-svg",
+    "vectorElements": 14,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/082_lockups_r08_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 15,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/083_lockups_r08_c02.svg",
+    "kind": "vector-svg",
+    "vectorElements": 15,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/084_lockups_r08_c03.svg",
+    "kind": "vector-svg",
+    "vectorElements": 15,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/085_lockups_r09_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 14,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/086_lockups_r09_c02.svg",
+    "kind": "vector-svg",
+    "vectorElements": 14,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/087_lockups_r09_c03.svg",
+    "kind": "vector-svg",
+    "vectorElements": 14,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/088_lockups_r10_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 15,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/089_lockups_r10_c02.svg",
+    "kind": "vector-svg",
+    "vectorElements": 15,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/090_lockups_r10_c03.svg",
+    "kind": "vector-svg",
+    "vectorElements": 15,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/091_lockups_r11_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 14,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/092_lockups_r11_c02.svg",
+    "kind": "vector-svg",
+    "vectorElements": 14,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/093_lockups_r11_c03.svg",
+    "kind": "vector-svg",
+    "vectorElements": 14,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/094_lockups_r12_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 15,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/095_lockups_r12_c02.svg",
+    "kind": "vector-svg",
+    "vectorElements": 15,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/096_lockups_r12_c03.svg",
+    "kind": "vector-svg",
+    "vectorElements": 15,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/097_lockups_r13_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 14,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/098_lockups_r13_c02.svg",
+    "kind": "vector-svg",
+    "vectorElements": 14,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/099_lockups_r13_c03.svg",
+    "kind": "vector-svg",
+    "vectorElements": 14,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/100_lockups_r14_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 15,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/101_lockups_r14_c02.svg",
+    "kind": "vector-svg",
+    "vectorElements": 15,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/102_lockups_r14_c03.svg",
+    "kind": "vector-svg",
+    "vectorElements": 15,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/103_lockups_r15_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 14,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/104_lockups_r15_c02.svg",
+    "kind": "vector-svg",
+    "vectorElements": 14,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/105_lockups_r15_c03.svg",
+    "kind": "vector-svg",
+    "vectorElements": 14,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/106_lockups_r16_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 15,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/107_lockups_r16_c02.svg",
+    "kind": "vector-svg",
+    "vectorElements": 15,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/108_lockups_r16_c03.svg",
+    "kind": "vector-svg",
+    "vectorElements": 15,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/109_lockups_r17_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 14,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/110_lockups_r17_c02.svg",
+    "kind": "vector-svg",
+    "vectorElements": 14,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/111_lockups_r17_c03.svg",
+    "kind": "vector-svg",
+    "vectorElements": 14,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/112_lockups_r18_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 13,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/113_lockups_r18_c02.svg",
+    "kind": "vector-svg",
+    "vectorElements": 15,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/114_lockups_r18_c03.svg",
+    "kind": "vector-svg",
+    "vectorElements": 15,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/115_lockups_r19_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 14,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/116_lockups_r19_c02.svg",
+    "kind": "vector-svg",
+    "vectorElements": 14,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/117_lockups_r19_c03.svg",
+    "kind": "vector-svg",
+    "vectorElements": 14,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/118_lockups_r20_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 15,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/119_lockups_r20_c02.svg",
+    "kind": "vector-svg",
+    "vectorElements": 15,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/120_lockups_r20_c03.svg",
+    "kind": "vector-svg",
+    "vectorElements": 15,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/03_vertical/121_vertical_r01_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 3,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/03_vertical/123_vertical_r02_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 4,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/03_vertical/124_vertical_r02_c02.svg",
+    "kind": "vector-svg",
+    "vectorElements": 14,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/03_vertical/125_vertical_r03_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 7,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/03_vertical/126_vertical_r03_c02.svg",
+    "kind": "vector-svg",
+    "vectorElements": 17,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/03_vertical/127_vertical_r04_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 6,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/03_vertical/128_vertical_r04_c02.svg",
+    "kind": "vector-svg",
+    "vectorElements": 16,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/03_vertical/129_vertical_r05_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 7,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/03_vertical/130_vertical_r05_c02.svg",
+    "kind": "vector-svg",
+    "vectorElements": 17,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/03_vertical/131_vertical_r06_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 6,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/03_vertical/132_vertical_r06_c02.svg",
+    "kind": "vector-svg",
+    "vectorElements": 16,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/03_vertical/133_vertical_r07_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 7,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/03_vertical/134_vertical_r07_c02.svg",
+    "kind": "vector-svg",
+    "vectorElements": 17,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/03_vertical/135_vertical_r08_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 6,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/03_vertical/136_vertical_r08_c02.svg",
+    "kind": "vector-svg",
+    "vectorElements": 16,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/03_vertical/137_vertical_r09_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 7,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/03_vertical/138_vertical_r09_c02.svg",
+    "kind": "vector-svg",
+    "vectorElements": 17,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/03_vertical/139_vertical_r10_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 3,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/03_vertical/141_vertical_r11_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 4,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/03_vertical/142_vertical_r11_c02.svg",
+    "kind": "vector-svg",
+    "vectorElements": 14,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/03_vertical/143_vertical_r12_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 7,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/03_vertical/144_vertical_r12_c02.svg",
+    "kind": "vector-svg",
+    "vectorElements": 17,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/03_vertical/145_vertical_r13_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 6,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/03_vertical/146_vertical_r13_c02.svg",
+    "kind": "vector-svg",
+    "vectorElements": 16,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/03_vertical/147_vertical_r14_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 7,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/03_vertical/148_vertical_r14_c02.svg",
+    "kind": "vector-svg",
+    "vectorElements": 17,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/03_vertical/149_vertical_r15_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 6,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/03_vertical/150_vertical_r15_c02.svg",
+    "kind": "vector-svg",
+    "vectorElements": 16,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/03_vertical/151_vertical_r16_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 7,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/03_vertical/152_vertical_r16_c02.svg",
+    "kind": "vector-svg",
+    "vectorElements": 17,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/03_vertical/153_vertical_r17_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 6,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/03_vertical/154_vertical_r17_c02.svg",
+    "kind": "vector-svg",
+    "vectorElements": 16,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/03_vertical/155_vertical_r18_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 7,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/03_vertical/156_vertical_r18_c02.svg",
+    "kind": "vector-svg",
+    "vectorElements": 17,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/03_vertical/157_vertical_r19_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 3,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/03_vertical/159_vertical_r20_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 4,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/03_vertical/160_vertical_r20_c02.svg",
+    "kind": "vector-svg",
+    "vectorElements": 14,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/03_vertical/161_vertical_r21_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 7,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/03_vertical/162_vertical_r21_c02.svg",
+    "kind": "vector-svg",
+    "vectorElements": 17,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/03_vertical/163_vertical_r22_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 6,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/03_vertical/164_vertical_r22_c02.svg",
+    "kind": "vector-svg",
+    "vectorElements": 16,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/03_vertical/165_vertical_r23_c01.svg",
+    "kind": "vector-svg",
+    "vectorElements": 7,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/sensetique/logo/sensetique_logo_svg/03_vertical/166_vertical_r23_c02.svg",
+    "kind": "vector-svg",
+    "vectorElements": 17,
+    "imageElements": 0
+  },
+  {
+    "path": "public/media/projects/styx/logo/source/02-styx-logo.svg",
+    "kind": "raster-wrapper",
+    "vectorElements": 0,
+    "imageElements": 1
+  }
+]

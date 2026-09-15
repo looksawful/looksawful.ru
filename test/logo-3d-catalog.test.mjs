@@ -3,8 +3,9 @@ import assert from "node:assert/strict";
 
 import { logo3dCatalog, logo3dMaterials } from "../src/lab/data/logo-3d-catalog.mjs";
 
-test("3D logo catalog covers the required logo families and Styx variants", () => {
-  const ids = new Set(logo3dCatalog.map((entry) => entry.id));
+const byId = new Map(logo3dCatalog.map((entry) => [entry.id, entry]));
+
+test("3D logo catalog covers every explicitly requested family", () => {
   for (const id of [
     "jestei-symbol-metal",
     "jestei-wordmark-metal",
@@ -13,26 +14,44 @@ test("3D logo catalog covers the required logo families and Styx variants", () =
     "styx-wordmark-metal",
     "awfulface-metal",
     "sensetique-metal",
+    "s-and-s-metal",
+    "line-metal",
+    "progress-tradition-metal",
+    "illumihand-metal",
     "lyve-moscow-metal",
   ]) {
-    assert.ok(ids.has(id), `missing required 3D logo: ${id}`);
+    assert.ok(byId.has(id), `missing required 3D logo: ${id}`);
   }
 });
 
-test("Jestei brand colorways use plastic material presets", () => {
+test("Jestei has symbol, wordmark and lockup for every brand colorway", () => {
+  for (const colorway of ["pear", "orange", "blue", "biloba"]) {
+    for (const variant of ["symbol", "wordmark", "lockup"]) {
+      const item = byId.get(`jestei-${variant}-${colorway}`);
+      assert.ok(item, `missing Jestei ${variant} ${colorway}`);
+      assert.equal(logo3dMaterials[item.materialId]?.kind, "plastic");
+    }
+  }
+});test("Jestei brand material values stay canonical", () => {
   const expected = new Map([
     ["jestei-pear-plastic", "#B7E44A"],
     ["jestei-orange-plastic", "#FF5A1F"],
     ["jestei-blue-plastic", "#2357FF"],
     ["jestei-biloba-plastic", "#C7A6FF"],
   ]);
-
   for (const [id, color] of expected) {
     const material = logo3dMaterials[id];
-    assert.ok(material, `missing material ${id}`);
-    assert.equal(material.kind, "plastic");
     assert.equal(material.color.toUpperCase(), color);
-    assert.ok(material.metalness <= 0.1);
-    assert.ok(material.roughness >= 0.2);
+    assert.equal(material.metalness, 0.05);
+    assert.equal(material.roughness, 0.3);
   }
+});
+
+test("source blockers are explicit and Awfulface uses the canonical static SVG", () => {
+  assert.equal(byId.get("awfulface-metal")?.sourceUrl, "/favicon.svg");
+  assert.equal(byId.get("styx-wordmark-metal")?.status, "source-recovery-required");
+  assert.equal(byId.get("line-metal")?.status, "source-recovery-required");
+  assert.equal(byId.get("progress-tradition-metal")?.status, "source-recovery-required");
+  assert.equal(byId.get("s-and-s-metal")?.status, "source-missing");
+  assert.equal(byId.get("illumihand-metal")?.status, "source-missing");
 });

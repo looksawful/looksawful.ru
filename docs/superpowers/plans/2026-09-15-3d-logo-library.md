@@ -24,10 +24,10 @@
 ### Task 1: Canonical 3D logo catalog
 **Files:** Create `src/lab/data/logo-3d-catalog.mjs`; Test `test/logo-3d-catalog.test.mjs`.
 **Produces:** stable logo ids, family grouping, source/output URLs, material ids.
-- [ ] Write failing catalog contract test.
-- [ ] Run test and confirm missing-module failure.
-- [ ] Implement minimal catalog.
-- [ ] Run test green.
+- [x] Write failing catalog contract test.
+- [x] Run test and confirm missing-module failure.
+- [x] Implement minimal catalog.
+- [x] Run test green.
 - [ ] Commit.
 
 ### Task 2: Deterministic Blender SVG-to-GLB generator
@@ -51,10 +51,10 @@
 ### Task 4: Raster-wrapper recovery and provenance
 **Files:** Update manifest/catalog and generated source derivatives only where vector recovery is reliable.
 **Produces:** explicit status for Styx, Line, Progress Tradition, Mad Cow, MN and any other raster-backed `.svg` wrapper.
-- [ ] Audit each wrapper.
+- [x] Audit each wrapper.
 - [ ] Prefer historical/original vector if present.
 - [ ] Otherwise derive vector only when high-confidence monochrome tracing is possible and label provenance.
-- [ ] Never silently substitute raster geometry.
+- [x] Never silently substitute raster geometry.
 - [ ] Commit.
 
 ### Task 5: Verification and delivery
