@@ -25,6 +25,12 @@ const SOURCE_CLASSIFICATIONS = Object.freeze({
     reason: "route discovery registry, not a visual owner",
     denominatorEligible: false,
   },
+  "src/site/rendering/html.ts": {
+    lifecycle: "infrastructure",
+    storyPolicy: "no-story",
+    reason: "HTML slot/extraction utility, not a visual owner",
+    denominatorEligible: false,
+  },
 });
 const LAYERS = new Set(LOOKSAWFUL_STORY_LAYER_VALUES);
 const POLICIES = new Set(LOOKSAWFUL_STORY_POLICY_VALUES);
@@ -218,54 +224,57 @@ export async function collectDesignSystemInventory(root) {
     }
   }
   sourceRecords.sort((a, b) => a.path.localeCompare(b.path));
-  const uiSourcePaths = new Set(sourceRecords.map((source) => source.path));
-  for (const story of stories) story.declaredSourceChecks = await Promise.all(story.declaredSources.map((sourcePath) => checkDeclaredSource(root, sourcePath, uiSourcePaths)));
   const manifestPath = "src/site/pages/manifest.ts";
-  let routes = [];
-  try { routes = parseRoutes(await readFile(path.join(root, manifestPath), "utf8")); }
-  catch (error) { if (error?.code !== "ENOENT") throw error; }
-  const styles = styleFiles.filter((file) => file.endsWith(".css")).map((file) => ({ path: file, kind: "style" }));
+  const routes = (await collectFiles(root, "src/site/pages")).includes(manifestPath) ? parseRoutes(await readFile(path.join(root, manifestPath), "utf8")) : [];
+  const uiSourcePaths = new Set(sourceRecords.map((source) => source.path));
+  for (const story of stories) {
+    story.declaredSourceChecks = await Promise.all(story.declaredSources.map((sourcePath) => checkDeclaredSource(root, sourcePath, uiSourcePaths)));
+  }
+  const structuralIssues = validateDesignSystemInventory({ sources: sourceRecords, stories, routes });
   const denominatorSources = sourceRecords.filter((source) => source.denominatorEligible);
-  const counts = Object.groupBy(denominatorSources, (source) => source.overallStatus);
-  const inventory = {
-    schemaVersion: 2, generatedAt: null,
-    sources: sourceRecords,
-    components: sourceRecords.filter((source) => source.sourceKind === "component"),
-    templates: sourceRecords.filter((source) => source.sourceKind === "template"),
-    styles, stories: stories.sort((a, b) => a.path.localeCompare(b.path)), routes,
-    coverageSummary: {
-      denominator: denominatorSources.length,
-      excludedNoStory: sourceRecords.filter((source) => source.storyPolicy === "no-story").length,
-      covered: counts.covered?.length ?? 0,
-      partial: counts.partial?.length ?? 0,
-      missing: counts.missing?.length ?? 0,
-      compositionOnly: counts["composition-only"]?.length ?? 0,
-      pageOnly: counts["page-only"]?.length ?? 0,
-    },
+  const coverageSummary = {
+    denominator: denominatorSources.length,
+    discoveredUiSources: sourceRecords.length,
+    covered: denominatorSources.filter((source) => source.overallStatus === "covered").length,
+    partial: denominatorSources.filter((source) => source.overallStatus === "partial").length,
+    missing: denominatorSources.filter((source) => source.overallStatus === "missing").length,
+    compositionOnly: denominatorSources.filter((source) => source.overallStatus === "composition-only").length,
+    pageOnly: denominatorSources.filter((source) => source.overallStatus === "page-only").length,
+    excludedNoStory: sourceRecords.filter((source) => source.overallStatus === "exempt-no-story").length,
   };
-  inventory.structuralIssues = validateDesignSystemInventory(inventory);
-  return inventory;
+  return {
+    schemaVersion: 3,
+    generatedAt: new Date().toISOString(),
+    methodology: {
+      denominator: "production UI owners from audited src/components, src/templates and src/site roots, excluding explicit no-story infrastructure classifications",
+      strongEvidence: "parameters.looksawful.sources on canonical stories",
+      weakEvidence: "direct story import; useful for discovery but never sufficient for covered status",
+      stateEvidence: "canonical declared-source story metadata only",
+      routeDiscovery: "listed/indexable are reported independently from visual visibility",
+    },
+    coverageSummary,
+    sourceGroups: SOURCE_GROUPS.map(([directory, sourceKind]) => ({ directory, sourceKind })),
+    sources: sourceRecords,
+    stories: stories.sort((a, b) => a.path.localeCompare(b.path)),
+    routes,
+    styles: styleFiles,
+    structuralIssues,
+  };
 }
-function inventoryPage() {
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow,noarchive"><title>looksawful Storybook inventory</title><style>:root{color-scheme:dark;font-family:Inter,ui-sans-serif,system-ui,sans-serif;background:#0b0b0b;color:#f3f3f3}*{box-sizing:border-box}body{margin:0;padding:32px}main{width:min(1280px,100%);margin:auto}header{display:flex;justify-content:space-between;gap:24px;align-items:end;margin-bottom:28px}h1{margin:0;font-size:clamp(28px,4vw,56px);letter-spacing:-.04em}a{color:inherit}.counts,.filters{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 18px}.count,button{border:1px solid #303030;border-radius:999px;padding:7px 10px;font:inherit;font-size:12px;background:transparent;color:inherit}button[aria-pressed="true"]{background:#f3f3f3;color:#0b0b0b}table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:10px 8px;border-bottom:1px solid #252525;text-align:left;vertical-align:top}th{color:#8a8a8a;font-weight:500}.muted{color:#777}</style></head><body><main><header><div><div class="muted">evidence-backed canonical source inventory</div><h1>system inventory v2</h1></div><a href="/lab/system/">storybook</a></header><div class="counts" data-counts></div><div class="filters" data-filters></div><table><thead><tr><th>source owner</th><th>kind</th><th>status</th><th>evidence</th></tr></thead><tbody data-rows></tbody></table></main><script type="module">const response=await fetch('../system-inventory.json',{cache:'no-store'});if(!response.ok)throw new Error('Unable to load inventory');const inventory=await response.json();const counts=document.querySelector('[data-counts]');const filters=document.querySelector('[data-filters]');const rows=document.querySelector('[data-rows]');const add=(parent,tag,text,className='')=>{const node=document.createElement(tag);node.textContent=text;if(className)node.className=className;parent.append(node);return node};for(const [label,value] of [['denominator',inventory.coverageSummary.denominator],['covered',inventory.coverageSummary.covered],['partial',inventory.coverageSummary.partial],['missing',inventory.coverageSummary.missing],['no-story excluded',inventory.coverageSummary.excludedNoStory],['stories',inventory.stories.length],['structural errors',inventory.structuralIssues.filter((issue)=>issue.severity==='error').length]])add(counts,'span',label+': '+value,'count');const statuses=['all',...new Set(inventory.sources.map((source)=>source.overallStatus))];let selected='all';const render=()=>{rows.replaceChildren();for(const source of inventory.sources){if(selected!=='all'&&source.overallStatus!==selected)continue;const row=document.createElement('tr');add(row,'td',source.path);add(row,'td',source.sourceKind);add(row,'td',source.overallStatus);add(row,'td',source.storyRefs.map((ref)=>ref.storyPath+' ['+ref.evidence+']').join(', ')||source.storyPolicyReason||'—','muted');rows.append(row)}};for(const status of statuses){const button=add(filters,'button',status);button.type='button';button.setAttribute('aria-pressed',String(status===selected));button.onclick=()=>{selected=status;for(const item of filters.querySelectorAll('button'))item.setAttribute('aria-pressed',String(item===button));render()}}render();</script></body></html>`;
+function renderInventoryHtml(inventory) {
+  const rows = inventory.sources.map((source) => `<tr><td><code>${source.path}</code></td><td>${source.sourceKind}</td><td>${source.lifecycle}</td><td>${source.storyPolicy ?? "story"}</td><td>${source.denominatorEligible ? "yes" : "no"}</td><td>${source.overallStatus}</td><td>${source.stateCoverage.states.join(", ") || "—"}</td><td>${source.stateCoverage.visibility.join(", ") || "—"}</td><td>${source.stateCoverage.interaction.join(", ") || "—"}</td><td>${source.stateCoverage.data.join(", ") || "—"}</td><td>${source.stateCoverage.motion.join(", ") || "—"}</td><td>${source.stateCoverage.reviewViewports.join(", ") || "—"}</td><td>${source.storyRefs.map((ref) => `<code>${ref.storyPath}</code> <small>${ref.evidence}/${ref.canonical === true ? "canonical" : ref.canonical === false ? "experimental" : "unclassified"}</small>`).join("<br>") || "—"}</td></tr>`).join("\n");
+  return `<!doctype html><html><head><meta charset="utf-8"><title>Storybook inventory</title><style>body{font:14px/1.45 system-ui,sans-serif;margin:2rem;color:#161616}table{border-collapse:collapse;width:100%}th,td{padding:.5rem;border:1px solid #ddd;text-align:left;vertical-align:top}th{background:#f6f6f6;position:sticky;top:0}code{font-size:12px}.summary{display:flex;gap:1.25rem;flex-wrap:wrap;margin:1rem 0}.summary strong{font-size:18px;display:block}</style></head><body><h1>Storybook coverage inventory</h1><p>Generated ${inventory.generatedAt}. Coverage denominator: audited production UI owners only; explicit <code>no-story</code> infrastructure is excluded.</p><div class="summary"><span><strong>${inventory.coverageSummary.denominator}</strong>denominator</span><span><strong>${inventory.coverageSummary.covered}</strong>covered</span><span><strong>${inventory.coverageSummary.partial}</strong>partial</span><span><strong>${inventory.coverageSummary.missing}</strong>missing</span><span><strong>${inventory.coverageSummary.excludedNoStory}</strong>no-story excluded</span></div><table><thead><tr><th>Source</th><th>Kind</th><th>Lifecycle</th><th>Policy</th><th>Denominator</th><th>Status</th><th>States</th><th>Visibility</th><th>Interaction</th><th>Data</th><th>Motion</th><th>Viewports</th><th>Evidence</th></tr></thead><tbody>${rows}</tbody></table></body></html>`;
 }
-export async function writeDesignSystemInventory({ root, outDir }) {
-  const inventory = await collectDesignSystemInventory(root);
-  const systemDir = path.join(outDir, "system");
-  await mkdir(systemDir, { recursive: true });
-  await Promise.all([
-    writeFile(path.join(outDir, "system-inventory.json"), `${JSON.stringify(inventory, null, 2)}\n`, "utf8"),
-    writeFile(path.join(systemDir, "inventory.html"), inventoryPage(), "utf8"),
-  ]);
-  return inventory;
-}
-const invokedPath = process.argv[1] ? pathToFileURL(path.resolve(process.argv[1])).href : "";
-if (import.meta.url === invokedPath) {
+async function main() {
   const root = process.cwd();
-  const outDir = path.resolve(root, process.env.LAB_OUTPUT_ROOT || path.join("dist-lab", "lab"));
-  const inventory = await writeDesignSystemInventory({ root, outDir });
-  const errors = inventory.structuralIssues.filter((issue) => issue.severity === "error");
-  console.log(`[lab-inventory] ${inventory.coverageSummary.denominator} denominator sources, ${inventory.sources.length} discovered UI sources, ${inventory.stories.length} stories, ${errors.length} structural errors`);
+  const outputRoot = path.join(root, "dist-lab", "lab");
+  const inventory = await collectDesignSystemInventory(root);
+  await mkdir(outputRoot, { recursive: true });
+  await writeFile(path.join(outputRoot, "system-inventory.json"), JSON.stringify(inventory, null, 2) + "\n", "utf8");
+  await mkdir(path.join(outputRoot, "system"), { recursive: true });
+  await writeFile(path.join(outputRoot, "system", "inventory.html"), renderInventoryHtml(inventory), "utf8");
+  console.log(`[lab-inventory] ${inventory.coverageSummary.denominator} denominator sources, ${inventory.coverageSummary.discoveredUiSources} discovered UI sources, ${inventory.stories.length} stories, ${inventory.structuralIssues.filter((issue) => issue.severity === "error").length} structural errors`);
   console.log(`[lab-inventory] covered ${inventory.coverageSummary.covered}, partial ${inventory.coverageSummary.partial}, missing ${inventory.coverageSummary.missing}, no-story excluded ${inventory.coverageSummary.excludedNoStory}`);
-  if (errors.length) process.exitCode = 1;
+  if (inventory.structuralIssues.some((issue) => issue.severity === "error")) process.exitCode = 1;
 }
+if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(import.meta.url).pathname)) main();
