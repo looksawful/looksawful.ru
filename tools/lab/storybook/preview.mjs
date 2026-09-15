@@ -41,7 +41,7 @@ const preview = {
       },
     },
     a11y: {
-      test: "todo",
+      test: "error",
     },
   },
 };

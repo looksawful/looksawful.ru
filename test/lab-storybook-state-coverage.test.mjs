@@ -33,3 +33,34 @@ test("code block and before-after expose only production-backed state variants",
   assert.match(beforeAfter, /state:\s*"auto-reveal"/);
   assert.match(beforeAfter, /motion:\s*\["motion-enabled",\s*"reduced-motion"\]/);
 });
+
+test("site navigation uses production owners for disclosure overlay and reduced-motion evidence", async () => {
+  const story = await read("src/lab/stories/site-navigation.stories.js");
+
+  assert.match(story, /renderSiteNavigation/);
+  assert.match(story, /initSiteNavigation/);
+  assert.match(story, /visibility:\s*\[[^\]]*"disclosure"[^\]]*"input-capability"/s);
+  assert.match(story, /export const Open/);
+  assert.match(story, /visibility:\s*\[[^\]]*"disclosure"[^\]]*"overlay"[^\]]*"input-capability"/s);
+  assert.match(story, /export const ReducedMotionOpen/);
+  assert.match(story, /motion:\s*\["reduced-motion"\]/);
+});
+
+test("inventory source classification is explicit rather than implicit denominator magic", async () => {
+  const inventory = await read("tools/lab/design-system-inventory.mjs");
+
+  assert.match(inventory, /SOURCE_CLASSIFICATIONS/);
+  assert.match(inventory, /"src\/site\/pages\/manifest\.ts"\s*:\s*\{[\s\S]*storyPolicy:\s*"no-story"/);
+  assert.match(inventory, /denominatorEligible/);
+  assert.match(inventory, /coverageSummary/);
+});
+
+test("inventory records structured state axes for canonical stories", async () => {
+  const inventory = await read("tools/lab/design-system-inventory.mjs");
+
+  assert.match(inventory, /interaction/);
+  assert.match(inventory, /data/);
+  assert.match(inventory, /motion/);
+  assert.match(inventory, /responsive/);
+  assert.match(inventory, /stateCoverage/);
+});

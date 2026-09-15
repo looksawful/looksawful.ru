@@ -14,6 +14,12 @@ test("Storybook preview keeps canonical CSS and the three Lab review viewports",
   assert.match(preview, /width:\s*"390px"[\s\S]*height:\s*"844px"/);
 });
 
+test("Storybook a11y findings are blocking evidence instead of todo metadata", async () => {
+  const preview = await read("tools/lab/storybook/preview.mjs");
+  assert.match(preview, /a11y\s*:\s*\{[\s\S]*test\s*:\s*"error"/);
+  assert.doesNotMatch(preview, /a11y\s*:\s*\{[\s\S]*test\s*:\s*"todo"/);
+});
+
 test("global experimental model-viewer CSS stays namespaced to the prototype stage", async () => {
   const css = await read("src/lab/model-viewer-controls-prototype.css");
   const selectors = css
