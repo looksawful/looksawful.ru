@@ -1,0 +1,270 @@
+name: Private Admin Deploy
+
+on:
+  push:
+    branches: [dev]
+    paths:
+      - "lab/**"
+      - "src/lab/**"
+      - "vite.lab.config.ts"
+      - ".github/workflows/private-admin-deploy.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: private-admin-deploy
+  cancel-in-progress: true
+
+env:
+  CLOUDFLARE_PAGES_PROJECT: looksawful-ru-admin
+  ADMIN_DOMAIN: admin.looksawful.ru
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout exact integration revision
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify Admin and Lab contracts
+        run: |
+          npm run typecheck
+          node --test test/private-admin-github-oauth.test.mjs test/private-lab-shell.test.mjs
+
+      - name: Build isolated private Lab
+        env:
+          LAB_BUILD_BRANCH: dev
+          LAB_BUILD_COMMIT: ${{ github.sha }}
+          LAB_BUILD_TIME: ${{ github.event.head_commit.timestamp || github.event.repository.updated_at }}
+        run: npx vite build --config vite.lab.config.ts
+
+      - name: Stage Pages Functions for direct upload
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf functions
+          cp -R lab/functions functions
+          test -f functions/_middleware.js
+          test -f functions/github-oauth.js
+          test -f dist-lab/lab/index.html
+          printf 'commit=%s\nbranch=dev\n' "${GITHUB_SHA}" > dist-lab/admin-version.txt
+
+      - name: Require Cloudflare project credentials
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${CLOUDFLARE_ACCOUNT_ID:-}" || { printf '%s\n' "Missing Cloudflare account id." >&2; exit 1; }
+          test -n "${CLOUDFLARE_API_TOKEN:-}" || { printf '%s\n' "Missing Cloudflare API token." >&2; exit 1; }
+
+      - name: Ensure dedicated private Admin Pages project
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          project_api="https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/pages/projects/${CLOUDFLARE_PAGES_PROJECT}"
+          status="$(curl --silent --show-error --output /tmp/admin-project.json --write-out '%{http_code}' \
+            --header "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+            "$project_api")"
+
+          if [[ "$status" == "404" ]]; then
+            create_payload="$(jq -n --arg name "$CLOUDFLARE_PAGES_PROJECT" '{name: $name, production_branch: "dev"}')"
+            create_status="$(curl --silent --show-error --output /tmp/admin-project-create.json --write-out '%{http_code}' \
+              --request POST \
+              --header "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+              --header 'Content-Type: application/json' \
+              --data "$create_payload" \
+              "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/pages/projects")"
+            [[ "$create_status" == "200" || "$create_status" == "201" ]] || {
+              echo "Admin Pages project creation failed with HTTP ${create_status}." >&2
+              jq '{success, errors}' /tmp/admin-project-create.json >&2 || true
+              exit 1
+            }
+            jq -e '.success == true' /tmp/admin-project-create.json >/dev/null
+            exit 0
+          fi
+
+          [[ "$status" == "200" ]] || {
+            echo "Admin Pages project lookup failed with HTTP ${status}." >&2
+            jq '{success, errors}' /tmp/admin-project.json >&2 || true
+            exit 1
+          }
+          jq -e '.success == true' /tmp/admin-project.json >/dev/null
+
+          current_branch="$(jq -r '.result.production_branch // ""' /tmp/admin-project.json)"
+          if [[ "$current_branch" != "dev" ]]; then
+            patch_status="$(curl --silent --show-error --output /tmp/admin-project-patch.json --write-out '%{http_code}' \
+              --request PATCH \
+              --header "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+              --header 'Content-Type: application/json' \
+              --data '{"production_branch":"dev"}' \
+              "$project_api")"
+            [[ "$patch_status" == "200" ]] || {
+              echo "Admin Pages production branch update failed with HTTP ${patch_status}." >&2
+              jq '{success, errors}' /tmp/admin-project-patch.json >&2 || true
+              exit 1
+            }
+            jq -e '.success == true and .result.production_branch == "dev"' /tmp/admin-project-patch.json >/dev/null
+          fi
+
+      - name: Prepare encrypted runtime secret payload
+        id: runtime-secrets
+        env:
+          ADMIN_GITHUB_CLIENT_ID: ${{ secrets.ADMIN_GITHUB_CLIENT_ID }}
+          ADMIN_GITHUB_CLIENT_SECRET: ${{ secrets.ADMIN_GITHUB_CLIENT_SECRET }}
+          ADMIN_SESSION_SECRET: ${{ secrets.ADMIN_SESSION_SECRET }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${ADMIN_GITHUB_CLIENT_ID:-}" || { printf '%s\n' "Missing required private Admin runtime binding." >&2; exit 1; }
+          test -n "${ADMIN_GITHUB_CLIENT_SECRET:-}" || { printf '%s\n' "Missing required private Admin runtime binding." >&2; exit 1; }
+          test -n "${ADMIN_SESSION_SECRET:-}" || { printf '%s\n' "Missing required private Admin runtime binding." >&2; exit 1; }
+
+          secrets_file="${RUNNER_TEMP}/looksawful-admin-secrets.json"
+          jq -n \
+            --arg clientId "$ADMIN_GITHUB_CLIENT_ID" \
+            --arg clientSecret "$ADMIN_GITHUB_CLIENT_SECRET" \
+            --arg sessionSecret "$ADMIN_SESSION_SECRET" \
+            '{ADMIN_GITHUB_CLIENT_ID: $clientId, ADMIN_GITHUB_CLIENT_SECRET: $clientSecret, ADMIN_SESSION_SECRET: $sessionSecret}' \
+            > "$secrets_file"
+          chmod 600 "$secrets_file"
+          printf 'path=%s\n' "$secrets_file" >> "$GITHUB_OUTPUT"
+
+      - name: Upload encrypted Admin runtime secrets
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: "4"
+          command: pages secret bulk ${{ steps.runtime-secrets.outputs.path }} --project-name=looksawful-ru-admin
+
+      - name: Remove local runtime secret payload
+        if: always()
+        shell: bash
+        run: rm -f "${{ steps.runtime-secrets.outputs.path }}"
+
+      - name: Deploy exact Admin artifact and Functions
+        id: deploy
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: "4"
+          command: pages deploy dist-lab --project-name=looksawful-ru-admin --branch=dev --commit-hash=${{ github.sha }}
+
+      - name: Ensure admin.looksawful.ru custom domain
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          domains_api="https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/pages/projects/${CLOUDFLARE_PAGES_PROJECT}/domains"
+          domain_api="${domains_api}/${ADMIN_DOMAIN}"
+          status="$(curl --silent --show-error --output /tmp/admin-domain.json --write-out '%{http_code}' \
+            --header "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+            "$domain_api")"
+
+          if [[ "$status" == "404" ]]; then
+            payload="$(jq -n --arg name "$ADMIN_DOMAIN" '{name: $name}')"
+            create_status="$(curl --silent --show-error --output /tmp/admin-domain-create.json --write-out '%{http_code}' \
+              --request POST \
+              --header "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+              --header 'Content-Type: application/json' \
+              --data "$payload" \
+              "$domains_api")"
+            [[ "$create_status" == "200" || "$create_status" == "201" ]] || {
+              echo "Admin custom domain creation failed with HTTP ${create_status}." >&2
+              jq '{success, errors}' /tmp/admin-domain-create.json >&2 || true
+              exit 1
+            }
+            jq -e '.success == true' /tmp/admin-domain-create.json >/dev/null
+          elif [[ "$status" == "200" ]]; then
+            jq -e '.success == true' /tmp/admin-domain.json >/dev/null
+          else
+            echo "Admin custom domain lookup failed with HTTP ${status}." >&2
+            jq '{success, errors}' /tmp/admin-domain.json >&2 || true
+            exit 1
+          fi
+
+          for attempt in {1..40}; do
+            poll_status="$(curl --silent --show-error --output /tmp/admin-domain-poll.json --write-out '%{http_code}' \
+              --header "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+              "$domain_api")"
+            if [[ "$poll_status" == "200" ]]; then
+              domain_status="$(jq -r '.result.status // "unknown"' /tmp/admin-domain-poll.json)"
+              if [[ "$domain_status" == "active" ]]; then
+                exit 0
+              fi
+              if [[ "$domain_status" == "error" || "$domain_status" == "blocked" || "$domain_status" == "deactivated" ]]; then
+                echo "Admin custom domain entered terminal state: ${domain_status}." >&2
+                jq '.result | {name, status, validation_data, verification_data}' /tmp/admin-domain-poll.json >&2 || true
+                exit 1
+              fi
+            fi
+            sleep 15
+          done
+
+          echo "Admin custom domain did not become active within the verification window." >&2
+          jq '.result | {name, status, validation_data, verification_data}' /tmp/admin-domain-poll.json >&2 || true
+          exit 1
+
+      - name: Verify Pages alias cannot start OAuth
+        shell: bash
+        run: |
+          set -euo pipefail
+          pages_auth="https://${CLOUDFLARE_PAGES_PROJECT}.pages.dev/auth/github"
+          status="$(curl --silent --show-error --output /tmp/pages-auth.txt --write-out '%{http_code}' "$pages_auth")"
+          [[ "$status" == "403" ]] || {
+            echo "Pages alias must fail closed for OAuth; got HTTP ${status}." >&2
+            exit 1
+          }
+
+      - name: Verify custom-domain OAuth boundary and private headers
+        shell: bash
+        run: |
+          set -euo pipefail
+          admin_origin="https://${ADMIN_DOMAIN}"
+
+          curl --silent --show-error --head \
+            --dump-header /tmp/admin-lab-headers.txt --output /dev/null \
+            "${admin_origin}/lab/"
+          grep -Eqi '^HTTP/[0-9.]+ 302' /tmp/admin-lab-headers.txt
+          grep -Eqi '^location: https://admin\.looksawful\.ru/auth/github' /tmp/admin-lab-headers.txt
+          grep -Eqi '^x-robots-tag: noindex, nofollow, noarchive' /tmp/admin-lab-headers.txt
+          grep -Eqi '^cache-control: private, no-store' /tmp/admin-lab-headers.txt
+
+          curl --silent --show-error --head \
+            --dump-header /tmp/admin-auth-headers.txt --output /dev/null \
+            "${admin_origin}/auth/github"
+          grep -Eqi '^HTTP/[0-9.]+ 302' /tmp/admin-auth-headers.txt
+          grep -Fqi 'location: https://github.com/login/oauth/authorize?' /tmp/admin-auth-headers.txt
+          grep -Eqi '^set-cookie: __Host-looksawful-oauth-state=' /tmp/admin-auth-headers.txt
+          grep -Eqi '^set-cookie: .*HttpOnly' /tmp/admin-auth-headers.txt
+          grep -Eqi '^set-cookie: .*Secure' /tmp/admin-auth-headers.txt
+          grep -Eqi '^set-cookie: .*SameSite=Lax' /tmp/admin-auth-headers.txt
+
+      - name: Remove staged Functions
+        if: always()
+        shell: bash
+        run: rm -rf functions
