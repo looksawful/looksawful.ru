@@ -28,10 +28,10 @@ test("global experimental model-viewer CSS stays namespaced to the prototype sta
   }
 });
 
-test("Storybook launcher routes npm.cmd through ComSpec on Windows without shell mode", async () => {
+test("Storybook launcher uses a fixed Windows command interpreter without shell mode", async () => {
   const buildScript = await read("tools/lab/build-storybook.mjs");
 
-  assert.match(buildScript, /process\.env\.ComSpec/);
+  assert.match(buildScript, /isWindows \? "cmd\.exe" : command/);
   assert.match(buildScript, /\["\/d",\s*"\/s",\s*"\/c",\s*command,\s*\.\.\.args\]/);
   assert.doesNotMatch(buildScript, /shell:\s*true|shell:\s*process\.platform/);
 });

@@ -3,7 +3,7 @@ import path from "node:path";
 import { spawnSync } from "node:child_process";
 
 const root = process.cwd();
-const labOutputRoot = path.resolve(root, process.env.LAB_OUTPUT_ROOT || path.join("dist-lab", "lab"));
+const labOutputRoot = path.resolve(root, path.join("dist-lab", "lab"));
 const outputDir = path.join(labOutputRoot, "system");
 const npmCommand = process.platform === "win32" ? "npm.cmd" : "npm";
 
@@ -17,7 +17,7 @@ const packages = [
 
 function run(command, args) {
   const isWindows = process.platform === "win32";
-  const executable = isWindows ? process.env.ComSpec || "cmd.exe" : command;
+  const executable = isWindows ? "cmd.exe" : command;
   const executableArgs = isWindows ? ["/d", "/s", "/c", command, ...args] : args;
   const result = spawnSync(executable, executableArgs, {
     cwd: root,
