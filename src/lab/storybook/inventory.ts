@@ -92,11 +92,11 @@ function compositionFixtures(): StorybookFixture[] {
 }
 
 function representativePageFixtures(): StorybookFixture[] {
-  const seen = new Set<EntityPageDefinition["type"]>();
-  const representatives = entityPages().filter((page) => {
-    if (seen.has(page.type)) return false;
-    seen.add(page.type);
-    return true;
+  const preferred = ["case:jestei-pool", "collection:music-photography", "project:awful-cases"] as const;
+  const representatives = preferred.map((id) => {
+    const page = entityPages().find((candidate) => candidate.id === id);
+    if (!page) throw new Error(`Missing representative Storybook page: ${id}`);
+    return page;
   });
 
   return representatives.map((page) => ({
