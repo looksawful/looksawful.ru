@@ -9119,22 +9119,115 @@
         "fieldPath": "styx-screenshot-2026-08-19-150208-use-01",
         "blockingDelete": true
       }
+    },
+    {
+      "assetId": "useful-awful-3d-mockups-cover",
+      "usage": {
+        "kind": "direct-placement",
+        "ownerId": "useful-awful-3d-mockups-cover-use-01",
+        "sourcePath": "src/data/media/entries",
+        "fieldPath": "useful-awful-3d-mockups-cover-use-01",
+        "blockingDelete": true
+      }
+    },
+    {
+      "assetId": "useful-awful-cases-cover",
+      "usage": {
+        "kind": "direct-placement",
+        "ownerId": "useful-awful-cases-cover-use-01",
+        "sourcePath": "src/data/media/entries",
+        "fieldPath": "useful-awful-cases-cover-use-01",
+        "blockingDelete": true
+      }
+    },
+    {
+      "assetId": "useful-awful-cases-cover-poster",
+      "usage": {
+        "kind": "video-poster",
+        "ownerId": "useful-awful-cases-cover-use-01",
+        "sourcePath": "src/data/media/entries",
+        "fieldPath": "useful-awful-cases-cover-use-01.posterAssetId",
+        "blockingDelete": true
+      }
+    },
+    {
+      "assetId": "useful-awful-mockups-cover",
+      "usage": {
+        "kind": "direct-placement",
+        "ownerId": "useful-awful-mockups-cover-use-01",
+        "sourcePath": "src/data/media/entries",
+        "fieldPath": "useful-awful-mockups-cover-use-01",
+        "blockingDelete": true
+      }
+    },
+    {
+      "assetId": "useful-awful-studio-cover",
+      "usage": {
+        "kind": "direct-placement",
+        "ownerId": "useful-awful-studio-cover-use-01",
+        "sourcePath": "src/data/media/entries",
+        "fieldPath": "useful-awful-studio-cover-use-01",
+        "blockingDelete": true
+      }
+    },
+    {
+      "assetId": "useful-berserk-timer-cover",
+      "usage": {
+        "kind": "direct-placement",
+        "ownerId": "useful-berserk-timer-cover-use-01",
+        "sourcePath": "src/data/media/entries",
+        "fieldPath": "useful-berserk-timer-cover-use-01",
+        "blockingDelete": true
+      }
+    },
+    {
+      "assetId": "useful-moves-awful-cover",
+      "usage": {
+        "kind": "direct-placement",
+        "ownerId": "useful-moves-awful-cover-use-01",
+        "sourcePath": "src/data/media/entries",
+        "fieldPath": "useful-moves-awful-cover-use-01",
+        "blockingDelete": true
+      }
+    },
+    {
+      "assetId": "useful-moves-awful-cover-poster",
+      "usage": {
+        "kind": "video-poster",
+        "ownerId": "useful-moves-awful-cover-use-01",
+        "sourcePath": "src/data/media/entries",
+        "fieldPath": "useful-moves-awful-cover-use-01.posterAssetId",
+        "blockingDelete": true
+      }
     }
   ],
   "petCards": [
     {
+      "id": "awful-3d-mockups",
+      "coverEntryId": "useful-awful-3d-mockups-cover-use-01"
+    },
+    {
       "id": "awful-cases",
-      "coverEntryId": "awful-cases-assets-screenshot-2026-08-14-174113-use-01",
-      "href": "https://github.com/looksawful/awful-cases"
+      "coverEntryId": "useful-awful-cases-cover-use-01",
+      "href": "/work/awful-cases/"
+    },
+    {
+      "id": "awful-mockups",
+      "coverEntryId": "useful-awful-mockups-cover-use-01"
+    },
+    {
+      "id": "awful-studio",
+      "coverEntryId": "useful-awful-studio-cover-use-01"
     },
     {
       "id": "berserk-timer",
-      "coverEntryId": "berserk-timer-cover-use-01",
+      "coverEntryId": "useful-berserk-timer-cover-use-01",
       "href": "/pets/berserk-timer/"
     },
     {
       "id": "moves-awful",
-      "coverEntryId": "moves-awful-jestei-landing-animation-01-use-01"
+      "coverEntryId": "useful-moves-awful-cover-use-01",
+      "href": "/work/moves-awful/"
     }
   ]
 }

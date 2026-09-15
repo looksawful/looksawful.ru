@@ -131,6 +131,11 @@ jobs:
       - name: Typecheck
         if: github.event_name != 'pull_request' || steps.affected.outputs.image_only != 'true'
         run: npm run typecheck
+      - name: Verify Media Desk usage snapshots
+        if: github.event_name != 'pull_request' || steps.affected.outputs.image_only != 'true'
+        run: |
+          npm run media-desk:page-usage:check
+          npm run media-desk:static-usage:check
       - name: Fast tests
         if: github.event_name != 'pull_request' || steps.affected.outputs.image_only != 'true'
         run: npm run test:fast
