@@ -2,12 +2,21 @@ import { pathToFileURL } from "node:url";
 
 const SITE_ORIGIN = "https://www.looksawful.ru";
 const APPROVED_SOURCE_MEDIUM = new Map([
-  ["hh", "message"],
-  ["telegram", "dm"],
-  ["email", "outreach"],
-  ["linkedin", "dm"],
+  ["hh", new Set(["message"])],
+  ["telegram", new Set(["dm"])],
+  ["instagram", new Set(["dm", "bio", "story"])],
+  ["email", new Set(["outreach"])],
+  ["linkedin", new Set(["dm"])],
 ]);
-const APPROVED_CAMPAIGNS = new Set(["job_search"]);
+const APPROVED_CAMPAIGNS_BY_SOURCE_MEDIUM = new Map([
+  ["hh:message", new Set(["job_search"])],
+  ["telegram:dm", new Set(["job_search"])],
+  ["instagram:dm", new Set(["job_search"])],
+  ["instagram:bio", new Set(["portfolio"])],
+  ["instagram:story", new Set(["portfolio"])],
+  ["email:outreach", new Set(["job_search"])],
+  ["linkedin:dm", new Set(["job_search"])],
+]);
 const SUPPORTED_FIELDS = new Set([
   "destination",
   "source",
@@ -45,20 +54,17 @@ function requireCanonicalSitePath(value) {
   return url;
 }
 
-function requireApprovedSourceMedium(source, medium) {
+function requireApprovedAttribution(source, medium, campaign) {
   if (typeof source !== "string" || typeof medium !== "string") {
     throw new Error("Use an approved outreach source/medium pair.");
   }
-  if (APPROVED_SOURCE_MEDIUM.get(source) !== medium) {
+  if (!APPROVED_SOURCE_MEDIUM.get(source)?.has(medium)) {
     throw new Error("Use an approved outreach source/medium pair.");
   }
-}
-
-function requireCampaign(value) {
-  if (typeof value !== "string" || !APPROVED_CAMPAIGNS.has(value)) {
-    throw new Error("Use an approved outreach campaign.");
+  if (typeof campaign !== "string" || !APPROVED_CAMPAIGNS_BY_SOURCE_MEDIUM.get(`${source}:${medium}`)?.has(campaign)) {
+    throw new Error("Use an approved outreach campaign for this source/medium pair.");
   }
-  return value;
+  return campaign;
 }
 
 function optionalSafeAttributionToken(value) {
@@ -72,8 +78,7 @@ function optionalSafeAttributionToken(value) {
 export function buildOutreachUrl(input) {
   requireObject(input);
   const url = requireCanonicalSitePath(input.destination);
-  requireApprovedSourceMedium(input.source, input.medium);
-  const campaign = requireCampaign(input.campaign);
+  const campaign = requireApprovedAttribution(input.source, input.medium, input.campaign);
   const content = optionalSafeAttributionToken(input.content);
   const batch = optionalSafeAttributionToken(input.batch);
 
