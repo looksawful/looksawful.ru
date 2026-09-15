@@ -2,6 +2,7 @@ import {
   usefulProjectsContent,
   USEFUL_PROJECT_DEFINITIONS,
   type UsefulProjectBadge,
+  type UsefulProjectDefinition,
 } from "./content/useful-projects.ts";
 import type { SubprojectCardData } from "./subproject-cards.ts";
 
@@ -23,19 +24,21 @@ export const petProjectCards: readonly PetProjectCardData[] = usefulProjectsCont
     throw new Error(`Missing renderable useful project definition: ${card.id}`);
   }
 
-  const base = {
+  const typedDefinition: UsefulProjectDefinition = definition;
+  const badge = typedDefinition.state === "live" ? typedDefinition.badge : undefined;
+  const base: PetProjectCardBase = {
     id: card.id,
     title: card.title,
     description: card.description,
     coverEntryId: definition.coverEntryId,
-    shape: "portrait" as const,
-    source: "site" as const,
-    ...("badge" in definition && definition.badge ? { badge: definition.badge } : {}),
+    shape: "portrait",
+    source: "site",
+    ...(badge ? { badge } : {}),
   };
 
   if (definition.state === "live") {
-    return { ...base, state: "live", href: definition.href } as const;
+    return { ...base, state: "live", href: definition.href };
   }
 
-  return { ...base, state: "coming-soon" } as const;
+  return { ...base, state: "coming-soon" };
 });
