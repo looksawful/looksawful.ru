@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { createServer } from "node:http";
 import { readFile, stat } from "node:fs/promises";
 import path from "node:path";
+import axe from "axe-core";
 import { chromium } from "playwright";
 
 const root = process.cwd();
@@ -71,6 +72,19 @@ try {
       if (name === "media-lightbox-open") {
         assert.equal(await page.locator("[data-lightbox-source]").getAttribute("aria-haspopup"), "dialog");
       }
+      await page.addScriptTag({ content: axe.source });
+      const a11y = await page.evaluate(async () => {
+        const result = await globalThis.axe.run("#storybook-root", {
+          rules: { region: { enabled: false } },
+          resultTypes: ["violations"],
+        });
+        return result.violations.map((violation) => ({
+          id: violation.id,
+          impact: violation.impact,
+          nodes: violation.nodes.length,
+        }));
+      });
+      assert.deepEqual(a11y, [], `${viewportName}/${name}: axe violations ${JSON.stringify(a11y)}`);
       results.push({ viewport: viewportName, story: name, status: "passed" });
     }
     await context.close();
@@ -79,5 +93,5 @@ try {
   await browser.close();
   await new Promise((resolve) => server.close(resolve));
 }
-console.log(`[lab-storybook-smoke] ${results.length}/${viewports.length * cases.length} passed`);
+console.log(`[lab-storybook-smoke] ${results.length}/${viewports.length * cases.length} passed with axe`);
 for (const result of results) console.log(`[lab-storybook-smoke] ${result.viewport} ${result.story} passed`);
