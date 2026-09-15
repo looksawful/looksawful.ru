@@ -50,6 +50,7 @@ export const fastTests = new Set([
   "test/media-desk-cloudflare-mutations.test.mjs",
   "test/media-desk-cloudflare-assign-endpoint.test.mjs",
   "test/media-desk-cloudflare-github-delete.test.mjs",
+  "test/media-desk-cloudflare-domain.test.mjs",
   "test/media-desk-cloudflare-login.test.mjs",
   "test/media-desk-cloudflare-mutation-endpoints.test.mjs",
   "test/media-desk-cloudflare-preview-proxy.test.mjs",
