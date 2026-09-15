@@ -13,6 +13,7 @@ export interface EntityShellOptions extends SectionRenderOptions {
   /** Allows a specialized case body to own its visible heading while keeping canonical intro data. */
   showIntro?: boolean;
   introHeadingLevel?: 1 | 2;
+  visuallyHideIntroTitle?: boolean;
 }
 
 export function renderEntityShell(
@@ -36,6 +37,7 @@ export function renderEntityShell(
     ? ""
     : renderEntityIntro(content.intro, {
         headingLevel: options.introHeadingLevel ?? 1,
+        visuallyHideTitle: options.visuallyHideIntroTitle === true,
       });
   const sections = renderSections(content.sections, options);
 
