@@ -214,3 +214,22 @@ test("reports structural errors for declared source paths that do not exist", as
     issue.severity === "error" && issue.code === "declared-source-missing"
   ));
 });
+
+
+test("preserves story route discovery separately from visual visibility", async (t) => {
+  const root = await fixture(t, {
+    "src/site/renderers/entity-page.ts": "export const render = true;",
+    "src/lab/stories/unlisted-page.stories.js": `
+      export default { title: "05 Pages/Entity/Unlisted", parameters: { looksawful: {
+        sources: ["src/site/renderers/entity-page.ts"], layer: "page", policy: "page",
+        canonical: true, state: "ready", visibility: ["always"],
+        routeDiscovery: { listed: false, indexable: false }
+      } } };
+    `,
+  });
+  const inventory = await collectDesignSystemInventory(root);
+  const story = inventory.stories.at(0);
+  assert.deepEqual(story.routeDiscovery, { listed: false, indexable: false });
+  assert.deepEqual(story.visibility, ["always"]);
+  assert.equal(sourceByPath(inventory, "src/site/renderers/entity-page.ts").overallStatus, "page-only");
+});

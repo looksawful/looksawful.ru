@@ -102,6 +102,10 @@ function fieldStringArray(text, name) {
   const body = text.match(pattern)?.[1] ?? "";
   return [...body.matchAll(/[\"'\`]([^\"'\`]*)[\"'\`]/g)].map((match) => match[1]);
 }
+function fieldObjectBody(text, name) {
+  const pattern = new RegExp("(?:^|[,\\s])" + name + "\\s*:[ \t\r\n]*\\{([\\s\\S]*?)\\}");
+  return text.match(pattern)?.[1] ?? null;
+}
 function looksawfulBlock(text) {
   return balancedObjects(text).find((object) => /(?:^|[,\s])looksawful\s*:/.test(object)) ?? "";
 }
@@ -125,21 +129,79 @@ function parseStory(text, storyPath) {
   const canonicalValue = fieldBoolean(looksawful, "canonical");
   const state = fieldString(looksawful, "state");
   const visibility = fieldStringArray(looksawful, "visibility");
+  const routeDiscoveryBody = fieldObjectBody(looksawful, "routeDiscovery");
+  const routeDiscovery = routeDiscoveryBody === null ? null : {
+    listed: fieldBoolean(routeDiscoveryBody, "listed"),
+    indexable: fieldBoolean(routeDiscoveryBody, "indexable"),
+  };
   const title = fieldString(text, "title");
   const experimental = canonicalValue === false || layer === "experimental" || policy === "experimental" || title?.startsWith("90 Experimental/");
   return {
     id: `story:${storyPath}`, path: storyPath, kind: "story", title,
     status: experimental ? "experimental" : canonicalValue === true ? "canonical" : "unclassified",
     declaredSources, importedSources: [...new Set(importedSources)].sort(),
-    layer, policy, canonical: canonicalValue, state, visibility,
+    layer, policy, canonical: canonicalValue, state, visibility, routeDiscovery,
   };
 }
 
+const NO_STORY_INFRASTRUCTURE = new Set([
+  "src/components/caption-trust.ts",
+  "src/components/composition/client-logo.ts",
+  "src/components/composition/entity-intro.ts",
+  "src/components/composition/portfolio-entity-card.ts",
+  "src/components/composition/project-teaser.ts",
+  "src/components/composition/responsive-image.ts",
+  "src/components/composition/section-intro.ts",
+  "src/components/content/before-after.ts",
+  "src/components/content/justified-gallery.ts",
+  "src/components/content/media-figure.ts",
+  "src/components/content/media-group.ts",
+  "src/components/content/media-slider.ts",
+  "src/components/content/mockup-deck.ts",
+  "src/components/content/mockup.ts",
+  "src/components/content/page-flip.ts",
+  "src/components/specialized/animated-canvas-gallery.ts",
+  "src/components/specialized/jestei-theme.ts",
+  "src/components/composition/index.ts",
+  "src/components/content/index.ts",
+  "src/components/deferred-video-source.ts",
+  "src/components/embla-deck.ts",
+  "src/components/gallery/gallery-entry.ts",
+  "src/components/gallery/gallery-state.ts",
+  "src/components/jestei-theme-organism/jestei-theme-organism-data.ts",
+  "src/components/jestei-theme-organism/jestei-theme-organism-shaders.ts",
+  "src/components/site-analytics.ts",
+  "src/components/media-caption-numbering.ts",
+  "src/components/media-runtime-health.ts",
+  "src/components/motion-preference.ts",
+  "src/components/runtime/index.ts",
+  "src/components/specialized/index.ts",
+  "src/site/navigation/model.ts",
+  "src/site/navigation/primary.ts",
+  "src/site/pages/content-validation.ts",
+  "src/site/pages/entity-presentation.ts",
+  "src/site/pages/homepage.ts",
+  "src/site/pages/manifest.ts",
+  "src/site/pages/search-presentation.ts",
+  "src/site/pages/types.ts",
+  "src/site/pages/validation.ts",
+  "src/site/renderers/cv-page.ts",
+  "src/site/renderers/home/home-image-deferral.ts",
+  "src/site/renderers/home/home-media-deferral.ts",
+  "src/site/rendering/html.ts",
+  "src/site/shell/metadata.ts",
+]);
+
+const NEEDS_CLASSIFICATION = new Set([
+  "src/templates/subproject-card.ts",
+]);
+
 function sourceLifecycle(sourcePath) {
-  return sourcePath === "src/site/pages/manifest.ts" ? "infrastructure" : "production";
+  return NO_STORY_INFRASTRUCTURE.has(sourcePath) ? "infrastructure" : "production";
 }
 
 function sourceStatus(source, refs) {
+  if (source.storyPolicy === "needs-classification") return "needs-classification";
   if (source.lifecycle === "experimental") return "experimental";
   if (source.lifecycle === "infrastructure") return "exempt-no-story";
   const canonical = refs.filter((ref) => ref.canonical === true);
@@ -277,7 +339,11 @@ export async function collectDesignSystemInventory(root) {
         path: file,
         sourceKind,
         lifecycle,
-        storyPolicy: lifecycle === "infrastructure" ? "no-story" : null,
+        storyPolicy: lifecycle === "infrastructure"
+          ? "no-story"
+          : NEEDS_CLASSIFICATION.has(file)
+            ? "needs-classification"
+            : null,
         storyRefs: refs,
         layer: layerFor(refs, stories),
         routeRefs: [],
@@ -289,7 +355,7 @@ export async function collectDesignSystemInventory(root) {
   }
   sourceRecords.sort((a, b) => a.path.localeCompare(b.path));
 
-  const uiSourcePaths = new Set(sourceRecords.map((source) => source.path));
+  const uiSourcePaths = new Set(sourceRecords.filter((source) => source.lifecycle === "production").map((source) => source.path));
   for (const story of stories) {
     story.declaredSourceChecks = await Promise.all(
       story.declaredSources.map((sourcePath) => checkDeclaredSource(root, sourcePath, uiSourcePaths)),
