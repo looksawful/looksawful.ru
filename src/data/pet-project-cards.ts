@@ -19,7 +19,7 @@ export type PetProjectCardData =
 export const petProjectCards: readonly PetProjectCardData[] = usefulProjectsContent.cards.map(
   (card) => {
     const definition = USEFUL_PROJECT_DEFINITIONS.find(({ id }) => id === card.id);
-    if (!definition || !definition.visible || definition.state === "hidden") {
+    if (!definition || !definition.visible) {
       throw new Error(`Missing visible useful project definition: ${card.id}`);
     }
     if (!("coverEntryId" in definition) || !definition.coverEntryId) {
