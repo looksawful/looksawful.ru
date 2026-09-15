@@ -5,7 +5,7 @@ import { HDRLoader } from "three/addons/loaders/HDRLoader.js";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 
 const MODEL_URL = "/media/projects/jestei/model-viewer/jestei-logo-web.glb";
-const HDRI_URL = "/media/projects/jestei/model-viewer/studio-small-09-1k.hdr";
+const HDRI_URL = "/media/projects/jestei/model-viewer/white-studio-04-1k.hdr";
 const STYLE_ID = "model-viewer-jestei-logo-story-styles";
 
 const ensureStyles = () => {
@@ -206,7 +206,7 @@ const loadEnvironment = async (renderer, scene) => {
     const environment = pmrem.fromEquirectangular(source).texture;
     source.dispose();
     scene.environment = environment;
-    scene.environmentRotation.set(0, Math.PI * 0.32, 0);
+    scene.environmentRotation.set(0, Math.PI * 0.28, 0);
     return environment;
   } catch (error) {
     console.warn("Jestei logo HDRI failed; using neutral PMREM fallback.", error);
@@ -214,7 +214,7 @@ const loadEnvironment = async (renderer, scene) => {
     const environment = pmrem.fromScene(room, 0.04).texture;
     room.dispose();
     scene.environment = environment;
-    scene.environmentRotation.set(0, Math.PI * 0.32, 0);
+    scene.environmentRotation.set(0, Math.PI * 0.28, 0);
     return environment;
   } finally {
     pmrem.dispose();
@@ -285,7 +285,7 @@ const mountViewer = async (root) => {
   });
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.NeutralToneMapping;
-  renderer.toneMappingExposure = 1.0;
+  renderer.toneMappingExposure = 0.86;
   renderer.setClearColor(0x000000, 0);
 
   const scene = new THREE.Scene();
@@ -344,7 +344,7 @@ const mountViewer = async (root) => {
       meshMaterials.forEach((material) => {
         if (!material) return;
         material.side = THREE.FrontSide;
-        if ("envMapIntensity" in material) material.envMapIntensity = 0.95;
+        if ("envMapIntensity" in material) material.envMapIntensity = 0.82;
         material.needsUpdate = true;
         materials.add(material);
       });
