@@ -13,8 +13,10 @@ test("Awful exposes one compact chat bubble bound to the pet launcher", () => {
   assert.match(bubble, /launcher\.append\(bubble\)/);
 });
 
-test("bubble follows the pet, disappears during chat and drag, and stays compact on mobile", () => {
+test("bubble follows the pet, stays clickable, disappears during chat and drag, and stays compact on mobile", () => {
   assert.match(css, /\.portfolio-pet__bubble\s*\{[\s\S]*position:\s*absolute;/);
+  assert.match(css, /\.portfolio-pet__bubble\s*\{[\s\S]*pointer-events:\s*auto;/);
+  assert.match(css, /\.portfolio-pet__bubble\s*\{[\s\S]*cursor:\s*pointer;/);
   assert.match(css, /html\.contact-hub-open \.portfolio-pet__bubble/);
   assert.match(css, /\.portfolio-pet\[data-dragging="true"\] \.portfolio-pet__bubble/);
   assert.match(css, /@media \(width <= 42\.5rem\)/);
