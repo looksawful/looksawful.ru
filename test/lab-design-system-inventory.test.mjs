@@ -143,6 +143,23 @@ test("extracts route discovery without treating it as visual visibility", async 
   assert.equal(Object.hasOwn(route, "visibility"), false);
 });
 
+test("HTML rendering utility is explicitly no-story and excluded from denominator", async (t) => {
+  const root = await fixture(t, {
+    "src/site/rendering/html.ts": "export const replaceRequiredSlot = () => true;",
+    "src/components/card.ts": "export const card = true;",
+    "src/lab/stories/card.stories.js": `import "../../site/rendering/html.ts"; export default { title: "01 Atoms/Card" };`,
+  });
+  const inventory = await collectDesignSystemInventory(root);
+  const html = sourceByPath(inventory, "src/site/rendering/html.ts");
+  assert.equal(html.lifecycle, "infrastructure");
+  assert.equal(html.storyPolicy, "no-story");
+  assert.equal(html.denominatorEligible, false);
+  assert.equal(html.overallStatus, "exempt-no-story");
+  assert.equal(inventory.coverageSummary.denominator, 1);
+  assert.equal(inventory.coverageSummary.excludedNoStory, 1);
+  assert.equal(inventory.coverageSummary.partial, 0);
+});
+
 test("accepts existing declared supporting sources outside the UI denominator", async (t) => {
   const root = await fixture(t, {
     "src/templates/card.ts": "export const render = true;",
