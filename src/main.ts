@@ -19,6 +19,7 @@ import { mountExperience } from "./components/experience.ts";
 import { mountPortfolioPet } from "./components/portfolio-pet.ts";
 import { mountPortfolioPetBubble } from "./components/portfolio-pet-bubble.ts";
 import { mountContactHub } from "./components/contact-hub.ts";
+import { mountContactHubDirectHandoff } from "./components/contact-hub-direct-handoff.ts";
 import { mountSiteAnalyticsConsent } from "./components/site-analytics-consent.ts";
 import {
   mountSiteAnalytics,
@@ -146,6 +147,7 @@ const portfolioPetEnabled = resolvePortfolioPetEnabled({
 const destroyPortfolioPet = mountPortfolioPet(document, { enabled: portfolioPetEnabled });
 const destroyPortfolioPetBubble = mountPortfolioPetBubble(document, { enabled: portfolioPetEnabled });
 const destroyContactHub = mountContactHub(document);
+const destroyContactHubDirectHandoff = mountContactHubDirectHandoff(document);
 const destroys: Destroy[] = [
   destroySiteAnalyticsGoalTracking,
   destroySiteAnalyticsCaseEndTracking,
@@ -153,6 +155,7 @@ const destroys: Destroy[] = [
   destroyPortfolioPet,
   destroyPortfolioPetBubble,
   destroyContactHub,
+  destroyContactHubDirectHandoff,
 ];
 let destroyed = false;
 
