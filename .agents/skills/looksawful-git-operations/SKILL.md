@@ -40,6 +40,10 @@ Do not use force-push, `reset --hard`, forced checkout, rebase, or merge as an i
 - Use cherry-pick only when the task explicitly needs a known commit transferred and the resulting diff is reviewed; do not use it to mask uncertain branch provenance.
 - Use reflog/recovery techniques to recover lost local work, not to bypass review or resurrect obsolete architecture blindly.
 
+## Release promotion
+
+For Lab ? dev ? prod promotion or a narrow production backport, read `docs/release-promotion.md` and run the repository release preflight before opening the prod PR. The preflight is an enforcement aid, not merge/deploy permission.
+
 ## PR readiness
 
 Before calling a branch ready:
