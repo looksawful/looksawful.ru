@@ -1,4 +1,4 @@
-import { classifyToken, resolveTokenValue, tokenAliases } from "../token-visualization.mjs";
+import { classifyToken, groupTokensByKind, resolveTokenValue, tokenAliases } from "../token-visualization.mjs";
 
 function collectCustomProperties() {
   const tokens = new Map();
@@ -102,7 +102,7 @@ function tokenGallery(filter = () => true, heading = "canonical CSS tokens") {
     const query = search.value.trim().toLowerCase();
     const tokens = allTokens.filter((t) => `${t.name} ${t.raw} ${t.kind}`.toLowerCase().includes(query));
     count.textContent = `${tokens.length} / ${allTokens.length}`;
-    const groups = Map.groupBy(tokens, (token) => token.kind);
+    const groups = groupTokensByKind(tokens);
     for (const [kind, items] of groups) {
       const section = el("section", "token-section"); section.append(el("h2", "", kind));
       const grid = el("div", "token-grid");

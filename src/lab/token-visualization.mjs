@@ -41,3 +41,13 @@ export function resolveTokenValue(value, values, stack = new Set()) {
 export function tokenAliases(value) {
   return [...String(value).matchAll(VAR_RE)].map((match) => match[1]);
 }
+
+export function groupTokensByKind(tokens) {
+  const groups = new Map();
+  for (const token of tokens) {
+    const items = groups.get(token.kind);
+    if (items) items.push(token);
+    else groups.set(token.kind, [token]);
+  }
+  return groups;
+}
