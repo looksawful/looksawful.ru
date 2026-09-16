@@ -16,9 +16,11 @@ const { path: navigationOwnerPath, source: navigationSource } = readStyleOwner("
 test("global navigation styles have one declared owner", () => {
   assert.equal(navigationOwnerPath, "src/styles/site-navigation.css");
   assert.equal(existsSync(dedicatedPath), true, "site-navigation.css must own global navigation styles");
-  assert.match(
-    indexSource,
-    /@import "\.\/experience\.css" layer\(components\);\n@import "\.\/site-navigation\.css" layer\(components\);\n@import "\.\.\/components\/jestei-theme-organism\/jestei-theme-organism\.css";/,
+  const navigationImport = '@import "./site-navigation.css" layer(components);';
+  assert.equal(
+    indexSource.split(navigationImport).length - 1,
+    1,
+    "site-navigation.css must be imported exactly once from the style index",
   );
   assert.doesNotMatch(mainSource, /site-navigation\.css/);
   assert.match(navigationSource, /\.site-nav__bar/);

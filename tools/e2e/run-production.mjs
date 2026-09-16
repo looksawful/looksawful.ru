@@ -145,11 +145,19 @@ async function runJesteiFilterArtworkSanity({ browser, baseUrl }) {
   }
 }
 
-export async function runProductionE2E({ browser, baseUrl }) {
-  const analyticsSafeBrowser = createInternalAnalyticsBrowser(browser);
-  await runQuickSmoke({ browser: analyticsSafeBrowser, baseUrl, cvMode: "production" });
-  await runMediaSanity({ browser: analyticsSafeBrowser, baseUrl });
-  await runJesteiFilterArtworkSanity({ browser: analyticsSafeBrowser, baseUrl });
+export async function runProductionE2E(
+  { browser, baseUrl },
+  {
+    createAnalyticsBrowser = createInternalAnalyticsBrowser,
+    quickSmoke = runQuickSmoke,
+    mediaSanity = runMediaSanity,
+    filterArtworkSanity = runJesteiFilterArtworkSanity,
+  } = {},
+) {
+  const analyticsSafeBrowser = createAnalyticsBrowser(browser);
+  await quickSmoke({ browser: analyticsSafeBrowser, baseUrl, cvMode: "production" });
+  await mediaSanity({ browser: analyticsSafeBrowser, baseUrl });
+  await filterArtworkSanity({ browser: analyticsSafeBrowser, baseUrl });
 }
 
 if (isDirectExecution(import.meta.url)) {

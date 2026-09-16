@@ -5,6 +5,8 @@ import { resolve } from "node:path";
 import { cvContent } from "../../src/data/cv.ts";
 import { isDirectExecution, withE2ERuntime } from "./runtime.mjs";
 
+export const DEFAULT_CV_SMOKE_MODE = "authored";
+
 let BASE_URL = "";
 const CAPTURE_DIR = process.env.CV_SMOKE_CAPTURE_DIR
   ? resolve(process.env.CV_SMOKE_CAPTURE_DIR)
@@ -142,7 +144,7 @@ async function auditViewport(browser, viewport, mode, expectedHiddenCards) {
   }
 }
 
-export async function runSmokeCv({ browser, baseUrl, mode = "authored" }) {
+export async function runSmokeCv({ browser, baseUrl, mode = DEFAULT_CV_SMOKE_MODE }) {
   BASE_URL = baseUrl;
   const expectedHiddenCards = getExpectedCvHiddenCards(mode);
   for (const viewport of VIEWPORTS) {
@@ -152,5 +154,5 @@ export async function runSmokeCv({ browser, baseUrl, mode = "authored" }) {
 }
 
 if (isDirectExecution(import.meta.url)) {
-  await withE2ERuntime(({ browser, baseUrl }) => runSmokeCv({ browser, baseUrl, mode: "authored" }));
+  await withE2ERuntime(({ browser, baseUrl }) => runSmokeCv({ browser, baseUrl, mode: DEFAULT_CV_SMOKE_MODE }));
 }
