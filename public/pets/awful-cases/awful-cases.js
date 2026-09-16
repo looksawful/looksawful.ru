@@ -341,7 +341,6 @@ export function enhanceAwfulCases(root, { locale = "en" } = {}) {
     restartPanel.hidden = true;
     spawnNext(view.playerX + 380 * view.scale);
     fillQueue();
-    focusCanvas();
   }
 
   function reset() {
@@ -1121,8 +1120,6 @@ export function enhanceAwfulCases(root, { locale = "en" } = {}) {
     { signal: abortController.signal },
   );
 
-  focusCanvas();
-
   root.awfulCasesCaseTrainer = { game, view, dictionary, command, reset, startDemo, nearestTask };
   const resizeObserver = "ResizeObserver" in window ? new ResizeObserver(resize) : null;
   resizeObserver?.observe(root);
@@ -1141,7 +1138,6 @@ export function enhanceAwfulCases(root, { locale = "en" } = {}) {
       }
       resize();
       game.last = performance.now();
-      focusCanvas();
       if (!game.raf) game.raf = requestAnimationFrame(loop);
     },
     destroy() {

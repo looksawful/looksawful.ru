@@ -57,6 +57,14 @@ test("Awful Cases keeps responsive mobile geometry and fine-pointer control hidi
   );
 });
 
+test("standalone Awful Cases respects reduced-motion for decorative flashing", async () => {
+  const source = await readSource("../public/pets/awful-cases/awful-cases.css");
+  assert.match(
+    source,
+    /@media \(prefers-reduced-motion: reduce\) \{[\s\S]*?\.awful-cases \.start__label \{\s*animation: none;/,
+  );
+});
+
 test("standalone Awful Cases exposes all six touch actions", async () => {
   const source = await readSource("../public/pets/awful-cases/index.html");
   assert.match(source, /data-awful-cases-controls/);

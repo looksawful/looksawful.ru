@@ -41,6 +41,11 @@ async function openTrainer(page, url) {
   await page.waitForFunction(() =>
     Boolean(document.querySelector("[data-awful-cases]")?.awfulCasesCaseTrainer),
   );
+  assert.equal(
+    await page.locator("[data-awful-cases-canvas]").evaluate((canvas) => document.activeElement === canvas),
+    false,
+    "trainer demo must not steal focus before the user starts the session",
+  );
   return errors;
 }
 
@@ -67,7 +72,9 @@ async function resetSession(page) {
 }
 async function exerciseKeyboard(page) {
   let state = await startSession(page);
-  const wrongAction = Object.keys(keyByAction).find((action) => action !== state.taskType);
+  const correctAction = state.taskType;
+  const wrongAction = Object.keys(keyByAction).find((action) => action !== correctAction);
+  assert.ok(wrongAction, "keyboard playtest needs an alternate action");
   await page.keyboard.press(keyByAction[wrongAction]);
   await page.waitForFunction(
     () =>
@@ -78,7 +85,7 @@ async function exerciseKeyboard(page) {
   assert.equal(state.correct, 0);
 
   await page.waitForTimeout(260);
-  await page.keyboard.press(keyByAction[state.taskType]);
+  await page.keyboard.press(keyByAction[correctAction]);
   await page.waitForFunction(
     () =>
       document.querySelector("[data-awful-cases]").awfulCasesCaseTrainer.game.stats.correct === 1,
