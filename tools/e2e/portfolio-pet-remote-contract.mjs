@@ -29,10 +29,10 @@ try {
   await page.addInitScript(() => {
     try { localStorage.setItem("looksawful:analytics-internal", "1"); } catch {}
   });
-  await page.goto(`${origin}/?pet=1&sha=${expectedSha}`, { waitUntil: "domcontentloaded" });
+  await page.goto(`${origin}/?sha=${expectedSha}`, { waitUntil: "domcontentloaded" });
 
   const pet = page.locator("[data-portfolio-pet-launcher]");
-  assert.equal(await pet.count(), 1, "published preview must mount exactly one Awful launcher");
+  assert.equal(await pet.count(), 1, "published preview must mount exactly one Awful launcher without a pet query flag");
   await pet.waitFor({ state: "visible", timeout: 5_000 });
   const image = pet.locator(".portfolio-pet__image");
   await image.waitFor({ state: "visible", timeout: 5_000 });
@@ -41,6 +41,17 @@ try {
     await node.decode();
     if (node.naturalWidth <= 0 || node.naturalHeight <= 0) throw new Error("Awful image has no decoded pixels");
   });
+
+  const dismiss = page.locator("[data-portfolio-pet-dismiss]");
+  const restore = page.locator("[data-portfolio-pet-restore]");
+  assert.equal(await dismiss.count(), 1, "Awful must expose one explicit dismiss control");
+  assert.equal(await restore.count(), 1, "Awful must expose one edge restore control");
+  await dismiss.click();
+  await pet.waitFor({ state: "hidden", timeout: 2_000 });
+  await restore.waitFor({ state: "visible", timeout: 2_000 });
+  await restore.click();
+  await pet.waitFor({ state: "visible", timeout: 2_000 });
+  await dismiss.waitFor({ state: "visible", timeout: 2_000 });
 
   const before = await pet.boundingBox();
   assert.ok(before && before.width > 100 && before.height > 100, "Awful must occupy a visible screen area");
@@ -58,8 +69,8 @@ try {
     frame: node.dataset.frame ?? "",
     transform: getComputedStyle(node).transform,
   }));
-  assert.notEqual(animated.frame, atlas.frame, "published Awful must advance real sprite frames");
-  assert.notEqual(animated.transform, atlas.transform, "published Awful must animate the atlas itself");
+  assert.notEqual(animated.frame, atlas.frame, "Awful idle must advance through real sprite frames");
+  assert.notEqual(animated.transform, atlas.transform, "Awful idle must animate the atlas itself");
 
   const centerX = before.x + before.width / 2;
   const centerY = before.y + before.height / 2;
@@ -93,6 +104,7 @@ try {
   assert.equal(await hub.getAttribute("data-mode"), "ai", "Awful must open AI mode");
 
   const composer = page.getByLabel("\u0421\u043e\u043e\u0431\u0449\u0435\u043d\u0438\u0435 AI");
+  assert.equal(await composer.getAttribute("placeholder"), "спросить", "AI composer must use a neutral follow-up prompt without naming Awful");
   const sendButton = page.getByRole("button", { name: "\u041e\u0442\u043f\u0440\u0430\u0432\u0438\u0442\u044c" });
   await sendButton.waitFor({ state: "visible", timeout: 3_000 });
   assert.equal((await sendButton.textContent())?.trim(), "\u043e\u0442\u043f\u0440\u0430\u0432\u0438\u0442\u044c", "published AI composer must show an explicit send button");
@@ -140,7 +152,7 @@ try {
   }
 
   assert.deepEqual(runtimeErrors, [], `published preview must not raise runtime exceptions: ${runtimeErrors.join(" | ")}`);
-  console.log(`Awful published-preview contract passed: ${origin}/?pet=1&sha=${expectedSha}`);
+  console.log(`Awful published-preview contract passed without feature query flag: ${origin}/?sha=${expectedSha}`);
 } finally {
   await browser.close();
 }
