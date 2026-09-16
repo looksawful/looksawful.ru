@@ -5,7 +5,7 @@
   inline-size: min(calc(100% - (var(--nav-inline) * 2)), var(--nav-max));
   margin-inline: auto;
   padding-block: clamp(0.75rem, 1vw, 1rem);
-  border-block-end: 1px solid rgb(0 0 0 / 0.2);
+  border-block-end: 1px solid var(--line);
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: clamp(0.875rem, 0.84rem + 0.18vw, 1rem);
   line-height: 1.25;
@@ -20,10 +20,30 @@
 
 .resume-nav__brand,
 .resume-nav__back {
-  color: #111;
+  color: var(--fg);
   font-weight: 500;
   text-decoration: none;
 }
+
+.resume-nav__actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.resume-nav__surface-toggle {
+  display: grid;
+  place-items: center;
+  inline-size: 2.75rem;
+  block-size: 2.75rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--fg);
+  cursor: pointer;
+}
+
+.surface-toggle__icon { inline-size: 1.15rem; block-size: 1.15rem; }
 
 .resume-nav__back {
   display: inline-flex;
@@ -45,7 +65,8 @@
 }
 
 .resume-nav__brand:focus-visible,
-.resume-nav__back:focus-visible {
+.resume-nav__back:focus-visible,
+.resume-nav__surface-toggle:focus-visible {
   outline: 2px solid currentColor;
   outline-offset: 0.2em;
 }
@@ -55,11 +76,13 @@
 }
 
 :root {
-  --bg: #fff;
-  --fg: #000;
-  --muted: #606060;
-  --line: #d8d8d8;
-  --link-line: #9a9a9a;
+  --bg: #f3f3ef;
+  --surface: #fff;
+  --surface-soft: #efefef;
+  --fg: #11110f;
+  --muted: #60605c;
+  --line: #d3d3ce;
+  --link-line: #8f8f89;
   --page: 1180px;
   --gutter: clamp(18px, 3vw, 42px);
   --gap: clamp(30px, 4vw, 58px);
@@ -68,6 +91,17 @@
   --title: clamp(14px, .86vw, 15px);
   --name: clamp(21px, 1.35vw, 25px);
   --role: clamp(16px, 1.05vw, 18px);
+}
+
+html[data-surface="dark"] {
+  --bg: #0b0b0a;
+  --surface: #171716;
+  --surface-soft: #222220;
+  --fg: #f3f3ef;
+  --muted: #a7a7a1;
+  --line: #3d3d39;
+  --link-line: #777770;
+  color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
@@ -162,7 +196,7 @@ a:hover { text-decoration-color: currentColor; }
   margin-left: auto;
   aspect-ratio: 1 / 1.05;
   overflow: hidden;
-  background-color: #efefef;
+  background-color: var(--surface-soft);
   background-image: url("/media/hero/hero-portrait.webp");
   background-size: cover;
   background-position: 50% 50%;
@@ -234,8 +268,8 @@ section.block { margin-bottom: clamp(30px, 3.5vw, 50px); }
 .experience-sheet {
   margin-top: clamp(90px, 10vw, 140px);
   padding-bottom: var(--gutter);
-  background: #fff;
-  color: #000;
+  background: var(--surface);
+  color: var(--fg);
 }
 .experience-title {
   padding: 0 0 18px;

@@ -49,7 +49,7 @@ test("CV exposes only navigation back to the portfolio", async () => {
   assert.doesNotMatch(cvHtml, /src=["'][^"']*src\/main\.js["']/);
 });
 
-test("CV keeps its own white editorial surface and external stylesheet", async () => {
+test("CV keeps its editorial typography while using the shared light-dark surface", async () => {
   const [cvHtml, cvCss] = await Promise.all([
     readFile(cvHtmlUrl, "utf8"),
     readFile(cvCssUrl, "utf8"),
@@ -57,7 +57,9 @@ test("CV keeps its own white editorial surface and external stylesheet", async (
 
   assert.match(cvHtml, /href=["']\/cv\/cv\.css["']/);
   assert.doesNotMatch(cvHtml, /<style[\s>]/i);
-  assert.match(cvCss, /--bg:\s*#fff\b/i);
+  assert.match(cvCss, /--bg:\s*#f3f3ef\b/i);
+  assert.match(cvCss, /--surface:\s*#fff\b/i);
+  assert.match(cvCss, /html\[data-surface="dark"\]/);
   assert.match(cvCss, /font-family:\s*Arial,\s*Helvetica,\s*sans-serif/i);
 });
 
@@ -81,4 +83,17 @@ test("CV source preserves authored hidden experience entries for development", a
 
   const hiddenCards = cvHtml.match(/<article\b[^>]*\bhidden\b[^>]*class=["'][^"']*experience-card|<article\b[^>]*class=["'][^"']*experience-card[^"']*["'][^>]*\bhidden\b/g) ?? [];
   assert.ok(hiddenCards.length > 0, "Expected hidden experience cards to remain in the development CV source");
+});
+
+
+test("CV exposes the shared light-dark surface control without portfolio runtime", async () => {
+  const [cvHtml, cvCss] = await Promise.all([
+    readFile(cvHtmlUrl, "utf8"),
+    readFile(cvCssUrl, "utf8"),
+  ]);
+  assert.match(cvHtml, /<html\b[^>]*data-page-id="cv"[^>]*data-surface-default="light"[^>]*data-surface="light"/);
+  assert.match(cvHtml, /<meta name="theme-color" content="#f3f3ef"\s*\/?>/);
+  assert.match(cvHtml, /<script src="\/site-surface\.js"><\/script>/);
+  assert.match(cvHtml, /data-surface-toggle/);
+  assert.match(cvCss, /html\[data-surface="dark"\]/);
 });

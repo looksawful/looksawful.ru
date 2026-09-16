@@ -20,3 +20,12 @@ test("privacy page documents actual analytics providers and consent reset", asyn
     assert.match(html, new RegExp(goal));
   }
 });
+
+
+test("privacy page exposes the shared light-dark surface control", async () => {
+  const html = await readFile(privacyUrl, "utf8");
+  assert.match(html, /<html\b[^>]*data-page-id="privacy"[^>]*data-surface-default="light"[^>]*data-surface="light"/);
+  assert.match(html, /<meta name="theme-color" content="#f3f3ef">/);
+  assert.match(html, /<script src="\/site-surface\.js"><\/script>/);
+  assert.match(html, /data-surface-toggle/);
+});

@@ -1,9 +1,11 @@
 <!doctype html>
-<html lang="ru">
+<html lang="ru" data-page-id="privacy" data-surface-default="light" data-surface="light">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Приватность и аналитика — looksawful</title>
+  <meta name="theme-color" content="#f3f3ef">
+  <script src="/site-surface.js"></script>
   <meta name="description" content="Как looksawful.ru использует Cloudflare Web Analytics и Яндекс Метрику.">
   <link rel="canonical" href="https://www.looksawful.ru/privacy/">
   <meta name="robots" content="index,follow,max-image-preview:large">
@@ -11,30 +13,37 @@
   <meta property="og:description" content="Как looksawful.ru использует Cloudflare Web Analytics и Яндекс Метрику.">
   <meta property="og:url" content="https://www.looksawful.ru/privacy/">
   <style>
-    :root{font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#000;background:#fff;line-height:1.45}
+    :root{--bg:#f3f3ef;--surface:#fff;--fg:#11110f;--line:#d3d3ce;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--fg);background:var(--bg);line-height:1.45}
+    html[data-surface="dark"]{--bg:#0b0b0a;--surface:#171716;--fg:#f3f3ef;--line:#3d3d39;color-scheme:dark}
     *{box-sizing:border-box}
-    body{margin:0}
+    body{margin:0;background:var(--bg);color:var(--fg)}
     a{color:inherit;text-underline-offset:.18em}
     button{font:inherit;color:inherit}
     main{width:min(100% - 2rem,56rem);margin-inline:auto;padding-block:clamp(2rem,7vw,6rem)}
-    header{display:flex;justify-content:space-between;gap:1rem;align-items:baseline;margin-block-end:clamp(3rem,8vw,7rem)}
+    header{display:flex;justify-content:space-between;gap:1rem;align-items:center;margin-block-end:clamp(3rem,8vw,7rem)}
+    .page-actions{display:flex;align-items:center;gap:.75rem}
+    .surface-toggle{display:grid;place-items:center;width:44px;height:44px;padding:0;border:0;background:transparent;color:inherit;cursor:pointer}
+    .surface-toggle__icon{width:1.15rem;height:1.15rem}
     h1{font-size:clamp(2.5rem,8vw,6.5rem);line-height:.92;letter-spacing:-.055em;margin:0 0 2rem}
     h2{font-size:clamp(1.35rem,3vw,2rem);line-height:1.05;letter-spacing:-.035em;margin:3rem 0 .8rem}
     p,ul{max-width:48rem;margin:.7rem 0}
     ul{padding-inline-start:1.25rem}
     .meta{font-size:.875rem;opacity:.62}
     .controls{display:flex;flex-wrap:wrap;gap:.6rem;margin-block-start:1.25rem}
-    .button{min-height:44px;border:1px solid currentColor;border-radius:0;background:#fff;padding:.55rem .9rem;cursor:pointer}
-    .button:first-child{background:#000;color:#fff}
+    .button{min-height:44px;border:1px solid currentColor;border-radius:0;background:var(--surface);padding:.55rem .9rem;cursor:pointer}
+    .button:first-child{background:var(--fg);color:var(--bg)}
     .status{min-height:1.45em;margin-block-start:.7rem;font-size:.875rem}
-    footer{margin-block-start:5rem;padding-block-start:1rem;border-top:1px solid #000}
+    footer{margin-block-start:5rem;padding-block-start:1rem;border-top:1px solid var(--line)}
   </style>
 </head>
 <body>
   <main>
     <header>
       <a href="/">looksawful</a>
-      <a href="/">на сайт</a>
+      <div class="page-actions">
+        <button class="surface-toggle" type="button" aria-label="Включить тёмный фон" aria-pressed="false" data-surface-toggle><svg class="surface-toggle__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 18a6 6 0 0 0 0-12v12z"/></svg></button>
+        <a href="/">на сайт</a>
+      </div>
     </header>
 
     <h1>Приватность и аналитика</h1>

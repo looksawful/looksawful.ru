@@ -35,5 +35,6 @@ test("CV remains a static page without portfolio runtime hooks", async () => {
   assert.doesNotMatch(cvHtml, /data-reveal(?:=|\s|>)/);
   assert.doesNotMatch(cvHtml, /data-lightbox-source/);
   assert.doesNotMatch(cvHtml, /data-media-deck/);
-  assert.doesNotMatch(cvHtml, /<script\b/i);
+  assert.match(cvHtml, /<script src="\/site-surface\.js"><\/script>/);
+  assert.doesNotMatch(cvHtml, /src=["'][^"']*src\/main\.js["']/);
 });
