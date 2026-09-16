@@ -157,6 +157,12 @@ test("analytics goal classification rejects non-web URL schemes without breaking
   });
 });
 
+test("consent runtime uses the external country resolver without probing unavailable Cloudflare trace", async () => {
+  const source = await readFile(consentUrl, "utf8");
+  assert.match(source, /https:\/\/api\.country\.is\//);
+  assert.doesNotMatch(source, /\/cdn-cgi\/trace/);
+});
+
 test("consent control exposes a short neutral cookie notice", async () => {
   const source = await readFile(consentUrl, "utf8");
   assert.match(source, /privacy\.href = "\/privacy\/"/);
