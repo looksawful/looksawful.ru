@@ -1,45 +1,38 @@
-/* Default site palette */
+/* Site surface system */
 
-:root {
+:root,
+[data-surface="light"] {
   --clr-surface: rgb(255 255 255);
-  --clr-foreground: rgb(17 17 17);
+  --clr-surface-page: rgb(243 243 239);
+  --clr-surface-raised: rgb(255 255 255);
+  --clr-surface-elevated: rgb(255 255 255);
+  --clr-foreground: rgb(17 17 15);
   --clr-accent: rgb(47 91 255);
   --clr-on-accent: rgb(255 255 255);
+  --clr-project-accent: var(--clr-accent);
+  --clr-project-accent-secondary: var(--clr-accent);
+  --gradient-surface-depth: linear-gradient(145deg, #fff 0%, #f3f3ef 58%, #ecece7 100%);
 }
 
-/* Every theme owns surface, foreground and accent. */
+[data-surface="dark"] {
+  --clr-surface: rgb(23 23 22);
+  --clr-surface-page: rgb(11 11 10);
+  --clr-surface-raised: rgb(23 23 22);
+  --clr-surface-elevated: rgb(23 23 22);
+  --clr-foreground: rgb(243 243 239);
+  --clr-accent: rgb(111 140 255);
+  --clr-on-accent: rgb(11 11 10);
+  --clr-project-accent: var(--clr-accent);
+  --clr-project-accent-secondary: var(--clr-accent);
+  --gradient-surface-depth: linear-gradient(145deg, #0b0b0a 0%, #171716 55%, #0b0b0a 100%);
+}
 
-:where(:root, [data-theme]) {
-  --clr-surface-page: color-mix(
-    in srgb,
-    var(--clr-surface),
-    black 2.5%
-  );
-
-  --clr-surface-raised: var(--clr-surface);
-  --clr-surface-elevated: var(--clr-surface);
-
+:where(:root, [data-surface], [data-theme]) {
   --clr-bg: var(--clr-surface-page);
   --clr-text: var(--clr-foreground);
-
-  --clr-text-muted: color-mix(
-    in srgb,
-    var(--clr-foreground),
-    transparent 38%
-  );
-
-  --clr-border: color-mix(
-    in srgb,
-    var(--clr-foreground),
-    transparent 80%
-  );
-
-  --clr-border-strong: color-mix(
-    in srgb,
-    var(--clr-foreground),
-    transparent 55%
-  );
-
+  --clr-text-muted: color-mix(in srgb, var(--clr-foreground), transparent 38%);
+  --clr-border: color-mix(in srgb, var(--clr-foreground), transparent 80%);
+  --clr-border-strong: color-mix(in srgb, var(--clr-foreground), transparent 55%);
   --clr-selection-bg: var(--clr-foreground);
   --clr-selection-text: var(--clr-surface);
 }
@@ -211,3 +204,29 @@
   --clr-accent: rgb(255 122 47);
   --clr-on-accent: rgb(13 13 13);
 }*/
+
+/* Project accents are opt-in semantic tokens. */
+#project-jestei {
+  --clr-project-accent: rgb(240 128 0);
+  --clr-project-accent-secondary: rgb(208 226 50);
+}
+
+#project-styx {
+  --clr-project-accent: rgb(244 79 55);
+  --clr-project-accent-secondary: rgb(241 168 195);
+}
+
+#project-sensetique {
+  --clr-project-accent: rgb(241 168 195);
+  --clr-project-accent-secondary: rgb(244 79 55);
+}
+
+#project-moves-awful {
+  --clr-project-accent: rgb(255 90 47);
+  --clr-project-accent-secondary: rgb(255 240 216);
+}
+
+#project-berry-social-content-2020 {
+  --clr-project-accent: rgb(213 52 104);
+  --clr-project-accent-secondary: rgb(255 211 227);
+}

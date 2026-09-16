@@ -9,6 +9,7 @@ export interface PageDiscovery {
 }
 
 export type EntityPageId = CanonicalEntityPageId;
+export type PageSurface = "light" | "dark";
 
 export type StaticPageId = "cv" | "privacy";
 export type SitePageId = "home" | StaticPageId | "not-found" | EntityPageId;
@@ -32,6 +33,7 @@ interface BasePageDefinition {
   discovery: PageDiscovery;
   renderer: SitePageRenderer;
   build: SitePageBuild;
+  surface: PageSurface;
 }
 
 export interface HomePageDefinition extends BasePageDefinition {

@@ -10,10 +10,12 @@ export interface PageShellOptions {
   content: string;
 }
 
-function renderBodyAttributes(page: SitePageDefinition): string {
+export function renderBodyAttributes(page: SitePageDefinition): string {
   const attributes = [
     `data-page-type="${escapeHtml(page.type)}"`,
     `data-page-id="${escapeHtml(page.id)}"`,
+    `data-surface-default="${escapeHtml(page.surface)}"`,
+    `data-surface="${escapeHtml(page.surface)}"`,
   ];
 
   if (page.type === "case" || page.type === "project" || page.type === "collection") {
@@ -23,12 +25,18 @@ function renderBodyAttributes(page: SitePageDefinition): string {
   return attributes.join(" ");
 }
 
-export function renderPageShell({
-  page,
-  title,
-  description,
-  content,
-}: PageShellOptions): string {
+export function applyPageBodyAttributes(html: string, page: SitePageDefinition): string {
+  const bodyTags = html.match(/<body\b[^>]*>/gi);
+  if (bodyTags?.length !== 1) {
+    throw new Error(`Expected exactly one body tag, found ${bodyTags?.length ?? 0}`);
+  }
+  return html.replace(/<body\b([^>]*)>/i, (_tag, existing: string) => {
+    const prefix = existing.trim();
+    return `<body${prefix ? ` ${prefix}` : ""} ${renderBodyAttributes(page)}>`;
+  });
+}
+
+export function renderPageShell({ page, title, description, content }: PageShellOptions): string {
   return `<!DOCTYPE html>
 <html lang="ru">
   <head>

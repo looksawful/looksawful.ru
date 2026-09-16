@@ -4,6 +4,10 @@ html {
   font-synthesis: none;
 }
 
+html[data-surface="dark"] {
+  color-scheme: dark;
+}
+
 body {
   min-block-size: 100vh;
   min-block-size: 100svh;

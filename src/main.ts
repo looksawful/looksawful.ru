@@ -20,6 +20,7 @@ import {
 } from "./components/site-analytics.ts";
 import { initBeforeAfter } from "./components/before-after.ts";
 import { initSiteNavigation } from "./components/site-navigation.ts";
+import { initSiteSurface } from "./components/site-surface.ts";
 import { initSiteInteractive } from "./interactive.ts";
 import { initMotion } from "./motion.ts";
 
@@ -58,17 +59,21 @@ function initViewportAutoplayVideos(root: ParentNode = document): Destroy {
     if (!video.paused) video.pause();
   };
 
-  const observer = typeof IntersectionObserver === "function"
-    ? new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-          const video = entry.target;
-          if (!(video instanceof HTMLVideoElement)) return;
-          if (entry.isIntersecting) nearViewport.add(video);
-          else nearViewport.delete(video);
-          syncVideo(video);
-        });
-      }, { rootMargin: "50% 0px", threshold: 0 })
-    : null;
+  const observer =
+    typeof IntersectionObserver === "function"
+      ? new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              const video = entry.target;
+              if (!(video instanceof HTMLVideoElement)) return;
+              if (entry.isIntersecting) nearViewport.add(video);
+              else nearViewport.delete(video);
+              syncVideo(video);
+            });
+          },
+          { rootMargin: "50% 0px", threshold: 0 },
+        )
+      : null;
 
   videos.forEach((video) => {
     video.muted = true;
@@ -138,6 +143,7 @@ const destroys: Destroy[] = [
 let destroyed = false;
 
 numberMediaCaptions(document);
+destroys.push(initSiteSurface(document));
 destroys.push(
   initMotion({
     root: document,
@@ -160,11 +166,15 @@ if (document.querySelector('[data-jestei-theme-organism][data-jestei-theme-insta
 
       destroys.push(() => jesteiThemeOrganisms.destroy());
 
-      const canWarmJesteiThemeOrganism = window.matchMedia?.("(hover: hover) and (pointer: fine)").matches;
+      const canWarmJesteiThemeOrganism = window.matchMedia?.(
+        "(hover: hover) and (pointer: fine)",
+      ).matches;
       if (canWarmJesteiThemeOrganism) {
-        requestAnimationFrame(() => requestAnimationFrame(() => {
-          if (!destroyed) void jesteiThemeOrganisms.preload?.();
-        }));
+        requestAnimationFrame(() =>
+          requestAnimationFrame(() => {
+            if (!destroyed) void jesteiThemeOrganisms.preload?.();
+          }),
+        );
       }
     })
     .catch((error: unknown) => {
@@ -194,6 +204,9 @@ window.addEventListener("pagehide", (event) => {
   if (event.persisted) return;
 
   destroyed = true;
-  destroys.splice(0).reverse().forEach((destroy) => destroy());
+  destroys
+    .splice(0)
+    .reverse()
+    .forEach((destroy) => destroy());
   motion.destroy();
 });

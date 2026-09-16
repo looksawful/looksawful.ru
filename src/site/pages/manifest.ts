@@ -10,6 +10,7 @@ export const sitePages = [
     path: "/",
     enabled: true,
     renderer: "home",
+    surface: "light",
     build: VITE_BUILD,
     discovery: {
       listed: true,
@@ -23,6 +24,7 @@ export const sitePages = [
     path: "/work/jestei-pool/",
     enabled: true,
     renderer: "entity",
+    surface: "light",
     build: VITE_BUILD,
     discovery: {
       listed: true,
@@ -36,6 +38,7 @@ export const sitePages = [
     path: "/work/styx/",
     enabled: true,
     renderer: "entity",
+    surface: "dark",
     build: VITE_BUILD,
     discovery: {
       listed: true,
@@ -49,6 +52,7 @@ export const sitePages = [
     path: "/work/sensetique/",
     enabled: true,
     renderer: "entity",
+    surface: "light",
     build: VITE_BUILD,
     discovery: {
       listed: true,
@@ -62,6 +66,7 @@ export const sitePages = [
     path: "/shootings/",
     enabled: true,
     renderer: "entity",
+    surface: "dark",
     build: VITE_BUILD,
     discovery: {
       listed: true,
@@ -75,6 +80,7 @@ export const sitePages = [
     path: "/work/awful-cases/",
     enabled: true,
     renderer: "entity",
+    surface: "light",
     build: VITE_BUILD,
     discovery: {
       listed: false,
@@ -88,6 +94,7 @@ export const sitePages = [
     path: "/work/moves-awful/",
     enabled: true,
     renderer: "entity",
+    surface: "light",
     build: VITE_BUILD,
     discovery: {
       listed: false,
@@ -101,6 +108,7 @@ export const sitePages = [
     path: "/work/berry-social-content-2020/",
     enabled: true,
     renderer: "entity",
+    surface: "light",
     build: VITE_BUILD,
     discovery: {
       listed: false,
@@ -113,6 +121,7 @@ export const sitePages = [
     path: "/cv/",
     enabled: true,
     renderer: "cv",
+    surface: "light",
     build: {
       kind: "public-static",
       sourcePath: "public/cv/index.html",
@@ -128,6 +137,7 @@ export const sitePages = [
     path: "/privacy/",
     enabled: true,
     renderer: "privacy",
+    surface: "light",
     build: {
       kind: "public-static",
       sourcePath: "public/privacy/index.html",
@@ -143,6 +153,7 @@ export const sitePages = [
     path: "/404.html",
     enabled: true,
     renderer: "not-found",
+    surface: "light",
     build: VITE_BUILD,
     discovery: {
       listed: false,
