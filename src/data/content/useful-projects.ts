@@ -1,29 +1,30 @@
-import source from "../../content/editorial/useful-project-cards.json" with { type: "json" };
+import stateSource from "../../content/useful-projects.json" with { type: "json" };
+import copySource from "../../content/editorial/useful-project-cards.json" with { type: "json" };
 import {
   expectAllowedKeys,
+  expectArray,
+  expectBoolean,
+  expectKnownId,
   expectRecord,
+  expectStructuralString,
   normalizeById,
   readEditorialText,
 } from "./editorial-validation.ts";
 
-export type UsefulProjectState = "live" | "coming-soon" | "hidden";
+export const USEFUL_PROJECT_STATES = ["live", "coming-soon", "hidden"] as const;
+export type UsefulProjectState = (typeof USEFUL_PROJECT_STATES)[number];
 
 export const USEFUL_PROJECT_DEFINITIONS = [
-  { id: "awful-cases", visible: true, state: "live", href: "/work/awful-cases/", coverEntryId: "useful-awful-cases-cover-use-01" },
-  { id: "moves-awful", visible: true, state: "live", href: "/work/moves-awful/", coverEntryId: "useful-moves-awful-cover-use-01" },
-  { id: "berserk-timer", visible: true, state: "live", href: "/pets/berserk-timer/", coverEntryId: "useful-berserk-timer-cover-use-01" },
-  { id: "awful-studio", visible: true, state: "coming-soon", coverEntryId: "useful-awful-studio-cover-use-01" },
-  { id: "awful-mockups", visible: true, state: "coming-soon", coverEntryId: "useful-awful-mockups-cover-use-01" },
-  { id: "awful-3d-mockups", visible: true, state: "coming-soon", coverEntryId: "useful-awful-3d-mockups-cover-use-01" },
-] as const satisfies readonly {
-  id: string;
-  visible: boolean;
-  state: UsefulProjectState;
-  href?: string;
-  coverEntryId: string;
-}[];
+  { id: "awful-cases", href: "/work/awful-cases/", coverEntryId: "useful-awful-cases-cover-use-01" },
+  { id: "moves-awful", href: "/work/moves-awful/", coverEntryId: "useful-moves-awful-cover-use-01" },
+  { id: "berserk-timer", href: "/pets/berserk-timer/", coverEntryId: "useful-berserk-timer-cover-use-01" },
+  { id: "awful-studio", coverEntryId: "useful-awful-studio-cover-use-01" },
+  { id: "awful-mockups", coverEntryId: "useful-awful-mockups-cover-use-01" },
+  { id: "awful-3d-mockups", coverEntryId: "useful-awful-3d-mockups-cover-use-01" },
+] as const;
 
 export type UsefulProjectId = (typeof USEFUL_PROJECT_DEFINITIONS)[number]["id"];
+
 export interface UsefulProjectContent {
   id: UsefulProjectId;
   title: string;
@@ -33,10 +34,31 @@ export interface UsefulProjectContent {
   badge?: string;
 }
 
-const usefulProjectIds = USEFUL_PROJECT_DEFINITIONS.map(({ id }) => id);
-const rawSource: unknown = source;
+interface UsefulProjectStateSource {
+  id: UsefulProjectId;
+  visible: boolean;
+  state: UsefulProjectState;
+}
 
-function parseCard(id: UsefulProjectId, value: unknown): Omit<UsefulProjectContent, "visible" | "state"> {
+const usefulProjectIds = USEFUL_PROJECT_DEFINITIONS.map(({ id }) => id);
+
+function parseState(value: unknown, index: number): UsefulProjectStateSource {
+  const label = `usefulProjectState[${index}]`;
+  const record = expectRecord(value, label);
+  expectAllowedKeys(record, ["id", "visible", "state"], ["id", "visible", "state"], label);
+  const id = expectKnownId(record.id, usefulProjectIds, `${label}.id`) as UsefulProjectId;
+  const stateValue = expectStructuralString(record.state, `${label}.state`);
+  if (!USEFUL_PROJECT_STATES.some((state) => state === stateValue)) {
+    throw new Error(`${label}.state has unsupported value "${stateValue}"`);
+  }
+  return {
+    id,
+    visible: expectBoolean(record.visible, `${label}.visible`),
+    state: stateValue as UsefulProjectState,
+  };
+}
+
+function parseCard(id: UsefulProjectId, value: unknown) {
   const label = `usefulProjectCards.${id}`;
   const record = expectRecord(value, label);
   expectAllowedKeys(record, ["title", "description", "badge"], ["title", "description"], label);
@@ -49,8 +71,8 @@ function parseCard(id: UsefulProjectId, value: unknown): Omit<UsefulProjectConte
   };
 }
 
-function parseSource(value: unknown) {
-  const root = expectRecord(value, "usefulProjectCards");
+function parseSource(copyValue: unknown, stateValue: unknown) {
+  const root = expectRecord(copyValue, "usefulProjectCards");
   expectAllowedKeys(root, ["section", "cards"], ["section", "cards"], "usefulProjectCards");
   const section = expectRecord(root.section, "usefulProjectCards.section");
   expectAllowedKeys(section, ["title", "description"], ["title", "description"], "usefulProjectCards.section");
@@ -60,18 +82,23 @@ function parseSource(value: unknown) {
     usefulProjectIds,
     "usefulProjectCards.cards",
   );
-  const definitionById = new Map(USEFUL_PROJECT_DEFINITIONS.map((definition) => [definition.id, definition] as const));
+  const parsedState = normalizeById(
+    expectArray(stateValue, "usefulProjectState").map(parseState),
+    usefulProjectIds,
+    "usefulProjectState",
+  );
+  const stateById = new Map(parsedState.map((item) => [item.id, item] as const));
   return {
     section: {
       title: readEditorialText(section.title, "usefulProjectCards.section.title"),
       description: readEditorialText(section.description, "usefulProjectCards.section.description"),
     },
     cards: parsedCards.map((card) => {
-      const definition = definitionById.get(card.id);
-      if (!definition) throw new Error(`Missing useful project definition: ${card.id}`);
-      return { ...card, visible: definition.visible, state: definition.state };
+      const state = stateById.get(card.id);
+      if (!state) throw new Error(`Missing useful project state: ${card.id}`);
+      return { ...card, visible: state.visible, state: state.state } satisfies UsefulProjectContent;
     }),
   } as const;
 }
 
-export const usefulProjectsContent = parseSource(rawSource);
+export const usefulProjectsContent = parseSource(copySource, stateSource);
