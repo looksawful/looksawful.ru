@@ -1,0 +1,23 @@
+import { expect, userEvent } from "storybook/test";
+import { renderJesteiTrackFilter } from "../../components/specialized/jestei-track-filter-canonical.ts";
+import { jesteiPoolPageContent } from "../../content/pages/cases/jestei-pool.ts";
+const section = jesteiPoolPageContent.sections.find((item) => item.type === "specialized" && item.kind === "jestei-track-filter");
+if (!section) throw new Error("Missing canonical Jestei track-filter section");
+const sources = ["src/components/specialized/jestei-track-filter-canonical.ts", "src/components/specialized/jestei-track-filter.ts"];
+const evidence = (state) => ({ looksawful: { sources, layer: "organism", policy: "isolated", canonical: true, state, visibility: ["breakpoint"], motion: ["motion-enabled", "reduced-motion"], responsive: { review: ["desktop", "tablet", "mobile"] } } });
+const meta = { title: "03 Organisms/Jestei Track Filter", render: () => renderJesteiTrackFilter(section), parameters: evidence("advanced-open") };
+export default meta;
+export const AdvancedOpen = { play: async ({ canvasElement }) => {
+  const form = canvasElement.querySelector('[data-playlist-filter] [data-component="playlist-filter"]');
+  expect(form).toBeInTheDocument();
+  const toggle = form.querySelector('[data-action="toggle-open"]');
+  expect(toggle).toHaveAttribute("aria-expanded", "true");
+  const search = form.querySelector('[data-action="search"]');
+  search?.focus();
+  expect(search).toHaveFocus();
+  const chip = form.querySelector('[data-action="genre"]');
+  await userEvent.click(chip);
+  expect(chip).toHaveAttribute("data-selection", "include");
+  await userEvent.click(chip);
+  expect(chip).toHaveAttribute("data-selection", "exclude");
+} };

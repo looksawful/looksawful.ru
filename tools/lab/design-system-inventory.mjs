@@ -242,6 +242,18 @@ function layerFor(refs, stories) {
   return null;
 }
 
+function stateCoverageFor(refs, stories) {
+  const states = new Set();
+  const visibility = new Set();
+  for (const ref of refs) {
+    if (ref.evidence !== "declared-source" || ref.canonical !== true) continue;
+    const story = stories.find((candidate) => candidate.path === ref.storyPath);
+    if (story?.state) states.add(story.state);
+    for (const value of story?.visibility ?? []) visibility.add(value);
+  }
+  return { states: [...states].sort(), visibility: [...visibility].sort() };
+}
+
 function parseRoutes(text) {
   const routes = [];
   for (const object of balancedObjects(text)) {
@@ -347,7 +359,7 @@ export async function collectDesignSystemInventory(root) {
         storyRefs: refs,
         layer: layerFor(refs, stories),
         routeRefs: [],
-        stateCoverage: { states: [], visibility: [] },
+        stateCoverage: stateCoverageFor(refs, stories),
       };
       source.overallStatus = sourceStatus(source, refs);
       sourceRecords.push(source);

@@ -233,3 +233,21 @@ test("preserves story route discovery separately from visual visibility", async 
   assert.deepEqual(story.visibility, ["always"]);
   assert.equal(sourceByPath(inventory, "src/site/renderers/entity-page.ts").overallStatus, "page-only");
 });
+test("aggregates canonical declared story states and visibility into source coverage", async (t) => {
+  const root = await fixture(t, {
+    "src/components/menu.ts": "export const menu = true;",
+    "src/lab/stories/menu-closed.stories.js": `export default { title: "03 Organisms/Menu Closed", parameters: { looksawful: {
+      sources: ["src/components/menu.ts"], layer: "organism", policy: "isolated",
+      canonical: true, state: "closed", visibility: ["desktop", "tablet"]
+    } } };`,
+    "src/lab/stories/menu-open.stories.js": `export default { title: "03 Organisms/Menu Open", parameters: { looksawful: {
+      sources: ["src/components/menu.ts"], layer: "organism", policy: "isolated",
+      canonical: true, state: "open", visibility: ["mobile", "reduced-motion"]
+    } } };`,
+  });
+  const inventory = await collectDesignSystemInventory(root);
+  assert.deepEqual(sourceByPath(inventory, "src/components/menu.ts").stateCoverage, {
+    states: ["closed", "open"],
+    visibility: ["desktop", "mobile", "reduced-motion", "tablet"],
+  });
+});
