@@ -96,8 +96,16 @@ export function renderMediaElement(
     )} src="${escapeHtml(asset.src)}">`;
   }
 
-  if (asset.type !== "video") {
-    throw new Error(`Unsupported MediaAsset type for media element: ${asset.type}`);
+  if (asset.type === "model") {
+    const classes = ["model-viewer", options.className].filter(Boolean).join(" ");
+    const label = entry.alt?.trim() ?? "";
+    const accessibility = label
+      ? ` role="img" aria-label="${escapeHtml(label)}"`
+      : ` aria-hidden="true"`;
+
+    return `<div class="${escapeHtml(classes)}" data-model-viewer-runtime="" data-model-src="${escapeHtml(
+      asset.src,
+    )}" data-model-mime-type="${escapeHtml(asset.mimeType ?? "model/gltf-binary")}"${accessibility}><canvas data-model-viewer-canvas="" aria-hidden="true"></canvas></div>`;
   }
 
   const video = options.video ?? {};
