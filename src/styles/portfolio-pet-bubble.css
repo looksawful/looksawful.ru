@@ -2,7 +2,7 @@
   position: absolute;
   z-index: 3;
   inset-inline-start: 50%;
-  inset-block-end: 202px;
+  inset-block-end: calc(100% + 8px);
   inline-size: max-content;
   max-inline-size: 172px;
   padding: 8px 10px;
@@ -50,7 +50,6 @@ html.contact-hub-open .portfolio-pet__bubble,
 
 @media (width <= 42.5rem) {
   .portfolio-pet__bubble {
-    inset-block-end: 158px;
     max-inline-size: 148px;
     padding: 7px 9px;
     font-size: 0.72rem;
