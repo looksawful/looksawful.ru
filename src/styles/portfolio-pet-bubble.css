@@ -1,0 +1,62 @@
+.portfolio-pet__bubble {
+  position: absolute;
+  z-index: 3;
+  inset-inline-start: 50%;
+  inset-block-end: 202px;
+  inline-size: max-content;
+  max-inline-size: 172px;
+  padding: 8px 10px;
+  border: var(--border-width-100) solid var(--clr-border);
+  border-radius: 10px;
+  background: var(--clr-surface-elevated);
+  color: var(--clr-text);
+  font-size: var(--fs-200);
+  font-weight: var(--fw-500);
+  line-height: 1.25;
+  letter-spacing: var(--ls-copy);
+  text-align: start;
+  white-space: normal;
+  pointer-events: none;
+  transform: translateX(-50%);
+  transform-origin: 50% 100%;
+  transition: opacity 140ms ease, transform 140ms ease;
+}
+
+.portfolio-pet__bubble::after {
+  content: "";
+  position: absolute;
+  inset-inline-start: 50%;
+  inset-block-end: -5px;
+  inline-size: 8px;
+  block-size: 8px;
+  border-inline-end: var(--border-width-100) solid var(--clr-border);
+  border-block-end: var(--border-width-100) solid var(--clr-border);
+  background: var(--clr-surface-elevated);
+  transform: translateX(-50%) rotate(45deg);
+}
+
+.portfolio-pet:hover .portfolio-pet__bubble,
+.portfolio-pet:focus-visible .portfolio-pet__bubble {
+  transform: translateX(-50%) translateY(-2px);
+}
+
+html.contact-hub-open .portfolio-pet__bubble,
+.portfolio-pet[data-dragging="true"] .portfolio-pet__bubble {
+  opacity: 0;
+  visibility: hidden;
+}
+
+@media (width <= 42.5rem) {
+  .portfolio-pet__bubble {
+    inset-block-end: 158px;
+    max-inline-size: 148px;
+    padding: 7px 9px;
+    font-size: 0.72rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .portfolio-pet__bubble {
+    transition: none;
+  }
+}
