@@ -330,12 +330,12 @@ export function createModelViewers(
   };
 
   const observer = typeof IntersectionObserver === "function"
-    ? new IntersectionObserver((entries) => {
+    ? new IntersectionObserver((entries, currentObserver) => {
         entries.forEach((entry) => {
           if (!entry.isIntersecting) return;
           const element = entry.target;
           if (!(element instanceof HTMLElement)) return;
-          observer.unobserve(element);
+          currentObserver.unobserve(element);
           mount(element);
         });
       }, { rootMargin: MODEL_VIEWER_ROOT_MARGIN, threshold: 0 })
