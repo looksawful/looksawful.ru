@@ -34,3 +34,18 @@
   .awful-cases .start { bottom:22px; }
   .awful-cases .start__label { font-size:7px; line-height:1.25; }
 }
+
+.awful-cases .runner-controls { position:absolute; right:clamp(8px,2cqmin,18px); bottom:clamp(8px,2cqmin,18px); z-index:4; display:grid; grid-template-columns:repeat(2,minmax(54px,72px)); gap:6px; pointer-events:auto; }
+.awful-cases .runner-controls[hidden] { display:none; }
+.awful-cases .runner-controls button { appearance:none; min-block-size:48px; border:2px solid #000; background:#fff; color:#000; font-family:"Press Start 2P",monospace; cursor:pointer; }
+.awful-cases .runner-controls b { display:block; font-size:14px; line-height:1; }
+.awful-cases .runner-controls span { display:block; margin-top:4px; font-size:7px; line-height:1; text-transform:uppercase; }
+.awful-cases .runner-controls button:focus-visible { outline:3px solid #000; outline-offset:3px; }
+.awful-cases .runner-controls button:active { background:#000; color:#fff; }
+@container (max-width:520px) {
+  .awful-cases .runner-controls { left:8px; right:8px; bottom:8px; grid-template-columns:repeat(3,minmax(44px,1fr)); }
+  .awful-cases .runner-controls button { min-block-size:42px; padding:4px 2px; }
+}
+@media (hover:hover) and (pointer:fine) {
+  .awful-cases .runner-controls { display:none; }
+}

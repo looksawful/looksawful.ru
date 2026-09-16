@@ -441,7 +441,6 @@
   text-shadow: 0 1px 0.75rem rgb(255 255 255 / 0.72);
 }
 
-
 @media (prefers-reduced-motion: reduce) {
   .brand-system__hover-copy {
     translate: none;
@@ -465,10 +464,7 @@
   --group-compact-item-size: min(86cqi, 36rem);
 }
 
-:is(
-  .jestei-interface-group,
-  .jestei-event-group
-) .media__surface {
+:is(.jestei-interface-group, .jestei-event-group) .media__surface {
   --radius-max: var(--radius-contained);
 
   border-radius: clamp(
@@ -508,7 +504,6 @@
     display: none;
   }
 }
-
 
 @media (hover: hover) and (pointer: fine) {
   .brand-system__item:is(:hover, :focus-visible, :focus-within) .brand-system__hover-copy {
@@ -780,7 +775,6 @@
   visibility: visible;
   pointer-events: auto;
 }
-
 
 .mockup > .slider-controls {
   justify-self: stretch;
@@ -1414,7 +1408,7 @@
     }
 
     & .runner-controls {
-      grid-template-columns: repeat(4, minmax(44px, 1fr));
+      grid-template-columns: repeat(3, minmax(44px, 1fr));
       inset-inline: 8px;
       inset-block-end: 8px;
 
@@ -1484,8 +1478,6 @@
   color: #fff;
   background: #000;
 }
-
-
 
 /* ==================================================
    Consolidated component styles

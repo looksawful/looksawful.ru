@@ -25,7 +25,10 @@ test("Awful Cases exposes the six real training actions", () => {
 
 test("Awful Cases session has tutorial, practice and exam phases", () => {
   assert.equal(SESSION_PLAN.length, 18);
-  assert.deepEqual(SESSION_PLAN.slice(0, 6).map(({ type }) => type), ACTION_ORDER);
+  assert.deepEqual(
+    SESSION_PLAN.slice(0, 6).map(({ type }) => type),
+    ACTION_ORDER,
+  );
   assert.equal(SESSION_PLAN.filter(({ phase }) => phase === "tutorial").length, 6);
   assert.equal(SESSION_PLAN.filter(({ phase }) => phase === "practice").length, 6);
   assert.equal(SESSION_PLAN.filter(({ phase }) => phase === "exam").length, 6);

@@ -1,0 +1,912 @@
+export const DICTIONARIES = Object.freeze({
+  en: [
+    {
+      type: "upper",
+      input: "a",
+      output: "A",
+    },
+    {
+      type: "upper",
+      input: "b",
+      output: "B",
+    },
+    {
+      type: "upper",
+      input: "c",
+      output: "C",
+    },
+    {
+      type: "upper",
+      input: "d",
+      output: "D",
+    },
+    {
+      type: "upper",
+      input: "e",
+      output: "E",
+    },
+    {
+      type: "upper",
+      input: "f",
+      output: "F",
+    },
+    {
+      type: "upper",
+      input: "g",
+      output: "G",
+    },
+    {
+      type: "upper",
+      input: "h",
+      output: "H",
+    },
+    {
+      type: "upper",
+      input: "i",
+      output: "I",
+    },
+    {
+      type: "upper",
+      input: "j",
+      output: "J",
+    },
+    {
+      type: "upper",
+      input: "k",
+      output: "K",
+    },
+    {
+      type: "upper",
+      input: "l",
+      output: "L",
+    },
+    {
+      type: "upper",
+      input: "usa",
+      output: "USA",
+    },
+    {
+      type: "upper",
+      input: "eu",
+      output: "EU",
+    },
+    {
+      type: "upper",
+      input: "nasa",
+      output: "NASA",
+    },
+    {
+      type: "upper",
+      input: "html",
+      output: "HTML",
+    },
+    {
+      type: "upper",
+      input: "css",
+      output: "CSS",
+    },
+    {
+      type: "upper",
+      input: "api",
+      output: "API",
+    },
+    {
+      type: "upper",
+      input: "ui",
+      output: "UI",
+    },
+    {
+      type: "upper",
+      input: "ux",
+      output: "UX",
+    },
+    {
+      type: "upper",
+      input: "pdf",
+      output: "PDF",
+    },
+    {
+      type: "upper",
+      input: "url",
+      output: "URL",
+    },
+    {
+      type: "upper",
+      input: "id",
+      output: "ID",
+    },
+    {
+      type: "upper",
+      input: "json",
+      output: "JSON",
+    },
+    {
+      type: "lower",
+      input: "IF",
+      output: "if",
+    },
+    {
+      type: "lower",
+      input: "BECAUSE",
+      output: "because",
+    },
+    {
+      type: "lower",
+      input: "HOWEVER",
+      output: "however",
+    },
+    {
+      type: "lower",
+      input: "BEFORE",
+      output: "before",
+    },
+    {
+      type: "lower",
+      input: "AFTER",
+      output: "after",
+    },
+    {
+      type: "lower",
+      input: "BETWEEN",
+      output: "between",
+    },
+    {
+      type: "lower",
+      input: "INSIDE",
+      output: "inside",
+    },
+    {
+      type: "lower",
+      input: "OUTSIDE",
+      output: "outside",
+    },
+    {
+      type: "lower",
+      input: "TODAY",
+      output: "today",
+    },
+    {
+      type: "lower",
+      input: "TOMORROW",
+      output: "tomorrow",
+    },
+    {
+      type: "lower",
+      input: "EXAMPLE",
+      output: "example",
+    },
+    {
+      type: "lower",
+      input: "THEREFORE",
+      output: "therefore",
+    },
+    {
+      type: "lower",
+      input: "ALSO",
+      output: "also",
+    },
+    {
+      type: "lower",
+      input: "WINDOW",
+      output: "window",
+    },
+    {
+      type: "lower",
+      input: "BUTTON",
+      output: "button",
+    },
+    {
+      type: "lower",
+      input: "SCREEN",
+      output: "screen",
+    },
+    {
+      type: "toggle",
+      input: "aLEX",
+      output: "Alex",
+    },
+    {
+      type: "toggle",
+      input: "mARIA",
+      output: "Maria",
+    },
+    {
+      type: "toggle",
+      input: "jOHN",
+      output: "John",
+    },
+    {
+      type: "toggle",
+      input: "aNNA",
+      output: "Anna",
+    },
+    {
+      type: "toggle",
+      input: "sERGEY",
+      output: "Sergey",
+    },
+    {
+      type: "toggle",
+      input: "mAX",
+      output: "Max",
+    },
+    {
+      type: "toggle",
+      input: "oLEG",
+      output: "Oleg",
+    },
+    {
+      type: "toggle",
+      input: "jULIA",
+      output: "Julia",
+    },
+    {
+      type: "toggle",
+      input: "sONIA",
+      output: "Sonia",
+    },
+    {
+      type: "toggle",
+      input: "eGOR",
+      output: "Egor",
+    },
+    {
+      type: "toggle",
+      input: "vOVA",
+      output: "Vova",
+    },
+    {
+      type: "toggle",
+      input: "iVAN",
+      output: "Ivan",
+    },
+    {
+      type: "toggle",
+      input: "aLEX mARIA",
+      output: "Alex Maria",
+    },
+    {
+      type: "toggle",
+      input: "mARIA jOHN",
+      output: "Maria John",
+    },
+    {
+      type: "toggle",
+      input: "aNNA oLEG",
+      output: "Anna Oleg",
+    },
+    {
+      type: "toggle",
+      input: "eGOR jULIA",
+      output: "Egor Julia",
+    },
+    {
+      type: "toggle",
+      input: "sONIA mAX",
+      output: "Sonia Max",
+    },
+    {
+      type: "toggle",
+      input: "iVAN sERGEY",
+      output: "Ivan Sergey",
+    },
+    {
+      type: "title",
+      input: "ivan",
+      output: "Ivan",
+    },
+    {
+      type: "title",
+      input: "maria",
+      output: "Maria",
+    },
+    {
+      type: "title",
+      input: "john",
+      output: "John",
+    },
+    {
+      type: "title",
+      input: "anna",
+      output: "Anna",
+    },
+    {
+      type: "title",
+      input: "sergey",
+      output: "Sergey",
+    },
+    {
+      type: "title",
+      input: "alex",
+      output: "Alex",
+    },
+    {
+      type: "title",
+      input: "oleg",
+      output: "Oleg",
+    },
+    {
+      type: "title",
+      input: "julia",
+      output: "Julia",
+    },
+    {
+      type: "title",
+      input: "sonia",
+      output: "Sonia",
+    },
+    {
+      type: "title",
+      input: "egor",
+      output: "Egor",
+    },
+    {
+      type: "title",
+      input: "vova",
+      output: "Vova",
+    },
+    {
+      type: "title",
+      input: "max",
+      output: "Max",
+    },
+    {
+      type: "title",
+      input: "new york",
+      output: "New York",
+    },
+    {
+      type: "title",
+      input: "los angeles",
+      output: "Los Angeles",
+    },
+    {
+      type: "title",
+      input: "san francisco",
+      output: "San Francisco",
+    },
+    {
+      type: "title",
+      input: "jestei pool",
+      output: "Jestei Pool",
+    },
+    {
+      type: "title",
+      input: "awful cases",
+      output: "Awful Cases",
+    },
+    {
+      type: "title",
+      input: "case trainer",
+      output: "Case Trainer",
+    },
+    {
+      type: "title",
+      input: "windows utility",
+      output: "Windows Utility",
+    },
+    {
+      type: "title",
+      input: "github pages",
+      output: "GitHub Pages",
+    },
+    {
+      type: "title",
+      input: "sample 78",
+      output: "Sample 78",
+    },
+    {
+      type: "title",
+      input: "sample 79",
+      output: "Sample 79",
+    },
+    {
+      type: "lint",
+      input: "hello...",
+      output: "hello…",
+    },
+    {
+      type: "lint",
+      input: "hello,world",
+      output: "hello, world",
+    },
+    {
+      type: "lint",
+      input: "кое - кто",
+      output: "кое‑кто",
+    },
+    {
+      type: "sentence",
+      input: "hello. world",
+      output: "Hello. World",
+    },
+    {
+      type: "sentence",
+      input: "hello! world",
+      output: "Hello! World",
+    },
+    {
+      type: "sentence",
+      input: "hello? world",
+      output: "Hello? World",
+    },
+  ],
+  ru: [
+    {
+      type: "upper",
+      input: "а",
+      output: "А",
+    },
+    {
+      type: "upper",
+      input: "б",
+      output: "Б",
+    },
+    {
+      type: "upper",
+      input: "в",
+      output: "В",
+    },
+    {
+      type: "upper",
+      input: "г",
+      output: "Г",
+    },
+    {
+      type: "upper",
+      input: "д",
+      output: "Д",
+    },
+    {
+      type: "upper",
+      input: "ж",
+      output: "Ж",
+    },
+    {
+      type: "upper",
+      input: "з",
+      output: "З",
+    },
+    {
+      type: "upper",
+      input: "м",
+      output: "М",
+    },
+    {
+      type: "upper",
+      input: "я",
+      output: "Я",
+    },
+    {
+      type: "upper",
+      input: "ссср",
+      output: "СССР",
+    },
+    {
+      type: "upper",
+      input: "кнр",
+      output: "КНР",
+    },
+    {
+      type: "upper",
+      input: "рф",
+      output: "РФ",
+    },
+    {
+      type: "upper",
+      input: "сша",
+      output: "США",
+    },
+    {
+      type: "upper",
+      input: "оон",
+      output: "ООН",
+    },
+    {
+      type: "upper",
+      input: "мвд",
+      output: "МВД",
+    },
+    {
+      type: "upper",
+      input: "мчс",
+      output: "МЧС",
+    },
+    {
+      type: "upper",
+      input: "фсб",
+      output: "ФСБ",
+    },
+    {
+      type: "upper",
+      input: "инн",
+      output: "ИНН",
+    },
+    {
+      type: "upper",
+      input: "снилс",
+      output: "СНИЛС",
+    },
+    {
+      type: "upper",
+      input: "огрн",
+      output: "ОГРН",
+    },
+    {
+      type: "upper",
+      input: "ооо",
+      output: "ООО",
+    },
+    {
+      type: "upper",
+      input: "ип",
+      output: "ИП",
+    },
+    {
+      type: "upper",
+      input: "ндс",
+      output: "НДС",
+    },
+    {
+      type: "upper",
+      input: "жкх",
+      output: "ЖКХ",
+    },
+    {
+      type: "lower",
+      input: "ЕСЛИ",
+      output: "если",
+    },
+    {
+      type: "lower",
+      input: "ЧТОБЫ",
+      output: "чтобы",
+    },
+    {
+      type: "lower",
+      input: "КОГДА",
+      output: "когда",
+    },
+    {
+      type: "lower",
+      input: "ПОТОМУ",
+      output: "потому",
+    },
+    {
+      type: "lower",
+      input: "ОДНАКО",
+      output: "однако",
+    },
+    {
+      type: "lower",
+      input: "ЧЕРЕЗ",
+      output: "через",
+    },
+    {
+      type: "lower",
+      input: "ПОСЛЕ",
+      output: "после",
+    },
+    {
+      type: "lower",
+      input: "ПЕРЕД",
+      output: "перед",
+    },
+    {
+      type: "lower",
+      input: "МЕЖДУ",
+      output: "между",
+    },
+    {
+      type: "lower",
+      input: "ВНУТРИ",
+      output: "внутри",
+    },
+    {
+      type: "lower",
+      input: "СНАРУЖИ",
+      output: "снаружи",
+    },
+    {
+      type: "lower",
+      input: "СЕЙЧАС",
+      output: "сейчас",
+    },
+    {
+      type: "lower",
+      input: "ЗАТЕМ",
+      output: "затем",
+    },
+    {
+      type: "lower",
+      input: "ТАКЖЕ",
+      output: "также",
+    },
+    {
+      type: "lower",
+      input: "ПОЭТОМУ",
+      output: "поэтому",
+    },
+    {
+      type: "lower",
+      input: "НАПРИМЕР",
+      output: "например",
+    },
+    {
+      type: "toggle",
+      input: "иВАН",
+      output: "Иван",
+    },
+    {
+      type: "toggle",
+      input: "мАРУСЯ",
+      output: "Маруся",
+    },
+    {
+      type: "toggle",
+      input: "мАРЬЯ",
+      output: "Марья",
+    },
+    {
+      type: "toggle",
+      input: "аННА",
+      output: "Анна",
+    },
+    {
+      type: "toggle",
+      input: "сЕРГЕЙ",
+      output: "Сергей",
+    },
+    {
+      type: "toggle",
+      input: "аЛЕКСЕЙ",
+      output: "Алексей",
+    },
+    {
+      type: "toggle",
+      input: "еКАТЕРИНА",
+      output: "Екатерина",
+    },
+    {
+      type: "toggle",
+      input: "дМИТРИЙ",
+      output: "Дмитрий",
+    },
+    {
+      type: "toggle",
+      input: "оЛЕГ",
+      output: "Олег",
+    },
+    {
+      type: "toggle",
+      input: "мАКСИМ",
+      output: "Максим",
+    },
+    {
+      type: "toggle",
+      input: "юЛИЯ",
+      output: "Юлия",
+    },
+    {
+      type: "toggle",
+      input: "сОНЯ",
+      output: "Соня",
+    },
+    {
+      type: "toggle",
+      input: "еГОР",
+      output: "Егор",
+    },
+    {
+      type: "toggle",
+      input: "вОВА",
+      output: "Вова",
+    },
+    {
+      type: "toggle",
+      input: "иВАН мАРУСЯ",
+      output: "Иван Маруся",
+    },
+    {
+      type: "toggle",
+      input: "мАРУСЯ иВАН",
+      output: "Маруся Иван",
+    },
+    {
+      type: "toggle",
+      input: "мАРЬЯ сЕРГЕЙ",
+      output: "Марья Сергей",
+    },
+    {
+      type: "toggle",
+      input: "аННА оЛЕГ",
+      output: "Анна Олег",
+    },
+    {
+      type: "toggle",
+      input: "еГОР юЛИЯ",
+      output: "Егор Юлия",
+    },
+    {
+      type: "toggle",
+      input: "сОНЯ дМИТРИЙ",
+      output: "Соня Дмитрий",
+    },
+    {
+      type: "title",
+      input: "иван",
+      output: "Иван",
+    },
+    {
+      type: "title",
+      input: "маруся",
+      output: "Маруся",
+    },
+    {
+      type: "title",
+      input: "марья",
+      output: "Марья",
+    },
+    {
+      type: "title",
+      input: "анна",
+      output: "Анна",
+    },
+    {
+      type: "title",
+      input: "сергей",
+      output: "Сергей",
+    },
+    {
+      type: "title",
+      input: "алексей",
+      output: "Алексей",
+    },
+    {
+      type: "title",
+      input: "екатерина",
+      output: "Екатерина",
+    },
+    {
+      type: "title",
+      input: "дмитрий",
+      output: "Дмитрий",
+    },
+    {
+      type: "title",
+      input: "олег",
+      output: "Олег",
+    },
+    {
+      type: "title",
+      input: "максим",
+      output: "Максим",
+    },
+    {
+      type: "title",
+      input: "юлия",
+      output: "Юлия",
+    },
+    {
+      type: "title",
+      input: "соня",
+      output: "Соня",
+    },
+    {
+      type: "title",
+      input: "егор",
+      output: "Егор",
+    },
+    {
+      type: "title",
+      input: "вова",
+      output: "Вова",
+    },
+    {
+      type: "title",
+      input: "санкт-петербург",
+      output: "Санкт-Петербург",
+    },
+    {
+      type: "title",
+      input: "нижний новгород",
+      output: "Нижний Новгород",
+    },
+    {
+      type: "title",
+      input: "великий новгород",
+      output: "Великий Новгород",
+    },
+    {
+      type: "title",
+      input: "jestei pool",
+      output: "Jestei Pool",
+    },
+    {
+      type: "title",
+      input: "awful cases",
+      output: "Awful Cases",
+    },
+    {
+      type: "lint",
+      input: "hello...",
+      output: "hello…",
+    },
+    {
+      type: "lint",
+      input: "hello,world",
+      output: "hello, world",
+    },
+    {
+      type: "lint",
+      input: "кое - кто",
+      output: "кое‑кто",
+    },
+    {
+      type: "sentence",
+      input: "hello. world",
+      output: "Hello. World",
+    },
+    {
+      type: "sentence",
+      input: "hello! world",
+      output: "Hello! World",
+    },
+    {
+      type: "sentence",
+      input: "hello? world",
+      output: "Hello? World",
+    },
+  ],
+});
+
+export const COPY = Object.freeze({
+  en: {
+    actionTitles: {
+      upper: "uppercase",
+      lower: "lowercase",
+      toggle: "toggle case",
+      title: "title case",
+      lint: "clean typography",
+      sentence: "sentence typography",
+    },
+    phaseLabels: {
+      tutorial: "tutorial",
+      practice: "practice",
+      exam: "exam",
+    },
+    wrongAction: "wrong action",
+    mistakes: "mistakes",
+    correct: "correct",
+    score: "score",
+    streak: "streak",
+    complete: "complete",
+    fell: "fell",
+    restart: "enter - restart",
+    best: "best",
+  },
+  ru: {
+    actionTitles: {
+      upper: "верхний регистр",
+      lower: "нижний регистр",
+      toggle: "инверсия регистра",
+      title: "регистр заголовка",
+      lint: "очистить типографику",
+      sentence: "типографика предложений",
+    },
+    phaseLabels: {
+      tutorial: "обучение",
+      practice: "практика",
+      exam: "экзамен",
+    },
+    wrongAction: "неверное действие",
+    mistakes: "ошибки",
+    correct: "верно",
+    score: "счёт",
+    streak: "серия",
+    complete: "готово",
+    fell: "упал",
+    restart: "enter - заново",
+    best: "лучший",
+  },
+});
