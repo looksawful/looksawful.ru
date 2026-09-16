@@ -42,6 +42,11 @@ try {
     if (node.naturalWidth <= 0 || node.naturalHeight <= 0) throw new Error("Awful image has no decoded pixels");
   });
 
+  const bubble = pet.locator("[data-portfolio-pet-bubble]");
+  assert.equal(await bubble.count(), 1, "published Awful must expose one compact chat bubble");
+  await bubble.waitFor({ state: "visible", timeout: 2_000 });
+  assert.equal((await bubble.textContent())?.trim(), "привет. могу помочь", "Awful bubble must use the approved compact invitation");
+
   const dismiss = page.locator("[data-portfolio-pet-dismiss]");
   const restore = page.locator("[data-portfolio-pet-restore]");
   assert.equal(await dismiss.count(), 1, "Awful must expose one explicit dismiss control");
@@ -52,6 +57,7 @@ try {
   await restore.click();
   await pet.waitFor({ state: "visible", timeout: 2_000 });
   await dismiss.waitFor({ state: "visible", timeout: 2_000 });
+  await bubble.waitFor({ state: "visible", timeout: 2_000 });
 
   const before = await pet.boundingBox();
   assert.ok(before && before.width > 100 && before.height > 100, "Awful must occupy a visible screen area");
@@ -102,6 +108,7 @@ try {
   assert.equal(await hub.count(), 1, "published preview must mount exactly one Contact Hub");
   await hub.waitFor({ state: "visible", timeout: 3_000 });
   assert.equal(await hub.getAttribute("data-mode"), "ai", "Awful must open AI mode");
+  assert.equal(await bubble.isVisible(), false, "Awful bubble must disappear while Contact Hub is open");
 
   const composer = page.getByLabel("\u0421\u043e\u043e\u0431\u0449\u0435\u043d\u0438\u0435 AI");
   assert.equal(await composer.getAttribute("placeholder"), "спросить", "AI composer must use a neutral follow-up prompt without naming Awful");
@@ -124,6 +131,14 @@ try {
   assert.match(answerText, /Figma|Blender|TypeScript|Photoshop|ComfyUI|JavaScript/i, "published preview must return a grounded Yandex answer");
   assert.doesNotMatch(answerText, /\u043d\u0435\u0442 \u0441\u043e\u0433\u043b\u0430\u0441\u043e\u0432\u0430\u043d\u043d\u044b\u0445 \u0434\u0430\u043d\u043d\u044b\u0445|\u0447\u0430\u0442 \u0441\u0435\u0439\u0447\u0430\u0441 \u043d\u0435\u0434\u043e\u0441\u0442\u0443\u043f\u0435\u043d/i);
   assert.equal(await composer.inputValue(), "", "composer must clear after sending");
+
+  const directContact = page.locator("[data-contact-hub-direct-contact]");
+  await directContact.waitFor({ state: "visible", timeout: 3_000 });
+  assert.equal((await directContact.textContent())?.trim(), "написать напрямую", "conversation must expose one contextual direct-contact handoff");
+  await directContact.click();
+  await page.waitForFunction(() => document.querySelector("[data-contact-hub]")?.getAttribute("data-mode") === "form");
+  assert.equal(await hub.getAttribute("data-mode"), "form", "direct handoff must switch the shared Hub to form mode");
+  await page.locator("[data-contact-hub-form]").waitFor({ state: "visible", timeout: 2_000 });
 
   await mkdir("artifacts", { recursive: true });
   await page.screenshot({ path: "artifacts/awful-preview-desktop.png", fullPage: false });
