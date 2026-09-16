@@ -34,19 +34,25 @@ test("static analytics injects Cloudflare, consent-gated Yandex and conversion g
   assert.doesNotMatch(html, /<noscript/i, "consent-gated analytics must not be bypassed by a noscript pixel");
 });
 
-test("static CV analytics adds semantic engagement, project-open and completion goals", () => {
+test("static CV analytics counts visible engagement and keeps project_open aggregate", () => {
   const html = injectStaticSiteAnalytics(source, { yandexCounterId: 112065623 });
   assert.match(html, /cv_engaged/);
   assert.match(html, /cv_project_open/);
   assert.match(html, /cv_end/);
-  assert.match(html, /setTimeout\([^)]*30000/);
+  assert.match(html, /visibilitychange/);
+  assert.doesNotMatch(html, /setTimeout\(markEngaged,30000/);
+  assert.match(
+    html,
+    /reach\(ym,"project_open",action_info\)[\s\S]*reach\(ym,"cv_project_open",action_info\)/,
+    "CV project clicks must preserve the aggregate project_open goal and also emit cv_project_open",
+  );
   assert.doesNotMatch(html, /scroll_25|scroll_50|scroll_75/);
 });
 
-test("static analytics auto-starts Yandex only for RU sessions and keeps an external geo fallback", () => {
+test("static analytics auto-starts Yandex only for RU sessions and uses the external geo resolver", () => {
   const html = injectStaticSiteAnalytics(source, { yandexCounterId: 112065623 });
   assert.match(html, /looksawful:analytics-region/);
-  assert.match(html, /\/cdn-cgi\/trace/);
+  assert.doesNotMatch(html, /\/cdn-cgi\/trace/);
   assert.match(html, /https:\/\/api\.country\.is\//);
   assert.match(html, /country===\"RU\"/);
 });
