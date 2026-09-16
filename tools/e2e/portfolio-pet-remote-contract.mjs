@@ -29,7 +29,7 @@ try {
   await page.addInitScript(() => {
     try { localStorage.setItem("looksawful:analytics-internal", "1"); } catch {}
   });
-  await page.goto(`${origin}/?pet=1&sha=${expectedSha}`, { waitUntil: "networkidle" });
+  await page.goto(`${origin}/?pet=1&sha=${expectedSha}`, { waitUntil: "domcontentloaded" });
 
   const pet = page.locator("[data-portfolio-pet-launcher]");
   assert.equal(await pet.count(), 1, "published preview must mount exactly one Awful launcher");
