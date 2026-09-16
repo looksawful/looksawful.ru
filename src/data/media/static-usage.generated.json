@@ -1021,6 +1021,46 @@
       }
     },
     {
+      "assetId": "device-ipad-pro-11-m5-v6-model",
+      "usage": {
+        "kind": "direct-placement",
+        "ownerId": "device-ipad-pro-11-m5-v6-model-use-01",
+        "sourcePath": "src/data/media/entries",
+        "fieldPath": "device-ipad-pro-11-m5-v6-model-use-01",
+        "blockingDelete": true
+      }
+    },
+    {
+      "assetId": "device-ipad-pro-13-m5-v6-model",
+      "usage": {
+        "kind": "direct-placement",
+        "ownerId": "device-ipad-pro-13-m5-v6-model-use-01",
+        "sourcePath": "src/data/media/entries",
+        "fieldPath": "device-ipad-pro-13-m5-v6-model-use-01",
+        "blockingDelete": true
+      }
+    },
+    {
+      "assetId": "device-iphone-17-v29-model",
+      "usage": {
+        "kind": "direct-placement",
+        "ownerId": "device-iphone-17-v29-model-use-01",
+        "sourcePath": "src/data/media/entries",
+        "fieldPath": "device-iphone-17-v29-model-use-01",
+        "blockingDelete": true
+      }
+    },
+    {
+      "assetId": "device-macbook-pro-14-m5-v1-model",
+      "usage": {
+        "kind": "direct-placement",
+        "ownerId": "device-macbook-pro-14-m5-v1-model-use-01",
+        "sourcePath": "src/data/media/entries",
+        "fieldPath": "device-macbook-pro-14-m5-v1-model-use-01",
+        "blockingDelete": true
+      }
+    },
+    {
       "assetId": "esmi-12-source-01-1x1",
       "usage": {
         "kind": "direct-placement",
