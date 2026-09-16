@@ -1,0 +1,24 @@
+{
+  "id": "useful-moves-awful-cover",
+  "title": "Moves Awful",
+  "alt": "Анимированная секция Moves Awful",
+  "description": "",
+  "date": "2025",
+  "workAreaIds": [
+    "motion"
+  ],
+  "projectTypeIds": [
+    "motion-project",
+    "video-project"
+  ],
+  "deliverableIds": [
+    "cover",
+    "screen-mockup"
+  ],
+  "tags": [
+    "моушен"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

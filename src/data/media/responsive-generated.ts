@@ -6554,5 +6554,77 @@ export const responsiveMediaVariants = {
       "width": 480,
       "height": 480
     }
+  ],
+  "useful-awful-cases-cover-poster": [
+    {
+      "src": "/media/generated/responsive/projects/useful/awful-cases-cover@480.webp",
+      "width": 480,
+      "height": 600
+    },
+    {
+      "src": "/media/generated/responsive/projects/useful/awful-cases-cover@768.webp",
+      "width": 768,
+      "height": 960
+    }
+  ],
+  "useful-moves-awful-cover-poster": [
+    {
+      "src": "/media/generated/responsive/projects/useful/moves-awful-cover@480.webp",
+      "width": 480,
+      "height": 600
+    },
+    {
+      "src": "/media/generated/responsive/projects/useful/moves-awful-cover@768.webp",
+      "width": 768,
+      "height": 960
+    }
+  ],
+  "useful-berserk-timer-cover": [
+    {
+      "src": "/media/generated/responsive/projects/useful/berserk-timer-cover@480.webp",
+      "width": 480,
+      "height": 600
+    },
+    {
+      "src": "/media/generated/responsive/projects/useful/berserk-timer-cover@768.webp",
+      "width": 768,
+      "height": 960
+    }
+  ],
+  "useful-awful-studio-cover": [
+    {
+      "src": "/media/generated/responsive/projects/useful/awful-studio-cover@480.webp",
+      "width": 480,
+      "height": 600
+    },
+    {
+      "src": "/media/generated/responsive/projects/useful/awful-studio-cover@768.webp",
+      "width": 768,
+      "height": 960
+    }
+  ],
+  "useful-awful-mockups-cover": [
+    {
+      "src": "/media/generated/responsive/projects/useful/awful-mockups-cover@480.webp",
+      "width": 480,
+      "height": 600
+    },
+    {
+      "src": "/media/generated/responsive/projects/useful/awful-mockups-cover@768.webp",
+      "width": 768,
+      "height": 960
+    }
+  ],
+  "useful-awful-3d-mockups-cover": [
+    {
+      "src": "/media/generated/responsive/projects/useful/awful-3d-mockups-cover@480.webp",
+      "width": 480,
+      "height": 600
+    },
+    {
+      "src": "/media/generated/responsive/projects/useful/awful-3d-mockups-cover@768.webp",
+      "width": 768,
+      "height": 960
+    }
   ]
 } as const;
