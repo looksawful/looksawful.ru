@@ -20,6 +20,9 @@ interface MountSiteAnalyticsConsentOptions {
 }
 
 const COUNTRY_ENDPOINTS = ["/cdn-cgi/trace", "https://api.country.is/"] as const;
+export const SITE_ANALYTICS_CONSENT_COPY = "Этот сайт использует cookies.";
+export const SITE_ANALYTICS_PRIVACY_HREF = "/privacy/";
+
 const COUNTRY_LOOKUP_TIMEOUT_MS = 1_500;
 const noop = () => {};
 
@@ -105,10 +108,10 @@ export function mountSiteAnalyticsConsent({
 
     const copy = root.createElement("p");
     copy.className = "site-analytics-consent__copy";
-    copy.append("Этот сайт использует cookies. ");
+    copy.append(`${SITE_ANALYTICS_CONSENT_COPY} `);
     const privacy = root.createElement("a");
     privacy.className = "site-analytics-consent__privacy";
-    privacy.href = "/privacy/";
+    privacy.href = SITE_ANALYTICS_PRIVACY_HREF;
     privacy.textContent = "Подробнее";
     copy.append(privacy);
 

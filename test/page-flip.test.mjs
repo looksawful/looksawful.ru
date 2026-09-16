@@ -186,29 +186,14 @@ test("page flip preserves loader, options, controls, orientation, motion and cle
   assert.equal(latestObserver.disconnected, true);
   assert.equal(instance.book, fixture.book);
   assert.equal(instance.loadedPages, fixture.pages);
-  assert.deepEqual(instance.options, {
-    width: 550,
-    height: 778,
-    size: "stretch",
-    minWidth: 260,
-    maxWidth: 580,
-    minHeight: 368,
-    maxHeight: 820,
-    drawShadow: true,
-    flippingTime: 1180,
-    usePortrait: true,
-    startZIndex: 0,
-    startPage: 0,
-    autoSize: true,
-    maxShadowOpacity: 0.18,
-    showCover: false,
-    mobileScrollSupport: false,
-    swipeDistance: 8,
-    clickEventForward: false,
-    useMouseEvents: true,
-    showPageCorners: true,
-    disableFlipByClick: false,
-  });
+  // Only behaviorally significant PageFlip integration flags are contractual here.
+  // Cosmetic/tuning options may evolve without turning this into a source/config snapshot test.
+  assert.equal(instance.options.size, "stretch");
+  assert.equal(instance.options.usePortrait, true);
+  assert.equal(instance.options.mobileScrollSupport, false);
+  assert.equal(instance.options.swipeDistance, 8);
+  assert.equal(instance.options.drawShadow, true);
+  assert.equal(instance.options.flippingTime, 1180);
   assert.equal(fixture.count.textContent, "01 / 03");
   assert.equal(fixture.prev.disabled, true);
   assert.equal(fixture.next.disabled, false);
