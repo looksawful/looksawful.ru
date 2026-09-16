@@ -16,7 +16,8 @@
   letter-spacing: var(--ls-copy);
   text-align: start;
   white-space: normal;
-  pointer-events: none;
+  pointer-events: auto;
+  cursor: pointer;
   transform: translateX(-50%);
   transform-origin: 50% 100%;
   transition: opacity 140ms ease, transform 140ms ease;
@@ -44,6 +45,7 @@ html.contact-hub-open .portfolio-pet__bubble,
 .portfolio-pet[data-dragging="true"] .portfolio-pet__bubble {
   opacity: 0;
   visibility: hidden;
+  pointer-events: none;
 }
 
 @media (width <= 42.5rem) {
