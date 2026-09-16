@@ -86,3 +86,16 @@ Repository implementation and account activation are deliberately separate. Afte
 The deploy verification also checks the generated page-usage and static-usage snapshots for exact freshness. These snapshots let delete dependency checks use the same expected Git commit for page media, direct/video-poster placements and code-owned pet-cover bases.
 
 No account secret, custom-domain activation or real authoring mutation is required for PR dry-run verification.
+
+## Production status (2026-09-16)
+
+The private production origin is `https://media.looksawful.ru`.
+
+Fresh unauthenticated smoke verification records `/login` as `200`, while `/tools/media-desk/` and `/api/status` remain protected with `401`. The login response carries `Cache-Control: private, no-store`, `X-Robots-Tag: noindex, nofollow, noarchive` and the private Desk CSP.
+
+The iOS/WebKit login regression is closed: a same-origin login `POST` with a valid `Referer` and no `Origin` reaches form validation instead of returning `Origin rejected`. An empty-password smoke returns `400` and the password prompt, as expected. The runtime fix is tracked by PR #914; Cloudflare deploy credential wiring by PR #918; writer revision/broad-validation alignment by PR #950.
+
+Fast CI verifies both page-usage and static-usage snapshots before the fast test suite. This prevents media-entry or Useful-card changes from leaving deterministic delete-dependency snapshots stale on `dev`.
+
+The only intentionally manual acceptance item is authenticated production Safari/iPhone smoke after password rotation. It is tracked in issue #974 because CI and repository tooling must not receive the plaintext Media Desk password or session cookie.
+
