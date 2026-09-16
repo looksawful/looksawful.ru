@@ -42,7 +42,7 @@ Git LFS is intentionally not used for the GitHub Pages media contract. Do not ad
 
 The current Pages CMS `Проверить сайт` actions dispatch `.github/workflows/ci-fast.yml` at explicit `ref: dev`. Fast CI performs the repository-growth guard and existing media-state cache/recovery guard, then typecheck, fast tests and `build:site`.
 
-Important: this verifies `dev`. It does **not** prove an editorial batch that still exists only on `content/text-cms`. #451 owns the missing safe branch-specific pre-integration verification/reconciliation contract.
+Important: this verifies `dev`. It does **not** prove an editorial batch that still exists only on `content/text-cms`. The current `tools/cms-authoring-topology.mjs` helper verifies authoring provenance, READY state, scope and divergence locally; it is not a substitute for branch-specific CI. #451 remains open for residual end-to-end authoring/integration acceptance and closeout.
 
 ## CMS / editorial branch behavior
 
@@ -65,7 +65,7 @@ The current mutation workflow is `.github/workflows/cms-media.yml` (`CMS media`)
 
 It can normalize catalog metadata and generated media state, but persistence is guarded to explicit allowed paths. Before writing back it confirms `origin/dev` still matches the source SHA and pushes non-force to `dev`. Verification workflows themselves should not gain arbitrary mutation behavior.
 
-Because the permanent editorial branch is `content/text-cms`, this existing dev-only mutation path must not be mistaken for branch-specific authoring validation. #451 owns the reconciliation/integration boundary; any future branch-specific media tooling must preserve the same generated ownership and fail-closed write guards.
+Because the permanent editorial branch is `content/text-cms`, this existing dev-only mutation path must not be mistaken for branch-specific authoring validation. The current topology helper provides provenance/READY/scope/divergence checks without mutating history; #451 remains open for any residual end-to-end reconciliation/integration enforcement not already covered by the helper and operator contract.
 
 CMS media checks out the source SHA shallowly and fetches only the exact previous push commit needed for diffing and cache comparison. It does not require complete repository history.
 
@@ -73,11 +73,23 @@ Source masters remain preserved; generated technical metadata and derivatives re
 
 ## Local Content / Media Desk
 
-`npm run desk` is currently a **write-capable** operator mode, not a read-only browser. Its launcher enables `CONTENT_DESK_WRITE=1` / `VITE_CONTENT_DESK_WRITE=1`, and startup runs `media:ensure`, which may synchronize derived media state before the UI opens.
+Ordinary inspection is read-only:
 
-The current local HTTP contract is documented in `docs/content-media-desk-api.md`.
+```text
+npm run desk
+```
 
-#451/#452/#453 own safer operation: permanent `content/text-cms` provenance and explicit ready gate, read-only-by-default launch, guarded write activation, revision-aware conflict handling and atomic persistence. Do not describe those protections as executable current behavior until code/tests prove them.
+The default launcher does not run `media:ensure`, sets Desk write flags to `0`, binds Vite to `127.0.0.1`, and does not activate the write-capable mode.
+
+Explicit local write mode is separate:
+
+```text
+npm run desk:write
+```
+
+The guarded launcher accepts write mode only on the exact `content/text-cms` branch, outside CI/GitHub Actions and without a host override. Direct `dev`, `prod`, feature/fix branches and non-loopback host overrides fail closed before the write-capable Desk launches. The operator UI exposes READ ONLY/WRITE mode plus branch, HEAD, dirty state and divergence relative to `dev`.
+
+The current local HTTP/revision/transaction contract is documented in `docs/content-media-desk-api.md`. Revision-aware `expectedRevision` conflict handling and rollback-backed bulk persistence are executable CURRENT behavior. Issues #451/#452/#453 remain open owners of residual acceptance/closeout work; their open state must not be read as evidence that these already-landed safeguards are absent.
 
 ## CMS publication
 
