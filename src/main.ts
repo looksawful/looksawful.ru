@@ -2,6 +2,7 @@ import "./styles/site-analytics-consent.css";
 import "./styles/portfolio-pet.css";
 import "./styles/portfolio-pet-bubble.css";
 import "./styles/contact-hub.css";
+import "./styles/contact-hub-minimal.css";
 
 import { createMediaRuntimeHealth } from "./components/media-runtime-health.ts";
 import { hydrateDeferredVideoSource } from "./components/deferred-video-source.ts";
