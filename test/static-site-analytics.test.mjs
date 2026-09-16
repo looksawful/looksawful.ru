@@ -53,10 +53,10 @@ test("static CV work links emit aggregate and CV-specific project goals", () => 
   assert.match(html, /for\(const goal of goals\)reach\(ym,goal,action_info\)/);
 });
 
-test("static analytics auto-starts Yandex only for RU sessions and keeps an external geo fallback", () => {
+test("static analytics auto-starts Yandex only for RU sessions and uses the external geo resolver", () => {
   const html = injectStaticSiteAnalytics(source, { yandexCounterId: 112065623 });
   assert.match(html, /looksawful:analytics-region/);
-  assert.match(html, /\/cdn-cgi\/trace/);
+  assert.doesNotMatch(html, /\/cdn-cgi\/trace/);
   assert.match(html, /https:\/\/api\.country\.is\//);
   assert.match(html, /country===\"RU\"/);
 });
