@@ -29,51 +29,7 @@ Nightly Quality при этом уже выполняет `test:core`, а `test:
 
 Fast является opt-in allowlist в `tools/ci/run-tests.mjs`. Новый тест не попадает сюда автоматически.
 
-Текущий Fast содержит 43 дешёвых долгоживущих contract:
-
-- `test/agent-verification-workflow.test.mjs`
-- `test/awful-cases-cms-editorial.test.mjs`
-- `test/ci-fast-concurrency.test.mjs`
-- `test/code-block-contract.test.mjs`
-- `test/cms-publication-scope.test.mjs`
-- `test/cms-publication-topology.test.mjs`
-- `test/cms-publication-workflow.test.mjs`
-- `test/css-media-group-foundation.test.mjs`
-- `test/css-media-grid-compact.test.mjs`
-- `test/css-media-strip-justify-contract.test.mjs`
-- `test/css-media-sequence-contract.test.mjs`
-- `test/css-media-strip-height-contract.test.mjs`
-- `test/css-media-strip-contract.test.mjs`
-- `test/css-media-editorial-contract.test.mjs`
-- `test/css-media-masonry-contract.test.mjs`
-- `test/css-media-bento-contract.test.mjs`
-- `test/css-media-fade-input-contract.test.mjs`
-- `test/css-media-infinite-reel-contract.test.mjs`
-- `test/css-media-group-base-contract.test.mjs`
-- `test/css-before-after-contract.test.mjs`
-- `test/css-tooling-check.test.mjs`
-- `test/cv-principles-lowercase.test.mjs`
-- `test/domain-catalog-identity.test.mjs`
-- `test/domain-taxonomy-references.test.mjs`
-- `test/editorial-content-boundary.test.mjs`
-- `test/editorial-copy-optional.test.mjs`
-- `test/jestei-event-migration.test.mjs`
-- `test/lighthouse-ci-config.test.mjs`
-- `test/media-tools/affected-media-ci.test.mjs`
-- `test/media-tools/media-cache-fingerprint-scope.test.mjs`
-- `test/pages-cms-yaml-syntax.test.mjs`
-- `test/pr-preview-media-packaging.test.mjs`
-- `test/pr-preview-workflow.test.mjs`
-- `test/project-card-hover.test.mjs`
-- `test/repository-growth-policy.test.mjs`
-- `test/search-presentation.test.mjs`
-- `test/security-tooling.test.mjs`
-- `test/site-analytics.test.mjs`
-- `test/site-composition.test.mjs`
-- `test/site-pages.test.mjs`
-- `test/static-site-analytics.test.mjs`
-- `test/stylelint-tooling.test.mjs`
-- `test/styx-cms-copy.test.mjs`
+Канонический Fast allowlist — `fastTests` в `tools/ci/run-tests.mjs`; этот документ намеренно не дублирует полный список файлов, потому что такой список немедленно становится вторым устаревающим реестром. Аудированный baseline `dev` на 2026-09-15 содержал 89 Fast contracts; текущее число определяется только executable allowlist.
 
 ### `npm run test:unit`
 
