@@ -1,8 +1,5 @@
 import { escapeHtml } from "../../utils/html.ts";
-import {
-  getBreadcrumbItems,
-  getPrimaryNavigationItems,
-} from "../navigation/model.ts";
+import { getBreadcrumbItems, getPrimaryNavigationItems } from "../navigation/model.ts";
 import type { SitePageDefinition } from "../pages/types.ts";
 
 function renderBreadcrumbs(page: SitePageDefinition): string {
@@ -65,13 +62,27 @@ function renderMenu(page: SitePageDefinition): string {
   </figure>`;
 }
 
+function renderSurfaceToggle(page: SitePageDefinition): string {
+  const dark = page.surface === "dark";
+  const label = dark ? "Включить светлый фон" : "Включить тёмный фон";
+  return `<button class="site-nav__surface-toggle" type="button" aria-label="${label}" aria-pressed="${String(dark)}" data-surface-toggle>
+    <svg class="site-nav__surface-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+      <circle cx="12" cy="12" r="10" />
+      <path d="M12 18a6 6 0 0 0 0-12v12z" />
+    </svg>
+  </button>`;
+}
+
 export function renderSiteNavigation(page: SitePageDefinition): string {
   return `<header class="site-nav" data-site-navigation>
   <div class="site-nav__bar">
     ${renderBreadcrumbs(page)}
-    <button class="site-nav__toggle" type="button" aria-label="Открыть меню" aria-expanded="false" aria-controls="site-menu" data-site-menu-toggle>
-      ${renderAwfulface()}
-    </button>
+    <div class="site-nav__actions">
+      ${renderSurfaceToggle(page)}
+      <button class="site-nav__toggle" type="button" aria-label="Открыть меню" aria-expanded="false" aria-controls="site-menu" data-site-menu-toggle>
+        ${renderAwfulface()}
+      </button>
+    </div>
   </div>
   ${renderMenu(page)}
 </header>`;

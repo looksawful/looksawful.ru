@@ -3,10 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 
 import { navigationLabels } from "../src/data/navigation.ts";
-import {
-  getBreadcrumbItems,
-  getPrimaryNavigationItems,
-} from "../src/site/navigation/model.ts";
+import { getBreadcrumbItems, getPrimaryNavigationItems } from "../src/site/navigation/model.ts";
 import { sitePages } from "../src/site/pages/manifest.ts";
 import { renderHomepagePage } from "../src/site/renderers/home/home-page.ts";
 import { renderSiteNavigation } from "../src/site/shell/navigation.ts";
@@ -60,7 +57,9 @@ test("primary navigation derives hrefs from SitePage records and exposes a previ
   assert.equal(menu.find(({ id }) => id === "home")?.href, "/portfolio-fixture/");
   assert.equal(menu.find(({ id }) => id === "cv")?.href, "/resume-fixture/");
   assert.ok(
-    menu.every(({ previewSrc }) => typeof previewSrc === "string" && previewSrc.startsWith("/media/")),
+    menu.every(
+      ({ previewSrc }) => typeof previewSrc === "string" && previewSrc.startsWith("/media/"),
+    ),
   );
 
   assert.deepEqual(
@@ -72,6 +71,10 @@ test("primary navigation derives hrefs from SitePage records and exposes a previ
 test("navigation exposes one accessible Awfulface menu control and one shared preview", () => {
   const html = renderSiteNavigation(page("case:styx"));
 
+  assert.match(
+    html,
+    /<button class="site-nav__surface-toggle"[^>]+aria-label="[^"]+"[^>]+aria-pressed="true"[^>]+data-surface-toggle>/,
+  );
   assert.match(html, /<button[^>]+data-site-menu-toggle/);
   assert.match(html, /aria-expanded="false"/);
   assert.match(html, /aria-controls="site-menu"/);
@@ -93,9 +96,7 @@ test("navigation exposes one accessible Awfulface menu control and one shared pr
 test("current public destination is marked and breadcrumb is shallow", () => {
   const html = renderSiteNavigation(page("collection:music-photography"));
   const homeLabel = escapeRegExp(escapeHtml(requireLabel("home")));
-  const shootingsLabel = escapeRegExp(
-    escapeHtml(requireLabel("collection:music-photography")),
-  );
+  const shootingsLabel = escapeRegExp(escapeHtml(requireLabel("collection:music-photography")));
 
   assert.match(
     html,
@@ -103,10 +104,7 @@ test("current public destination is marked and breadcrumb is shallow", () => {
   );
   assert.match(html, /aria-label="Хлебные крошки"/);
   assert.match(html, new RegExp(`href="/">${homeLabel}<\\/a>`));
-  assert.match(
-    html,
-    new RegExp(`aria-current="page"[^>]*>${shootingsLabel}<\\/span>`),
-  );
+  assert.match(html, new RegExp(`aria-current="page"[^>]*>${shootingsLabel}<\\/span>`));
   assert.doesNotMatch(html, />Work<\/a>/);
 });
 

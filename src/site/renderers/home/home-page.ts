@@ -1,8 +1,5 @@
 import { renderJesteiTrackFilter } from "../../../components/specialized/index.ts";
-import {
-  entityPageContentRegistry,
-  getEntityPageContent,
-} from "../../../content/pages/index.ts";
+import { entityPageContentRegistry, getEntityPageContent } from "../../../content/pages/index.ts";
 import type { Section } from "../../../content/contracts/sections.ts";
 import { escapeHtml } from "../../../utils/html.ts";
 import { getEntityShellPresentation } from "../../pages/entity-presentation.ts";
@@ -15,17 +12,17 @@ import { getPageByPath } from "../../pages/manifest.ts";
 import { homeSearchPresentation } from "../../pages/search-presentation.ts";
 import type { EntityPageId } from "../../pages/types.ts";
 import { replaceRequiredSlot } from "../../rendering/html.ts";
-import {
-  renderHomeStructuredData,
-  replacePageMetadata,
-} from "../../shell/metadata.ts";
+import { renderHomeStructuredData, replacePageMetadata } from "../../shell/metadata.ts";
 import { renderSiteNavigation } from "../../shell/navigation.ts";
+import { applyPageBodyAttributes } from "../../shell/page-shell.ts";
 import { renderEntityShell } from "../entity/entity-shell.ts";
 import { renderHomepage } from "./home-slots.ts";
 
-const homeEntitiesMount = '<div data-home-entities></div>';
-const legacyHomepageNavigation = /<nav\b(?=[^>]*\bdata-site-navigation\b)(?=[^>]*\bhidden\b)[^>]*>[\s\S]*?<\/nav>/g;
-const homeStructuredData = /<script\b(?=[^>]*\btype=["']application\/ld\+json["'])[^>]*>[\s\S]*?<\/script>/i;
+const homeEntitiesMount = "<div data-home-entities></div>";
+const legacyHomepageNavigation =
+  /<nav\b(?=[^>]*\bdata-site-navigation\b)(?=[^>]*\bhidden\b)[^>]*>[\s\S]*?<\/nav>/g;
+const homeStructuredData =
+  /<script\b(?=[^>]*\btype=["']application\/ld\+json["'])[^>]*>[\s\S]*?<\/script>/i;
 
 function getHomePage() {
   const page = getPageByPath("/");
@@ -47,7 +44,9 @@ function selectPreviewSection(
   }
   const section = matches[0];
   if (section.type !== "content" && section.type !== "project") {
-    throw new Error(`Homepage preview section ${config.id} cannot select blocks from ${section.type}`);
+    throw new Error(
+      `Homepage preview section ${config.id} cannot select blocks from ${section.type}`,
+    );
   }
   const blocks = config.blockIndexes.map((index) => {
     const block = section.blocks[index];
@@ -110,10 +109,7 @@ export function renderCompactHomepageEntity(entry: HomepageEntry): string {
     },
   });
 
-  return rendered.replace(
-    /<\/article>\s*$/,
-    `${renderPreviewCallout(entry)}</article>`,
-  );
+  return rendered.replace(/<\/article>\s*$/, `${renderPreviewCallout(entry)}</article>`);
 }
 
 function renderCanonicalHomepageEntity(entry: HomepageEntry): string {
@@ -183,11 +179,9 @@ export function renderHomepagePage(html: string): string {
     );
   }
 
-  const withNavigation = rendered.replace(
-    legacyHomepageNavigation,
-    renderSiteNavigation(page),
-  );
-  const withMetadata = replacePageMetadata(withNavigation, {
+  const withNavigation = rendered.replace(legacyHomepageNavigation, renderSiteNavigation(page));
+  const withBodyAttributes = applyPageBodyAttributes(withNavigation, page);
+  const withMetadata = replacePageMetadata(withBodyAttributes, {
     page,
     ...homeSearchPresentation,
   });

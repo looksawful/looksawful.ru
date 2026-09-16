@@ -27,7 +27,10 @@ test("public page metadata uses the production canonical origin", () => {
   assert.match(html, /<title>Jestei Pool — Иван Крушинский<\/title>/);
   assert.match(html, /name="robots" content="index,follow,max-image-preview:large"/);
   assert.match(html, /rel="canonical" href="https:\/\/www\.looksawful\.ru\/work\/jestei-pool\/"/);
-  assert.match(html, /property="og:url" content="https:\/\/www\.looksawful\.ru\/work\/jestei-pool\/"/);
+  assert.match(
+    html,
+    /property="og:url" content="https:\/\/www\.looksawful\.ru\/work\/jestei-pool\/"/,
+  );
 });
 
 test("non-indexable page metadata is noindex", () => {
@@ -51,8 +54,12 @@ test("standalone page shell exposes page identity and one main landmark", () => 
   assert.match(html, /data-page-type="case"/);
   assert.match(html, /data-page-id="case:jestei-pool"/);
   assert.match(html, /data-entity-id="jestei-pool"/);
+  assert.match(html, /data-surface-default="light"/);
+  assert.match(html, /data-surface="light"/);
   assert.equal((html.match(/<main\b/g) ?? []).length, 1);
-  assert.match(html, /<a class="site-nav__brand" href="\/">looksawful<\/a>/);
+  assert.match(html, /data-site-navigation/);
+  assert.match(html, /data-site-menu-toggle/);
+  assert.match(html, /data-surface-toggle/);
   assert.match(html, /<link href="\/src\/styles\/index\.css" rel="stylesheet">/);
   assert.match(html, /<script src="\/src\/main\.js" type="module"><\/script>/);
 });

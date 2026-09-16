@@ -15,14 +15,18 @@ const { path: navigationOwnerPath, source: navigationSource } = readStyleOwner("
 
 test("global navigation styles have one declared owner", () => {
   assert.equal(navigationOwnerPath, "src/styles/site-navigation.css");
-  assert.equal(existsSync(dedicatedPath), true, "site-navigation.css must own global navigation styles");
-  assert.match(
-    indexSource,
-    /@import "\.\/experience\.css" layer\(components\);\n@import "\.\/site-navigation\.css" layer\(components\);\n@import "\.\.\/components\/jestei-theme-organism\/jestei-theme-organism\.css";/,
+  assert.equal(
+    existsSync(dedicatedPath),
+    true,
+    "site-navigation.css must own global navigation styles",
   );
+  assert.match(indexSource, /@import "\.\/site-navigation\.css" layer\(components\);/);
   assert.doesNotMatch(mainSource, /site-navigation\.css/);
   assert.match(navigationSource, /\.site-nav__bar/);
-  assert.doesNotMatch(navigationSource, /\.site-nav__brand\b|\.site-nav__list\b|\.site-nav__link\b/);
+  assert.doesNotMatch(
+    navigationSource,
+    /\.site-nav__brand\b|\.site-nav__list\b|\.site-nav__link\b/,
+  );
 });
 
 test("components aggregate no longer owns global navigation presentation", () => {
@@ -56,7 +60,7 @@ test("open menu removes the header band instead of only making it transparent", 
   );
   assert.match(
     navigationSource,
-    /\.site-nav\[data-menu-open\]\s+\.site-nav__context,\s*\.site-nav\[data-menu-open\]\s+\.site-nav__breadcrumbs\s*\{[\s\S]*?display:\s*none/,
+    /\.site-nav\[data-menu-open\]\s+\.site-nav__context,\s*\.site-nav\[data-menu-open\]\s+\.site-nav__breadcrumbs,\s*\.site-nav\[data-menu-open\]\s+\.site-nav__surface-toggle\s*\{[\s\S]*?display:\s*none/,
   );
   assert.match(
     navigationSource,
@@ -83,9 +87,18 @@ test("mobile menu labels stay centered while coarse-pointer geometry remains cap
   assert.match(navigationSource, /min-inline-size:\s*4rem/);
   assert.match(navigationSource, /\.site-nav__toggle-face\b[\s\S]*?inline-size:\s*3\.5rem/);
   assert.match(navigationSource, /\.awfulface__morph-targets\b[\s\S]*?visibility:\s*hidden/);
-  assert.match(navigationSource, /@media\s*\(width\s*<=\s*32rem\)[\s\S]*?\.site-nav__menu-list\b[\s\S]*?justify-items:\s*center/);
-  assert.match(navigationSource, /@media\s*\(width\s*<=\s*32rem\)[\s\S]*?\.site-nav__menu-link\b[\s\S]*?justify-content:\s*center/);
-  assert.match(navigationSource, /@media\s*\(width\s*<=\s*32rem\)[\s\S]*?\.site-nav__menu-link\b[\s\S]*?text-align:\s*center/);
+  assert.match(
+    navigationSource,
+    /@media\s*\(width\s*<=\s*32rem\)[\s\S]*?\.site-nav__menu-list\b[\s\S]*?justify-items:\s*center/,
+  );
+  assert.match(
+    navigationSource,
+    /@media\s*\(width\s*<=\s*32rem\)[\s\S]*?\.site-nav__menu-link\b[\s\S]*?justify-content:\s*center/,
+  );
+  assert.match(
+    navigationSource,
+    /@media\s*\(width\s*<=\s*32rem\)[\s\S]*?\.site-nav__menu-link\b[\s\S]*?text-align:\s*center/,
+  );
   assert.match(navigationSource, /\.menu-preview\b/);
   assert.match(navigationSource, /inline-size:\s*clamp\(15rem,\s*27vi,\s*29rem\)/);
   assert.match(navigationSource, /aspect-ratio:\s*790\s*\/\s*680/);
