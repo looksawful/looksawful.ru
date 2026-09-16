@@ -2,14 +2,26 @@ import PhotoSwipeLightbox from "photoswipe/lightbox";
 import type { SlideData } from "photoswipe";
 import "photoswipe/style.css";
 
-type GallerySlide = SlideData & {
+type GalleryImageSlide = SlideData & {
   galleryItemId: string;
+  kind: "image";
   src: string;
   width: number;
   height: number;
   alt: string;
   captionHtml: string;
 };
+
+type GalleryVideoSlide = SlideData & {
+  galleryItemId: string;
+  kind: "video";
+  html: string;
+  width: number;
+  height: number;
+  captionHtml: string;
+};
+
+type GallerySlide = GalleryImageSlide | GalleryVideoSlide;
 
 export interface GalleryLightboxOptions {
   root: HTMLElement;
@@ -27,27 +39,99 @@ function activeCards(root: HTMLElement): HTMLElement[] {
   return [...root.querySelectorAll<HTMLElement>("[data-gallery-card]")];
 }
 
-function slideFor(card: HTMLElement): GallerySlide | null {
+function escapeCaption(value: string): string {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
+}
+
+function escapeAttribute(value: string): string {
+  return escapeCaption(value)
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+function galleryCredits(card: HTMLElement): readonly string[] {
+  const raw = card.dataset.galleryCredits || "[]";
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return [...new Set(parsed.filter((credit): credit is string => (
+      typeof credit === "string" && credit.trim().length > 0
+    )))];
+  } catch {
+    return [];
+  }
+}
+
+function captionHtml(card: HTMLElement, title: string): string {
+  const lines = [
+    ...(title ? [title] : []),
+    ...galleryCredits(card),
+  ];
+  return lines.map((line) => `<span>${escapeCaption(line)}</span>`).join("<br>");
+}
+
+function parsedGeometry(card: HTMLElement): { width: number; height: number } | null {
+  const width = Number.parseInt(card.dataset.galleryWidth || "", 10);
+  const height = Number.parseInt(card.dataset.galleryHeight || "", 10);
+  return Number.isFinite(width) && width > 0 && Number.isFinite(height) && height > 0
+    ? { width, height }
+    : null;
+}
+
+function imageSlideFor(card: HTMLElement): GalleryImageSlide | null {
   const image = card.querySelector<HTMLImageElement>("img");
   const id = card.dataset.galleryItemId || "";
   const src = card.dataset.gallerySrc || image?.currentSrc || image?.src || "";
-  const width = Number.parseInt(card.dataset.galleryWidth || "", 10);
-  const height = Number.parseInt(card.dataset.galleryHeight || "", 10);
-  if (!id || !src || !Number.isFinite(width) || width <= 0 || !Number.isFinite(height) || height <= 0) {
-    return null;
-  }
+  const geometry = parsedGeometry(card);
+  if (!id || !src || !geometry) return null;
 
   const title = card.dataset.galleryTitle?.trim() || "";
   return {
     galleryItemId: id,
+    kind: "image",
     src,
     msrc: image?.currentSrc || image?.src || undefined,
     srcset: image?.srcset || undefined,
-    width,
-    height,
+    width: geometry.width,
+    height: geometry.height,
     alt: card.dataset.galleryAlt || image?.alt || "",
-    captionHtml: title ? `<span>${title.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;")}</span>` : "",
+    captionHtml: captionHtml(card, title),
   };
+}
+
+function videoSlideFor(card: HTMLElement): GalleryVideoSlide | null {
+  const id = card.dataset.galleryItemId || "";
+  const src = card.dataset.gallerySrc || "";
+  const poster = card.dataset.galleryPoster || "";
+  const geometry = parsedGeometry(card);
+  if (!id || !src || !poster || !geometry) return null;
+
+  const title = card.dataset.galleryTitle?.trim() || "";
+  const alt = card.dataset.galleryAlt?.trim() || title;
+  return {
+    galleryItemId: id,
+    kind: "video",
+    type: "html",
+    html: `<div class="media-lightbox__video-slide"><video class="gallery-lightbox__video" controls playsinline preload="metadata" poster="${escapeAttribute(poster)}" aria-label="${escapeAttribute(alt)}"><source src="${escapeAttribute(src)}"></video></div>`,
+    width: geometry.width,
+    height: geometry.height,
+    captionHtml: captionHtml(card, title),
+  };
+}
+
+function slideFor(card: HTMLElement): GallerySlide | null {
+  return card.dataset.galleryKind === "video"
+    ? videoSlideFor(card)
+    : imageSlideFor(card);
+}
+
+function pauseViewerVideos(): void {
+  document
+    .querySelectorAll<HTMLVideoElement>(".gallery-lightbox .gallery-lightbox__video")
+    .forEach((video) => video.pause());
 }
 
 export function createGalleryLightbox({
@@ -58,6 +142,7 @@ export function createGalleryLightbox({
   let current: PhotoSwipeLightbox | null = null;
 
   const destroyCurrent = (): void => {
+    pauseViewerVideos();
     current?.destroy();
     current = null;
   };
@@ -113,9 +198,16 @@ export function createGalleryLightbox({
       });
     });
     lightbox.on("afterInit", syncItem);
-    lightbox.on("change", syncItem);
-    lightbox.on("close", () => onClose?.());
+    lightbox.on("change", () => {
+      pauseViewerVideos();
+      syncItem();
+    });
+    lightbox.on("close", () => {
+      pauseViewerVideos();
+      onClose?.();
+    });
     lightbox.on("destroy", () => {
+      pauseViewerVideos();
       if (current === lightbox) current = null;
     });
 
