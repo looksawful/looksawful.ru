@@ -13,6 +13,8 @@ async function loadAnalytics() {
 }
 
 test("site analytics is isolated in dedicated components and mounted from main", async () => {
+  // Intentional source-level architecture contract: importing main.ts executes browser side effects.
+  // This protects entrypoint ownership, while analytics behavior is covered through exported functions.
   const main = await readFile(mainUrl, "utf8");
   assert.equal(existsSync(componentUrl), true, "site-analytics.ts should exist");
   assert.equal(existsSync(consentUrl), true, "site-analytics-consent.ts should exist");
@@ -111,13 +113,32 @@ test("Russia auto-consent is session-scoped and explicit consent still wins", as
   assert.equal(hasSiteAnalyticsConsent(target("denied", "RU")), false, "explicit denial should win");
 });
 
-test("the Yandex event taxonomy stays small and conversion-oriented", async () => {
-  const source = await readFile(componentUrl, "utf8");
-  for (const goal of ["project_open", "cv_open", "contact_email", "contact_phone", "contact_telegram", "download"]) {
-    assert.match(source, new RegExp(`\\"${goal}\\"`));
+test("the click analytics taxonomy stays small and conversion-oriented", async () => {
+  const { classifySiteAnalyticsGoal } = await loadAnalytics();
+  const target = {
+    location: {
+      href: "https://looksawful.ru/",
+      origin: "https://looksawful.ru",
+      pathname: "/",
+    },
+  };
+  const anchor = (href, download = false) => ({
+    getAttribute: (name) => (name === "href" ? href : null),
+    hasAttribute: (name) => name === "download" && download,
+  });
+  const cases = [
+    ["/work/jestei-pool/", false, "project_open"],
+    ["/cv/", false, "cv_open"],
+    ["mailto:i@lookawful.ru", false, "contact_email"],
+    ["tel:+70000000000", false, "contact_phone"],
+    ["https://t.me/looksawful", false, "contact_telegram"],
+    ["/docs/jestei-editorial-guide.pdf", true, "download"],
+  ];
+
+  for (const [href, download, expectedGoal] of cases) {
+    assert.equal(classifySiteAnalyticsGoal(anchor(href, download), target)?.goal, expectedGoal, href);
   }
-  assert.match(source, /startsWith\(\"\/work\/\"\)/);
-  assert.doesNotMatch(source, /clarity/i);
+  assert.equal(classifySiteAnalyticsGoal(anchor("https://example.com/"), target), null);
 });
 
 test("analytics goal classification rejects non-web URL schemes without breaking contact goals", async () => {
@@ -157,11 +178,17 @@ test("analytics goal classification rejects non-web URL schemes without breaking
   });
 });
 
-test("consent control exposes a short neutral cookie notice", async () => {
+test("consent runtime uses the external country resolver without probing unavailable Cloudflare trace", async () => {
   const source = await readFile(consentUrl, "utf8");
-  assert.match(source, /privacy\.href = "\/privacy\/"/);
-  assert.match(source, /Этот сайт использует cookies/);
-  assert.doesNotMatch(source, /Использую Яндекс Метрику/);
+  assert.match(source, /https:\/\/api\.country\.is\//);
+  assert.doesNotMatch(source, /\/cdn-cgi\/trace/);
+});
+
+test("consent control exposes a short neutral cookie notice", async () => {
+  const { SITE_ANALYTICS_CONSENT_COPY, SITE_ANALYTICS_PRIVACY_HREF } = await import(consentUrl.href);
+  assert.equal(SITE_ANALYTICS_PRIVACY_HREF, "/privacy/");
+  assert.equal(SITE_ANALYTICS_CONSENT_COPY, "Этот сайт использует cookies.");
+  assert.doesNotMatch(SITE_ANALYTICS_CONSENT_COPY, /Яндекс Метрику/);
 });
 
 test("analytics is disabled on local preview hosts used by smoke tests", async () => {
