@@ -58,18 +58,21 @@ test("static analytics injection is idempotent", () => {
   assert.equal((twice.match(/data-static-site-analytics/g) ?? []).length, 2);
 });
 
-test("production public-static CV is finalized during the Vite build instead of postbuild patching", () => {
+test("production public-static CV is finalized by the registered Vite build plugin instead of postbuild patching", async () => {
   const pluginUrl = new URL("../src/site/build/public-static-build-plugin.ts", import.meta.url);
   assert.equal(existsSync(pluginUrl), true, "public-static build plugin must own production CV finalization");
 
-  const plugin = read("src/site/build/public-static-build-plugin.ts");
-  const vite = read("vite.config.ts");
+  const { createPublicStaticBuildPlugin } = await import(pluginUrl.href);
+  const vite = (await import(`../vite.config.ts?test=${Date.now()}`)).default;
+  const plugin = createPublicStaticBuildPlugin();
+  const registeredPlugins = vite.plugins ?? [];
   const pkg = JSON.parse(read("package.json"));
 
-  assert.match(vite, /createPublicStaticBuildPlugin/);
-  assert.match(plugin, /transformCvContent/);
-  assert.match(plugin, /removeHidden:\s*true/);
-  assert.match(plugin, /injectStaticSiteAnalytics/);
+  assert.equal(plugin.name, "looksawful-public-static-build");
+  assert.equal(plugin.apply, "build");
+  assert.equal(plugin.enforce, "post");
+  assert.equal(typeof plugin.closeBundle, "function");
+  assert.equal(registeredPlugins.some((candidate) => candidate?.name === plugin.name), true);
   assert.equal(pkg.scripts?.["cv:content:apply"], undefined);
   assert.equal(pkg.scripts?.["cv:prod:prepare"], undefined);
   assert.equal(pkg.scripts?.["cv:prod:verify"], "node tools/verify-cv-production.mjs");
