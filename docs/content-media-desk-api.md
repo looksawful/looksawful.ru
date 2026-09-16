@@ -1,8 +1,8 @@
 # Local Content / Media Desk HTTP contract
 
-Status: INTEGRATION CANDIDATE / `feature/media-base-integration`.
+Status: CURRENT IMPLEMENTATION / TRANSITIONAL. Verified against current `dev` launcher/policy/server/transaction contracts; open issues may still own residual acceptance/closeout work.
 
-This document describes the revision-aware local Desk contract implemented on the current integration candidate. Branch and publication authority remains fixed and separate:
+This document describes the revision-aware local Desk contract implemented on current `dev`. Branch and publication authority remains fixed and separate:
 
 - `dev` = default working/integration branch;
 - `prod` = production/release/deploy branch;

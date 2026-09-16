@@ -31,11 +31,19 @@ content/text-cms
 
 Pages CMS/Desk must not use `prod` as an ordinary editor. Direct editorial saves to `dev` are also not the normal authoring policy; `dev` is the integration target after the explicit ready gate.
 
-### Current executable gap
+### Current executable baseline and remaining work
 
-The policy above is authoritative, but current tooling does not yet fully enforce it. GitHub #451 owns branch provenance, safe reconciliation of the long-lived `content/text-cms` branch, branch-specific validation and the explicit ready gate. #452/#453 own Desk read/write and persistence hardening.
+The current `dev` executable baseline already includes the core local Desk and authoring-topology safeguards that were originally tracked by #451/#452/#453:
 
-At the 2026-09-11 reconciliation point, `content/text-cms` exists but is materially diverged from current `dev`; do not force-reset it or silently rebase an open editing session merely to restore topology.
+- ordinary `npm run desk` is read-only and has no hidden `media:ensure` startup;
+- `npm run desk:write` is explicit, loopback-only, rejected in CI/GitHub Actions and rejected outside exact `content/text-cms`;
+- the Desk exposes mode/branch/HEAD/dirty/dev-divergence provenance;
+- `tools/cms-authoring-topology.mjs` reports branch/worktree/HEAD, fresh `dev`, dirty/ahead/behind/divergence, READY state and CMS publication scope without mutating history;
+- local Desk mutations use revision-aware conflict handling and transactional replacement/rollback semantics documented in `docs/content-media-desk-api.md`.
+
+Issues #451/#452/#453 remain open and therefore still own any residual end-to-end acceptance, Pages CMS enforcement, E2E verification and closeout work. Their open state is not evidence that the safeguards above are absent.
+
+At the 2026-09-11 reconciliation point, `content/text-cms` existed but was materially diverged from then-current `dev`; do not use that dated statement as proof of present divergence. Re-inspect fresh topology before each authoring/integration cycle. Never force-reset or silently rebase an open editing session merely to restore topology.
 
 ## 2. Responsibility boundaries
 
@@ -91,21 +99,35 @@ Source masters are preserved. Generated responsive/video files and technical met
 
 For a new editorial cycle, select `content/text-cms`. A save there does not integrate into `dev` and does not deploy production.
 
-Current Pages CMS tooling can still technically be pointed at other branches; that capability is not authorization to bypass the project branch contract. #451 must make provenance/allowed-authoring-state explicit and fail closed where practical.
+Pages CMS tooling can still technically be pointed at other branches; that capability is not authorization to bypass the project branch contract. The local Desk now fails closed outside `content/text-cms`, while Pages CMS branch-selection enforcement remains a distinct surface. #451 remains open for residual end-to-end Pages CMS/integration acceptance where executable enforcement is still incomplete.
 
 Text-only CMS paths are intentionally ignored by the automatic `ci-fast.yml` push trigger on `dev`; this matters after integration, not as proof for an unintegrated authoring branch.
 
-The separate `CMS media` workflow is currently tied to `dev` media/content paths. Until #451 reconciles branch-specific validation/tooling, media authored only on `content/text-cms` must not be assumed to have received the same normalization/verification merely because that workflow exists.
+The separate `CMS media` workflow is currently tied to `dev` media/content paths. Media authored only on `content/text-cms` must not be assumed to have received that `dev` workflow merely because it exists. Use the authoring topology guard and the relevant content/media validation on the actual candidate before integration.
 
 ## 6. Local Content / Media Desk
 
 The local Desk is a separate operator surface from Pages CMS.
 
-`npm run desk` is CURRENTLY write-capable: the launcher enables `CONTENT_DESK_WRITE=1` / `VITE_CONTENT_DESK_WRITE=1`, and startup runs `media:ensure`, which may synchronize derived media state before the UI opens. It is therefore not a side-effect-free read-only inspection command.
+Ordinary inspection:
 
-The local HTTP/write contract, limits and error behavior are documented in `docs/content-media-desk-api.md`.
+```text
+npm run desk
+```
 
-TARGET hardening is owned by #451/#452/#453: `content/text-cms` provenance and explicit ready gate, read-only-by-default launch, guarded write activation, stronger source authorization, stale-write/revision conflict handling and atomic persistence. These protections must not be claimed as executable CURRENT until code/tests verify them.
+is CURRENTLY read-only. The launcher does not run `media:ensure`, sets `CONTENT_DESK_WRITE=0` / `VITE_CONTENT_DESK_WRITE=0`, binds Vite to `127.0.0.1`, and exposes READ ONLY provenance in the operator UI.
+
+Explicit write mode:
+
+```text
+npm run desk:write
+```
+
+is accepted only on exact `content/text-cms`, outside CI/GitHub Actions and without a host override. Direct `dev`, `prod`, feature/fix branches and non-loopback host overrides fail closed before the write-capable Desk starts.
+
+The local HTTP/write contract, request limits, `expectedRevision` conflict behavior and transactional persistence guarantees are documented in `docs/content-media-desk-api.md`.
+
+Issues #451/#452/#453 remain open owners of any residual acceptance/closeout work. Do not describe the already-landed read-only default, guarded write activation or revision-aware transaction behavior as future-only TARGET state.
 
 ## 7. Проверить сайт
 
@@ -113,7 +135,7 @@ Configured `Проверить сайт` actions currently dispatch `.github/wor
 
 Therefore they validate `dev`, not an editorial batch that still exists only on `content/text-cms`. Do not use a green `dev` run as evidence for unintegrated content.
 
-#451 must define/implement the safe branch-specific pre-integration verification path. After an approved batch is integrated into `dev`, the existing Fast CI contract remains an integration/release gate.
+For a pre-integration candidate, `tools/cms-authoring-topology.mjs` currently checks exact authoring context, READY state, divergence and candidate scope without mutating history. Run the relevant content/media validation against the actual candidate as well. This does not turn the `dev`-only Fast CI dispatch into branch-specific CI; #451 remains open for residual end-to-end automation/acceptance where needed.
 
 The action does not publish production.
 
@@ -126,7 +148,7 @@ After `готово`:
 1. fetch fresh `dev` and record exact SHA;
 2. compare/reconcile `content/text-cms` deliberately; never force-reset and never hide conflicts through an automatic rebase under an open editor;
 3. verify the changed-file set is the intended editorial/media scope;
-4. run available content/media checks, plus #451 branch-specific verification when implemented;
+4. run the current authoring topology guard plus relevant content/media checks;
 5. integrate through a controlled review/merge flow into `dev`;
 6. verify exact resulting `dev` state;
 7. only then enter production release preparation.
@@ -157,7 +179,7 @@ The topology guard is `tools/cms-publication-topology.mjs`.
 - Diverged histories: allowed only when a conflict-free hypothetical merge of current `prod` into current `dev` produces exactly the current `dev` tree.
 - If `prod` contains content missing from `dev`, the merge conflicts, or safety cannot be proven: block before publication authorization.
 
-Release-only merge history is therefore acceptable; production-only content missing from `dev` is not. This production topology gate does not replace the separate `content/text-cms -> dev` authoring reconciliation contract in #451.
+Release-only merge history is therefore acceptable; production-only content missing from `dev` is not. This production topology gate does not replace the separate `content/text-cms -> dev` authoring reconciliation contract.
 
 ## 11. CMS publication classifier
 

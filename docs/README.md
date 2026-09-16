@@ -34,20 +34,30 @@ Branch vocabulary is explicit:
 | `cms-handbook.md` | CURRENT OPERATOR | Owner-facing Pages CMS behavior and publication flow. |
 | `site-operations.md` | CURRENT OPERATOR | Branches, Pages CMS publication, media and release operations. |
 | `tooling-pipeline.md` | CURRENT OPERATIONAL | Local commands, CI/CMS tooling and branch assumptions. |
-| `content-media-desk-api.md` | CURRENT IMPLEMENTATION / TRANSITIONAL | Local Desk HTTP/write contract and known safety gaps owned by #452/#453. |
+| `content-media-desk-api.md` | CURRENT IMPLEMENTATION / TRANSITIONAL | Local Desk HTTP/write contract; open issues still own residual acceptance/closeout work. |
 | `repository-structure.md` | CURRENT MAP | Repository area ownership/navigation. |
+| `gitbook-architecture.md` | CURRENT NORMATIVE / rollout in progress | Free-only GitBook projection over canonical repository docs and migration governance. |
+| `SUMMARY.md` | CURRENT NAVIGATION | GitBook Wave 1 navigation only; does not redefine authority. |
 
-## Open target work
+## Open target work and residual issue ownership
 
-GitHub Issues own independently executable work. In particular:
+GitHub Issues own independently executable work. An issue may remain open after a core implementation slice lands; the issue state alone is not proof that the implementation is absent.
+
+Current interpretation:
 
 - #249 — source/round-trip governance reconciliation;
-- #451 — isolated `content/*` authoring topology before integration to `dev`;
-- #452 — read-only-by-default local editorial tooling and guarded write mode;
-- #453 — stricter source authorization, stale-write/concurrency and atomic persistence hardening;
+- #451 — core authoring provenance/READY/scope/divergence guard is CURRENT; the issue remains owner of residual end-to-end Pages CMS/integration enforcement, acceptance and closeout;
+- #452 — read-only-by-default `npm run desk`, explicit guarded `npm run desk:write`, loopback policy and visible provenance are CURRENT; the issue remains owner of residual acceptance/E2E/closeout where applicable;
+- #453 — revision-aware `expectedRevision` conflicts and staged/rollback-backed persistence are CURRENT; the issue remains owner of residual source-authorization/acceptance/E2E/closeout where applicable;
 - #687 — deep-refactor program/preflight, TARGET rather than current architecture evidence.
 
-Until those issues land and are verified, current documentation must describe current behavior and target behavior separately.
+Do not auto-close #451/#452/#453 merely because documentation now reflects their landed core safeguards. Closeout must use the issues' own acceptance criteria and fresh verification evidence.
+
+## GitBook projection
+
+`.gitbook.yaml` scopes GitBook to `docs/`. `SUMMARY.md` is a conservative Wave 1 navigation list over canonical repository documents.
+
+GitBook is a synchronized reader/editor surface, not a higher authority than Git. The project intentionally uses a free-only GitBook model and does not depend on paid authenticated publishing, private share links, advanced branding or AI features. See `gitbook-architecture.md`.
 
 ## Snapshots and historical evidence
 
