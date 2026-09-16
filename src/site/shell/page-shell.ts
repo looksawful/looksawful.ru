@@ -10,6 +10,14 @@ export interface PageShellOptions {
   content: string;
 }
 
+export function renderRootAttributes(page: SitePageDefinition): string {
+  return [
+    `data-page-id="${escapeHtml(page.id)}"`,
+    `data-surface-default="${escapeHtml(page.surface)}"`,
+    `data-surface="${escapeHtml(page.surface)}"`,
+  ].join(" ");
+}
+
 export function renderBodyAttributes(page: SitePageDefinition): string {
   const attributes = [
     `data-page-type="${escapeHtml(page.type)}"`,
@@ -38,11 +46,12 @@ export function applyPageBodyAttributes(html: string, page: SitePageDefinition):
 
 export function renderPageShell({ page, title, description, content }: PageShellOptions): string {
   return `<!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" ${renderRootAttributes(page)}>
   <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     ${renderPageMetadata({ page, title, description })}
+    <script src="/site-surface.js" data-surface-mode="bootstrap"></script>
     <link href="/src/styles/index.css" rel="stylesheet">
     <script src="/src/main.js" type="module"></script>
   </head>

@@ -2,6 +2,7 @@ export type SiteSurface = "light" | "dark";
 
 const STORAGE_PREFIX = "looksawful:surface:v1:";
 const noop = () => {};
+const THEME_COLOR: Record<SiteSurface, string> = { light: "#f3f3ef", dark: "#0b0b0a" };
 
 function isSiteSurface(value: string | undefined | null): value is SiteSurface {
   return value === "light" || value === "dark";
@@ -55,6 +56,8 @@ export function initSiteSurface(root: Document | HTMLElement = document): () => 
     surface = next;
     body.dataset.surface = next;
     doc.documentElement.dataset.surface = next;
+    const themeMeta = doc.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+    if (themeMeta) themeMeta.content = THEME_COLOR[next];
     toggle.setAttribute("aria-pressed", String(next === "dark"));
     toggle.setAttribute("aria-label", labelFor(next));
   };

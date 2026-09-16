@@ -8,9 +8,14 @@ export const SITE_OWNER_ROLE = "Арт-директор цифровых про�
 export const SITE_MANIFEST = "/site.webmanifest";
 export const SITE_FAVICON = "/favicon.png";
 export const SITE_APPLE_TOUCH_ICON = "/apple-touch-icon.png";
-export const SITE_THEME_COLOR = "#ffffff";
+export const SITE_THEME_COLOR_LIGHT = "#f3f3ef";
+export const SITE_THEME_COLOR_DARK = "#0b0b0a";
 export const DEFAULT_SOCIAL_IMAGE = `${SITE_ORIGIN}/media/hero/hero-portrait.webp`;
 export const DEFAULT_SOCIAL_IMAGE_ALT = SITE_OWNER_NAME;
+
+export function getPageThemeColor(page: SitePageDefinition): string {
+  return page.surface === "dark" ? SITE_THEME_COLOR_DARK : SITE_THEME_COLOR_LIGHT;
+}
 
 export interface PageMetadataOptions {
   page: SitePageDefinition;
@@ -41,7 +46,7 @@ export function renderPageMetadata({
     `<title>${safeTitle}</title>`,
     `<meta name="description" content="${safeDescription}">`,
     `<meta name="robots" content="${robots}">`,
-    `<meta name="theme-color" content="${SITE_THEME_COLOR}">`,
+    `<meta name="theme-color" content="${getPageThemeColor(page)}">`,
     `<link rel="manifest" href="${SITE_MANIFEST}">`,
     `<link rel="icon" href="${SITE_FAVICON}" type="image/png" sizes="120x120">`,
     `<link rel="apple-touch-icon" href="${SITE_APPLE_TOUCH_ICON}" sizes="180x180">`,

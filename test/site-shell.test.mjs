@@ -9,8 +9,9 @@ import { SITE_ORIGIN as toolingSiteOrigin } from "../tools/site-html-utils.mjs";
 
 const jestei = sitePages.find((page) => page.id === "case:jestei-pool");
 const notFound = sitePages.find((page) => page.id === "not-found");
+const styx = sitePages.find((page) => page.id === "case:styx");
 
-if (!jestei || !notFound) throw new Error("required test pages are missing");
+if (!jestei || !notFound || !styx) throw new Error("required test pages are missing");
 
 test("page rendering and postbuild tooling share one production origin", () => {
   assert.equal(pageSiteOrigin, "https://www.looksawful.ru");
@@ -62,4 +63,22 @@ test("standalone page shell exposes page identity and one main landmark", () => 
   assert.match(html, /data-surface-toggle/);
   assert.match(html, /<link href="\/src\/styles\/index\.css" rel="stylesheet">/);
   assert.match(html, /<script src="\/src\/main\.js" type="module"><\/script>/);
+});
+
+
+test("dark page shell bootstraps the persisted surface before CSS and sets browser chrome", () => {
+  const html = renderPageShell({
+    page: styx,
+    title: "Styx Jewel",
+    description: "Case study.",
+    content: '<article id="project-styx"><h1>Styx Jewel</h1></article>',
+  });
+
+  assert.match(html, /<html\b[^>]*data-page-id="case:styx"[^>]*data-surface-default="dark"[^>]*data-surface="dark"/);
+  assert.match(html, /<meta name="theme-color" content="#0b0b0a">/);
+  assert.match(html, /<script src="\/site-surface\.js" data-surface-mode="bootstrap"><\/script>/);
+  assert.ok(
+    html.indexOf('src="/site-surface.js"') < html.indexOf('href="/src/styles/index.css"'),
+    "surface bootstrap must execute before the stylesheet",
+  );
 });
