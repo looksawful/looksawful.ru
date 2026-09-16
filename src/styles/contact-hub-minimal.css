@@ -1,5 +1,5 @@
 .contact-hub {
-  inline-size: min(328px, calc(100vw - 236px));
+  inline-size: min(328px, calc(100vw - 236px)) !important;
   block-size: min(404px, calc(100dvh - 36px));
   border-radius: 10px;
   box-shadow: none;
@@ -15,7 +15,7 @@
 }
 
 .contact-hub[data-mode="form"] {
-  inline-size: min(328px, calc(100vw - 236px));
+  inline-size: min(328px, calc(100vw - 236px)) !important;
   block-size: min(344px, calc(100dvh - 36px));
 }
 
@@ -124,6 +124,7 @@
 @media (width <= 42.5rem) {
   .contact-hub,
   .contact-hub[data-mode="form"] {
+    inline-size: 100% !important;
     border-radius: 10px 10px 0 0;
   }
 
