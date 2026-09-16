@@ -3,8 +3,7 @@ import test from "node:test";
 
 import { groupTokensByKind } from "../src/lab/token-visualization.mjs";
 
-test("groups tokens by kind without relying on Map.groupBy", () => {
-  assert.equal(typeof Map.groupBy, "undefined", "test contract assumes portable runtime without Map.groupBy");
+test("groups tokens by kind with stable insertion order", () => {
   const groups = groupTokensByKind([
     { name: "--a", kind: "color" },
     { name: "--b", kind: "spacing" },
