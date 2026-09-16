@@ -28,7 +28,7 @@ const selectors = [
   /(?:^|\n)\.before-after\s*>\s*\.media__caption\s*\{/,
 ];
 
-test("Wave6A before-after has one canonical component style owner", () => {
+test("before-after before-after has one canonical component style owner", () => {
   assert.notEqual(owner.trim(), "", "src/styles/before-after.css must exist and own the family");
   for (const selector of selectors) {
     assert.match(owner, selector, `before-after.css must own ${selector}`);
@@ -36,7 +36,7 @@ test("Wave6A before-after has one canonical component style owner", () => {
   }
 });
 
-test("Wave6A before-after owner is imported once in stable components-layer order", () => {
+test("before-after before-after owner is imported once in stable components-layer order", () => {
   const imports = index.match(/@import\s+["']\.\/before-after\.css["']\s+layer\(components\);/g) ?? [];
   assert.equal(imports.length, 1, "index.css must import before-after.css exactly once in layer(components)");
   assert.match(
@@ -46,7 +46,7 @@ test("Wave6A before-after owner is imported once in stable components-layer orde
   );
 });
 
-test("Wave6A preserves before-after geometry, touch, focus and reveal inputs", () => {
+test("before-after preserves before-after geometry, touch, focus and reveal inputs", () => {
   for (const pattern of [
     /--before-after-split:\s*50%;/,
     /--before-after-ratio:\s*16\s*\/\s*9;/,
@@ -61,13 +61,13 @@ test("Wave6A preserves before-after geometry, touch, focus and reveal inputs", (
   assert.doesNotMatch(owner, /!important/, "move-only extraction must not add specificity compensation");
 });
 
-test("Wave6A keeps caption and lightbox boundaries outside the component owner", () => {
+test("before-after keeps caption and lightbox boundaries outside the component owner", () => {
   assert.match(captions, /figure\.before-after/);
   assert.match(lightbox, /EXCLUDED_SELECTOR\s*=\s*["'][^"']*\.before-after/);
   assert.doesNotMatch(owner, /data-caption-view|media__text|media__meta/);
 });
 
-test("Wave6A keeps runtime and template contracts unchanged", () => {
+test("before-after keeps runtime and template contracts unchanged", () => {
   assert.match(runtime, /--before-after-split/);
   assert.match(runtime, /addEventListener\("pointerdown"/);
   assert.match(runtime, /addEventListener\("keydown"/);

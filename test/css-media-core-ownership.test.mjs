@@ -23,7 +23,7 @@ test("components aggregate no longer owns generic media core presentation", () =
   assert.doesNotMatch(components, /(?:^|\n)\.media__surface\.media__surface--center-crop\s*\{/);
   assert.doesNotMatch(components, /(?:^|\n)\.media__surface\.media__surface--center-crop\s*>\s*video\s*\{/);
 
-  // These are deliberately outside the Wave 5A media-core move. Later Wave 5
+  // These are deliberately outside the media core media-core move. Later media
   // slices may move them under the same canonical media owner with their own RED
   // ownership contracts, so this test guards behavior rather than pinning a
   // specialization to an obsolete physical owner.
@@ -56,7 +56,7 @@ test("canonical media owner preserves the public sizing and crop API", () => {
   assert.match(owner, /\.media__surface\.media__surface--center-crop\s*>\s*video\s*\{/);
 });
 
-test("Wave 5A owner does not absorb captions, project integration or Brand System specialization", () => {
+test("media core owner does not absorb captions, project integration or Brand System specialization", () => {
   assert.equal(existsSync(ownerPath), true, "media.css must exist");
   if (!existsSync(ownerPath)) return;
 
