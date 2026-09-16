@@ -12,7 +12,7 @@ const reelOwner = /(?:^|\n)\[data-infinite-reel\]\s*\{/;
 const reelKeyframes = /@keyframes\s+infinite-reel-scroll\s*\{/;
 const fadeFallback = "var(--infinite-reel-fade-size, clamp(2rem, 7cqi, 6rem))";
 
-test("Wave5K gives infinite-reel structure one canonical media owner", () => {
+test("infinite reel gives infinite-reel structure one canonical media owner", () => {
   assert.match(media, reelOwner);
   assert.doesNotMatch(components, reelOwner);
   assert.match(
@@ -23,7 +23,7 @@ test("Wave5K gives infinite-reel structure one canonical media owner", () => {
   assert.equal(media.split(fadeFallback).length - 1, 4, "media mask consumers must keep the accepted fade fallback contract");
 });
 
-test("Wave5K keeps animated reel geometry and masking in media ownership", () => {
+test("infinite reel keeps animated reel geometry and masking in media ownership", () => {
   assert.match(
     media,
     /\[data-infinite-reel\][\s\S]*?\&\[data-animated="true"\]\s*\{[\s\S]*?overflow-x:\s*clip;[\s\S]*?overflow-y:\s*visible;[\s\S]*?mask-image:\s*linear-gradient/,
@@ -38,7 +38,7 @@ test("Wave5K keeps animated reel geometry and masking in media ownership", () =>
   assert.doesNotMatch(media, /--infinite-reel-speed\s*:/);
 });
 
-test("Wave5K keeps infinite-reel motion lifecycle in the motion owner", () => {
+test("infinite reel keeps infinite-reel motion lifecycle in the motion owner", () => {
   assert.match(motion, /\[data-infinite-reel\]\s*\{[\s\S]*?--infinite-reel-speed:\s*var\(--motion-speed-autoscroll\);/);
   assert.match(
     motion,
@@ -53,7 +53,7 @@ test("Wave5K keeps infinite-reel motion lifecycle in the motion owner", () => {
   assert.doesNotMatch(components, reelKeyframes);
 });
 
-test("Wave5K preserves runtime and authored duration boundaries", () => {
+test("infinite reel preserves runtime and authored duration boundaries", () => {
   for (const pattern of [
     /export function createInfiniteReel\(/,
     /new IntersectionObserver\(/,
@@ -70,6 +70,6 @@ test("Wave5K preserves runtime and authored duration boundaries", () => {
   assert.match(renderer, /data-infinite-reel-track/);
 });
 
-test("Wave5K media ownership remains isolated from Slider", () => {
+test("infinite reel media ownership remains isolated from Slider", () => {
   assert.doesNotMatch(media, /(?:^|\n)\.slider\s*\{/);
 });

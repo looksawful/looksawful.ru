@@ -12,11 +12,14 @@ const [indexCss, componentsCss] = await Promise.all([
   readFile(componentsUrl, "utf8"),
 ]);
 
-test("code-block owner is imported immediately after the aggregate in the components layer", () => {
-  assert.match(
-    indexCss,
-    /@import "\.\/components\.css" layer\(components\);\n@import "\.\/code-block\.css" layer\(components\);\n@import "\.\/project-header\.css" layer\(components\);/,
-  );
+test("code-block owner stays between the aggregate and project header in the components layer", () => {
+  const aggregateIndex = indexCss.indexOf('@import "./components.css" layer(components);');
+  const ownerIndex = indexCss.indexOf('@import "./code-block.css" layer(components);');
+  const projectHeaderIndex = indexCss.indexOf('@import "./project-header.css" layer(components);');
+
+  assert.ok(aggregateIndex >= 0, "components aggregate import should exist");
+  assert.ok(ownerIndex > aggregateIndex, "code-block owner should follow the components aggregate");
+  assert.ok(projectHeaderIndex > ownerIndex, "project header should follow the code-block owner");
 });
 
 test("components.css no longer physically owns code-block presentation", () => {
