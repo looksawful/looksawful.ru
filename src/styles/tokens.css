@@ -81,4 +81,11 @@
 
   --border-width-100: 1px;
   --border-width-200: 2px;
+
+  /* Semantic stacking order for persistent site chrome and overlay products. */
+  --layer-site-navigation: 100;
+  --layer-site-consent: 110;
+  --layer-assistant-pet: 120;
+  --layer-contact-hub: 130;
+  --layer-blocking-overlay: 200;
 }
