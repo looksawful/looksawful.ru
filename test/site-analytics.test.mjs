@@ -164,6 +164,12 @@ test("consent control exposes a short neutral cookie notice", async () => {
   assert.doesNotMatch(source, /Использую Яндекс Метрику/);
 });
 
+test("country lookup uses only the external geo resolver on GitHub Pages", async () => {
+  const source = await readFile(consentUrl, "utf8");
+  assert.doesNotMatch(source, /\/cdn-cgi\/trace/);
+  assert.match(source, /https:\/\/api\.country\.is\//);
+});
+
 test("analytics is disabled on local preview hosts used by smoke tests", async () => {
   const { isLocalAnalyticsHostname } = await loadAnalytics();
   assert.equal(isLocalAnalyticsHostname("localhost"), true);
