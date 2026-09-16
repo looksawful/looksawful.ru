@@ -19,7 +19,7 @@ interface MountSiteAnalyticsConsentOptions {
   config: SiteAnalyticsConfig;
 }
 
-const COUNTRY_ENDPOINTS = ["/cdn-cgi/trace", "https://api.country.is/"] as const;
+const COUNTRY_ENDPOINTS = ["https://api.country.is/"] as const;
 const COUNTRY_LOOKUP_TIMEOUT_MS = 1_500;
 const noop = () => {};
 
