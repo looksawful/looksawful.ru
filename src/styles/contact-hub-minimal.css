@@ -27,6 +27,9 @@
 }
 
 .contact-hub__screen--ai {
+  display: grid;
+  grid-template-rows: 1fr auto;
+  gap: 8px;
   padding: 12px;
   overflow: hidden;
 }
@@ -38,6 +41,23 @@
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-width: thin;
+}
+
+.contact-hub[data-mode="ai"]:not(:has(.contact-hub__message--user)) .contact-hub__direct-contact {
+  display: none;
+}
+
+.contact-hub__direct-contact {
+  justify-self: start;
+  padding: 2px 0;
+  color: var(--clr-text-muted);
+  font-size: var(--fs-200);
+  text-decoration: none;
+}
+
+.contact-hub__direct-contact:hover,
+.contact-hub__direct-contact:focus-visible {
+  color: var(--clr-text);
 }
 
 .contact-hub__screen--form {
