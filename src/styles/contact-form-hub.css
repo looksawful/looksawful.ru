@@ -97,7 +97,6 @@
 .contact-form-hub__field:focus-within {
   border-color: var(--clr-border-strong);
   background: var(--clr-surface-raised);
-  box-shadow: var(--shadow-focus-ring);
 }
 
 .contact-form-hub__field:has(:is(input, textarea)[aria-invalid="true"]) {
@@ -105,8 +104,7 @@
   box-shadow: 0 0 0 3px rgb(201 48 44 / 0.08);
 }
 
-.contact-form-hub__field > span,
-.contact-form-hub__fallback {
+.contact-form-hub__field > span {
   color: var(--clr-text-muted);
   font-size: var(--fs-200);
   line-height: var(--lh-ui);
@@ -133,10 +131,9 @@
 
 .contact-form-hub__footer {
   min-block-size: var(--control-block-size);
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  display: flex;
   align-items: center;
-  gap: var(--size-300);
+  justify-content: flex-end;
   margin-block-start: var(--size-100);
 }
 
@@ -154,16 +151,6 @@
   font-weight: var(--fw-600);
   line-height: var(--lh-ui);
   transition: transform 140ms ease, box-shadow 140ms ease, opacity 140ms ease;
-}
-
-.contact-form-hub__fallback {
-  min-inline-size: 0;
-  margin: 0;
-}
-
-.contact-form-hub__fallback a {
-  color: inherit;
-  text-underline-offset: 0.18em;
 }
 
 .contact-form-hub-launcher {
@@ -186,8 +173,6 @@
 }
 
 .contact-form-hub__text-action:focus-visible,
-.contact-form-hub__field :is(input, textarea):focus-visible,
-.contact-form-hub__fallback a:focus-visible,
 .contact-form-hub-launcher:focus-visible {
   outline: var(--border-width-200) solid currentColor;
   outline-offset: 0.18rem;
@@ -287,5 +272,12 @@
   .contact-form-hub__close,
   .contact-form-hub__submit {
     transition: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .contact-form-hub__field:focus-within {
+    outline: 2px solid Highlight;
+    outline-offset: 2px;
   }
 }
