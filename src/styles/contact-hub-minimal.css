@@ -1,0 +1,121 @@
+.contact-hub {
+  inline-size: min(328px, calc(100vw - 236px));
+  block-size: min(404px, calc(100dvh - 36px));
+  border-radius: 10px;
+  box-shadow: none;
+  transition: block-size 180ms ease;
+}
+
+.contact-hub[data-mode="ai"]:not(:has(.contact-hub__message--user)) {
+  block-size: min(208px, calc(100dvh - 36px));
+}
+
+.contact-hub[data-mode="ai"]:has(.contact-hub__message--user) {
+  block-size: min(404px, calc(100dvh - 36px));
+}
+
+.contact-hub[data-mode="form"] {
+  inline-size: min(328px, calc(100vw - 236px));
+  block-size: min(344px, calc(100dvh - 36px));
+}
+
+.contact-hub__header,
+.contact-hub[data-mode="form"] .contact-hub__header {
+  min-block-size: 38px;
+  padding: 0 10px 0 12px;
+  border-block-end: 0;
+}
+
+.contact-hub__screen--ai {
+  padding: 12px;
+  overflow: hidden;
+}
+
+.contact-hub__ai-log {
+  min-block-size: 0;
+  justify-content: flex-start;
+  gap: 10px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+
+.contact-hub__screen--form {
+  padding: 2px 12px 10px;
+}
+
+.contact-hub__field {
+  gap: 3px;
+  padding: 8px 0 4px;
+  border-block-end: 0;
+}
+
+.contact-hub__field :is(input, textarea) {
+  padding: 3px 0 7px;
+  border-block-end: var(--border-width-100) solid var(--clr-border);
+  outline: none;
+}
+
+.contact-hub__field:focus-within :is(input, textarea) {
+  border-color: currentColor;
+}
+
+.contact-hub__field textarea {
+  min-block-size: 104px;
+  border-block-end: 0;
+}
+
+.contact-hub__field :is(input, textarea):focus-visible {
+  outline: none;
+}
+
+.contact-hub__form-actions {
+  padding-block-start: 8px;
+}
+
+.contact-hub__submit {
+  min-inline-size: auto;
+  min-block-size: 32px;
+  padding: 0 0 2px;
+  border: 0;
+  border-block-end: var(--border-width-100) solid currentColor;
+  background: transparent;
+  color: inherit;
+}
+
+.contact-hub__mail-fallback {
+  margin-block-start: 6px;
+}
+
+.contact-hub__composer {
+  min-block-size: 46px;
+  padding: 2px 8px 2px 12px;
+}
+
+.contact-hub__composer input {
+  block-size: 38px;
+}
+
+.contact-hub__send {
+  min-inline-size: 72px;
+  block-size: 32px;
+}
+
+@media (width <= 42.5rem) {
+  .contact-hub,
+  .contact-hub[data-mode="form"] {
+    border-radius: 10px 10px 0 0;
+  }
+
+  .contact-hub[data-mode="ai"]:not(:has(.contact-hub__message--user)) {
+    block-size: min(220px, calc(100dvh - env(safe-area-inset-top, 0px)));
+  }
+
+  .contact-hub[data-mode="ai"]:has(.contact-hub__message--user) {
+    block-size: min(62dvh, 520px);
+  }
+
+  .contact-hub[data-mode="form"] {
+    block-size: min(390px, calc(100dvh - env(safe-area-inset-top, 0px)));
+  }
+}
