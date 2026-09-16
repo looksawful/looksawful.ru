@@ -47,6 +47,7 @@ export const fastTests = new Set([
   "test/media-tools/affected-media-ci.test.mjs",
   "test/media-tools/media-cache-fingerprint-scope.test.mjs",
   "test/pages-cms-yaml-syntax.test.mjs",
+  "test/useful-project-cards-cms.test.mjs",
   "test/pet-project-card-access.test.mjs",
   "test/pet-project-cards.test.mjs",
   "test/pet-project-page-access.test.mjs",

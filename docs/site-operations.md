@@ -41,6 +41,7 @@ Current configured sources include:
 ```text
 src/content/navigation.json
 src/content/editorial/home-project-cards.json
+src/content/editorial/useful-project-cards.json
 src/content/projects.json
 src/content/cases/jestei-pool.json
 src/content/cases/styx.json

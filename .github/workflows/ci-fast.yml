@@ -10,6 +10,7 @@ on:
       - 'archive/**'
       - 'src/content/editorial/cv.json'
       - 'src/content/editorial/home-project-cards.json'
+      - 'src/content/editorial/useful-project-cards.json'
       - 'src/content/navigation.json'
       - 'src/content/cases/**'
       - 'src/content/collections/shootings.json'

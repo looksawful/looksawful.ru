@@ -372,6 +372,71 @@ content:
             label: Alt обложки
             type: text
 
+  - name: useful-project-cards
+    label: ???????? ? ?????? ????????
+    type: file
+    path: src/content/editorial/useful-project-cards.json
+    format: json
+    operations:
+      create: false
+      rename: false
+      delete: false
+    commit:
+      templates:
+        update: "content(cms): update useful project card copy"
+    actions:
+      - name: verify-useful-project-card-copy
+        label: ????????? ????
+        workflow: ci-fast.yml
+        ref: dev
+    fields:
+      - name: section
+        label: ??????
+        type: object
+        required: true
+        fields:
+          - name: title
+            label: ?????????
+            type: string
+            required: true
+          - name: description
+            label: ????????
+            type: text
+            required: true
+      - name: cards
+        label: ????????
+        type: object
+        required: true
+        fields:
+          - name: awful-cases
+            label: Awful Cases
+            type: object
+            required: true
+            fields:
+              - { name: title, label: ????????, type: string, required: true }
+              - { name: description, label: ????????, type: text, required: true }
+          - name: moves-awful
+            label: Moves Awful
+            type: object
+            required: true
+            fields:
+              - { name: title, label: ????????, type: string, required: true }
+              - { name: description, label: ????????, type: text, required: true }
+          - name: berserk-timer
+            label: Berserk Timer
+            type: object
+            required: true
+            fields:
+              - { name: title, label: ????????, type: string, required: true }
+              - { name: description, label: ????????, type: text, required: true }
+          - name: awful-studio
+            label: AWFUL STUDIO
+            type: object
+            required: true
+            fields:
+              - { name: title, label: ????????, type: string, required: true }
+              - { name: description, label: ????????, type: text, required: true }
+
   - name: project-card-media
     label: Карточки проектов — видимость и обложки
     type: file

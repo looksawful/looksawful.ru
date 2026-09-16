@@ -35,6 +35,7 @@ Responsive/video derivatives, generated manifests/indexes and build output. Tool
 | Case `lead`, section `title`/`paragraphs`, configured overlays/credits/notes | EDITORIAL | CMS-managed where present in `.pages.yml` |
 | navigation labels | EDITORIAL | CMS-managed; href/routes remain `SitePage`-owned |
 | project-card editorial copy | EDITORIAL | `src/content/editorial/home-project-cards.json` |
+| Useful/Pet card editorial copy | EDITORIAL | `src/content/editorial/useful-project-cards.json`; release state, href and cover identity stay outside editorial CMS ownership |
 | project-card visibility/cover selection | EDITORIAL / constrained presentation | `src/content/projects.json`; route identity remains code-owned |
 | CV structural IDs/shape | DOMAIN | `src/content/cv.json`; not the current Pages CMS edit surface |
 | CV editorial copy | EDITORIAL | `src/content/editorial/cv.json` through CV adapters |

@@ -103,6 +103,7 @@ Media masters are preserved. Source and delivery assets have different ownership
 | Shootings copy | `src/content/collections/shootings.json` + configured records | yes | shootings editorial parser | typed adapter |
 | Project-card identity/routes | TypeScript/SitePage relations | no | project/page tests | homepage renderer |
 | Project-card editorial copy | `src/content/editorial/home-project-cards.json` | yes | project-card copy parser/tests | project presentations |
+| Useful/Pet card editorial copy | `src/content/editorial/useful-project-cards.json` | yes | useful-project parser + CMS contract | Pet Project presentations |
 | Project-card visibility/cover selection | `src/content/projects.json` | yes, only configured controls | structural project parser/tests | project presentations |
 | Navigation route identity | `SitePage` | no | route/navigation tests | navigation runtime/build |
 | Navigation label | `src/content/navigation.json` | yes | navigation content adapter | menu/breadcrumb rendering |

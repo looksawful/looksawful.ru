@@ -82,6 +82,7 @@ test("text-only CMS saves are silent on dev while publication PRs always run Fas
   for (const path of [
     "src/content/editorial/cv.json",
     "src/content/editorial/home-project-cards.json",
+    "src/content/editorial/useful-project-cards.json",
     "src/content/navigation.json",
     "src/content/cases/**",
     "src/content/collections/shootings.json",
