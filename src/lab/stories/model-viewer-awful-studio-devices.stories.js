@@ -7,7 +7,7 @@ const STYLE_ID = "model-viewer-awful-studio-device-styles";
 
 const DEVICES = {
   iphone17: {
-    name: "iPhone 17 · v21",
+    name: "iPhone 17 · v25",
     src: "/media/projects/awful-studio/device-viewer/iphone-17.glb",
     aria: "3D-модель iPhone 17",
     view: [0.32, 0.12, 1],
@@ -357,6 +357,16 @@ const mountViewer = async (root, device) => {
 
     environment = loadedEnvironment;
     model = gltf.scene;
+    const screenDecal = model.getObjectByName("SCREEN_UI_DECAL");
+    if (screenDecal?.material) {
+      const screenMaterials = Array.isArray(screenDecal.material) ? screenDecal.material : [screenDecal.material];
+      screenMaterials.forEach((material) => {
+        material.toneMapped = false;
+        if (material.map) material.map.colorSpace = THREE.SRGBColorSpace;
+        if (material.emissiveMap) material.emissiveMap.colorSpace = THREE.SRGBColorSpace;
+        material.needsUpdate = true;
+      });
+    }
     model.traverse((object) => {
       if (!object.isMesh) return;
       const meshMaterials = Array.isArray(object.material)
