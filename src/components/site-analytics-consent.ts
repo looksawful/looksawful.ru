@@ -19,10 +19,9 @@ interface MountSiteAnalyticsConsentOptions {
   config: SiteAnalyticsConfig;
 }
 
-const COUNTRY_ENDPOINTS = ["/cdn-cgi/trace", "https://api.country.is/"] as const;
+const COUNTRY_ENDPOINT = "https://api.country.is/";
 export const SITE_ANALYTICS_CONSENT_COPY = "Этот сайт использует cookies.";
 export const SITE_ANALYTICS_PRIVACY_HREF = "/privacy/";
-
 const COUNTRY_LOOKUP_TIMEOUT_MS = 1_500;
 const noop = () => {};
 
@@ -59,14 +58,9 @@ async function resolveAnalyticsCountry(target: Window): Promise<string | null> {
   const cachedCountry = readSessionAnalyticsCountry(target);
   if (cachedCountry) return cachedCountry;
 
-  for (const endpoint of COUNTRY_ENDPOINTS) {
-    const country = await fetchAnalyticsCountry(target, endpoint);
-    if (!country) continue;
-    storeSessionAnalyticsCountry(target, country);
-    return country;
-  }
-
-  return null;
+  const country = await fetchAnalyticsCountry(target, COUNTRY_ENDPOINT);
+  if (country) storeSessionAnalyticsCountry(target, country);
+  return country;
 }
 
 export function mountSiteAnalyticsConsent({
