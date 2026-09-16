@@ -121,14 +121,7 @@ function createContactForm(documentRef: Document) {
   submitButton.className = "contact-form-hub__text-action contact-form-hub__submit";
   submitButton.textContent = "отправить";
 
-  const fallback = documentRef.createElement("p");
-  fallback.className = "contact-form-hub__fallback";
-  fallback.append("или ");
-  const fallbackLink = documentRef.createElement("a");
-  fallbackLink.href = "mailto:i@lookawful.ru";
-  fallbackLink.textContent = "i@lookawful.ru";
-  fallback.append(fallbackLink);
-  footer.append(fallback, submitButton);
+  footer.append(submitButton);
 
   form.append(
     createField("имя", nameInput),
