@@ -39,7 +39,10 @@ test("static CV analytics adds semantic engagement, project-open and completion 
   assert.match(html, /cv_engaged/);
   assert.match(html, /cv_project_open/);
   assert.match(html, /cv_end/);
-  assert.match(html, /setTimeout\([^)]*30000/);
+  assert.match(html, /const engagementDelay=30000/);
+  assert.match(html, /document\.visibilityState===\"visible\"/);
+  assert.match(html, /visibilitychange/);
+  assert.doesNotMatch(html, /setTimeout\(markEngaged,30000\)/);
   assert.doesNotMatch(html, /scroll_25|scroll_50|scroll_75/);
 });
 
