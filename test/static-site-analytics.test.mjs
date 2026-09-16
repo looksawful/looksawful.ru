@@ -43,7 +43,7 @@ test("static CV analytics counts visible engagement and keeps project_open aggre
   assert.doesNotMatch(html, /setTimeout\(markEngaged,30000/);
   assert.match(
     html,
-    /reach\(ym,"project_open",action_info\)[\s\S]*reach\(ym,"cv_project_open",action_info\)/,
+    /path\.startsWith\("\/work\/"\)\)\{goal="project_open";cvProject=[^;]+;targetPath=url\.pathname\}[\s\S]*if\(cvProject\)reach\(ym,"cv_project_open",action_info\)/,
     "CV project clicks must preserve the aggregate project_open goal and also emit cv_project_open",
   );
   assert.doesNotMatch(html, /scroll_25|scroll_50|scroll_75/);
