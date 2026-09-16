@@ -43,6 +43,13 @@ test("static CV analytics adds semantic engagement, project-open and completion 
   assert.doesNotMatch(html, /scroll_25|scroll_50|scroll_75/);
 });
 
+test("static CV work links emit aggregate and CV-specific project goals", () => {
+  const html = injectStaticSiteAnalytics(source, { yandexCounterId: 112065623 });
+  assert.match(html, /goals\.push\("project_open"\)/);
+  assert.match(html, /goals\.push\("cv_project_open"\)/);
+  assert.match(html, /for\(const goal of goals\)reach\(ym,goal,action_info\)/);
+});
+
 test("static analytics auto-starts Yandex only for RU sessions and keeps an external geo fallback", () => {
   const html = injectStaticSiteAnalytics(source, { yandexCounterId: 112065623 });
   assert.match(html, /looksawful:analytics-region/);
