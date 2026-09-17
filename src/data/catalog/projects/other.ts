@@ -75,7 +75,7 @@ export const otherProjects = [
     id: "awful-studio",
     name: "AWFUL STUDIO",
     date: "2026",
-    status: "active",
+    status: "completed",
     collectionIds: ["pet-projects"],
     summary: "Расширение Blender для сборки виртуальной предметной студии.",
     description:

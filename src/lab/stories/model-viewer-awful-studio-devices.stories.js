@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 
 const STYLE_ID = "model-viewer-awful-studio-device-styles";
@@ -14,6 +15,9 @@ const MODELS = {
   profotoMagnum: { name: "Profoto Magnum 100624", src: "/media/projects/awful-studio/model-viewer/profoto-magnum-100624.glb", aria: "3D-модель Profoto Magnum 100624", view: [0.7, 0.35, 1], exposure: 1.0, envIntensity: 0.68 },
   sandbag: { name: "Studio Sandbag 01", src: "/media/projects/awful-studio/model-viewer/studio-sandbag-01.glb", aria: "3D-модель студийного sandbag", view: [0.75, 0.45, 1], exposure: 1.0, envIntensity: 0.68 },
   cstand: { name: "C-Stand", src: "/media/projects/awful-studio/model-viewer/studio-support-cstand-01.glb", aria: "3D-модель C-Stand", view: [0.5, 0.35, 1], exposure: 1.0, envIntensity: 0.68 },
+  whiteStudio: { name: "White Studio v2", src: "/media/projects/awful-studio/model-viewer/white-studio-v2.glb", aria: "3D scene: White Studio", view: [0.75, 0.42, 1], exposure: 1.0, envIntensity: 0.72 },
+  darkNeon: { name: "Dark Neon v2", src: "/media/projects/awful-studio/model-viewer/dark-neon-v2.glb", aria: "3D scene: Dark Neon", view: [0.75, 0.38, 1], exposure: 1.08, envIntensity: 0.58 },
+  loftDaylight: { name: "Loft Daylight v2", src: "/media/projects/awful-studio/model-viewer/loft-daylight-v2.glb", aria: "3D scene: Loft Daylight", view: [0.78, 0.44, 1], exposure: 1.0, envIntensity: 0.7 },
 };
 
 const ensureStyles = () => {
@@ -316,6 +320,7 @@ const mountViewer = async (root, device) => {
   };
   try {
     const loader = new GLTFLoader();
+    loader.setMeshoptDecoder(MeshoptDecoder);
     const [gltf, loadedEnvironment] = await Promise.all([
       loader.loadAsync(device.src),
       loadEnvironment(renderer, scene),
@@ -470,3 +475,6 @@ export const ProfotoD1 = { name: "Profoto D1 500 Air", render: () => createStory
 export const ProfotoMagnum = { name: "Profoto Magnum 100624", render: () => createStory(MODELS.profotoMagnum) };
 export const StudioSandbag = { name: "Studio Sandbag 01", render: () => createStory(MODELS.sandbag) };
 export const CStand = { name: "C-Stand", render: () => createStory(MODELS.cstand) };
+export const WhiteStudio = { name: "White Studio v2", render: () => createStory(MODELS.whiteStudio) };
+export const DarkNeon = { name: "Dark Neon v2", render: () => createStory(MODELS.darkNeon) };
+export const LoftDaylight = { name: "Loft Daylight v2", render: () => createStory(MODELS.loftDaylight) };
