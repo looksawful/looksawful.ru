@@ -33,6 +33,7 @@ const expectedRoutes = new Map([
   ["case:sensetique", "/work/sensetique/"],
   ["collection:music-photography", "/shootings/"],
   ["project:awful-cases", "/work/awful-cases/"],
+  ["project:awful-studio", "/work/awful-studio/"],
   ["project:moves-awful", "/work/moves-awful/"],
   ["project:berry-social-content-2020", "/work/berry-social-content-2020/"],
   ["cv", "/cv/"],

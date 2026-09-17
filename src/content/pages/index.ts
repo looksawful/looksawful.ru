@@ -4,6 +4,7 @@ import { sensetiquePageContent } from "./cases/sensetique.ts";
 import { styxPageContent } from "./cases/styx.ts";
 import { shootingsPageContent } from "./collections/shootings.ts";
 import { awfulCasesPageContent } from "./projects/awful-cases.ts";
+import { awfulStudioPageContent } from "./projects/awful-studio.ts";
 import { berrySocialContentPageContent } from "./projects/berry-social-content-2020.ts";
 import { movesAwfulPageContent } from "./projects/moves-awful.ts";
 import { createEntityPageContentRegistry } from "./registry.ts";
@@ -20,6 +21,7 @@ export const entityPageContents = [
   sensetiquePageContent,
   shootingsPageContent,
   awfulCasesPageContent,
+  awfulStudioPageContent,
   berrySocialContentPageContent,
   movesAwfulPageContent,
 ] as const satisfies readonly EntityPageContent[];
