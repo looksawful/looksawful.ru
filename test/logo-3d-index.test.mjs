@@ -13,7 +13,8 @@ test("3D logo public index covers every ready vector-backed pack", () => {
 
 test("3D logo public index exposes portable files, preview and provenance", () => {
   for (const item of index.items) {
-    assert.deepEqual(Object.keys(item.files).sort(), ["blend", "fbx", "glb", "obj", "stl"].sort());
+    assert.deepEqual(Object.keys(item.files).sort(), ["fbx", "glb", "obj", "stl"].sort());
+    assert.ok(!("blend" in item.files), "Blender masters must stay outside the public index");
     assert.match(item.preview, /\.png$/);
     assert.match(item.metadata, /\.json$/);
     assert.ok(item.source);

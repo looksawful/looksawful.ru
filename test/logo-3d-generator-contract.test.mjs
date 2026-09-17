@@ -37,9 +37,10 @@ test("generator compensates SVG import scale before mesh conversion", async () =
 });
 
 
-test("production pack exports Blender master plus web and exchange formats", async () => {
+test("production pack keeps Blender master local and exports portable formats", async () => {
   const manifest = JSON.parse(await readFile(manifestUrl, "utf8"));
-  assert.deepEqual(manifest.exportFormats, ["blend", "glb", "fbx", "obj", "stl"]);
+  assert.deepEqual(manifest.localMasterFormats, ["blend"]);
+  assert.deepEqual(manifest.exportFormats, ["glb", "fbx", "obj", "stl"]);
 
   const source = await readFile(generatorUrl, "utf8");
   assert.match(source, /save_as_mainfile/);
