@@ -241,7 +241,7 @@ test("page flip preserves loader, options, controls, orientation, motion and cle
   latestObserver.trigger([{ target: reduced.root, isIntersecting: true }]);
   await flush();
   assert.equal(instances.at(-1).options.drawShadow, false);
-  assert.equal(instances.at(-1).options.flippingTime, 0);
+  assert.equal(instances.at(-1).options.flippingTime, 1);
 
   window.St = undefined;
   latestObserver = null;

@@ -54,15 +54,19 @@ const meta = {
       },
     },
     looksawful: {
-      layer: "organisms",
-      policy: "canonical",
+      layer: "organism",
+      policy: "composition",
+      canonical: true,
       sources: [
         "src/components/composition/index.ts",
         "src/content/pages/index.ts",
         "src/data/projects.ts",
         "src/data/subproject-cards.ts",
       ],
-    },
+
+      state: "production-parity",
+      visibility: ["always"],
+      responsive: { review: ["desktop", "tablet", "mobile"] },    },
   },
 };
 
