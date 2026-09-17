@@ -1,8 +1,4 @@
 @layer motion {
-  .portfolio-logo-wall {
-    --client-logo-motion-depth: 900px;
-  }
-
   .portfolio-logo-wall .portfolio-logo-wall__item {
     transform-style: preserve-3d;
   }
@@ -16,11 +12,6 @@
   .portfolio-logo-wall .portfolio-logo-wall__item .media__surface > img {
     transform-origin: 50% 50%;
     backface-visibility: hidden;
-  }
-
-  .portfolio-logo-wall[data-client-logo-motion-active] .portfolio-logo-wall__item .media__surface,
-  .portfolio-logo-wall[data-client-logo-motion-active] .portfolio-logo-wall__item .media__surface > img {
-    will-change: transform;
   }
 
   @media (prefers-reduced-motion: reduce) {
