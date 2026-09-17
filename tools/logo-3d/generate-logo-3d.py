@@ -247,6 +247,7 @@ def write_metadata(path, target, profile, mesh, manifest, source):
         "geometryProfile": manifest["defaultGeometryProfile"],
         "dimensions": [round(float(v), 6) for v in mesh.dimensions],
         "formats": manifest["exportFormats"],
+        "localMasterFormats": manifest.get("localMasterFormats", ["blend"]),
         "blenderVersion": bpy.app.version_string,
     }
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

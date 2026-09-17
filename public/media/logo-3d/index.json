@@ -3,7 +3,6 @@
   "generatedFrom": "/tools/logo-3d/logo-3d-manifest.json",
   "geometryProfile": "jestei-reference",
   "formats": [
-    "blend",
     "glb",
     "fbx",
     "obj",
@@ -24,7 +23,6 @@
         1.999578
       ],
       "files": {
-        "blend": "/public/media/logo-3d/awful/awfulface-metal.blend",
         "glb": "/public/media/logo-3d/awful/awfulface-metal.glb",
         "fbx": "/public/media/logo-3d/awful/awfulface-metal.fbx",
         "obj": "/public/media/logo-3d/awful/awfulface-metal.obj",
@@ -48,7 +46,6 @@
         0.347895
       ],
       "files": {
-        "blend": "/public/media/logo-3d/jestei/jestei-lockup-metal.blend",
         "glb": "/public/media/logo-3d/jestei/jestei-lockup-metal.glb",
         "fbx": "/public/media/logo-3d/jestei/jestei-lockup-metal.fbx",
         "obj": "/public/media/logo-3d/jestei/jestei-lockup-metal.obj",
@@ -72,7 +69,6 @@
         0.347895
       ],
       "files": {
-        "blend": "/public/media/logo-3d/jestei/jestei-lockup-biloba.blend",
         "glb": "/public/media/logo-3d/jestei/jestei-lockup-biloba.glb",
         "fbx": "/public/media/logo-3d/jestei/jestei-lockup-biloba.fbx",
         "obj": "/public/media/logo-3d/jestei/jestei-lockup-biloba.obj",
@@ -96,7 +92,6 @@
         0.347895
       ],
       "files": {
-        "blend": "/public/media/logo-3d/jestei/jestei-lockup-blue.blend",
         "glb": "/public/media/logo-3d/jestei/jestei-lockup-blue.glb",
         "fbx": "/public/media/logo-3d/jestei/jestei-lockup-blue.fbx",
         "obj": "/public/media/logo-3d/jestei/jestei-lockup-blue.obj",
@@ -120,7 +115,6 @@
         0.347895
       ],
       "files": {
-        "blend": "/public/media/logo-3d/jestei/jestei-lockup-orange.blend",
         "glb": "/public/media/logo-3d/jestei/jestei-lockup-orange.glb",
         "fbx": "/public/media/logo-3d/jestei/jestei-lockup-orange.fbx",
         "obj": "/public/media/logo-3d/jestei/jestei-lockup-orange.obj",
@@ -144,7 +138,6 @@
         0.347895
       ],
       "files": {
-        "blend": "/public/media/logo-3d/jestei/jestei-lockup-pear.blend",
         "glb": "/public/media/logo-3d/jestei/jestei-lockup-pear.glb",
         "fbx": "/public/media/logo-3d/jestei/jestei-lockup-pear.fbx",
         "obj": "/public/media/logo-3d/jestei/jestei-lockup-pear.obj",
@@ -168,7 +161,6 @@
         1.999471
       ],
       "files": {
-        "blend": "/public/media/logo-3d/jestei/jestei-symbol-metal.blend",
         "glb": "/public/media/logo-3d/jestei/jestei-symbol-metal.glb",
         "fbx": "/public/media/logo-3d/jestei/jestei-symbol-metal.fbx",
         "obj": "/public/media/logo-3d/jestei/jestei-symbol-metal.obj",
@@ -192,7 +184,6 @@
         1.999471
       ],
       "files": {
-        "blend": "/public/media/logo-3d/jestei/jestei-symbol-biloba.blend",
         "glb": "/public/media/logo-3d/jestei/jestei-symbol-biloba.glb",
         "fbx": "/public/media/logo-3d/jestei/jestei-symbol-biloba.fbx",
         "obj": "/public/media/logo-3d/jestei/jestei-symbol-biloba.obj",
@@ -216,7 +207,6 @@
         1.999471
       ],
       "files": {
-        "blend": "/public/media/logo-3d/jestei/jestei-symbol-blue.blend",
         "glb": "/public/media/logo-3d/jestei/jestei-symbol-blue.glb",
         "fbx": "/public/media/logo-3d/jestei/jestei-symbol-blue.fbx",
         "obj": "/public/media/logo-3d/jestei/jestei-symbol-blue.obj",
@@ -240,7 +230,6 @@
         1.999471
       ],
       "files": {
-        "blend": "/public/media/logo-3d/jestei/jestei-symbol-orange.blend",
         "glb": "/public/media/logo-3d/jestei/jestei-symbol-orange.glb",
         "fbx": "/public/media/logo-3d/jestei/jestei-symbol-orange.fbx",
         "obj": "/public/media/logo-3d/jestei/jestei-symbol-orange.obj",
@@ -264,7 +253,6 @@
         1.999471
       ],
       "files": {
-        "blend": "/public/media/logo-3d/jestei/jestei-symbol-pear.blend",
         "glb": "/public/media/logo-3d/jestei/jestei-symbol-pear.glb",
         "fbx": "/public/media/logo-3d/jestei/jestei-symbol-pear.fbx",
         "obj": "/public/media/logo-3d/jestei/jestei-symbol-pear.obj",
@@ -288,7 +276,6 @@
         0.201409
       ],
       "files": {
-        "blend": "/public/media/logo-3d/jestei/jestei-wordmark-metal.blend",
         "glb": "/public/media/logo-3d/jestei/jestei-wordmark-metal.glb",
         "fbx": "/public/media/logo-3d/jestei/jestei-wordmark-metal.fbx",
         "obj": "/public/media/logo-3d/jestei/jestei-wordmark-metal.obj",
@@ -312,7 +299,6 @@
         0.201409
       ],
       "files": {
-        "blend": "/public/media/logo-3d/jestei/jestei-wordmark-biloba.blend",
         "glb": "/public/media/logo-3d/jestei/jestei-wordmark-biloba.glb",
         "fbx": "/public/media/logo-3d/jestei/jestei-wordmark-biloba.fbx",
         "obj": "/public/media/logo-3d/jestei/jestei-wordmark-biloba.obj",
@@ -336,7 +322,6 @@
         0.201409
       ],
       "files": {
-        "blend": "/public/media/logo-3d/jestei/jestei-wordmark-blue.blend",
         "glb": "/public/media/logo-3d/jestei/jestei-wordmark-blue.glb",
         "fbx": "/public/media/logo-3d/jestei/jestei-wordmark-blue.fbx",
         "obj": "/public/media/logo-3d/jestei/jestei-wordmark-blue.obj",
@@ -360,7 +345,6 @@
         0.201409
       ],
       "files": {
-        "blend": "/public/media/logo-3d/jestei/jestei-wordmark-orange.blend",
         "glb": "/public/media/logo-3d/jestei/jestei-wordmark-orange.glb",
         "fbx": "/public/media/logo-3d/jestei/jestei-wordmark-orange.fbx",
         "obj": "/public/media/logo-3d/jestei/jestei-wordmark-orange.obj",
@@ -384,7 +368,6 @@
         0.201409
       ],
       "files": {
-        "blend": "/public/media/logo-3d/jestei/jestei-wordmark-pear.blend",
         "glb": "/public/media/logo-3d/jestei/jestei-wordmark-pear.glb",
         "fbx": "/public/media/logo-3d/jestei/jestei-wordmark-pear.fbx",
         "obj": "/public/media/logo-3d/jestei/jestei-wordmark-pear.obj",
@@ -408,7 +391,6 @@
         0.536945
       ],
       "files": {
-        "blend": "/public/media/logo-3d/lyve/lyve-moscow-metal.blend",
         "glb": "/public/media/logo-3d/lyve/lyve-moscow-metal.glb",
         "fbx": "/public/media/logo-3d/lyve/lyve-moscow-metal.fbx",
         "obj": "/public/media/logo-3d/lyve/lyve-moscow-metal.obj",
@@ -432,7 +414,6 @@
         2
       ],
       "files": {
-        "blend": "/public/media/logo-3d/sensetique/sensetique-metal.blend",
         "glb": "/public/media/logo-3d/sensetique/sensetique-metal.glb",
         "fbx": "/public/media/logo-3d/sensetique/sensetique-metal.fbx",
         "obj": "/public/media/logo-3d/sensetique/sensetique-metal.obj",

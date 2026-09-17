@@ -14,11 +14,13 @@
     0.201409
   ],
   "formats": [
-    "blend",
     "glb",
     "fbx",
     "obj",
     "stl"
   ],
-  "blenderVersion": "5.2.1 LTS"
+  "blenderVersion": "5.2.1 LTS",
+  "localMasterFormats": [
+    "blend"
+  ]
 }

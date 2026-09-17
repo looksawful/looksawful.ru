@@ -38,6 +38,8 @@ for (const target of generated) {
     assert.match(metadata.sourceSha256, /^[0-9a-f]{64}$/);
     assert.equal(metadata.sourceType, "vector-svg");
     assert.equal(metadata.geometryProfile, manifest.defaultGeometryProfile);
+    assert.deepEqual(metadata.formats, manifest.exportFormats);
+    assert.deepEqual(metadata.localMasterFormats, manifest.localMasterFormats);
     assert.equal(metadata.dimensions[1], 0.38);
     assert.ok(Math.abs(Math.max(metadata.dimensions[0], metadata.dimensions[2]) - 2) < 0.001);
   });
