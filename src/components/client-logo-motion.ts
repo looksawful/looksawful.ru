@@ -149,12 +149,12 @@ function createLogoWallMotion(
     entranceTween = gsap.fromTo(
       surfaces,
       {
-        autoAlpha: 0.12,
-        yPercent: (index) => (index % 2 === 0 ? 14 : -12),
-        scale: 0.93,
-        rotationX: (index) => (index % 2 === 0 ? -8 : 8),
-        rotationY: (index) => ((index % 3) - 1) * 4,
-        filter: "blur(8px)",
+        autoAlpha: 0.46,
+        yPercent: (index) => (index % 2 === 0 ? 7 : -6),
+        scale: 0.97,
+        rotationX: (index) => (index % 2 === 0 ? -4 : 4),
+        rotationY: (index) => ((index % 3) - 1) * 2,
+        filter: "blur(3px)",
         transformPerspective: 900,
         transformOrigin: "50% 50%",
       },
@@ -165,12 +165,12 @@ function createLogoWallMotion(
         rotationX: 0,
         rotationY: 0,
         filter: "blur(0px)",
-        duration: 0.92,
+        duration: 0.64,
         stagger: {
-          each: 0.045,
+          each: 0.028,
           from: "start",
         },
-        ease: "expo.out",
+        ease: "power3.out",
         clearProps: "opacity,visibility,transform,filter",
         onComplete() {
           entranceTween = null;
