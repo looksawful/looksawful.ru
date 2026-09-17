@@ -90,13 +90,14 @@
 @media (width <= 42.5rem) {
   .portfolio-pet {
     --pet-scale: 0.78;
-    inset-inline-start: max(8px, env(safe-area-inset-left));
+    inset-inline-start: auto;
+    inset-inline-end: max(8px, env(safe-area-inset-right));
     inset-block-end: max(8px, env(safe-area-inset-bottom));
     inline-size: 150px;
     block-size: 170px;
   }
 
-  html.contact-hub-open .portfolio-pet {
+  html.contact-hub-engaged .portfolio-pet {
     opacity: 0;
     visibility: hidden;
     pointer-events: none;

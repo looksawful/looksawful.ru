@@ -8,17 +8,17 @@ const consentCss = fs.readFileSync(new URL("../src/styles/site-analytics-consent
 
 // P-001/P-003/P-007/P-008/P-009/AI-013: restore the approved v7 interaction surface
 // without reintroducing prototype ownership or implicit cross-mode mutation.
-test("Contact Hub restores the v7 shared AI/Form surface", () => {
-  assert.match(component, /dataset\.contactHubMode/);
-  assert.match(component, /createTextButton\(documentRef, "AI"\)/);
-  assert.match(component, /createTextButton\(documentRef, "написать"\)/);
+test("Contact Hub uses one Venus surface instead of permanent AI/Form tabs", () => {
+  assert.doesNotMatch(component, /dataset\.contactHubMode/);
+  assert.doesNotMatch(css, /contact-hub__modes/);
+  assert.match(component, /className = "contact-hub__title"/);
+  assert.match(component, /dataset\.contactHubDirectContact/);
+  assert.match(component, /dataset\.contactHubBackToAi/);
   assert.match(component, /dataset\.contactHubAiComposer/);
   assert.match(component, /dataset\.contactHubForm/);
   assert.match(component, /nameInput/);
   assert.match(component, /emailInput/);
   assert.match(component, /messageInput/);
-  assert.match(component, /createTextButton\(documentRef, "\+ файл"\)/);
-  assert.match(component, /textContent = "отправить"/);
 });
 
 test("AI composer preserves the approved v7 input language", () => {
@@ -41,24 +41,27 @@ test("mode switching is state-only and explicit handoff uses the canonical domai
   assert.doesNotMatch(component, /\.requestSubmit\(/);
 });
 
-test("v7 visual contract stays compact beside Venus on desktop", () => {
-  assert.match(css, /inset-inline-start:\s*214px/);
-  assert.match(css, /inset-block-end:\s*18px/);
-  assert.match(css, /inline-size:\s*min\(356px,\s*calc\(100vw - 236px\)\)/);
-  assert.match(css, /block-size:\s*min\(464px,\s*calc\(100dvh - 36px\)\)/);
-  assert.match(css, /grid-template-rows:\s*auto 1fr auto/);
-  assert.match(css, /overflow:\s*hidden/);
+test("desktop shell keeps one width and expands AI only after conversation starts", () => {
+  assert.match(css, /inline-size:\s*min\(328px,\s*calc\(100vw - 236px\)\)/);
+  assert.match(css, /\.contact-hub\[data-mode="ai"\]\[data-ai-phase="prompt"\][\s\S]*block-size:\s*min\(208px,/);
+  assert.match(css, /data-ai-phase="prompt"\] \.contact-hub__ai-footer[\s\S]*display:\s*none/);
+  assert.match(css, /\.contact-hub\[data-mode="ai"\]\[data-ai-phase="conversation"\][\s\S]*block-size:\s*min\(404px,/);
+  assert.match(css, /\.contact-hub\[data-mode="form"\][\s\S]*block-size:\s*min\(344px,/);
+  assert.match(component, /hub\.dataset\.aiPhase = aiExpanded \? "conversation" : "prompt"/);
+  assert.match(component, /aiExpanded = true;/);
 });
 
 test("v7 form uses stacked editorial rows rather than a two-column field grid", () => {
-  assert.match(css, /\.contact-hub__field\s*\{[\s\S]*display:\s*grid;[\s\S]*gap:\s*2px;/);
+  assert.match(css, /\.contact-hub__field\s*\{[\s\S]*display:\s*grid;[\s\S]*gap:\s*3px;/);
   assert.doesNotMatch(css, /grid-template-columns:\s*minmax\(5rem/);
   assert.match(css, /\.contact-hub__field:focus-within/);
 });
 
-test("v7 mobile shell is a 62dvh bottom sheet", () => {
+test("mobile shell uses compact prompt and expands only for conversation", () => {
   assert.match(css, /@media \(width <= 42\.5rem\)/);
-  assert.match(css, /block-size:\s*min\(62dvh,\s*520px\)/);
+  assert.match(css, /data-ai-phase="prompt"[\s\S]*block-size:\s*min\(220px,/);
+  assert.match(css, /data-ai-phase="conversation"[\s\S]*block-size:\s*min\(62dvh,\s*520px\)/);
+  assert.match(css, /data-mode="form"[\s\S]*block-size:\s*min\(420px,/);
   assert.match(css, /max-block-size:\s*calc\(100dvh - env\(safe-area-inset-top\)\)/);
   assert.match(css, /padding-block-end:\s*env\(safe-area-inset-bottom\)/);
   assert.doesNotMatch(css, /backdrop-filter/);
@@ -77,18 +80,25 @@ test("mobile collapse and restore are wired without clearing form draft", () => 
 
 test("visible mobile consent is moved clear of the bottom sheet", () => {
   assert.match(component, /documentElement\.classList\.toggle\("contact-hub-open"/);
+  assert.match(component, /documentElement\.classList\.toggle\("contact-hub-engaged"/);
   assert.match(consentCss, /@media \(max-width: 42\.5rem\)/);
   assert.match(consentCss, /html\.contact-hub-open \.site-analytics-consent/);
   assert.match(consentCss, /inset-block-end:\s*calc\(\s*min\(62dvh,\s*520px\)/);
 });
 
 
-test("form mode is deliberately flatter and more compact than AI mode", () => {
-  assert.match(css, /\.contact-hub\[data-mode="form"\]\s*\{[\s\S]*inline-size:\s*min\(328px,/);
-  assert.match(css, /\.contact-hub\[data-mode="form"\]\s*\{[\s\S]*block-size:\s*min\(382px,/);
-  assert.match(css, /\.contact-hub\[data-mode="form"\]\s*\{[\s\S]*box-shadow:\s*none;/);
-  assert.match(css, /\.contact-hub\[data-mode="form"\] \.contact-hub__header\s*\{[\s\S]*min-block-size:\s*38px;/);
-  assert.match(css, /\.contact-hub__field textarea\s*\{[\s\S]*min-block-size:\s*84px;/);
-  assert.match(component, /state\.mode === "form" \? 328 : 356/);
-  assert.match(component, /state\.mode === "form" \? 382 : 464/);
+test("form stays editorial and removes redundant internal chrome", () => {
+  assert.match(css, /\.contact-hub\[data-mode="form"\][\s\S]*box-shadow:\s*none;/);
+  assert.match(css, /\.contact-hub__field\s*\{[\s\S]*border-block-end:\s*0;/);
+  assert.match(css, /\.contact-hub__field :is\(input, textarea\)[\s\S]*border-block-end:\s*var\(--border-width-100\) solid var\(--clr-border\)/);
+  assert.match(css, /\.contact-hub__field textarea[\s\S]*min-block-size:\s*104px;/);
+  assert.match(component, /directContactButton/);
+});
+
+
+test("conversation and form keep content hierarchy clean", () => {
+  assert.match(css, /\.contact-hub__ai-log\s*\{[\s\S]*overflow-y:\s*auto;/);
+  assert.match(component, /aiLog\.scrollTop = aiLog\.scrollHeight/);
+  assert.match(css, /\.contact-hub__field textarea\s*\{[\s\S]*border-block-end:\s*0;/);
+  assert.doesNotMatch(css, /\.contact-hub__field :is\(input, textarea\):focus-visible,/);
 });

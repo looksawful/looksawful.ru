@@ -26,6 +26,20 @@ await withE2ERuntime(async ({ browser, baseUrl }) => {
   let hub = page.locator("[data-contact-hub]");
   await hub.waitFor({ state: "visible", timeout: 2_000 });
   assert.equal(await hub.getAttribute("data-mode"), "ai", "clicking Venus must open Contact Hub directly in AI mode");
+  assert.equal(await hub.getAttribute("data-ai-phase"), "prompt", "Venus must start as a compact prompt");
+  const promptBox = await hub.boundingBox();
+  assert.ok(promptBox && promptBox.width <= 330 && promptBox.height <= 230, "initial Venus prompt must stay compact on desktop");
+  const aiInput = hub.locator('[data-contact-hub-ai-composer] input');
+  await aiInput.fill("cases");
+  await aiInput.press("Enter");
+  await settle(page);
+  assert.equal(await hub.getAttribute("data-ai-phase"), "conversation", "first question must expand Venus into conversation mode");
+  const conversationBox = await hub.boundingBox();
+  assert.ok(conversationBox && conversationBox.height > (promptBox?.height ?? 0) + 120, "conversation mode must expand vertically");
+  await hub.locator('[data-contact-hub-direct-contact]').click();
+  await settle(page);
+  assert.equal(await hub.getAttribute("data-mode"), "form", "direct contact action must open the form in the same shell");
+  assert.ok(Math.abs((await hub.boundingBox())?.width - (conversationBox?.width ?? 0)) <= 2, "AI and form must share one shell width");
   await page.keyboard.press("Escape");
   await hub.waitFor({ state: "hidden", timeout: 2_000 });
 

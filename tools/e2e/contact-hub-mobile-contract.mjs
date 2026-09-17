@@ -106,7 +106,7 @@ async function verifyViewport(browser, baseUrl, viewport) {
     assert.equal(await email.inputValue(), "draft@example.com");
     assert.equal(await message.inputValue(), "draft message");
 
-    await hub.locator('[data-contact-hub-mode="ai"]').click();
+    await hub.locator('[data-contact-hub-back-to-ai]').click();
     await settle(page);
     const composer = hub.locator("[data-contact-hub-ai-composer]");
     assertInside(await box(composer, "composer"), viewport, "AI composer");
