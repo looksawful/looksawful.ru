@@ -18,6 +18,7 @@ const assets = [
 test("AWFUL Studio Storybook exposes exactly the eight current web 3D assets", () => {
   assets.forEach((path) => assert.equal(existsSync(new URL(path, root)), true, path));
   assert.equal(existsSync(new URL("public/media/projects/awful-studio/device-viewer/iphone-17.glb", root)), false);
+  assert.equal(existsSync(new URL("docs/awful-studio-device-viewer-v21.md", root)), false);
 });
 
 test("AWFUL Studio 3D stories identify the final device revisions and studio rig", () => {
