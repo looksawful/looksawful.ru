@@ -5,39 +5,15 @@ import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 
 const STYLE_ID = "model-viewer-awful-studio-device-styles";
 
-const DEVICES = {
-  iphone17: {
-    name: "iPhone 17 · v21",
-    src: "/media/projects/awful-studio/device-viewer/iphone-17.glb",
-    aria: "3D-модель iPhone 17",
-    view: [0.32, 0.12, 1],
-    exposure: 1.10,
-    envIntensity: 0.24,
-  },
-  ipad11: {
-    name: "iPad Pro 11 M5 · v6",
-    src: "/media/projects/awful-studio/device-viewer/ipad-pro-11.glb",
-    aria: "3D-модель iPad Pro 11 M5",
-    view: [0.34, 0.16, 1],
-    exposure: 1.0,
-    envIntensity: 0.68,
-  },
-  ipad13: {
-    name: "iPad Pro 13 M5 · v6",
-    src: "/media/projects/awful-studio/device-viewer/ipad-pro-13.glb",
-    aria: "3D-модель iPad Pro 13 M5",
-    view: [0.34, 0.16, 1],
-    exposure: 1.0,
-    envIntensity: 0.68,
-  },
-  macbook14: {
-    name: "MacBook Pro 14 M5 · current",
-    src: "/media/projects/awful-studio/device-viewer/macbook-pro-14.glb",
-    aria: "3D-модель MacBook Pro 14 M5",
-    view: [0.95, 0.52, 1],
-    exposure: 1.0,
-    envIntensity: 0.72,
-  },
+const MODELS = {
+  iphone17: { name: "iPhone 17 · v30", src: "/media/projects/awful-studio/model-viewer/iphone-17-v30.glb", aria: "3D-модель iPhone 17", view: [0.32, 0.12, 1], exposure: 1.10, envIntensity: 0.24 },
+  ipad11: { name: "iPad Pro 11 M5 · v6", src: "/media/projects/awful-studio/model-viewer/ipad-pro-11-m5-v6.glb", aria: "3D-модель iPad Pro 11 M5", view: [0.34, 0.16, 1], exposure: 1.0, envIntensity: 0.68 },
+  ipad13: { name: "iPad Pro 13 M5 · v6", src: "/media/projects/awful-studio/model-viewer/ipad-pro-13-m5-v6.glb", aria: "3D-модель iPad Pro 13 M5", view: [0.34, 0.16, 1], exposure: 1.0, envIntensity: 0.68 },
+  macbook14: { name: "MacBook Pro 14 M5 · v1", src: "/media/projects/awful-studio/model-viewer/macbook-pro-14-m5-v1.glb", aria: "3D-модель MacBook Pro 14 M5", view: [0.95, 0.52, 1], exposure: 1.0, envIntensity: 0.72 },
+  profotoD1: { name: "Profoto D1 500 Air", src: "/media/projects/awful-studio/model-viewer/profoto-d1-500-air.glb", aria: "3D-модель Profoto D1 500 Air", view: [0.7, 0.4, 1], exposure: 1.0, envIntensity: 0.68 },
+  profotoMagnum: { name: "Profoto Magnum 100624", src: "/media/projects/awful-studio/model-viewer/profoto-magnum-100624.glb", aria: "3D-модель Profoto Magnum 100624", view: [0.7, 0.35, 1], exposure: 1.0, envIntensity: 0.68 },
+  sandbag: { name: "Studio Sandbag 01", src: "/media/projects/awful-studio/model-viewer/studio-sandbag-01.glb", aria: "3D-модель студийного sandbag", view: [0.75, 0.45, 1], exposure: 1.0, envIntensity: 0.68 },
+  cstand: { name: "C-Stand", src: "/media/projects/awful-studio/model-viewer/studio-support-cstand-01.glb", aria: "3D-модель C-Stand", view: [0.5, 0.35, 1], exposure: 1.0, envIntensity: 0.68 },
 };
 
 const ensureStyles = () => {
@@ -475,32 +451,22 @@ const createStory = (device) => {
 };
 
 export default {
-  title: "02 Molecules/Model Viewer/AWFUL Studio Devices",
+  title: "02 Molecules/Model Viewer/AWFUL Studio 3D",
   parameters: {
     layout: "padded",
     docs: {
       description: {
-        component: "Отдельные web-GLB устройств AWFUL STUDIO внутри обычного media surface сайта. Материалы и normals приходят из Blender; Three.js отвечает за HDRI/PMREM, камеру, orbit/zoom, fit, fullscreen и диагностический edge-view.",
+        component: "Канонические web-GLB AWFUL STUDIO: четыре финальных устройства и четыре объекта studio rig. Three.js отвечает за окружение, камеру, orbit/zoom, fit, fullscreen и диагностический edge-view.",
       },
     },
   },
 };
 
-export const IPhone17 = {
-  name: "iPhone 17",
-  render: () => createStory(DEVICES.iphone17),
-};
-export const IPadPro11 = {
-  name: "iPad Pro 11 M5",
-  render: () => createStory(DEVICES.ipad11),
-};
-
-export const IPadPro13 = {
-  name: "iPad Pro 13 M5",
-  render: () => createStory(DEVICES.ipad13),
-};
-
-export const MacBookPro14 = {
-  name: "MacBook Pro 14 M5",
-  render: () => createStory(DEVICES.macbook14),
-};
+export const IPhone17 = { name: "iPhone 17", render: () => createStory(MODELS.iphone17) };
+export const IPadPro11 = { name: "iPad Pro 11 M5", render: () => createStory(MODELS.ipad11) };
+export const IPadPro13 = { name: "iPad Pro 13 M5", render: () => createStory(MODELS.ipad13) };
+export const MacBookPro14 = { name: "MacBook Pro 14 M5", render: () => createStory(MODELS.macbook14) };
+export const ProfotoD1 = { name: "Profoto D1 500 Air", render: () => createStory(MODELS.profotoD1) };
+export const ProfotoMagnum = { name: "Profoto Magnum 100624", render: () => createStory(MODELS.profotoMagnum) };
+export const StudioSandbag = { name: "Studio Sandbag 01", render: () => createStory(MODELS.sandbag) };
+export const CStand = { name: "C-Stand", render: () => createStory(MODELS.cstand) };
