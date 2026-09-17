@@ -57,6 +57,7 @@ _reports/
 _rollback-audit/
 
 # local-only working area
+.worktrees/
 _local/*
 _local/design-capture/
 !_local/comments/
