@@ -128,7 +128,7 @@ export function createPageFlip(root: unknown, { motion }: CreatePageFlipOptions 
         minHeight: 368,
         maxHeight: 820,
         drawShadow: motion?.allowsMotion?.() ?? true,
-        flippingTime: motion?.allowsMotion?.() === false ? 0 : 1180,
+        flippingTime: motion?.allowsMotion?.() === false ? 1 : 1180,
         usePortrait: true,
         startZIndex: 0,
         startPage: 0,

@@ -1,111 +1,142 @@
-function collectCustomProperties() {
-  const tokens = new Map();
+import "./foundations.css";
+import {
+  collectCustomProperties,
+  customPropertiesFor,
+  gradientDeclarations,
+  motionDeclarations,
+  reducedMotionDeclarations,
+  resolveCustomProperty,
+} from "../storybook-support/foundation-tokens.js";
 
-  const visitRules = (rules) => {
-    for (const rule of Array.from(rules)) {
-      if (rule.style) {
-        for (const property of Array.from(rule.style)) {
-          if (!property.startsWith("--")) continue;
-          const value = rule.style.getPropertyValue(property).trim();
-          if (value) tokens.set(property, value);
-        }
-      }
-      if (rule.cssRules) visitRules(rule.cssRules);
-    }
-  };
-
-  for (const sheet of Array.from(document.styleSheets)) {
-    try {
-      if (sheet.cssRules) visitRules(sheet.cssRules);
-    } catch {
-      // A stylesheet that cannot expose CSSOM is simply not part of the local token inventory.
-    }
-  }
-
-  return [...tokens.entries()].sort(([a], [b]) => a.localeCompare(b));
+function el(tag, className, text) {
+  const node = document.createElement(tag);
+  if (className) node.className = className;
+  if (text !== undefined) node.textContent = text;
+  return node;
 }
 
-function tokenTable(filter) {
-  const root = document.createElement("div");
-  root.style.padding = "32px";
-  root.style.background = "var(--clr-bg, #fff)";
-  root.style.color = "var(--clr-text, #111)";
-  root.style.minHeight = "100vh";
+function foundationPage(title, description) {
+  const root = el("main", "foundation-page");
+  const header = el("header", "foundation-page__header");
+  header.append(el("h1", "foundation-page__title", title), el("p", "foundation-page__description", description));
+  root.append(header);
+  return root;
+}
 
-  const title = document.createElement("h1");
-  title.textContent = "canonical CSS tokens";
-  root.append(title);
-
-  const note = document.createElement("p");
-  note.textContent = "Values below are read from the loaded canonical site styles at runtime. Storybook does not own a duplicate token source.";
-  root.append(note);
-
-  const table = document.createElement("table");
-  table.style.width = "100%";
-  table.style.borderCollapse = "collapse";
-  const body = document.createElement("tbody");
-
-  for (const [name, rawValue] of collectCustomProperties().filter(([name]) => filter(name))) {
-    const row = document.createElement("tr");
-    const nameCell = document.createElement("td");
-    const valueCell = document.createElement("td");
-    const sampleCell = document.createElement("td");
-    nameCell.textContent = name;
-    valueCell.textContent = rawValue;
-    nameCell.style.padding = valueCell.style.padding = sampleCell.style.padding = "8px";
-    nameCell.style.borderBottom = valueCell.style.borderBottom = sampleCell.style.borderBottom = "1px solid var(--clr-border, #ddd)";
-    if (name.startsWith("--clr-")) {
-      const sample = document.createElement("span");
-      sample.style.display = "block";
-      sample.style.width = "48px";
-      sample.style.height = "24px";
-      sample.style.border = "1px solid currentColor";
-      sample.style.background = `var(${name})`;
-      sampleCell.append(sample);
-    }
-    row.append(nameCell, valueCell, sampleCell);
-    body.append(row);
+function tokenCard(token, kind = "generic") {
+  const card = el("article", "foundation-token");
+  card.dataset.tokenName = token.name;
+  const preview = el("div", `foundation-token__preview foundation-token__preview--${kind}`);
+  const resolved = resolveCustomProperty(token.name) || token.rawValue;
+  if (kind === "color") preview.style.background = `var(${token.name})`;
+  if (kind === "surface") {
+    if (token.name.includes("shadow")) preview.style.boxShadow = `var(${token.name})`;
+    else if (token.name.includes("border")) preview.style.borderColor = `var(${token.name})`;
+    else preview.style.background = `var(${token.name})`;
   }
+  if (kind === "radius") preview.style.borderRadius = `var(${token.name})`;
+  if (kind === "size") preview.style.setProperty("--foundation-sample-size", `var(${token.name})`);
+  if (kind === "type") {
+    preview.textContent = "Aa 0123";
+    if (token.name.startsWith("--ff-")) preview.style.fontFamily = `var(${token.name})`;
+    else if (token.name.startsWith("--fw-")) preview.style.fontWeight = `var(${token.name})`;
+    else if (token.name.startsWith("--fs-")) preview.style.fontSize = `var(${token.name})`;
+    else if (token.name.startsWith("--lh-")) preview.style.lineHeight = `var(${token.name})`;
+    else if (token.name.startsWith("--ls-")) preview.style.letterSpacing = `var(${token.name})`;
+  }
+  const meta = el("div", "foundation-token__meta");
+  meta.append(el("code", "foundation-token__name", token.name), el("code", "foundation-token__value", resolved));
+  meta.append(el("small", "foundation-token__origin", `${token.selector || "declaration"} / ${token.source}`));
+  card.append(preview, meta);
+  return card;
+}
 
-  table.append(body);
+function tokenGallery(title, description, group, kind) {
+  const root = foundationPage(title, description);
+  const grid = el("section", "foundation-grid");
+  for (const token of customPropertiesFor(group)) grid.append(tokenCard(token, kind));
+  root.append(grid);
+  return root;
+}
+
+function declarationGallery(title, description, declarations, kind) {
+  const root = foundationPage(title, description);
+  const grid = el("section", "foundation-grid");
+  for (const item of declarations()) {
+    const card = el("article", "foundation-token");
+    const preview = el("div", `foundation-token__preview foundation-token__preview--${kind}`);
+    if (kind === "gradient") preview.style.background = item.value;
+    if (kind === "motion") preview.append(el("span", "foundation-motion-dot"));
+    const meta = el("div", "foundation-token__meta");
+    meta.append(
+      el("code", "foundation-token__name", `${item.selector || "rule"} / ${item.property}`),
+      el("code", "foundation-token__value", item.value),
+      el("small", "foundation-token__origin", `${item.condition || "all media"} / ${item.source}`),
+    );
+    card.append(preview, meta);
+    grid.append(card);
+  }
+  root.append(grid);
+  return root;
+}
+
+function motionSystem() {
+  const root = tokenGallery("motion", "Production motion custom properties plus transition and animation declarations discovered from production CSS.", "motion", "motion");
+  const declarations = declarationGallery("motion declarations", "Production transition and animation declarations.", motionDeclarations, "motion");
+  root.append(...Array.from(declarations.children).slice(1));
+  return root;
+}
+
+function inspector() {
+  const root = foundationPage("token inspector", "Every CSS custom property currently exposed by the loaded production stylesheet graph, including component-scoped variables.");
+  const table = el("table", "foundation-inspector");
+  const head = document.createElement("thead");
+  const row = document.createElement("tr");
+  for (const label of ["Token", "Value", "Selector", "Source"]) row.append(el("th", "", label));
+  head.append(row);
+  const body = document.createElement("tbody");
+  for (const token of collectCustomProperties()) {
+    const tr = document.createElement("tr");
+    for (const value of [token.name, resolveCustomProperty(token.name) || token.rawValue, token.selector || token.condition || "declaration", token.source]) {
+      const td = document.createElement("td");
+      td.append(el("code", "", value));
+      tr.append(td);
+    }
+    body.append(tr);
+  }
+  table.append(head, body);
   root.append(table);
   return root;
 }
 
 const meta = {
-  title: "00 Foundations/Tokens",
-  tags: ["autodocs", "stable"],
+  title: "00 Foundations/Production System",
+  tags: ["autodocs", "stable", "a11y-reviewed"],
   parameters: {
-    docs: {
-      description: {
-        component: "Live inventory of CSS custom properties from the canonical site stylesheet graph.",
-      },
+    looksawful: {
+      sources: ["src/styles/index.css", "src/styles/tokens.css", "src/styles/colors.css", "src/styles/motion.css"],
+      layer: "foundation",
+      policy: "isolated",
+      canonical: true,
+      state: "production-derived",
+      visibility: ["always"],
+      motion: ["motion-enabled", "reduced-motion"],
+      responsive: { review: ["desktop", "tablet", "mobile"] },
     },
+    docs: { description: { component: "Read-only production-derived foundation inventory. Values come from the canonical stylesheet graph through CSSOM rather than a Storybook-owned token copy." } },
   },
 };
-
 export default meta;
 
-export const All = {
-  render: () => tokenTable(() => true),
-};
-
-export const Colors = {
-  render: () => tokenTable((name) => name.startsWith("--clr-")),
-};
-
-export const Typography = {
-  render: () => tokenTable((name) => /(font|type|text|line|letter)/i.test(name)),
-};
-
-export const SpacingAndLayout = {
-  render: () => tokenTable((name) => /(space|gap|radius|width|container|grid|size)/i.test(name)),
-};
-
-export const Motion = {
-  render: () => tokenTable((name) => /(motion|duration|ease|transition)/i.test(name)),
-};
-
-export const Controls = {
-  render: () => tokenTable((name) => /(control|field|button|focus|shadow)/i.test(name)),
-};
+export const All = { render: inspector };
+export const Colors = { render: () => tokenGallery("colors", "Canonical color custom properties from production CSS.", "color", "color") };
+export const Typography = { render: () => tokenGallery("typography", "Production font family, weight, size, line-height and tracking scales.", "typography", "type") };
+export const SizingAndSpacing = { render: () => tokenGallery("sizing and spacing", "Production size, spacing, content-width and page-padding primitives and aliases.", "sizing", "size") };
+export const SpacingAndLayout = { render: () => tokenGallery("spacing and layout", "Compatibility view for production sizing, spacing, content-width and page-padding primitives.", "sizing", "size") };
+export const Radii = { render: () => tokenGallery("radii", "Production radius primitives and semantic radius aliases.", "radius", "radius") };
+export const Surfaces = { render: () => tokenGallery("surfaces", "Production surface, foreground, border and shadow variables.", "surface", "surface") };
+export const Controls = { render: () => tokenGallery("controls", "Production control, field, button, focus and shadow custom properties.", "control", "generic") };
+export const Gradients = { render: () => declarationGallery("gradients", "Gradient declarations discovered from the loaded production CSS rules.", gradientDeclarations, "gradient") };
+export const Motion = { render: motionSystem };
+export const ReducedMotion = { render: () => declarationGallery("reduced motion", "Production declarations active under prefers-reduced-motion: reduce.", reducedMotionDeclarations, "motion") };
+export const Inspector = { render: inspector };
