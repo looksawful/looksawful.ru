@@ -1,0 +1,24 @@
+{
+  "id": "lyve-moscow-metal",
+  "family": "LYVР“в‚¬ Moscow",
+  "variant": "primary",
+  "colorway": null,
+  "source": "public/media/projects/lyve/logo/source/01-lyve-logo.svg",
+  "sourceType": "vector-svg",
+  "sourceSha256": "12da9a1072afd06d5259d90001f7f587e96c26667ba1a79c309d4828d454096e",
+  "materialId": "neutral-metal",
+  "geometryProfile": "jestei-reference",
+  "dimensions": [
+    2.0,
+    0.38,
+    0.536945
+  ],
+  "formats": [
+    "blend",
+    "glb",
+    "fbx",
+    "obj",
+    "stl"
+  ],
+  "blenderVersion": "5.2.1 LTS"
+}

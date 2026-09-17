@@ -1,0 +1,24 @@
+{
+  "id": "sensetique-metal",
+  "family": "Sensetique",
+  "variant": "lockup",
+  "colorway": null,
+  "source": "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/112_lockups_r18_c01.svg",
+  "sourceType": "vector-svg",
+  "sourceSha256": "31aad3b4789bfb65b346623e6be56198711f4c14e4e227b7eef6460df8e48174",
+  "materialId": "neutral-metal",
+  "geometryProfile": "jestei-reference",
+  "dimensions": [
+    1.867443,
+    0.38,
+    2.0
+  ],
+  "formats": [
+    "blend",
+    "glb",
+    "fbx",
+    "obj",
+    "stl"
+  ],
+  "blenderVersion": "5.2.1 LTS"
+}
