@@ -1,5 +1,6 @@
 import type { ProjectData } from "../../../types/project.ts";
 import { awfulCasesEditorialContent } from "../../content/awful-cases-editorial.ts";
+import { awfulStudioIntro } from "../../content/awful-studio.ts";
 
 export const otherProjects = [
   {
@@ -67,6 +68,18 @@ export const otherProjects = [
     summary: "CLI-таймер с режимом свидетеля и гибкой настройкой длительности.",
     description:
       "Целью было сделать простой CLI-таймер для Windows, который после каждой сессии спрашивает: «Чем вы занимались?». Он сочетает гибкость, простоту и отсутствие рекламы.",
+    engagementTypeIds: ["self-initiated", "open-source"],
+    primaryRoleId: "developer",
+    roleIds: ["developer"],
+  },
+  {
+    id: "awful-studio",
+    name: "AWFUL STUDIO",
+    date: awfulStudioIntro.period,
+    status: "completed",
+    collectionIds: ["pet-projects"],
+    summary: awfulStudioIntro.summary,
+    description: awfulStudioIntro.lead,
     engagementTypeIds: ["self-initiated", "open-source"],
     primaryRoleId: "developer",
     roleIds: ["developer"],

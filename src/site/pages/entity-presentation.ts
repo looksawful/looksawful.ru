@@ -35,6 +35,7 @@ export const entityShellPresentationRegistry: EntityShellPresentationRegistry = 
   ["case:sensetique", { articleId: "project-sensetique", theme: "pink-red", navigationProject: true }],
   ["collection:music-photography", { articleId: "project-shootings", theme: "neutral", navigationProject: true }],
   ["project:awful-cases", { articleId: "project-awful-cases", theme: "neutral", navigationProject: false }],
+  ["project:awful-studio", { articleId: "project-awful-studio", theme: "neutral", navigationProject: false }],
   ["project:moves-awful", { articleId: "project-moves-awful", theme: "orange-cream", navigationProject: false }],
   ["project:berry-social-content-2020", { articleId: "project-berry-social-content-2020", theme: "berry-pink", navigationProject: false }],
 ]);
