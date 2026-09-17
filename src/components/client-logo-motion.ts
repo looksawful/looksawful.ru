@@ -67,17 +67,22 @@ function createLogoWallMotion(
   const resetSurface = (surface: HTMLElement | null, immediate = false): void => {
     if (!surface) return;
 
+    if (immediate) {
+      gsap.killTweensOf(surface);
+      gsap.set(surface, { clearProps: "x,y,rotationX,rotationY,scale" });
+      return;
+    }
+
     gsap.to(surface, {
       x: 0,
       y: 0,
       rotationX: 0,
       rotationY: 0,
       scale: 1,
-      duration: immediate ? 0 : 0.42,
+      duration: 0.42,
       ease: "power3.out",
       overwrite: "auto",
       onComplete() {
-        if (immediate) return;
         gsap.set(surface, { clearProps: "x,y,rotationX,rotationY,scale" });
       },
     });
@@ -195,8 +200,8 @@ function createLogoWallMotion(
     const target = event.target;
     if (!(target instanceof Element)) return;
 
-    const item = target.closest<HTMLElement>(ITEM_SELECTOR);
-    if (!item || !root.contains(item)) {
+    const item = target.closest(ITEM_SELECTOR);
+    if (!(item instanceof HTMLElement) || !root.contains(item)) {
       resetSurface(activeSurface);
       activeSurface = null;
       return;
