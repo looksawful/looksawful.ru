@@ -8,7 +8,7 @@ test("subproject cover overrides are an isolated CMS-owned mapping", async () =>
   const source = JSON.parse(await readFile(sourcePath, "utf8"));
   assert.deepEqual(source, {});
   const module = await import("../src/data/subproject-cards.ts");
-  assert.equal(module.petProjectCards.find(({ id }) => id === "awful-cases")?.coverEntryId, "awful-cases-assets-screenshot-2026-08-14-174113-use-01");
+  assert.equal(module.petProjectCards.find(({ id }) => id === "awful-cases")?.coverEntryId, "useful-awful-cases-cover-use-01");
   assert.equal(module.shootingCardGroups.flatMap(({ cards }) => cards).find(({ id }) => id === "choose-your-character")?.coverEntryId, "behance-choose-your-character-cover-use-01");
 });
 

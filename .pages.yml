@@ -371,6 +371,88 @@ content:
             label: Alt обложки
             type: text
 
+  - name: useful-project-cards
+    label: Полезное — тексты карточек
+    type: file
+    path: src/content/editorial/useful-project-cards.json
+    format: json
+    operations:
+      create: false
+      rename: false
+      delete: false
+    commit:
+      templates:
+        update: "content(cms): update useful project card copy"
+    actions:
+      - name: verify-useful-project-copy
+        label: Проверить сайт
+        workflow: ci-fast.yml
+        ref: dev
+    fields:
+      - name: section
+        label: Секция
+        type: object
+        required: true
+        fields:
+          - { name: title, label: Заголовок, type: string, required: true }
+          - { name: description, label: Описание, type: text, required: true }
+      - name: cards
+        label: Карточки
+        type: object
+        required: true
+        fields:
+          - name: awful-cases
+            label: Awful Cases
+            type: object
+            required: true
+            fields: &useful-card-copy-fields
+              - { name: title, label: Название, type: string, required: true }
+              - { name: description, label: Описание, type: text, required: true }
+              - { name: badge, label: Бейдж, type: string }
+          - { name: moves-awful, label: Moves Awful, type: object, required: true, fields: *useful-card-copy-fields }
+          - { name: berserk-timer, label: Berserk Timer, type: object, required: true, fields: *useful-card-copy-fields }
+          - { name: awful-studio, label: Awful Studio, type: object, required: true, fields: *useful-card-copy-fields }
+          - { name: awful-mockups, label: Awful Mockups, type: object, required: true, fields: *useful-card-copy-fields }
+          - { name: awful-3d-mockups, label: Awful 3D Mockups, type: object, required: true, fields: *useful-card-copy-fields }
+
+  - name: useful-project-state
+    label: Полезное — публикация карточек
+    type: file
+    path: src/content/useful-projects.json
+    format: json
+    list: true
+    operations:
+      create: false
+      rename: false
+      delete: false
+    commit:
+      templates:
+        update: "content(cms): update useful project card state"
+    actions:
+      - name: verify-useful-project-state
+        label: Проверить сайт
+        workflow: ci-fast.yml
+        ref: dev
+    fields:
+      - name: id
+        label: ID
+        type: string
+        required: true
+        hidden: true
+        readonly: true
+      - name: visible
+        label: Показывать на главной
+        type: boolean
+        required: true
+      - name: state
+        label: Состояние
+        type: select
+        required: true
+        options:
+          values:
+            - { name: live, label: Опубликован }
+            - { name: coming-soon, label: В разработке }
+            - { name: hidden, label: Скрыт }
   - name: project-card-media
     label: Карточки проектов — видимость и обложки
     type: file

@@ -1,0 +1,32 @@
+[
+  {
+    "id": "awful-cases",
+    "visible": true,
+    "state": "live"
+  },
+  {
+    "id": "moves-awful",
+    "visible": true,
+    "state": "live"
+  },
+  {
+    "id": "berserk-timer",
+    "visible": true,
+    "state": "live"
+  },
+  {
+    "id": "awful-studio",
+    "visible": true,
+    "state": "coming-soon"
+  },
+  {
+    "id": "awful-mockups",
+    "visible": true,
+    "state": "coming-soon"
+  },
+  {
+    "id": "awful-3d-mockups",
+    "visible": true,
+    "state": "coming-soon"
+  }
+]
