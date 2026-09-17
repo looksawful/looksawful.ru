@@ -60,6 +60,7 @@ type PrivacyNavigator = Navigator & {
 const CLOUDFLARE_BEACON_SRC = "https://static.cloudflareinsights.com/beacon.min.js";
 const YANDEX_METRIKA_SRC = "https://mc.yandex.ru/metrika/tag.js";
 const ANALYTICS_CONSENT_KEY = "looksawful:analytics-consent";
+const ANALYTICS_INTERNAL_KEY = "looksawful:analytics-internal";
 const ANALYTICS_REGION_KEY = "looksawful:analytics-region";
 const noop = () => {};
 
@@ -119,12 +120,21 @@ export function isLocalAnalyticsHostname(hostname: string): boolean {
     || normalized.endsWith(".localhost");
 }
 
+export function isSiteAnalyticsInternalTraffic(target: Pick<Window, "localStorage">): boolean {
+  try {
+    return target.localStorage.getItem(ANALYTICS_INTERNAL_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
 export function selectSiteAnalyticsProviders(
   config: SiteAnalyticsConfig,
   privacy: SitePrivacySignals,
   analyticsConsent: boolean,
+  internalTraffic = false,
 ): SiteAnalyticsProvider[] {
-  if (isSiteAnalyticsOptedOut(privacy)) return [];
+  if (internalTraffic || isSiteAnalyticsOptedOut(privacy)) return [];
 
   const providers: SiteAnalyticsProvider[] = [];
   if (clean(config.cloudflareToken)) providers.push("cloudflare");
@@ -136,8 +146,9 @@ export function buildSiteAnalyticsScripts(
   config: SiteAnalyticsConfig,
   privacy: SitePrivacySignals,
   analyticsConsent: boolean,
+  internalTraffic = false,
 ): SiteAnalyticsScript[] {
-  const providers = selectSiteAnalyticsProviders(config, privacy, analyticsConsent);
+  const providers = selectSiteAnalyticsProviders(config, privacy, analyticsConsent, internalTraffic);
   const scripts: SiteAnalyticsScript[] = [];
 
   for (const provider of providers) {
@@ -252,7 +263,8 @@ export function mountSiteAnalytics({ root, target, config }: MountSiteAnalyticsO
 
   const privacy = readSitePrivacySignals(target);
   const analyticsConsent = hasSiteAnalyticsConsent(target);
-  const scripts = buildSiteAnalyticsScripts(config, privacy, analyticsConsent);
+  const internalTraffic = isSiteAnalyticsInternalTraffic(target);
+  const scripts = buildSiteAnalyticsScripts(config, privacy, analyticsConsent, internalTraffic);
   const host = root.head ?? root.documentElement;
   const mounted: SiteAnalyticsProvider[] = [];
 
@@ -350,6 +362,7 @@ export function reachSiteAnalyticsGoal(
   event: SiteAnalyticsGoalEvent,
 ): boolean {
   if (isLocalAnalyticsHostname(target.location.hostname)) return false;
+  if (isSiteAnalyticsInternalTraffic(target)) return false;
   if (isSiteAnalyticsOptedOut(readSitePrivacySignals(target))) return false;
   if (!hasSiteAnalyticsConsent(target)) return false;
 
@@ -369,6 +382,7 @@ export function mountSiteAnalyticsGoalTracking({
   config,
 }: MountSiteAnalyticsGoalTrackingOptions): () => void {
   if (isLocalAnalyticsHostname(target.location.hostname)) return noop;
+  if (isSiteAnalyticsInternalTraffic(target)) return noop;
   if (!parseYandexCounterId(config.yandexCounterId)) return noop;
 
   const onClick = (event: MouseEvent): void => {
