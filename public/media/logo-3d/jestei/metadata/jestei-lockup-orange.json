@@ -1,0 +1,24 @@
+{
+  "id": "jestei-lockup-orange",
+  "family": "Jestei Pool",
+  "variant": "lockup",
+  "colorway": "orange",
+  "source": "public/media/projects/jestei/logo/source/21-svg-full-text-icon-full-split.svg",
+  "sourceType": "vector-svg",
+  "sourceSha256": "9e0937d607daaeeb9ec20af375d03051ae5f93f82b63a94150f9fd54388aadf7",
+  "materialId": "jestei-orange-plastic",
+  "geometryProfile": "jestei-reference",
+  "dimensions": [
+    2.0,
+    0.38,
+    0.347895
+  ],
+  "formats": [
+    "blend",
+    "glb",
+    "fbx",
+    "obj",
+    "stl"
+  ],
+  "blenderVersion": "5.2.1 LTS"
+}

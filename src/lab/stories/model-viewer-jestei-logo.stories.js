@@ -3,8 +3,10 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { HDRLoader } from "three/addons/loaders/HDRLoader.js";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
+import { logo3dCatalog } from "../data/logo-3d-catalog.mjs";
 
-const MODEL_URL = "/media/projects/jestei/model-viewer/jestei-logo-web.glb";
+const READY_LOGOS = logo3dCatalog.filter((entry) => entry.status === "ready" && entry.modelUrl);
+const DEFAULT_ENTRY = READY_LOGOS.find((entry) => entry.id === "jestei-symbol-metal") ?? READY_LOGOS[0];
 const HDRI_URL = "/media/shared/3d/white-studio-04-1k.hdr";
 const STYLE_ID = "model-viewer-jestei-logo-story-styles";
 
@@ -65,6 +67,18 @@ const ensureStyles = () => {
       border-radius: var(--radius-contained);
       background: color-mix(in srgb, var(--clr-surface-raised), transparent 4%);
       box-shadow: var(--shadow-surface-elevated);
+    }
+
+    .mv-jestei-select {
+      max-inline-size: 16rem;
+      min-block-size: 2rem;
+      padding-inline: .65rem;
+      border: 0;
+      border-radius: 999px;
+      background: color-mix(in srgb, currentColor, transparent 92%);
+      color: inherit;
+      font: inherit;
+      font-size: .75rem;
     }
 
     .mv-jestei-button,
@@ -221,9 +235,9 @@ const loadEnvironment = async (renderer, scene) => {
   }
 };
 
-const loadJesteiLogo = async () => {
+const loadLogo = async (entry) => {
   const loader = new GLTFLoader();
-  const gltf = await loader.loadAsync(MODEL_URL);
+  const gltf = await loader.loadAsync(entry.modelUrl);
   return gltf.scene;
 };
 
@@ -259,13 +273,13 @@ const fitModel = (model, camera, controls) => {
   controls.update();
 };
 
-const mountViewer = async (root) => {
+const mountViewer = async (root, entry) => {
   const canvas = root.querySelector("[data-jestei-logo-canvas]");
   const status = root.querySelector("[data-jestei-logo-status]");
   const surface = root.querySelector(".media__surface");
 
   if (!(canvas instanceof HTMLCanvasElement) || !(surface instanceof HTMLElement)) {
-    throw new Error("Jestei logo viewer markup is incomplete.");
+    throw new Error("3D logo viewer markup is incomplete.");
   }
 
   let disposed = false;
@@ -319,7 +333,7 @@ const mountViewer = async (root) => {
 
   try {
     const [loadedModel, loadedEnvironment] = await Promise.all([
-      loadJesteiLogo(),
+      loadLogo(entry),
       loadEnvironment(renderer, scene),
     ]);
 
@@ -384,7 +398,7 @@ const mountViewer = async (root) => {
   } catch (error) {
     console.error(error);
     if (status) {
-      status.textContent = "Не удалось загрузить 3D-логотип Jestei Pool";
+      status.textContent = `Не удалось загрузить 3D-логотип ${entry.family}`;
       status.removeAttribute("hidden");
     }
   }
@@ -444,19 +458,22 @@ const mountViewer = async (root) => {
 
 const createStory = () => {
   ensureStyles();
+  if (!DEFAULT_ENTRY) throw new Error("No ready 3D logos in catalog.");
 
   const root = document.createElement("figure");
   root.className = "media mv-jestei-story";
   root.dataset.modelViewer = "";
-  root.dataset.modelSrc = MODEL_URL;
+  root.dataset.modelSrc = DEFAULT_ENTRY.modelUrl;
   root.dataset.modelControls = "render-mode fit-model fullscreen";
+  const options = READY_LOGOS.map((entry) => `<option value="${entry.id}">${entry.family} · ${entry.variant}${entry.colorway ? ` · ${entry.colorway}` : ""}</option>`).join("");
   root.innerHTML = `
     <div class="media__surface">
       <div class="mv-jestei-stage">
-        <canvas class="mv-jestei-canvas" data-jestei-logo-canvas aria-label="3D-логотип Jestei Pool"></canvas>
+        <canvas class="mv-jestei-canvas" data-jestei-logo-canvas aria-label="3D-логотип"></canvas>
       </div>
 
       <div class="mv-jestei-toolbar" aria-label="Управление 3D-моделью">
+        <select class="mv-jestei-select" data-logo-3d-select aria-label="3D-логотип">${options}</select>
         <fieldset class="mv-jestei-segmented">
           <legend>режим отображения</legend>
           <label>
@@ -477,9 +494,26 @@ const createStory = () => {
   `;
 
   let cleanup = () => {};
-  mountViewer(root).then((dispose) => {
-    cleanup = dispose;
+  let switchChain = Promise.resolve();
+  const select = root.querySelector("[data-logo-3d-select]");
+  const mountEntry = (entry) => {
+    switchChain = switchChain.then(async () => {
+      cleanup();
+      root.dataset.modelSrc = entry.modelUrl;
+      const status = root.querySelector("[data-jestei-logo-status]");
+      if (status) {
+        status.textContent = `загрузка ${entry.family} · ${entry.variant}…`;
+        status.removeAttribute("hidden");
+      }
+      cleanup = await mountViewer(root, entry);
+    });
+    return switchChain;
+  };
+  select?.addEventListener("change", () => {
+    const entry = READY_LOGOS.find((item) => item.id === select.value);
+    if (entry) void mountEntry(entry);
   });
+  void mountEntry(DEFAULT_ENTRY);
 
   const observer = new MutationObserver(() => {
     if (!root.isConnected) {
@@ -498,13 +532,13 @@ export default {
     layout: "padded",
     docs: {
       description: {
-        component: "Статический Jestei Pool 3D logo внутри обычной media surface сайта. Используется отдельный исправленный web GLB: manifold-сетка, жёсткие фронт/тыл, контролируемые фаски и экспортированные normals. Материал хранится в GLB; Three.js добавляет только локальную HDRI/PMREM, Neutral tone mapping, камеру и interaction.",
+        component: "Каталог готовых 3D-логотипов внутри обычной media surface сайта. Используется отдельный исправленный web GLB: manifold-сетка, жёсткие фронт/тыл, контролируемые фаски и экспортированные normals. Материал хранится в GLB; Three.js добавляет только локальную HDRI/PMREM, Neutral tone mapping, камеру и interaction.",
       },
     },
   },
 };
 
-export const JesteiLogo = {
-  name: "Jestei logo · static metal",
+export const LogoLibrary = {
+  name: "3D logo library · ready models",
   render: createStory,
 };

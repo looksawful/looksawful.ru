@@ -1,0 +1,24 @@
+{
+  "id": "jestei-wordmark-metal",
+  "family": "Jestei Pool",
+  "variant": "wordmark",
+  "colorway": null,
+  "source": "public/media/projects/jestei/logo/source/30-svg-text-only-text-logo-dark.svg",
+  "sourceType": "vector-svg",
+  "sourceSha256": "a20af15c9759bb94a8a0bf1e16937ee72570be5de5f1fbce8eda8bc9d5d6a145",
+  "materialId": "neutral-metal",
+  "geometryProfile": "jestei-reference",
+  "dimensions": [
+    2.0,
+    0.38,
+    0.201409
+  ],
+  "formats": [
+    "blend",
+    "glb",
+    "fbx",
+    "obj",
+    "stl"
+  ],
+  "blenderVersion": "5.2.1 LTS"
+}

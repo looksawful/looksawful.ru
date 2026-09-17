@@ -1,0 +1,446 @@
+{
+  "version": 1,
+  "generatedFrom": "/tools/logo-3d/logo-3d-manifest.json",
+  "geometryProfile": "jestei-reference",
+  "formats": [
+    "blend",
+    "glb",
+    "fbx",
+    "obj",
+    "stl"
+  ],
+  "items": [
+    {
+      "id": "awfulface-metal",
+      "family": "AWFUL",
+      "variant": "awfulface",
+      "colorway": null,
+      "materialId": "neutral-metal",
+      "source": "/public/favicon.svg",
+      "sourceSha256": "3b7041a6d73bc16caca3bc4c38d218e9159ab28f2b830bd2b307c0e666e9a79c",
+      "dimensions": [
+        2,
+        0.38,
+        1.999578
+      ],
+      "files": {
+        "blend": "/public/media/logo-3d/awful/awfulface-metal.blend",
+        "glb": "/public/media/logo-3d/awful/awfulface-metal.glb",
+        "fbx": "/public/media/logo-3d/awful/awfulface-metal.fbx",
+        "obj": "/public/media/logo-3d/awful/awfulface-metal.obj",
+        "stl": "/public/media/logo-3d/awful/awfulface-metal.stl"
+      },
+      "preview": "/public/media/logo-3d/awful/preview/awfulface-metal.png",
+      "metadata": "/public/media/logo-3d/awful/metadata/awfulface-metal.json",
+      "referenceModel": null
+    },
+    {
+      "id": "jestei-lockup-metal",
+      "family": "Jestei Pool",
+      "variant": "lockup",
+      "colorway": null,
+      "materialId": "neutral-metal",
+      "source": "/public/media/projects/jestei/logo/source/21-svg-full-text-icon-full-split.svg",
+      "sourceSha256": "9e0937d607daaeeb9ec20af375d03051ae5f93f82b63a94150f9fd54388aadf7",
+      "dimensions": [
+        2,
+        0.38,
+        0.347895
+      ],
+      "files": {
+        "blend": "/public/media/logo-3d/jestei/jestei-lockup-metal.blend",
+        "glb": "/public/media/logo-3d/jestei/jestei-lockup-metal.glb",
+        "fbx": "/public/media/logo-3d/jestei/jestei-lockup-metal.fbx",
+        "obj": "/public/media/logo-3d/jestei/jestei-lockup-metal.obj",
+        "stl": "/public/media/logo-3d/jestei/jestei-lockup-metal.stl"
+      },
+      "preview": "/public/media/logo-3d/jestei/preview/jestei-lockup-metal.png",
+      "metadata": "/public/media/logo-3d/jestei/metadata/jestei-lockup-metal.json",
+      "referenceModel": null
+    },
+    {
+      "id": "jestei-lockup-biloba",
+      "family": "Jestei Pool",
+      "variant": "lockup",
+      "colorway": "biloba",
+      "materialId": "jestei-biloba-plastic",
+      "source": "/public/media/projects/jestei/logo/source/21-svg-full-text-icon-full-split.svg",
+      "sourceSha256": "9e0937d607daaeeb9ec20af375d03051ae5f93f82b63a94150f9fd54388aadf7",
+      "dimensions": [
+        2,
+        0.38,
+        0.347895
+      ],
+      "files": {
+        "blend": "/public/media/logo-3d/jestei/jestei-lockup-biloba.blend",
+        "glb": "/public/media/logo-3d/jestei/jestei-lockup-biloba.glb",
+        "fbx": "/public/media/logo-3d/jestei/jestei-lockup-biloba.fbx",
+        "obj": "/public/media/logo-3d/jestei/jestei-lockup-biloba.obj",
+        "stl": "/public/media/logo-3d/jestei/jestei-lockup-biloba.stl"
+      },
+      "preview": "/public/media/logo-3d/jestei/preview/jestei-lockup-biloba.png",
+      "metadata": "/public/media/logo-3d/jestei/metadata/jestei-lockup-biloba.json",
+      "referenceModel": null
+    },
+    {
+      "id": "jestei-lockup-blue",
+      "family": "Jestei Pool",
+      "variant": "lockup",
+      "colorway": "blue",
+      "materialId": "jestei-blue-plastic",
+      "source": "/public/media/projects/jestei/logo/source/21-svg-full-text-icon-full-split.svg",
+      "sourceSha256": "9e0937d607daaeeb9ec20af375d03051ae5f93f82b63a94150f9fd54388aadf7",
+      "dimensions": [
+        2,
+        0.38,
+        0.347895
+      ],
+      "files": {
+        "blend": "/public/media/logo-3d/jestei/jestei-lockup-blue.blend",
+        "glb": "/public/media/logo-3d/jestei/jestei-lockup-blue.glb",
+        "fbx": "/public/media/logo-3d/jestei/jestei-lockup-blue.fbx",
+        "obj": "/public/media/logo-3d/jestei/jestei-lockup-blue.obj",
+        "stl": "/public/media/logo-3d/jestei/jestei-lockup-blue.stl"
+      },
+      "preview": "/public/media/logo-3d/jestei/preview/jestei-lockup-blue.png",
+      "metadata": "/public/media/logo-3d/jestei/metadata/jestei-lockup-blue.json",
+      "referenceModel": null
+    },
+    {
+      "id": "jestei-lockup-orange",
+      "family": "Jestei Pool",
+      "variant": "lockup",
+      "colorway": "orange",
+      "materialId": "jestei-orange-plastic",
+      "source": "/public/media/projects/jestei/logo/source/21-svg-full-text-icon-full-split.svg",
+      "sourceSha256": "9e0937d607daaeeb9ec20af375d03051ae5f93f82b63a94150f9fd54388aadf7",
+      "dimensions": [
+        2,
+        0.38,
+        0.347895
+      ],
+      "files": {
+        "blend": "/public/media/logo-3d/jestei/jestei-lockup-orange.blend",
+        "glb": "/public/media/logo-3d/jestei/jestei-lockup-orange.glb",
+        "fbx": "/public/media/logo-3d/jestei/jestei-lockup-orange.fbx",
+        "obj": "/public/media/logo-3d/jestei/jestei-lockup-orange.obj",
+        "stl": "/public/media/logo-3d/jestei/jestei-lockup-orange.stl"
+      },
+      "preview": "/public/media/logo-3d/jestei/preview/jestei-lockup-orange.png",
+      "metadata": "/public/media/logo-3d/jestei/metadata/jestei-lockup-orange.json",
+      "referenceModel": null
+    },
+    {
+      "id": "jestei-lockup-pear",
+      "family": "Jestei Pool",
+      "variant": "lockup",
+      "colorway": "pear",
+      "materialId": "jestei-pear-plastic",
+      "source": "/public/media/projects/jestei/logo/source/21-svg-full-text-icon-full-split.svg",
+      "sourceSha256": "9e0937d607daaeeb9ec20af375d03051ae5f93f82b63a94150f9fd54388aadf7",
+      "dimensions": [
+        2,
+        0.38,
+        0.347895
+      ],
+      "files": {
+        "blend": "/public/media/logo-3d/jestei/jestei-lockup-pear.blend",
+        "glb": "/public/media/logo-3d/jestei/jestei-lockup-pear.glb",
+        "fbx": "/public/media/logo-3d/jestei/jestei-lockup-pear.fbx",
+        "obj": "/public/media/logo-3d/jestei/jestei-lockup-pear.obj",
+        "stl": "/public/media/logo-3d/jestei/jestei-lockup-pear.stl"
+      },
+      "preview": "/public/media/logo-3d/jestei/preview/jestei-lockup-pear.png",
+      "metadata": "/public/media/logo-3d/jestei/metadata/jestei-lockup-pear.json",
+      "referenceModel": null
+    },
+    {
+      "id": "jestei-symbol-metal",
+      "family": "Jestei Pool",
+      "variant": "symbol",
+      "colorway": null,
+      "materialId": "neutral-metal",
+      "source": "/public/media/projects/jestei/logo/source/logo-secondary.svg",
+      "sourceSha256": "ae94d7fa94d62eea1022a6f8113dd8d7670492b6292eaa5a6985011ae83ee38c",
+      "dimensions": [
+        2,
+        0.38,
+        1.999471
+      ],
+      "files": {
+        "blend": "/public/media/logo-3d/jestei/jestei-symbol-metal.blend",
+        "glb": "/public/media/logo-3d/jestei/jestei-symbol-metal.glb",
+        "fbx": "/public/media/logo-3d/jestei/jestei-symbol-metal.fbx",
+        "obj": "/public/media/logo-3d/jestei/jestei-symbol-metal.obj",
+        "stl": "/public/media/logo-3d/jestei/jestei-symbol-metal.stl"
+      },
+      "preview": "/public/media/logo-3d/jestei/preview/jestei-symbol-metal.png",
+      "metadata": "/public/media/logo-3d/jestei/metadata/jestei-symbol-metal.json",
+      "referenceModel": "/public/media/projects/jestei/model-viewer/jestei-logo-web.glb"
+    },
+    {
+      "id": "jestei-symbol-biloba",
+      "family": "Jestei Pool",
+      "variant": "symbol",
+      "colorway": "biloba",
+      "materialId": "jestei-biloba-plastic",
+      "source": "/public/media/projects/jestei/logo/source/logo-secondary.svg",
+      "sourceSha256": "ae94d7fa94d62eea1022a6f8113dd8d7670492b6292eaa5a6985011ae83ee38c",
+      "dimensions": [
+        2,
+        0.38,
+        1.999471
+      ],
+      "files": {
+        "blend": "/public/media/logo-3d/jestei/jestei-symbol-biloba.blend",
+        "glb": "/public/media/logo-3d/jestei/jestei-symbol-biloba.glb",
+        "fbx": "/public/media/logo-3d/jestei/jestei-symbol-biloba.fbx",
+        "obj": "/public/media/logo-3d/jestei/jestei-symbol-biloba.obj",
+        "stl": "/public/media/logo-3d/jestei/jestei-symbol-biloba.stl"
+      },
+      "preview": "/public/media/logo-3d/jestei/preview/jestei-symbol-biloba.png",
+      "metadata": "/public/media/logo-3d/jestei/metadata/jestei-symbol-biloba.json",
+      "referenceModel": null
+    },
+    {
+      "id": "jestei-symbol-blue",
+      "family": "Jestei Pool",
+      "variant": "symbol",
+      "colorway": "blue",
+      "materialId": "jestei-blue-plastic",
+      "source": "/public/media/projects/jestei/logo/source/logo-secondary.svg",
+      "sourceSha256": "ae94d7fa94d62eea1022a6f8113dd8d7670492b6292eaa5a6985011ae83ee38c",
+      "dimensions": [
+        2,
+        0.38,
+        1.999471
+      ],
+      "files": {
+        "blend": "/public/media/logo-3d/jestei/jestei-symbol-blue.blend",
+        "glb": "/public/media/logo-3d/jestei/jestei-symbol-blue.glb",
+        "fbx": "/public/media/logo-3d/jestei/jestei-symbol-blue.fbx",
+        "obj": "/public/media/logo-3d/jestei/jestei-symbol-blue.obj",
+        "stl": "/public/media/logo-3d/jestei/jestei-symbol-blue.stl"
+      },
+      "preview": "/public/media/logo-3d/jestei/preview/jestei-symbol-blue.png",
+      "metadata": "/public/media/logo-3d/jestei/metadata/jestei-symbol-blue.json",
+      "referenceModel": null
+    },
+    {
+      "id": "jestei-symbol-orange",
+      "family": "Jestei Pool",
+      "variant": "symbol",
+      "colorway": "orange",
+      "materialId": "jestei-secondary-orange-plastic",
+      "source": "/public/media/projects/jestei/logo/source/logo-secondary.svg",
+      "sourceSha256": "ae94d7fa94d62eea1022a6f8113dd8d7670492b6292eaa5a6985011ae83ee38c",
+      "dimensions": [
+        2,
+        0.38,
+        1.999471
+      ],
+      "files": {
+        "blend": "/public/media/logo-3d/jestei/jestei-symbol-orange.blend",
+        "glb": "/public/media/logo-3d/jestei/jestei-symbol-orange.glb",
+        "fbx": "/public/media/logo-3d/jestei/jestei-symbol-orange.fbx",
+        "obj": "/public/media/logo-3d/jestei/jestei-symbol-orange.obj",
+        "stl": "/public/media/logo-3d/jestei/jestei-symbol-orange.stl"
+      },
+      "preview": "/public/media/logo-3d/jestei/preview/jestei-symbol-orange.png",
+      "metadata": "/public/media/logo-3d/jestei/metadata/jestei-symbol-orange.json",
+      "referenceModel": null
+    },
+    {
+      "id": "jestei-symbol-pear",
+      "family": "Jestei Pool",
+      "variant": "symbol",
+      "colorway": "pear",
+      "materialId": "jestei-pear-plastic",
+      "source": "/public/media/projects/jestei/logo/source/logo-secondary.svg",
+      "sourceSha256": "ae94d7fa94d62eea1022a6f8113dd8d7670492b6292eaa5a6985011ae83ee38c",
+      "dimensions": [
+        2,
+        0.38,
+        1.999471
+      ],
+      "files": {
+        "blend": "/public/media/logo-3d/jestei/jestei-symbol-pear.blend",
+        "glb": "/public/media/logo-3d/jestei/jestei-symbol-pear.glb",
+        "fbx": "/public/media/logo-3d/jestei/jestei-symbol-pear.fbx",
+        "obj": "/public/media/logo-3d/jestei/jestei-symbol-pear.obj",
+        "stl": "/public/media/logo-3d/jestei/jestei-symbol-pear.stl"
+      },
+      "preview": "/public/media/logo-3d/jestei/preview/jestei-symbol-pear.png",
+      "metadata": "/public/media/logo-3d/jestei/metadata/jestei-symbol-pear.json",
+      "referenceModel": null
+    },
+    {
+      "id": "jestei-wordmark-metal",
+      "family": "Jestei Pool",
+      "variant": "wordmark",
+      "colorway": null,
+      "materialId": "neutral-metal",
+      "source": "/public/media/projects/jestei/logo/source/30-svg-text-only-text-logo-dark.svg",
+      "sourceSha256": "a20af15c9759bb94a8a0bf1e16937ee72570be5de5f1fbce8eda8bc9d5d6a145",
+      "dimensions": [
+        2,
+        0.38,
+        0.201409
+      ],
+      "files": {
+        "blend": "/public/media/logo-3d/jestei/jestei-wordmark-metal.blend",
+        "glb": "/public/media/logo-3d/jestei/jestei-wordmark-metal.glb",
+        "fbx": "/public/media/logo-3d/jestei/jestei-wordmark-metal.fbx",
+        "obj": "/public/media/logo-3d/jestei/jestei-wordmark-metal.obj",
+        "stl": "/public/media/logo-3d/jestei/jestei-wordmark-metal.stl"
+      },
+      "preview": "/public/media/logo-3d/jestei/preview/jestei-wordmark-metal.png",
+      "metadata": "/public/media/logo-3d/jestei/metadata/jestei-wordmark-metal.json",
+      "referenceModel": null
+    },
+    {
+      "id": "jestei-wordmark-biloba",
+      "family": "Jestei Pool",
+      "variant": "wordmark",
+      "colorway": "biloba",
+      "materialId": "jestei-biloba-plastic",
+      "source": "/public/media/projects/jestei/logo/source/30-svg-text-only-text-logo-dark.svg",
+      "sourceSha256": "a20af15c9759bb94a8a0bf1e16937ee72570be5de5f1fbce8eda8bc9d5d6a145",
+      "dimensions": [
+        2,
+        0.38,
+        0.201409
+      ],
+      "files": {
+        "blend": "/public/media/logo-3d/jestei/jestei-wordmark-biloba.blend",
+        "glb": "/public/media/logo-3d/jestei/jestei-wordmark-biloba.glb",
+        "fbx": "/public/media/logo-3d/jestei/jestei-wordmark-biloba.fbx",
+        "obj": "/public/media/logo-3d/jestei/jestei-wordmark-biloba.obj",
+        "stl": "/public/media/logo-3d/jestei/jestei-wordmark-biloba.stl"
+      },
+      "preview": "/public/media/logo-3d/jestei/preview/jestei-wordmark-biloba.png",
+      "metadata": "/public/media/logo-3d/jestei/metadata/jestei-wordmark-biloba.json",
+      "referenceModel": null
+    },
+    {
+      "id": "jestei-wordmark-blue",
+      "family": "Jestei Pool",
+      "variant": "wordmark",
+      "colorway": "blue",
+      "materialId": "jestei-blue-plastic",
+      "source": "/public/media/projects/jestei/logo/source/30-svg-text-only-text-logo-dark.svg",
+      "sourceSha256": "a20af15c9759bb94a8a0bf1e16937ee72570be5de5f1fbce8eda8bc9d5d6a145",
+      "dimensions": [
+        2,
+        0.38,
+        0.201409
+      ],
+      "files": {
+        "blend": "/public/media/logo-3d/jestei/jestei-wordmark-blue.blend",
+        "glb": "/public/media/logo-3d/jestei/jestei-wordmark-blue.glb",
+        "fbx": "/public/media/logo-3d/jestei/jestei-wordmark-blue.fbx",
+        "obj": "/public/media/logo-3d/jestei/jestei-wordmark-blue.obj",
+        "stl": "/public/media/logo-3d/jestei/jestei-wordmark-blue.stl"
+      },
+      "preview": "/public/media/logo-3d/jestei/preview/jestei-wordmark-blue.png",
+      "metadata": "/public/media/logo-3d/jestei/metadata/jestei-wordmark-blue.json",
+      "referenceModel": null
+    },
+    {
+      "id": "jestei-wordmark-orange",
+      "family": "Jestei Pool",
+      "variant": "wordmark",
+      "colorway": "orange",
+      "materialId": "jestei-orange-plastic",
+      "source": "/public/media/projects/jestei/logo/source/30-svg-text-only-text-logo-dark.svg",
+      "sourceSha256": "a20af15c9759bb94a8a0bf1e16937ee72570be5de5f1fbce8eda8bc9d5d6a145",
+      "dimensions": [
+        2,
+        0.38,
+        0.201409
+      ],
+      "files": {
+        "blend": "/public/media/logo-3d/jestei/jestei-wordmark-orange.blend",
+        "glb": "/public/media/logo-3d/jestei/jestei-wordmark-orange.glb",
+        "fbx": "/public/media/logo-3d/jestei/jestei-wordmark-orange.fbx",
+        "obj": "/public/media/logo-3d/jestei/jestei-wordmark-orange.obj",
+        "stl": "/public/media/logo-3d/jestei/jestei-wordmark-orange.stl"
+      },
+      "preview": "/public/media/logo-3d/jestei/preview/jestei-wordmark-orange.png",
+      "metadata": "/public/media/logo-3d/jestei/metadata/jestei-wordmark-orange.json",
+      "referenceModel": null
+    },
+    {
+      "id": "jestei-wordmark-pear",
+      "family": "Jestei Pool",
+      "variant": "wordmark",
+      "colorway": "pear",
+      "materialId": "jestei-pear-plastic",
+      "source": "/public/media/projects/jestei/logo/source/30-svg-text-only-text-logo-dark.svg",
+      "sourceSha256": "a20af15c9759bb94a8a0bf1e16937ee72570be5de5f1fbce8eda8bc9d5d6a145",
+      "dimensions": [
+        2,
+        0.38,
+        0.201409
+      ],
+      "files": {
+        "blend": "/public/media/logo-3d/jestei/jestei-wordmark-pear.blend",
+        "glb": "/public/media/logo-3d/jestei/jestei-wordmark-pear.glb",
+        "fbx": "/public/media/logo-3d/jestei/jestei-wordmark-pear.fbx",
+        "obj": "/public/media/logo-3d/jestei/jestei-wordmark-pear.obj",
+        "stl": "/public/media/logo-3d/jestei/jestei-wordmark-pear.stl"
+      },
+      "preview": "/public/media/logo-3d/jestei/preview/jestei-wordmark-pear.png",
+      "metadata": "/public/media/logo-3d/jestei/metadata/jestei-wordmark-pear.json",
+      "referenceModel": null
+    },
+    {
+      "id": "lyve-moscow-metal",
+      "family": "LYVР“в‚¬ Moscow",
+      "variant": "primary",
+      "colorway": null,
+      "materialId": "neutral-metal",
+      "source": "/public/media/projects/lyve/logo/source/01-lyve-logo.svg",
+      "sourceSha256": "12da9a1072afd06d5259d90001f7f587e96c26667ba1a79c309d4828d454096e",
+      "dimensions": [
+        2,
+        0.38,
+        0.536945
+      ],
+      "files": {
+        "blend": "/public/media/logo-3d/lyve/lyve-moscow-metal.blend",
+        "glb": "/public/media/logo-3d/lyve/lyve-moscow-metal.glb",
+        "fbx": "/public/media/logo-3d/lyve/lyve-moscow-metal.fbx",
+        "obj": "/public/media/logo-3d/lyve/lyve-moscow-metal.obj",
+        "stl": "/public/media/logo-3d/lyve/lyve-moscow-metal.stl"
+      },
+      "preview": "/public/media/logo-3d/lyve/preview/lyve-moscow-metal.png",
+      "metadata": "/public/media/logo-3d/lyve/metadata/lyve-moscow-metal.json",
+      "referenceModel": null
+    },
+    {
+      "id": "sensetique-metal",
+      "family": "Sensetique",
+      "variant": "lockup",
+      "colorway": null,
+      "materialId": "neutral-metal",
+      "source": "/public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/112_lockups_r18_c01.svg",
+      "sourceSha256": "31aad3b4789bfb65b346623e6be56198711f4c14e4e227b7eef6460df8e48174",
+      "dimensions": [
+        1.867443,
+        0.38,
+        2
+      ],
+      "files": {
+        "blend": "/public/media/logo-3d/sensetique/sensetique-metal.blend",
+        "glb": "/public/media/logo-3d/sensetique/sensetique-metal.glb",
+        "fbx": "/public/media/logo-3d/sensetique/sensetique-metal.fbx",
+        "obj": "/public/media/logo-3d/sensetique/sensetique-metal.obj",
+        "stl": "/public/media/logo-3d/sensetique/sensetique-metal.stl"
+      },
+      "preview": "/public/media/logo-3d/sensetique/preview/sensetique-metal.png",
+      "metadata": "/public/media/logo-3d/sensetique/metadata/sensetique-metal.json",
+      "referenceModel": null
+    }
+  ]
+}

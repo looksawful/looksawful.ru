@@ -1,0 +1,24 @@
+{
+  "id": "awfulface-metal",
+  "family": "AWFUL",
+  "variant": "awfulface",
+  "colorway": null,
+  "source": "public/favicon.svg",
+  "sourceType": "vector-svg",
+  "sourceSha256": "3b7041a6d73bc16caca3bc4c38d218e9159ab28f2b830bd2b307c0e666e9a79c",
+  "materialId": "neutral-metal",
+  "geometryProfile": "jestei-reference",
+  "dimensions": [
+    2.0,
+    0.38,
+    1.999578
+  ],
+  "formats": [
+    "blend",
+    "glb",
+    "fbx",
+    "obj",
+    "stl"
+  ],
+  "blenderVersion": "5.2.1 LTS"
+}
