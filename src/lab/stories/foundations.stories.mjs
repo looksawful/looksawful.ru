@@ -1,18 +1,22 @@
-import { classifyToken, groupTokensByKind, resolveTokenValue, tokenAliases } from "../token-visualization.mjs";
+import { buildTokenRegistry, groupTokensByKind, resolveTokenValue } from "../token-visualization.mjs";
 
 function collectCustomProperties() {
-  const tokens = new Map();
-  const visitRules = (rules) => {
+  const declarations = [];
+  const visitRules = (rules, context) => {
     for (const rule of Array.from(rules)) {
+      const selector = rule.selectorText || context.selector || null;
       if (rule.style) {
         for (const property of Array.from(rule.style)) {
           if (!property.startsWith("--")) continue;
-          const value = rule.style.getPropertyValue(property).trim();
-          if (value) tokens.set(property, value);
+          const raw = rule.style.getPropertyValue(property).trim();
+          if (raw) declarations.push({ name: property, raw, selector, media: context.media, source: context.source });
         }
       }
       try {
-        if (rule.cssRules) visitRules(rule.cssRules);
+        if (rule.cssRules) {
+          const media = rule.media?.mediaText || context.media;
+          visitRules(rule.cssRules, { ...context, selector, media });
+        }
       } catch {
         // Inaccessible nested CSSOM is intentionally ignored.
       }
@@ -20,12 +24,12 @@ function collectCustomProperties() {
   };
   for (const sheet of Array.from(document.styleSheets)) {
     try {
-      if (sheet.cssRules) visitRules(sheet.cssRules);
+      if (sheet.cssRules) visitRules(sheet.cssRules, { selector: null, media: null, source: sheet.href || "inline" });
     } catch {
       // Cross-origin styles are not canonical local token sources.
     }
   }
-  return tokens;
+  return declarations;
 }
 
 function el(tag, className, text) {
@@ -65,14 +69,11 @@ function previewFor(token) {
 }
 
 function buildTokens() {
-  const values = collectCustomProperties();
-  return [...values.entries()].map(([name, raw]) => ({
-    name,
-    raw,
-    resolved: resolveTokenValue(raw, values),
-    aliases: tokenAliases(raw),
-    kind: classifyToken(name, raw),
-  })).sort((a, b) => a.kind.localeCompare(b.kind) || a.name.localeCompare(b.name));
+  const declarations = collectCustomProperties();
+  const values = new Map(declarations.map(({ name, raw }) => [name, raw]));
+  return buildTokenRegistry(declarations)
+    .map((token) => ({ ...token, resolved: resolveTokenValue(token.raw, values) }))
+    .sort((a, b) => a.kind.localeCompare(b.kind) || a.name.localeCompare(b.name));
 }
 
 function tokenGallery(filter = () => true, heading = "canonical CSS tokens") {
@@ -87,7 +88,7 @@ function tokenGallery(filter = () => true, heading = "canonical CSS tokens") {
     .token-preview--shadow{margin:12px;height:88px;background:var(--clr-bg,#fff)}.token-preview--spacing{justify-content:flex-start;padding:12px}.token-size-bar{display:block;height:40px;min-width:2px;max-width:100%;background:currentColor}
     .token-motion-dot{width:28px;height:28px;border-radius:50%;background:currentColor;animation:token-travel 1s ease-in-out infinite alternate}.token-preview--duration .token-motion-dot,.token-preview--easing .token-motion-dot{align-self:center}
     .token-layer{position:relative;width:58px;height:58px;display:grid;place-items:center;border:1px solid currentColor;background:var(--clr-bg,#fff);transform:translate(12px,8px)}.token-layer--active{transform:translate(-12px,-8px)}
-    .token-name{font:600 12px/1.3 ui-monospace,SFMono-Regular,Consolas,monospace;overflow-wrap:anywhere}.token-value{margin-top:5px;font:11px/1.4 ui-monospace,SFMono-Regular,Consolas,monospace;opacity:.65;overflow-wrap:anywhere}.token-alias{margin-top:5px;font-size:10px;opacity:.5}
+    .token-name{font:600 12px/1.3 ui-monospace,SFMono-Regular,Consolas,monospace;overflow-wrap:anywhere}.token-value{margin-top:5px;font:11px/1.4 ui-monospace,SFMono-Regular,Consolas,monospace;opacity:.65;overflow-wrap:anywhere}.token-alias,.token-context{margin-top:5px;font-size:10px;opacity:.5;overflow-wrap:anywhere}
     @keyframes token-travel{from{transform:translateX(-70px)}to{transform:translateX(70px)}}@media(prefers-reduced-motion:reduce){.token-motion-dot{animation:none!important}}
   </style>`;
   root.append(el("h1", "", heading));
@@ -100,7 +101,7 @@ function tokenGallery(filter = () => true, heading = "canonical CSS tokens") {
   const render = () => {
     content.replaceChildren();
     const query = search.value.trim().toLowerCase();
-    const tokens = allTokens.filter((t) => `${t.name} ${t.raw} ${t.kind}`.toLowerCase().includes(query));
+    const tokens = allTokens.filter((t) => `${t.name} ${t.raw} ${t.kind} ${t.selector || ""} ${t.media || ""} ${t.source || ""}`.toLowerCase().includes(query));
     count.textContent = `${tokens.length} / ${allTokens.length}`;
     const groups = groupTokensByKind(tokens);
     for (const [kind, items] of groups) {
@@ -110,6 +111,8 @@ function tokenGallery(filter = () => true, heading = "canonical CSS tokens") {
         const card = el("article", "token-card"); card.append(previewFor(token), el("div", "token-name", token.name), el("div", "token-value", token.raw));
         if (token.resolved !== token.raw) card.append(el("div", "token-value", `→ ${token.resolved}`));
         if (token.aliases.length) card.append(el("div", "token-alias", `aliases: ${token.aliases.join(", ")}`));
+        const context = [token.selector, token.media && `@media ${token.media}`, token.source].filter(Boolean).join(" · ");
+        if (context) card.append(el("div", "token-context", context));
         grid.append(card);
       }
       section.append(grid); content.append(section);

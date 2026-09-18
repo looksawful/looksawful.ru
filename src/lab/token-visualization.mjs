@@ -51,3 +51,14 @@ export function groupTokensByKind(tokens) {
   }
   return groups;
 }
+export function buildTokenRegistry(declarations) {
+  return declarations.map((declaration) => {
+    const raw = String(declaration.raw).trim();
+    return {
+      ...declaration,
+      raw,
+      aliases: tokenAliases(raw),
+      kind: classifyToken(declaration.name, raw),
+    };
+  });
+}
