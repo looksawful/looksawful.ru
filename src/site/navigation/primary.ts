@@ -11,7 +11,3 @@ export const PRIMARY_NAVIGATION_PAGE_IDS = [
 ] as const satisfies readonly SitePageId[];
 
 export type PrimaryNavigationPageId = (typeof PRIMARY_NAVIGATION_PAGE_IDS)[number];
-
-export const HIDDEN_PRIMARY_NAVIGATION_PAGE_IDS: ReadonlySet<PrimaryNavigationPageId> = new Set([
-  "gallery",
-]);

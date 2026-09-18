@@ -28,6 +28,7 @@ const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 const primaryDestinations = [
   ["home", "/"],
+  ["gallery", "/gallery/"],
   ["case:jestei-pool", "/work/jestei-pool/"],
   ["case:styx", "/work/styx/"],
   ["case:sensetique", "/work/sensetique/"],
@@ -35,7 +36,7 @@ const primaryDestinations = [
   ["cv", "/cv/"],
 ].map(([id, href]) => [requireLabel(id), href]);
 
-test("global menu contains exactly the six public primary destinations and no Work item", () => {
+test("global menu contains exactly the seven public primary destinations and no Work item", () => {
   const html = renderSiteNavigation(page("case:jestei-pool"));
 
   for (const [label, href] of primaryDestinations) {
