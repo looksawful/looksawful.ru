@@ -11,6 +11,8 @@ test("classifies canonical token families by value and name", () => {
   assert.equal(classifyToken("--line-height-body", "1.4"), "line-height");
   assert.equal(classifyToken("--space-4", "1rem"), "spacing");
   assert.equal(classifyToken("--radius-card", "24px"), "radius");
+  assert.equal(classifyToken("--media-ratio", "16 / 9"), "aspect-ratio");
+  assert.equal(classifyToken("--mobile-mockup-aspect-ratio", "9 / 19.5"), "aspect-ratio");
   assert.equal(classifyToken("--shadow-card", "0 8px 30px rgb(0 0 0 / 20%)"), "shadow");
   assert.equal(classifyToken("--opacity-muted", "0.6"), "opacity");
   assert.equal(classifyToken("--z-overlay", "20"), "z-index");
