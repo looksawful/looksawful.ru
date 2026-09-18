@@ -66,7 +66,7 @@ function renderCanonicalArticle(page: EntityPageDefinition): string {
 }
 
 function renderableSections(page: EntityPageDefinition): readonly Section[] {
-  return contentFor(page).sections.filter((section) => section.type !== "specialized");
+  return contentFor(page).sections;
 }
 
 function pageLabel(page: EntityPageDefinition): string {
