@@ -31,36 +31,38 @@
   - завершить push/merge/deploy;
   - после deploy удалить временный worktree/QA и сохранить только канонические PSD + web assets.
 
-- [ ] **Berserk Timer**
-  - сохранить текущий контент и визуальный стиль;
-  - создать canonical `/work/berserk-timer/`;
-  - старый `/pets/berserk-timer/` оставить совместимым маршрутом/redirect, а не второй независимой страницей;
-  - перевести useful-project href на canonical route;
-  - проверить audio/player, responsive и mobile;
-  - не менять текст без отдельной причины.
+- [x] **Berserk Timer** — архитектура и CI интегрированы в `dev`
+  - canonical `/work/berserk-timer/`;
+  - legacy `/pets/berserk-timer/` редиректит на canonical route;
+  - useful-project href переведён;
+  - специализированный terminal runtime и тексты сохранены;
+  - browser QA audio/player/responsive остаётся в общем визуальном проходе.
 
-- [ ] **Awful Studio**
-  - entity-page уже существует, карточка пока `coming-soon`;
-  - сверить страницу с актуальным Storybook/3D runtime;
-  - использовать только финальные/актуальные модели;
-  - довести media presentation и browser QA;
-  - включать `live` только после визуального прохода.
+- [x] **Awful Studio** — архитектура, media ownership и CI интегрированы в `dev`
+  - страница использует production model-viewer;
+  - подключены iPhone 17, iPad Pro 11 и MacBook Pro 14;
+  - карточка ведёт на canonical route и переведена в `live`;
+  - согласованные intro и cover сохранены;
+  - browser QA остаётся в общем визуальном проходе.
 
-- [ ] **Awful 3D Mockups**
-  - создать entity-page scaffold `/work/awful-3d-mockups/`;
-  - связать с актуальным 3D pipeline/Storybook;
-  - показать curated renders/viewer, а не весь сырой набор;
-  - до готовности оставить unlisted/noindex/coming-soon.
+- [x] **Awful 3D Mockups** — отдельный project entity интегрирован в `dev`
+  - canonical `/work/awful-3d-mockups/`;
+  - четыре production-модели: iPhone 17, iPad Pro 11/13, MacBook Pro 14;
+  - отдельный project id, presentation, media ownership и CMS identity;
+  - карточка live; страница остаётся unlisted/noindex;
+  - browser QA остаётся в общем визуальном проходе.
 
 - [ ] **Awful Cases**
   - существующая live-страница;
-  - только аудит: route, тексты, controls/hotkeys, media, mobile, reduced-motion, links;
-  - исправлять реальные дефекты без редизайна ради редизайна.
+  - специализированная game-секция теперь присутствует в private Storybook и прошла browser smoke;
+  - production game-runtime не менялся, чтобы не конфликтовать с параллельной доработкой;
+  - остаётся визуальный аудит route, controls/hotkeys, media, mobile, reduced-motion и links.
 
 - [ ] **Moves Awful**
   - существующая live-страница;
-  - аудит gallery variants, mobile, reduced-motion и reuse API;
-  - сохранить её как библиотеку motion-компонентов и источник reusable gallery runtime.
+  - specialized canvas demo теперь присутствует в private Storybook и прошёл browser smoke;
+  - production runtime уже покрыт e2e проверкой на canvas error-state;
+  - остаётся визуальный аудит gallery variants, mobile, reduced-motion и reuse API.
 
 ### P1 — подготовить существующий roadmap как настоящие page entities
 
@@ -68,8 +70,8 @@
 
 - [ ] Awful Textures
 - [ ] Photoshop Translation
-- [ ] Keys
-- [ ] Sea
+- [x] Keys — canonical direct-link/noindex page интегрирована в `dev`; визуальные media/cover ждут screenshot-pass
+- [x] Sea — canonical direct-link/noindex page интегрирована в `dev`; приватный repository не раскрывается
 - [ ] Comfy Workflows
 - [ ] Photoshop Workflows
 - [ ] Blender Scenes
@@ -88,3 +90,7 @@
 `Awful Mockups -> Berserk Timer -> Awful Studio -> Awful 3D Mockups -> Awful Cases audit -> Moves Awful audit -> P1 по одному проекту`.
 
 Новая ветка создаётся только когда текущая интегрирована или закрыта. Production не используется как рабочая ветка.
+
+## Текущий блокер
+
+`Awful Mockups` полностью собран в локальном F:-worktree, но ещё не отправлен в GitHub: push заблокирован GitHub email-privacy guard, а Titan после этого потерял transport-сессию. При восстановлении связи сначала меняется локальный commit author на GitHub noreply, затем ветка ребейзится на свежий `origin/dev`, прогоняются проверки и только после этого отправляется PR.

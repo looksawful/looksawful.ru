@@ -85,6 +85,8 @@ components:
         - { name: moves-awful, label: "Moves Awful" }
         - { name: berserk-timer, label: "Berserk Timer" }
         - { name: awful-3d-mockups, label: "Awful 3D Mockups" }
+        - { name: keys, label: "KEYS" }
+        - { name: sea, label: "SEA" }
         - { name: awful-studio, label: "AWFUL STUDIO" }
 
   media-catalog-work-area-ids:
