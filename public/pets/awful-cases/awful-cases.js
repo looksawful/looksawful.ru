@@ -7,6 +7,7 @@ import {
   missIsLethal,
   phaseForIndex,
   recordCorrect,
+  sessionAccuracy,
   recordMistake,
 } from "./awful-cases-core.js";
 import { COPY, DICTIONARIES } from "./awful-cases-content.js";
@@ -33,7 +34,6 @@ export function enhanceAwfulCases(root, { locale = "en" } = {}) {
   const dictionary = DICTIONARIES[locale] ?? DICTIONARIES.en;
   const copy = COPY[locale] ?? COPY.en;
   const SESSION_LENGTH = SESSION_PLAN.length;
-  const TYPES = ACTION_ORDER;
   const HINTS = Object.fromEntries(ACTION_ORDER.map((type) => [type, ACTIONS[type].label]));
   const canvas = root.querySelector("[data-awful-cases-canvas]");
   const startPanel = root.querySelector("[data-awful-cases-start]");
@@ -43,6 +43,12 @@ export function enhanceAwfulCases(root, { locale = "en" } = {}) {
   const restartMeta = root.querySelector("[data-awful-cases-restart-meta]");
   const restartButton = root.querySelector("[data-awful-cases-restart-button]");
   const runnerControls = root.querySelector("[data-awful-cases-controls]");
+  const runnerPrompt = root.querySelector("[data-awful-cases-prompt]");
+  const onboardingKicker = root.querySelector("[data-awful-cases-onboarding-kicker]");
+  const onboardingTitle = root.querySelector("[data-awful-cases-onboarding-title]");
+  const onboardingCopy = root.querySelector("[data-awful-cases-onboarding-copy]");
+  const onboardingActions = root.querySelector("[data-awful-cases-onboarding-actions]");
+  const onboardingTip = root.querySelector("[data-awful-cases-onboarding-tip]");
   const actionButtons = [...root.querySelectorAll("[data-awful-cases-action]")];
   const ctx = canvas.getContext("2d", { alpha: false });
   const atlas = new Image();
@@ -111,13 +117,84 @@ export function enhanceAwfulCases(root, { locale = "en" } = {}) {
     inputCooldown: 0,
     spawned: 0,
     stats: createSessionStats(),
+    mastered: new Set(),
     completeTimer: 0,
     world: 0,
+    lastGuidanceKey: "",
   };
   Object.defineProperties(game, {
     solved: { get: () => game.stats.correct },
     mistakes: { get: () => game.stats.mistakes },
   });
+
+  function appShortcut(type) {
+    return `Ctrl+Alt+Shift+${ACTIONS[type].appKey}`;
+  }
+
+  function populateTrainerUi() {
+    if (onboardingKicker) onboardingKicker.textContent = copy.onboardingKicker;
+    if (onboardingTitle) onboardingTitle.textContent = copy.onboardingTitle;
+    if (onboardingCopy) onboardingCopy.textContent = copy.onboardingCopy;
+    if (onboardingTip) onboardingTip.textContent = copy.onboardingTip;
+    if (startButton) startButton.textContent = copy.startTraining;
+
+    if (onboardingActions) {
+      const fragment = document.createDocumentFragment();
+      for (const type of ACTION_ORDER) {
+        const example = dictionary.find((item) => item.type === type);
+        const row = document.createElement("div");
+        row.className = "start__action";
+        row.innerHTML = `<span class="start__action-name"></span><span class="start__action-example"></span><span class="start__action-keys"><kbd></kbd><small></small></span>`;
+        row.querySelector(".start__action-name").textContent = actionTitle(type);
+        row.querySelector(".start__action-example").textContent = example
+          ? `${example.input} → ${example.output}`
+          : "";
+        row.querySelector("kbd").textContent = ACTIONS[type].label;
+        row.querySelector("small").textContent = appShortcut(type);
+        fragment.append(row);
+      }
+      onboardingActions.replaceChildren(fragment);
+    }
+
+    for (const button of actionButtons) {
+      const type = button.dataset.awfulCasesAction;
+      if (!ACTIONS[type]) continue;
+      const key = button.querySelector("b");
+      const label = button.querySelector("span");
+      if (key) key.textContent = ACTIONS[type].label;
+      if (label) label.textContent = actionTitle(type);
+      button.dataset.active = "false";
+      button.setAttribute("aria-pressed", "false");
+      button.setAttribute("aria-label", `${actionTitle(type)}: ${ACTIONS[type].label}, ${appShortcut(type)}`);
+    }
+  }
+
+  function guidanceTask() {
+    return nearestTask() ?? game.obstacles.find((task) => !task.resolved && task.target < 1) ?? null;
+  }
+
+  function syncGuidance() {
+    const task = game.mode === "running" ? guidanceTask() : null;
+    const tutorial = task?.phase === "tutorial";
+    const key = task ? `${task.id}:${task.phase}:${task.failed ? 1 : 0}` : game.mode;
+    if (key === game.lastGuidanceKey) return;
+    game.lastGuidanceKey = key;
+
+    for (const button of actionButtons) {
+      const activeButton = Boolean(tutorial && task && button.dataset.awfulCasesAction === task.type);
+      button.dataset.active = String(activeButton);
+      button.setAttribute("aria-pressed", String(activeButton));
+    }
+
+    if (!runnerPrompt) return;
+    if (!tutorial || !task) {
+      runnerPrompt.hidden = true;
+      runnerPrompt.textContent = "";
+      return;
+    }
+    runnerPrompt.hidden = false;
+    runnerPrompt.textContent = `${copy.currentAction}: ${actionTitle(task.type)} · ${copy.gameKey} ${ACTIONS[task.type].label} · ${copy.appShortcut} ${appShortcut(task.type)}`;
+  }
 
   function resize() {
     view.dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
@@ -186,11 +263,16 @@ export function enhanceAwfulCases(root, { locale = "en" } = {}) {
 
   function drawTextTop(text, x, topY, size, color = "#000", alpha = 1, weight = 900) {
     const m = textMetrics(text, size, weight);
+    const baseline = Math.round(topY + m.ascent);
     ctx.save();
     setFont(size, weight);
     ctx.globalAlpha = alpha;
+    ctx.lineJoin = "round";
+    ctx.lineWidth = Math.max(2, Math.round(size * 0.08));
+    ctx.strokeStyle = "#fff";
+    ctx.strokeText(text, Math.round(x), baseline);
     ctx.fillStyle = color;
-    ctx.fillText(text, Math.round(x), Math.round(topY + m.ascent));
+    ctx.fillText(text, Math.round(x), baseline);
     ctx.restore();
     return m;
   }
@@ -213,28 +295,41 @@ export function enhanceAwfulCases(root, { locale = "en" } = {}) {
     ctx.save();
     setFont(size, weight);
     ctx.globalAlpha = alpha;
+    ctx.lineJoin = "round";
+    ctx.lineWidth = Math.max(2, Math.round(size * 0.08));
+    ctx.strokeStyle = "#fff";
+    ctx.strokeText(text, Math.round(x), baseline);
     ctx.fillStyle = lightColor;
     ctx.fillText(text, Math.round(x), baseline);
     ctx.beginPath();
     ctx.rect(0, view.floor, view.w, view.h - view.floor);
     ctx.clip();
+    ctx.strokeStyle = "#000";
+    ctx.strokeText(text, Math.round(x), baseline);
     ctx.fillStyle = darkColor;
     ctx.fillText(text, Math.round(x), baseline);
     ctx.restore();
     return m;
   }
 
+  function fitTaskTextSize(base, text, maxChars, minScale = 0.58) {
+    const length = Math.max(1, [...String(text)].length);
+    const factor = length <= maxChars ? 1 : clamp(maxChars / length, minScale, 1);
+    return base * factor;
+  }
+
   function taskSizes(task) {
-    if (task.type === "upper") {
-      return { input: view.font * 0.38, output: view.font * 1.34 };
-    }
-    if (task.type === "lower") {
-      return { input: view.font * 3.52, output: view.font * 0.84 };
-    }
-    if (task.type === "lint" || task.type === "sentence") {
-      return { input: view.font * 0.82, output: view.font * 0.72 };
-    }
-    return { input: view.font * 2.72, output: view.font * 1.08 };
+    const longForm = task.type === "lint" || task.type === "sentence";
+    const inputBase = longForm
+      ? view.font * 0.9
+      : task.type === "lower"
+        ? view.font * 1.24
+        : view.font * 1.12;
+    const outputBase = longForm ? view.font * 0.82 : view.font * 1.02;
+    return {
+      input: fitTaskTextSize(inputBase, task.input, longForm ? 18 : 11),
+      output: fitTaskTextSize(outputBase, task.output, longForm ? 20 : 12),
+    };
   }
 
   function taskTextWidth(task, which = "output") {
@@ -320,6 +415,8 @@ export function enhanceAwfulCases(root, { locale = "en" } = {}) {
     game.inputCooldown = 0;
     game.spawned = 0;
     game.stats = createSessionStats();
+    game.mastered.clear();
+    game.lastGuidanceKey = "";
     game.obstacles.length = 0;
     game.decor.length = 0;
     game.nextDecorX = view.w + 240 * view.scale;
@@ -349,6 +446,7 @@ export function enhanceAwfulCases(root, { locale = "en" } = {}) {
     restartPanel.hidden = true;
     spawnNext(view.playerX + 300 * view.scale);
     fillQueue();
+    syncGuidance();
     focusCanvas();
   }
 
@@ -398,6 +496,9 @@ export function enhanceAwfulCases(root, { locale = "en" } = {}) {
     task.resolved = true;
     task.progress = Math.max(task.progress, 0.12);
     game.stats = recordCorrect(game.stats);
+    game.mastered.add(type);
+    game.lastGuidanceKey = "";
+    syncGuidance();
     game.inputCooldown = 0.24;
     return true;
   }
@@ -462,7 +563,8 @@ export function enhanceAwfulCases(root, { locale = "en" } = {}) {
 
   function resultMeta() {
     const best = Math.max(readBestScore(), game.stats.score);
-    return `${game.stats.correct}/${SESSION_LENGTH} | ${copy.mistakes} ${game.stats.mistakes} | ${copy.score} ${game.stats.score} | ${copy.best} ${best}`;
+    const accuracy = sessionAccuracy(game.stats);
+    return `${copy.mastered} ${game.mastered.size}/${ACTION_ORDER.length} ${copy.operations} | ${copy.accuracy} ${accuracy}% | ${copy.mistakes} ${game.stats.mistakes} | ${copy.score} ${game.stats.score} | ${copy.best} ${best}`;
   }
 
   function complete() {
@@ -581,7 +683,6 @@ export function enhanceAwfulCases(root, { locale = "en" } = {}) {
     let guard = 0;
     while (game.nextDecorX < view.w + 980 * view.scale && guard++ < 12) {
       const spriteIndex = irnd(0, decorSprites.length - 1);
-      const sprite = decorSprites[spriteIndex];
       const scale = rnd(0.76, 1.08) * envTileScale();
       game.decor.push({
         x: game.nextDecorX,
@@ -616,12 +717,13 @@ export function enhanceAwfulCases(root, { locale = "en" } = {}) {
     ctx.restore();
     drawSessionHud();
     drawPinnedHint();
+    syncGuidance();
   }
 
   function drawSessionHud() {
     if (game.mode !== "running") return;
     const phase = phaseForIndex(Math.min(game.stats.resolved, SESSION_LENGTH - 1));
-    const label = `${copy.phaseLabels[phase]} ${game.stats.resolved}/${SESSION_LENGTH} | ${copy.correct} ${game.stats.correct} | ${copy.mistakes} ${game.stats.mistakes} | ${game.stats.score}`;
+    const label = `${copy.phaseLabels[phase]} ${game.stats.resolved}/${SESSION_LENGTH} | ${copy.mistakes} ${game.stats.mistakes} | ${copy.accuracy} ${sessionAccuracy(game.stats)}%`;
     let fontSize = Math.round(clamp(11 * view.scale, 8, 12));
     const padX = Math.round(clamp(10 * view.scale, 8, 12));
     const padY = Math.round(clamp(7 * view.scale, 5, 8));
@@ -680,17 +782,6 @@ export function enhanceAwfulCases(root, { locale = "en" } = {}) {
       w: Math.round(drawW),
       h: Math.round(size.h),
     };
-  }
-
-  function visiblePitRects() {
-    const rects = [];
-    for (const task of game.obstacles) {
-      const p = pitDrawRect(task);
-      if (p.x + p.w < -8 || p.x > view.w + 8) continue;
-      rects.push(p);
-    }
-    rects.sort((a, b) => a.x - b.x);
-    return rects;
   }
 
   function drawImageMaybeFlip(image, x, y, w, h, flip = false) {
@@ -790,7 +881,6 @@ export function enhanceAwfulCases(root, { locale = "en" } = {}) {
     const startSize = sizes.input;
     const finalSize = sizes.output;
     const size = startSize + (finalSize - startSize) * p;
-    const outputHNow = visualTextHeight(task.output, size);
     const startTop =
       task.type === "upper" ? floor + 50 * view.scale : floor - outputH - 16 * view.scale;
     const finalTop = floor;
@@ -1124,6 +1214,7 @@ export function enhanceAwfulCases(root, { locale = "en" } = {}) {
   const resizeObserver = "ResizeObserver" in window ? new ResizeObserver(resize) : null;
   resizeObserver?.observe(root);
   window.addEventListener("resize", resize, { passive: true, signal: abortController.signal });
+  populateTrainerUi();
   resize();
   startDemo();
 

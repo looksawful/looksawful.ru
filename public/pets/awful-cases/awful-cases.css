@@ -52,3 +52,34 @@
 @media (hover:hover) and (pointer:fine) {
   .awful-cases .runner-controls { display:none; }
 }
+/* Trainer onboarding + guidance pass */
+.awful-cases .start{top:50%;bottom:auto;width:min(92cqw,720px);max-height:calc(100% - 70px);overflow:auto;transform:translate(-50%,-50%);padding:clamp(14px,2.6cqmin,24px);border:3px solid #000;background:#f8f6dc;box-shadow:8px 8px 0 rgba(0,0,0,.35);align-content:start;justify-items:stretch;gap:clamp(8px,1.5cqh,14px);text-align:left;pointer-events:auto}
+.awful-cases .start__eyebrow{font:700 clamp(7px,1.2cqmin,10px)/1.3 "Press Start 2P",monospace;text-transform:uppercase;letter-spacing:.06em}
+.awful-cases .start__title{max-width:28ch;font:700 clamp(13px,2.35cqmin,24px)/1.25 "Press Start 2P",monospace}
+.awful-cases .start__copy{max-width:66ch;font:400 clamp(8px,1.35cqmin,11px)/1.55 "Press Start 2P",monospace}
+.awful-cases .start__actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.awful-cases .start__action{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:5px 8px;align-items:center;padding:8px;border:2px solid #000;background:#fff}
+.awful-cases .start__action-name{font:700 clamp(8px,1.3cqmin,11px)/1.3 "Press Start 2P",monospace}
+.awful-cases .start__action-example{grid-column:1/-1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:400 clamp(7px,1.15cqmin,9px)/1.35 "Press Start 2P",monospace;color:#333}
+.awful-cases .start__action-keys{display:flex;align-items:center;gap:6px;justify-self:end}
+.awful-cases .start__action-keys kbd{min-width:30px;padding:5px 6px;border:2px solid #000;background:#f1f1f1;box-shadow:2px 2px 0 #808080;font:700 clamp(8px,1.3cqmin,11px)/1 "Press Start 2P",monospace;text-align:center}
+.awful-cases .start__action-keys small{display:block;max-width:19ch;font:400 clamp(6px,1cqmin,8px)/1.25 "Press Start 2P",monospace;text-align:right}
+.awful-cases .start__tip{padding:8px 10px;border-left:4px solid #000;background:#fff;font:400 clamp(7px,1.15cqmin,9px)/1.5 "Press Start 2P",monospace}
+.awful-cases .start__button{justify-self:start;margin-top:2px}
+.awful-cases .runner-controls__prompt{position:absolute;left:clamp(8px,2cqmin,18px);bottom:clamp(8px,2cqmin,18px);z-index:4;max-width:min(68%,620px);padding:8px 10px;border:2px solid #000;background:#fff;color:#000;font:700 clamp(8px,1.25cqmin,11px)/1.45 "Press Start 2P",monospace;box-shadow:3px 3px 0 rgba(0,0,0,.28);pointer-events:none}
+.awful-cases .runner-controls__prompt[hidden]{display:none}
+.awful-cases .runner-controls{top:clamp(44px,8cqh,68px);right:clamp(8px,2cqmin,18px);bottom:auto;grid-template-columns:repeat(2,minmax(64px,88px));gap:6px}
+.awful-cases .runner-controls:not([hidden]){display:grid}
+.awful-cases .runner-controls button{min-block-size:44px;padding:5px 4px;box-shadow:2px 2px 0 rgba(0,0,0,.25)}
+.awful-cases .runner-controls button[data-active="true"]{background:#000;color:#fff;transform:translate(1px,1px);box-shadow:none}
+.awful-cases .runner-controls b{font-size:16px}
+.awful-cases .runner-controls span{font-size:6px;line-height:1.25}
+@container (max-width:520px){
+  .awful-cases .start{width:calc(100% - 16px);max-height:calc(100% - 20px);padding:12px;gap:8px}
+  .awful-cases .start__actions{gap:4px}
+  .awful-cases .start__action{padding:6px;gap:4px 6px}
+  .awful-cases .start__tip{padding:6px 8px}
+  .awful-cases .start__button{justify-self:stretch}
+  .awful-cases .runner-controls{top:auto;left:8px;right:8px;bottom:8px;grid-template-columns:repeat(3,minmax(44px,1fr))}
+  .awful-cases .runner-controls__prompt{left:8px;right:8px;bottom:108px;max-width:none}
+}

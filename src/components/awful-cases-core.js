@@ -76,6 +76,12 @@ export function recordMistake(stats, { resolve = false } = {}) {
   };
 }
 
+export function sessionAccuracy(stats) {
+  const attempts = Math.max(0, Number(stats?.correct) || 0) + Math.max(0, Number(stats?.mistakes) || 0);
+  if (attempts === 0) return 100;
+  return Math.round((Math.max(0, Number(stats?.correct) || 0) / attempts) * 100);
+}
+
 export function missIsLethal(phase) {
   return phase === "exam";
 }

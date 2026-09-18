@@ -46,6 +46,14 @@ async function openTrainer(page, url) {
     false,
     "trainer demo must not steal focus before the user starts the session",
   );
+  const onboarding = page.locator("[data-awful-cases-onboarding]");
+  assert.equal(await onboarding.isVisible(), true, "trainer must explain itself before play");
+  assert.equal(
+    await onboarding.locator(".start__action").count(),
+    6,
+    "onboarding must teach all six Awful Cases transforms",
+  );
+  assert.equal(await page.locator("[data-awful-cases-controls]").isVisible(), false);
   return errors;
 }
 
@@ -57,6 +65,15 @@ async function startSession(page) {
   );
   const state = await page.evaluate(trainerState);
   assert.ok(state?.taskType, "running session must expose a current task");
+  const controls = page.locator("[data-awful-cases-controls]");
+  assert.equal(await controls.isVisible(), true, "controls must stay visible while learning");
+  assert.equal(await controls.locator("[data-awful-cases-action]").count(), 6);
+  assert.equal(await page.locator("[data-awful-cases-prompt]").isVisible(), true);
+  assert.equal(
+    await controls.locator('[data-active="true"]').getAttribute("data-awful-cases-action"),
+    state.taskType,
+    "tutorial must highlight the action for the current task",
+  );
   return state;
 }
 

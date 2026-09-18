@@ -176,8 +176,12 @@ th{background:var(--face);font-weight:700}
         <div class="awful-cases" data-awful-cases>
   <canvas class="awful-cases__canvas" data-awful-cases-canvas tabindex="0" aria-label="awful cases trainer"></canvas>
   <div class="game-title">Awful Cases - Case Trainer</div>
-  <div class="start" data-awful-cases-start>
-    <div class="start__label">demo mode</div>
+  <div class="start" data-awful-cases-start data-awful-cases-onboarding>
+    <div class="start__eyebrow" data-awful-cases-onboarding-kicker></div>
+    <div class="start__title" data-awful-cases-onboarding-title></div>
+    <p class="start__copy" data-awful-cases-onboarding-copy></p>
+    <div class="start__actions" data-awful-cases-onboarding-actions></div>
+    <div class="start__tip" data-awful-cases-onboarding-tip></div>
     <button class="start__button" data-awful-cases-start-button type="button">start</button>
   </div>
   <div class="restart" data-awful-cases-restart hidden>
@@ -185,7 +189,8 @@ th{background:var(--face);font-weight:700}
     <div class="restart__meta" data-awful-cases-restart-meta>arrow keys only</div>
     <button class="restart__button" data-awful-cases-restart-button type="button">restart</button>
   </div>
-  <div class="runner-controls" data-awful-cases-controls hidden aria-label="mobile controls">
+  <div class="runner-controls__prompt" data-awful-cases-prompt hidden aria-live="polite"></div>
+  <div class="runner-controls" data-awful-cases-controls hidden aria-label="Awful Cases controls">
     <button data-awful-cases-action="upper" type="button"><b>Up</b><span>upper</span></button>
     <button data-awful-cases-action="lower" type="button"><b>Dn</b><span>lower</span></button>
     <button data-awful-cases-action="title" type="button"><b>Lt</b><span>title</span></button>
