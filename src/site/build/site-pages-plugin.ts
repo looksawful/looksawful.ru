@@ -12,6 +12,7 @@ import type { SitePageDefinition } from "../pages/types.ts";
 import { normalizePagePath } from "../pages/validation.ts";
 import { renderCvDevHtml } from "../renderers/cv-page.ts";
 import { renderStandaloneEntityPage } from "../renderers/entity-page.ts";
+import { renderGalleryPage } from "../renderers/gallery-page.ts";
 import { deferHomepageLazyImages } from "../renderers/home/home-image-deferral.ts";
 import { deferHomepageAutoplayMedia } from "../renderers/home/home-media-deferral.ts";
 import { renderHomepagePage } from "../renderers/home/home-page.ts";
@@ -81,6 +82,9 @@ export function createSitePagesPlugin(root = process.cwd()): Plugin {
           return deferHomepageLazyImages(
             deferHomepageAutoplayMedia(renderHomepagePage(html)),
           );
+        }
+        if (page.renderer === "gallery" && page.type === "gallery") {
+          return renderGalleryPage(page);
         }
         if (page.renderer === "entity") return renderStandaloneEntityPage(page);
         if (page.renderer === "not-found") return renderNotFoundPage(page);
