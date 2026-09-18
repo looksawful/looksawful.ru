@@ -116,6 +116,8 @@ export type EntityPageDefinition =
 export type SitePageDefinition =
   | HomePageDefinition
   | GalleryPageDefinition
-  | EntityPageDefinition
+  | CasePageDefinition
+  | ProjectPageDefinition
+  | CollectionPageDefinition
   | StaticPageDefinition
   | NotFoundPageDefinition;
