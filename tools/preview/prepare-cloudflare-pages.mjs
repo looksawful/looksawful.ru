@@ -191,13 +191,17 @@ export async function prepareCloudflarePagesPreview({
   const records = [];
 
   for (const asset of oversized) {
-    const repoRelativePath = `public/${asset.relativePath}`;
+    const sourceRelativePath = asset.relativePath.startsWith("lab/system/")
+      ? asset.relativePath.slice("lab/system/".length)
+      : asset.relativePath;
+    const repoRelativePath = `public/${sourceRelativePath}`;
     if (isTracked(repoRelativePath)) {
-      const destination = rawGitHubUrl(repository, headSha, asset.relativePath);
+      const destination = rawGitHubUrl(repository, headSha, sourceRelativePath);
       await unlink(asset.absolutePath);
       redirects.push(redirectLine(asset.relativePath, destination));
       records.push({
         path: asset.relativePath,
+        sourcePath: sourceRelativePath,
         originalBytes: asset.bytes,
         handling: "exact-sha-github-raw-redirect",
         destination,
@@ -205,7 +209,7 @@ export async function prepareCloudflarePagesPreview({
       continue;
     }
 
-    if (/^(?:lab\/system\/)?media\/generated\/video\/.+\.(?:mp4|webm)$/i.test(asset.relativePath)) {
+    if (/^media\/generated\/video\/.+\.(?:mp4|webm)$/i.test(sourceRelativePath)) {
       const surrogateBytes = await transcodeGeneratedVideo(asset.absolutePath, { limitBytes });
       records.push({
         path: asset.relativePath,
