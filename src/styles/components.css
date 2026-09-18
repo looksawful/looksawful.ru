@@ -149,8 +149,6 @@
 }
 
 .portfolio-showcase__head {
-  display: grid;
-  gap: 0.45rem;
   margin-block-end: var(--size-400);
 }
 
@@ -161,7 +159,6 @@
 
 .portfolio-showcase__description {
   max-inline-size: 44rem;
-  margin: 0;
   color: var(--clr-text-muted);
   font-size: var(--fs-300);
   line-height: 1.35;
@@ -327,7 +324,6 @@
 .group-note,
 .editorial-note {
   max-inline-size: 46rem;
-  margin: 0;
   color: color-mix(in srgb, var(--clr-text), transparent 18%);
   font-size: clamp(0.875rem, 0.82rem + 0.18cqi, 1rem);
   font-weight: var(--fw-400);
@@ -338,7 +334,6 @@
   display: grid;
   gap: 0.18rem;
   max-inline-size: 42rem;
-  margin: 0;
   color: color-mix(in srgb, var(--clr-text), transparent 38%);
   font-size: clamp(0.75rem, 0.7rem + 0.12cqi, 0.8125rem);
   font-weight: var(--fw-400);
@@ -369,15 +364,6 @@
   --brand-system-mobile-item-size: clamp(18rem, 82cqi, 28rem);
   --brand-system-hover-inset: clamp(0.55rem, 1.2cqi, 0.9rem);
   --group-compact-item-size: var(--brand-system-mobile-item-size);
-}
-
-.brand-system__intro {
-  display: grid;
-  gap: 0.75rem;
-
-  & > p {
-    margin: 0;
-  }
 }
 
 .brand-system__surface {
@@ -451,15 +437,6 @@
 
 /* Jestei Pool — interface and Event media groups share the generic compact
    reel and only provide their authored compact item width. */
-.jestei-section-copy-list {
-  display: grid;
-  gap: 0.75rem;
-
-  & > p {
-    margin: 0;
-  }
-}
-
 .media-group.jestei-interface-group,
 .media-group.jestei-event-group {
   --group-compact-item-size: min(86cqi, 36rem);
