@@ -37,10 +37,8 @@ function entityPages(): readonly EntityPageDefinition[] {
   const pages: EntityPageDefinition[] = [];
 
   for (const page of sitePages) {
-    if (!page.enabled) continue;
-    if (page.type === "case" || page.type === "collection" || page.type === "project") {
-      pages.push(page);
-    }
+    if (!page.enabled || page.renderer !== "entity") continue;
+    pages.push(page);
   }
 
   return pages;
