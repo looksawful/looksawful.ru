@@ -3,14 +3,25 @@ import {
   getGalleryItems,
   getGallerySeriesId,
 } from "../../data/media/gallery.ts";
-import { responsiveImageSrcSet } from "../../data/media/responsive.ts";
 import { escapeHtml } from "../../utils/html.ts";
 import { logo3dCatalog } from "../data/logo-3d-catalog.mjs";
 
 const PHOTO_ITEMS = getGalleryItems();
-const READY_LOGOS = logo3dCatalog.filter(
-  (entry) => entry.status === "ready" && entry.modelUrl,
-);
+const GALLERY_LOGO_IDS = [
+  "jestei-symbol-metal",
+  "jestei-symbol-pear",
+  "jestei-symbol-orange",
+  "jestei-symbol-blue",
+  "jestei-symbol-biloba",
+];
+
+const READY_LOGOS = GALLERY_LOGO_IDS.map((id) => {
+  const entry = logo3dCatalog.find(
+    (candidate) => candidate.id === id && candidate.status === "ready" && candidate.modelUrl,
+  );
+  if (!entry) throw new Error(`Missing ready Gallery 3D logo: ${id}`);
+  return entry;
+});
 const STYLE_ID = "gallery-full-content-story-styles";
 
 const groupPhotos = () => {
@@ -27,14 +38,11 @@ const previewForModel = (modelUrl) =>
   modelUrl.replace(/\/([^/]+)\.glb$/, "/preview/$1.png");
 
 const renderPhotoCard = (item) => {
-  const srcset = responsiveImageSrcSet(item.asset);
-  const srcsetAttribute = srcset ? ` srcset="${escapeHtml(srcset)}"` : "";
   const title = item.title || item.alt || "";
   const alt = item.alt.trim() || title;
 
   return `<figure class="gallery-card" aria-label="${escapeHtml(alt)}">
-    <img class="gallery-card__image" src="${escapeHtml(item.asset.src)}"${srcsetAttribute}
-      sizes="(max-width: 720px) 50vw, (max-width: 1100px) 33vw, (max-width: 1500px) 25vw, 20vw"
+    <img class="gallery-card__image" src="${escapeHtml(item.asset.src)}"
       width="${item.width}" height="${item.height}" alt="${escapeHtml(alt)}"
       loading="lazy" decoding="async">
   </figure>`;
