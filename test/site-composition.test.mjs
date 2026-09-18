@@ -119,7 +119,7 @@ test("homepage enabled entities render from canonical PageContent in declared or
     previousIndex = articleIndex;
 
     assert.match(article, /data-section-type=/, `${articleId} must use canonical Section rendering`);
-    assert.match(article, /<h2\b[^>]*class="project__title visually-hidden"/, `${articleId} must keep an accessible h2 without the large visual title on Homepage`);
+    assert.match(article, /<h2\b[^>]*class="project__title project__title--logo visually-hidden"/, `${articleId} must keep an accessible h2 without the large visual title on Homepage`);
     assert.doesNotMatch(article, /<!-- [A-Z][A-Z0-9_]+ -->/);
   }
 });
