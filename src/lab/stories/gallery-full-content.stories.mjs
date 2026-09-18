@@ -1,27 +1,12 @@
 import { createModelViewers } from "../../components/model-viewer.ts";
 import {
   getGalleryItems,
+  getGalleryModelItems,
   getGallerySeriesId,
 } from "../../data/media/gallery.ts";
 import { escapeHtml } from "../../utils/html.ts";
-import { logo3dCatalog } from "../data/logo-3d-catalog.mjs";
-
 const PHOTO_ITEMS = getGalleryItems();
-const GALLERY_LOGO_IDS = [
-  "jestei-symbol-metal",
-  "jestei-symbol-pear",
-  "jestei-symbol-orange",
-  "jestei-symbol-blue",
-  "jestei-symbol-biloba",
-];
-
-const READY_LOGOS = GALLERY_LOGO_IDS.map((id) => {
-  const entry = logo3dCatalog.find(
-    (candidate) => candidate.id === id && candidate.status === "ready" && candidate.modelUrl,
-  );
-  if (!entry) throw new Error(`Missing ready Gallery 3D logo: ${id}`);
-  return entry;
-});
+const READY_LOGOS = getGalleryModelItems();
 const STYLE_ID = "gallery-full-content-story-styles";
 
 const groupPhotos = () => {
@@ -48,18 +33,15 @@ const renderPhotoCard = (item) => {
   </figure>`;
 };
 
-const renderModelCard = (entry) => {
-  const label = `${entry.family} · ${entry.variant}${entry.colorway ? ` · ${entry.colorway}` : ""}`;
-  return `<figure class="gallery-card gallery-card--model" data-gallery-model-card>
-    <div class="gallery-model" data-model-viewer-runtime
-      data-model-src="${escapeHtml(entry.modelUrl)}" data-model-autorotate="false"
-      role="img" aria-label="${escapeHtml(label)}">
-      <img class="gallery-model__poster" src="${escapeHtml(previewForModel(entry.modelUrl))}"
-        alt="" loading="lazy" decoding="async">
-      <canvas class="gallery-model__canvas" data-model-viewer-canvas aria-hidden="true"></canvas>
-    </div>
-  </figure>`;
-};
+const renderModelCard = (entry) => `<figure class="gallery-card gallery-card--model" data-gallery-model-card>
+  <div class="gallery-model" data-model-viewer-runtime
+    data-model-src="${escapeHtml(entry.asset.src)}" data-model-autorotate="false"
+    role="img" aria-label="${escapeHtml(entry.alt)}">
+    <img class="gallery-model__poster" src="${escapeHtml(entry.posterSrc)}"
+      alt="" loading="lazy" decoding="async">
+    <canvas class="gallery-model__canvas" data-model-viewer-canvas aria-hidden="true"></canvas>
+  </div>
+</figure>`;
 const ensureStyles = () => {
   if (document.getElementById(STYLE_ID)) return;
   const style = document.createElement("style");
@@ -91,7 +73,7 @@ const renderPhotoSeries = () => groupPhotos()
     </div>
   </section>`)
   .join("\n");
-const renderModelSeries = () => `<section class="gallery-series" data-gallery-series="3d-logos">
+const renderModelSeries = () => `<section class="gallery-series" data-gallery-series="${READY_LOGOS[0]?.seriesId ?? "jestei-3d-symbols"}">
   <div class="gallery-series__grid" data-gallery-series-grid>
     ${READY_LOGOS.map(renderModelCard).join("\n")}
   </div>
@@ -156,7 +138,6 @@ export default {
         "src/data/media/gallery.ts",
         "src/styles/gallery.css",
         "src/components/model-viewer.ts",
-        "src/lab/data/logo-3d-catalog.mjs",
       ],
       layer: "page",
       policy: "experimental",
