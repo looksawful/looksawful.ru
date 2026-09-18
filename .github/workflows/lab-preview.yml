@@ -129,7 +129,7 @@ jobs:
           test -s dist/lab/system/index.html
           test -s dist/lab/system/inventory.html
           test -s dist/lab/system-inventory.json
-          grep -qi '<title>looksawful design system inventory</title>' dist/lab/system/inventory.html
+          grep -qi '<title>looksawful Storybook inventory</title>' dist/lab/system/inventory.html
 
       - name: Stamp Lab identity
         shell: bash
@@ -299,7 +299,7 @@ jobs:
               && curl --fail --silent --show-error --location \
                 --user "lab:${LAB_PASSWORD}" \
                 --output /tmp/lab-inventory.html "$PREVIEW_URL/lab/system/inventory.html" 2>/dev/null \
-              && grep -qi '<title>looksawful design system inventory</title>' /tmp/lab-inventory.html; then
+              && grep -qi '<title>looksawful Storybook inventory</title>' /tmp/lab-inventory.html; then
               bundle_ready=1
               break
             fi
