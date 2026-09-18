@@ -137,12 +137,18 @@ A focused contract test verifies:
 
 Browser/layout proof remains an affected/manual check, not a new always-on CI burden.
 
-## Acceptance criteria
+## Delivery phases
+
+### Phase 1 — primitive contract + UI Lab
 
 - One shared production stylesheet defines control, chip, badge and panel primitives.
-- Storybook exposes canonical production-backed atom stories for the system.
-- At least three existing production owners adopt the shared primitives without losing their specialized geometry or behavior.
-- Existing design-system inventory, focused tests, typecheck/build and LAB build pass.
+- Storybook exposes canonical atom stories for the system using the real stylesheet graph.
+- Focused contract tests, typecheck/build and LAB build pass.
+- No existing owner is required to opt into the new classes in this phase, so the visible site remains unchanged.
 - No Tailwind/Material dependency is added.
 - No authored copy changes.
-- Work lives on one feature branch based on fresh `dev`, outside C:, with commits pushed to GitHub.
+- Work remains on one feature branch synchronized with fresh `dev`.
+
+### Phase 2 — owner adoption
+
+After the primitive API is visually reviewed in Storybook, adopt it incrementally in representative existing owners. At least three owners should compose the shared primitives without losing specialized geometry or behavior. This is a separate follow-up and is not a merge gate for Phase 1.
