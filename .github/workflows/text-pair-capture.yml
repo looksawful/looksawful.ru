@@ -1,0 +1,93 @@
+name: Text Pair Visual Capture
+
+on:
+  push:
+    branches: [preview/pattern-text-pair]
+    paths:
+      - ".github/workflows/text-pair-capture.yml"
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Capture production vs preview
+        env:
+          PROD_URL: https://www.looksawful.ru
+          PREVIEW_URL: https://pr-1048.looksawful-ru-preview.pages.dev
+        run: |
+          node --input-type=module <<'NODE'
+          import { chromium } from "playwright";
+          import fs from "node:fs/promises";
+          import path from "node:path";
+
+          const out = "artifacts/text-pair";
+          await fs.mkdir(out, { recursive: true });
+          const browser = await chromium.launch({ headless: true });
+          const targets = [
+            { id: "sensetique-production", route: "/work/sensetique/", selector: "#sensetique-production .section-copy" },
+            { id: "jestei-home", route: "/work/jestei-pool/", selector: "#jestei-home .section-copy" },
+            { id: "expertise", route: "/", selector: ".expertise__item:first-child .expertise__head" },
+          ];
+          const widths = [390, 600, 720, 834, 1440];
+          const builds = [["before", process.env.PROD_URL], ["after", process.env.PREVIEW_URL]];
+          const metrics = [];
+          for (const [build, base] of builds) {
+            for (const width of widths) {
+              for (const target of targets) {
+                const page = await browser.newPage({ viewport: { width, height: 1200 } });
+                await page.goto(base + target.route, { waitUntil: "domcontentloaded", timeout: 30000 });
+                await page.evaluate(async () => { await document.fonts.ready; });
+                await page.addStyleTag({ content: "*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}" });
+                const el = page.locator(target.selector).first();
+                await el.waitFor({ state: "visible" });
+                await el.screenshot({ path: path.join(out, `${target.id}__${width}__${build}.png`) });
+                metrics.push(await el.evaluate((node, meta) => {
+                  const r = node.getBoundingClientRect();
+                  const children = [...node.children].map((child) => {
+                    const cr = child.getBoundingClientRect();
+                    const cs = getComputedStyle(child);
+                    return { tag: child.tagName, x: cr.x, y: cr.y, w: cr.width, h: cr.height, marginBlockStart: cs.marginBlockStart };
+                  });
+                  const rows = new Set(children.map((c) => Math.round(c.y))).size;
+                  return { ...meta, box: { x:r.x,y:r.y,w:r.width,h:r.height }, display:getComputedStyle(node).display, flexWrap:getComputedStyle(node).flexWrap, rows, children };
+                }, { build, width, id: target.id }));
+                await page.close();
+              }
+            }
+          }
+          await browser.close();
+          await fs.writeFile(path.join(out, "metrics.json"), JSON.stringify(metrics, null, 2));
+          NODE
+      - uses: actions/upload-artifact@v7
+        with:
+          name: text-pair-visual-capture
+          path: artifacts/text-pair
+          retention-days: 1
+      - name: Publish capture run
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const marker = '<!-- text-pair-visual-capture -->';
+            const body = `${marker}\nText-pair visual capture ready. Run: ${context.runId}\nArtifact: text-pair-visual-capture`;
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner: context.repo.owner, repo: context.repo.repo, issue_number: 1048, per_page: 100
+            });
+            const existing = comments.find((c) => c.body?.includes(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({ owner: context.repo.owner, repo: context.repo.repo, comment_id: existing.id, body });
+            } else {
+              await github.rest.issues.createComment({ owner: context.repo.owner, repo: context.repo.repo, issue_number: 1048, body });
+            }
