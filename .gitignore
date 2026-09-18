@@ -3,6 +3,7 @@ node_modules/
 
 # builds
 dist/
+dist-lab/
 dist-ssr/
 build/
 out/
@@ -125,7 +126,6 @@ public/assets/media/cases/
 .cache/media/
 media/.compression-backup/
 .prototypes/
-.editorconfig
 
 # Reproducible derivatives are generated/ensured by the media pipeline and are not committed.
 public/media/generated/responsive/

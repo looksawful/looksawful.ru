@@ -149,7 +149,8 @@ def export_target(repo_root, target, manifest, profile, blend_dir=None):
     bpy.context.view_layer.objects.active = mesh
     pack_dir = output.parent
     stem = output.stem
-    blend_path = (blend_dir / f"{target['id']}.blend") if blend_dir else (pack_dir / f"{stem}.blend")
+    default_blend_dir = repo_root / "_local" / "logo-3d" / "blend"
+    blend_path = (blend_dir if blend_dir else default_blend_dir) / f"{target['id']}.blend"
     blend_path.parent.mkdir(parents=True, exist_ok=True)
     bpy.ops.wm.save_as_mainfile(filepath=str(blend_path), copy=True)
 
