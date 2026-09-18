@@ -24,6 +24,14 @@ Use intrinsic/mobile-first layout first. Reach for container queries when a comp
 
 Ordinary reveals use the existing reveal contract. GSAP is for orchestration that the existing visibility runtime cannot express cleanly. Responsive GSAP variants should prefer `gsap.matchMedia()` and deterministic lifecycle cleanup. Scroll-linked behavior should not silently replace one-shot reveal behavior.
 
+## Shared layout patterns
+
+- `prose` owns vertical rhythm between direct typographic children. Keep its current `1.5em` default unless a deliberate local art-direction override is required.
+- `stack` owns uniform vertical rhythm between containers/components; do not substitute it for prose merely because both stack vertically.
+- `cluster` owns peer inline groups; `split` owns container composition; `editorial-grid` owns authored editorial tracks.
+- Multi-paragraph section intros must render as exactly two layout roles when a title exists: the title and one `.section-copy__text.prose` wrapper containing all paragraphs. Never allow each paragraph to become a direct Grid/Flex layout item.
+- Layout width and readable text measure are separate concerns. A layout primitive may size the track; readable measure belongs inside that track.
+
 ## Quality
 
 Use `looksawful-web-quality` for performance/a11y/SEO work and `optimize-web-animations` for CPU/GPU/jank/leak work. Follow `docs/testing-policy.md` for verification tier selection.
