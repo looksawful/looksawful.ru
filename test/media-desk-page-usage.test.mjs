@@ -87,8 +87,8 @@ test("page index ignores external URLs and deduplicates repeated canonical refer
     sources: [
       {
         ownerId: "berserk-timer",
-        route: "/pets/berserk-timer/",
-        sourcePath: "public/pets/berserk-timer/index.html",
+        route: "/work/berserk-timer/",
+        sourcePath: "public/work/berserk-timer/index.html",
         text: `<img src="/media/projects/berserk-timer/cover.webp"><img src="/media/projects/berserk-timer/cover.webp"><img src="https://example.com/nope.jpg">`,
       },
     ],
