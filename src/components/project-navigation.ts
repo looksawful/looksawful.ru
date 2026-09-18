@@ -31,7 +31,7 @@ export function initProjectNavigationBackToTop(
   }
 
   const link = doc.createElement("a");
-  link.className = "project-nav__top";
+  link.className = "project-nav__top cluster";
   link.setAttribute("href", `#${targetId}`);
   link.setAttribute("aria-label", "Наверх");
 

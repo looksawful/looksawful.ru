@@ -124,8 +124,8 @@ export function renderJesteiThemeOrganismMockup(
                   <div class="jestei-theme-organism__canvas-shell">
                     <canvas aria-hidden="true" data-jestei-theme-canvas=""></canvas>
                     <div class="jestei-theme-organism__canvas-overlay">
-                      <div class="jestei-theme-organism__chips">${badges}</div>
-                      <div aria-hidden="true" class="jestei-theme-organism__palette">${palettes}</div>
+                      <div class="jestei-theme-organism__chips cluster">${badges}</div>
+                      <div aria-hidden="true" class="jestei-theme-organism__palette cluster">${palettes}</div>
                     </div>
                   </div>
                   <div class="jestei-theme-organism__copy">

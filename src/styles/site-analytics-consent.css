@@ -4,10 +4,8 @@
   inset-inline-start: var(--page-padding-inline);
   inset-inline-end: auto;
   inset-block-end: max(var(--size-200), env(safe-area-inset-bottom, 0px));
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: var(--size-200);
+  --cluster-align: center;
+  --cluster-space: var(--size-200);
   max-inline-size: min(24rem, calc(100vw - (2 * var(--page-padding-inline))));
   border: var(--border-width-100) solid rgb(0 0 0 / 0.12);
   background: rgb(255 255 255 / 0.94);
@@ -32,9 +30,10 @@
 }
 
 .site-analytics-consent__actions {
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
+  --cluster-wrap: nowrap;
+  --cluster-align: center;
+  --cluster-space: 0.3rem;
+
   margin-inline-start: auto;
 }
 
