@@ -228,7 +228,7 @@ function renderGroupHead(head?: MediaGroupHeadData, reveal = true): string {
     return "";
   }
 
-  const classes = ["media-group__head", head.className ?? "flow"].filter(Boolean).join(" ");
+  const classes = ["media-group__head", head.className ?? "prose"].filter(Boolean).join(" ");
 
   const style = head.style ? ` style="${escapeHtml(head.style)}"` : "";
 
