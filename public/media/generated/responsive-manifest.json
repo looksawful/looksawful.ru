@@ -2855,6 +2855,31 @@
       ]
     },
     {
+      "id": "dava-23-source-01-934x1400",
+      "src": "/media/projects/shootings/23/source/01-934x1400.webp",
+      "sourceWidth": 934,
+      "sourceHeight": 1400,
+      "sourceBytes": 77110,
+      "sourceHash": "f72bd0476cadb7fee1048444fdb075b0ab85cf6225c2f8c408d95c1808f3af80",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/shootings/23/source/01-934x1400@480.webp",
+          "width": 480,
+          "height": 719,
+          "bytes": 26770,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/23/source/01-934x1400@768.webp",
+          "width": 768,
+          "height": 1151,
+          "bytes": 55920,
+          "format": "webp"
+        }
+      ]
+    },
+    {
       "id": "esmi-12-source-01-1x1",
       "src": "/media/projects/shootings/12/source/01-1x1.webp",
       "sourceWidth": 950,
@@ -13283,31 +13308,6 @@
           "width": 768,
           "height": 960,
           "bytes": 17386,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "dava-23-source-01-934x1400",
-      "src": "/media/projects/shootings/23/source/01-934x1400.webp",
-      "sourceWidth": 934,
-      "sourceHeight": 1400,
-      "sourceBytes": 77110,
-      "sourceHash": "f72bd0476cadb7fee1048444fdb075b0ab85cf6225c2f8c408d95c1808f3af80",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/shootings/23/source/01-934x1400@480.webp",
-          "width": 480,
-          "height": 719,
-          "bytes": 26770,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/23/source/01-934x1400@768.webp",
-          "width": 768,
-          "height": 1151,
-          "bytes": 55920,
           "format": "webp"
         }
       ]
