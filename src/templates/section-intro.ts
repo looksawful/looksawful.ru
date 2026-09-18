@@ -39,7 +39,7 @@ export function renderSectionIntro(data: SectionIntroData, options: SectionIntro
     : "";
 
   return `
-    <header class="section-copy prose"${renderRevealGroupAttribute(reveal)}>
+    <header class="section-copy text-pair"${renderRevealGroupAttribute(reveal)}>
       ${title}
 
       ${paragraphs}
