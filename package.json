@@ -83,7 +83,7 @@
   },
   "devDependencies": {
     "@lhci/cli": "^0.15.1",
-    "@types/three": "^0.185.0",
+    "@types/three": "^0.186.0",
     "playwright": "^1.61.1",
     "sharp": "^0.35.4",
     "typescript": "^7.0.2",
@@ -98,7 +98,7 @@
     "photoswipe": "5.4.4",
     "photoswipe-dynamic-caption-plugin": "1.2.7",
     "split.js": "^1.6.5",
-    "three": "^0.185.1",
+    "three": "^0.186.0",
     "tom-select": "^2.6.2"
   },
   "engines": {
