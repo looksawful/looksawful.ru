@@ -93,7 +93,7 @@ test("standalone Jestei keeps compact metadata without duplicating project ident
   assert.match(standalone, /class="project__role"/);
   assert.match(standalone, /class="project__period"/);
   assert.match(standalone, /class="project__intro wrapper editorial-grid"/);
-  assert.match(standalone, /class="project__title"/);
+  assert.match(standalone, /class="project__title project__title--logo"/);
 });
 
 test("project preview CTA uses compact desktop sizing and full-width mobile sizing", () => {
