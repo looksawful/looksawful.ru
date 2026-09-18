@@ -4,7 +4,7 @@ import { pathToFileURL } from "node:url";
 import { chromium } from "playwright";
 import sharp from "sharp";
 
-const source = resolve("public/pets/berserk-timer/index.html");
+const source = resolve("public/work/berserk-timer/index.html");
 const output = resolve("public/media/projects/berserk-timer/cover.webp");
 const temporary = resolve(".tmp-berserk-timer-cover.png");
 
