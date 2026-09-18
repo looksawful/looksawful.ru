@@ -35,6 +35,7 @@ const expectedRoutes = new Map([
   ["collection:music-photography", "/shootings/"],
   ["project:awful-cases", "/work/awful-cases/"],
   ["project:berserk-timer", "/work/berserk-timer/"],
+  ["project:awful-3d-mockups", "/work/awful-3d-mockups/"],
   ["project:awful-studio", "/work/awful-studio/"],
   ["project:moves-awful", "/work/moves-awful/"],
   ["project:berry-social-content-2020", "/work/berry-social-content-2020/"],
@@ -175,6 +176,7 @@ test("entity routes reference the existing domain model", () => {
     ["collection:music-photography", { type: "collection", entityId: "music-photography" }],
     ["project:awful-cases", { type: "project", entityId: "awful-cases" }],
     ["project:berserk-timer", { type: "project", entityId: "berserk-timer" }],
+    ["project:awful-3d-mockups", { type: "project", entityId: "awful-3d-mockups" }],
     ["project:moves-awful", { type: "project", entityId: "moves-awful" }],
     ["project:berry-social-content-2020", { type: "project", entityId: "berry-social-content-2020" }],
   ]);
