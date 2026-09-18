@@ -15,6 +15,12 @@ export const fastTests = new Set([
   "test/awful-cases-cms-editorial.test.mjs",
   "test/ci-fast-concurrency.test.mjs",
   "test/code-block-contract.test.mjs",
+  // CONTRACT: shared Contact Hub entry modes and collapse/restore are stable product invariants.
+  "test/contact-hub-state-integration.test.mjs",
+  // CONTRACT: public contact validation remains bounded and independent from AI availability.
+  "test/contact-hub-form-contract.test.mjs",
+  // CONTRACT: shared Hub context never carries form PII or message content into AI state.
+  "test/contact-hub-context-contract.test.mjs",
   "test/cms-authoring-topology.test.mjs",
   "test/cms-publication-scope.test.mjs",
   "test/cms-publication-topology.test.mjs",
