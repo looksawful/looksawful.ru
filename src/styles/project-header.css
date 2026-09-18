@@ -77,3 +77,21 @@
   .project__head {
     line-height: var(--lh-heading);
   }
+
+
+/* Standalone case/project pages keep only compact metadata in the project
+   header. Homepage previews retain the full project identity. */
+body:is([data-page-type="case"], [data-page-type="project"]) .project__head {
+  grid-template-columns: minmax(0, 1fr) max-content;
+  grid-template-areas: "role period";
+  min-block-size: 0;
+}
+
+body:is([data-page-type="case"], [data-page-type="project"]) .project__role {
+  justify-self: start;
+}
+
+body:is([data-page-type="case"], [data-page-type="project"]) .project__name,
+body:is([data-page-type="case"], [data-page-type="project"]) .project__head > img {
+  display: none;
+}
