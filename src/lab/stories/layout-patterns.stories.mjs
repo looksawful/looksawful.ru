@@ -1,4 +1,6 @@
+import { jesteiIntro } from "../../data/content/jestei-pool.ts";
 import { sensetiqueProductionIntro } from "../../data/content/sensetique.ts";
+import { renderProjectIntro } from "../../templates/project-intro.ts";
 import { renderSectionIntro } from "../../templates/section-intro.ts";
 
 const sampleCopy = {
@@ -42,7 +44,10 @@ const meta = {
     looksawful: {
       sources: [
         "src/styles/patterns.css",
+        "src/styles/project-shell.css",
+        "src/templates/project-intro.ts",
         "src/templates/section-intro.ts",
+        "src/data/content/jestei-pool.ts",
         "src/data/content/sensetique.ts",
       ],
       layer: "foundation",
@@ -89,5 +94,30 @@ export const TextPairSensetiqueProduction = {
   `,
   parameters: {
     looksawful: { state: "intrinsic-text-pair" },
+  },
+};
+
+
+export const ProjectTitleMeasure = {
+  render: () => `
+    <main class="stack" style="--stack-space:clamp(3rem,7vw,7rem);padding:clamp(1.5rem,4vw,4rem)">
+      <section class="project">
+        ${renderProjectIntro({
+          title: { type: "text", text: "Длинный текстовый заголовок проекта" },
+          lead: "Текстовый title сохраняет читаемую меру 16ch как часть типографической арт-дирекции.",
+        })}
+      </section>
+      <section class="project">
+        ${renderProjectIntro(jesteiIntro)}
+      </section>
+    </main>
+  `,
+  parameters: {
+    looksawful: { state: "project-title-measure" },
+    docs: {
+      description: {
+        story: "Text project titles keep the 16ch typographic measure. Logo titles use the editorial grid track and never inherit a character-based width cap.",
+      },
+    },
   },
 };
