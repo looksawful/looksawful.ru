@@ -11,16 +11,30 @@ import {
   phaseForIndex,
   recordCorrect,
   recordMistake,
+  sessionAccuracy,
 } from "../src/components/awful-cases-core.js";
 
 test("Awful Cases exposes the six real training actions", () => {
   assert.deepEqual(ACTION_ORDER, ["upper", "lower", "toggle", "title", "lint", "sentence"]);
-  assert.deepEqual(ACTIONS.upper, { code: "ArrowUp", label: "↑", appKey: "Up" });
-  assert.deepEqual(ACTIONS.lower, { code: "ArrowDown", label: "↓", appKey: "Down" });
-  assert.deepEqual(ACTIONS.toggle, { code: "ArrowRight", label: "→", appKey: "Right" });
-  assert.deepEqual(ACTIONS.title, { code: "ArrowLeft", label: "←", appKey: "Left" });
+  assert.deepEqual(ACTIONS.upper, { code: "KeyW", label: "W", appKey: "W" });
+  assert.deepEqual(ACTIONS.lower, { code: "KeyS", label: "S", appKey: "S" });
+  assert.deepEqual(ACTIONS.toggle, { code: "KeyD", label: "D", appKey: "D" });
+  assert.deepEqual(ACTIONS.title, { code: "KeyA", label: "A", appKey: "A" });
   assert.deepEqual(ACTIONS.lint, { code: "PageDown", label: "PgDn", appKey: "PgDn" });
   assert.deepEqual(ACTIONS.sentence, { code: "Delete", label: "Del", appKey: "Delete" });
+});
+
+test("Awful Cases action mapping stays unique", () => {
+  const codes = ACTION_ORDER.map((type) => ACTIONS[type].code);
+  const appKeys = ACTION_ORDER.map((type) => ACTIONS[type].appKey);
+  assert.equal(new Set(codes).size, ACTION_ORDER.length);
+  assert.equal(new Set(appKeys).size, ACTION_ORDER.length);
+});
+
+test("sessionAccuracy reports useful percentages", () => {
+  assert.equal(sessionAccuracy({ correct: 0, mistakes: 0 }), 100);
+  assert.equal(sessionAccuracy({ correct: 3, mistakes: 1 }), 75);
+  assert.equal(sessionAccuracy({ correct: 1, mistakes: 2 }), 33);
 });
 
 test("Awful Cases session has tutorial, practice and exam phases", () => {
@@ -39,13 +53,13 @@ test("Awful Cases session has tutorial, practice and exam phases", () => {
 });
 
 test("physical keys resolve to semantic actions", () => {
-  assert.equal(actionFromCode("ArrowUp"), "upper");
-  assert.equal(actionFromCode("ArrowDown"), "lower");
-  assert.equal(actionFromCode("ArrowRight"), "toggle");
-  assert.equal(actionFromCode("ArrowLeft"), "title");
+  assert.equal(actionFromCode("KeyW"), "upper");
+  assert.equal(actionFromCode("KeyS"), "lower");
+  assert.equal(actionFromCode("KeyD"), "toggle");
+  assert.equal(actionFromCode("KeyA"), "title");
   assert.equal(actionFromCode("PageDown"), "lint");
   assert.equal(actionFromCode("Delete"), "sentence");
-  assert.equal(actionFromCode("KeyA"), null);
+  assert.equal(actionFromCode("ArrowUp"), null);
 });
 
 test("session stats reward correctness and bounded streaks", () => {

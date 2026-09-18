@@ -7,10 +7,10 @@ const outputDir = path.resolve("dist/playtest-awful-cases");
 await mkdir(outputDir, { recursive: true });
 
 const keyByAction = {
-  upper: "ArrowUp",
-  lower: "ArrowDown",
-  title: "ArrowLeft",
-  toggle: "ArrowRight",
+  upper: "w",
+  lower: "s",
+  title: "a",
+  toggle: "d",
   lint: "PageDown",
   sentence: "Delete",
 };

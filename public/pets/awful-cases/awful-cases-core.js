@@ -1,8 +1,8 @@
 export const ACTIONS = Object.freeze({
-  upper: Object.freeze({ code: "ArrowUp", label: "↑", appKey: "Up" }),
-  lower: Object.freeze({ code: "ArrowDown", label: "↓", appKey: "Down" }),
-  toggle: Object.freeze({ code: "ArrowRight", label: "→", appKey: "Right" }),
-  title: Object.freeze({ code: "ArrowLeft", label: "←", appKey: "Left" }),
+  upper: Object.freeze({ code: "KeyW", label: "W", appKey: "W" }),
+  lower: Object.freeze({ code: "KeyS", label: "S", appKey: "S" }),
+  toggle: Object.freeze({ code: "KeyD", label: "D", appKey: "D" }),
+  title: Object.freeze({ code: "KeyA", label: "A", appKey: "A" }),
   lint: Object.freeze({ code: "PageDown", label: "PgDn", appKey: "PgDn" }),
   sentence: Object.freeze({ code: "Delete", label: "Del", appKey: "Delete" }),
 });

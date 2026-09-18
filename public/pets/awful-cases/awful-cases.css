@@ -53,24 +53,31 @@
   .awful-cases .runner-controls { display:none; }
 }
 /* Trainer onboarding + guidance pass */
-.awful-cases .start{top:50%;bottom:auto;width:min(92cqw,720px);max-height:calc(100% - 70px);overflow:auto;transform:translate(-50%,-50%);padding:clamp(14px,2.6cqmin,24px);border:3px solid #000;background:#f8f6dc;box-shadow:8px 8px 0 rgba(0,0,0,.35);align-content:start;justify-items:stretch;gap:clamp(8px,1.5cqh,14px);text-align:left;pointer-events:auto}
-.awful-cases .start__eyebrow{font:700 clamp(7px,1.2cqmin,10px)/1.3 "Press Start 2P",monospace;text-transform:uppercase;letter-spacing:.06em}
-.awful-cases .start__title{max-width:28ch;font:700 clamp(13px,2.35cqmin,24px)/1.25 "Press Start 2P",monospace}
-.awful-cases .start__copy{max-width:66ch;font:400 clamp(8px,1.35cqmin,11px)/1.55 "Press Start 2P",monospace}
-.awful-cases .start__actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
-.awful-cases .start__action{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:5px 8px;align-items:center;padding:8px;border:2px solid #000;background:#fff}
-.awful-cases .start__action-name{font:700 clamp(8px,1.3cqmin,11px)/1.3 "Press Start 2P",monospace}
-.awful-cases .start__action-example{grid-column:1/-1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:400 clamp(7px,1.15cqmin,9px)/1.35 "Press Start 2P",monospace;color:#333}
-.awful-cases .start__action-keys{display:flex;align-items:center;gap:6px;justify-self:end}
-.awful-cases .start__action-keys kbd{min-width:30px;padding:5px 6px;border:2px solid #000;background:#f1f1f1;box-shadow:2px 2px 0 #808080;font:700 clamp(8px,1.3cqmin,11px)/1 "Press Start 2P",monospace;text-align:center}
-.awful-cases .start__action-keys small{display:block;max-width:19ch;font:400 clamp(6px,1cqmin,8px)/1.25 "Press Start 2P",monospace;text-align:right}
-.awful-cases .start__tip{padding:8px 10px;border-left:4px solid #000;background:#fff;font:400 clamp(7px,1.15cqmin,9px)/1.5 "Press Start 2P",monospace}
-.awful-cases .start__button{justify-self:start;margin-top:2px}
+.awful-cases .start{top:50%;bottom:auto;width:min(90cqw,680px);max-height:calc(100% - 48px);overflow:auto;transform:translate(-50%,-50%);padding:clamp(18px,3cqmin,30px);border:2px solid #111;border-radius:14px;background:#f8f6dc;box-shadow:0 18px 48px rgba(0,0,0,.24),5px 5px 0 #111;align-content:start;justify-items:center;gap:clamp(9px,1.5cqh,15px);text-align:center;pointer-events:auto}
+.awful-cases .start__eyebrow{font:700 clamp(7px,1.1cqmin,9px)/1.3 "Press Start 2P",monospace;text-transform:uppercase;letter-spacing:.08em}
+.awful-cases .start__title{max-width:34ch;font:800 clamp(18px,3cqmin,32px)/1.08 Inter,system-ui,sans-serif;letter-spacing:-.035em;text-wrap:balance}
+.awful-cases .start__copy{max-width:58ch;color:#2e2e2e;font:500 clamp(11px,1.55cqmin,14px)/1.45 Inter,system-ui,sans-serif;text-wrap:balance}
+.awful-cases .start__actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:100%}
+.awful-cases .start__action{display:flex;min-width:0;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:10px 9px;border:1.5px solid #111;border-radius:9px;background:#fff;box-shadow:0 2px 0 rgba(0,0,0,.12)}
+.awful-cases .start__action-name{font:750 clamp(11px,1.55cqmin,14px)/1.2 Inter,system-ui,sans-serif}
+.awful-cases .start__action-example{min-width:0;overflow:visible;text-overflow:clip;white-space:normal;overflow-wrap:anywhere;font:600 clamp(9px,1.3cqmin,12px)/1.35 Inter,system-ui,sans-serif;color:#333}
+.awful-cases .start__action-keys{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px;justify-self:center}
+.awful-cases .start__action-keys kbd{min-width:34px;padding:6px 8px;border:2px solid #111;border-radius:6px;background:#f2f2ed;box-shadow:0 3px 0 #777;font:700 clamp(9px,1.25cqmin,11px)/1 "Press Start 2P",monospace;text-align:center}
+.awful-cases .start__action-keys small{display:block;max-width:none;color:#555;font:600 clamp(8px,1.12cqmin,10px)/1.3 Inter,system-ui,sans-serif;text-align:center}
+.awful-cases .start__tip{max-width:60ch;padding:8px 12px;border:1px solid rgba(0,0,0,.25);border-radius:8px;background:rgba(255,255,255,.7);font:500 clamp(9px,1.25cqmin,11px)/1.45 Inter,system-ui,sans-serif;text-align:center}
+.awful-cases .start__button{justify-self:center;min-width:min(100%,240px);margin-top:2px;padding:11px 18px;border:2px solid #111;border-radius:8px;background:#111;color:#fff;box-shadow:0 4px 0 #6e6e6e;font:700 clamp(11px,1.5cqmin,14px)/1.1 Inter,system-ui,sans-serif;letter-spacing:.01em}
+.awful-cases .start__button:hover{transform:translateY(-1px);box-shadow:0 5px 0 #6e6e6e}
 .awful-cases .runner-controls__prompt{position:absolute;left:clamp(8px,2cqmin,18px);bottom:clamp(8px,2cqmin,18px);z-index:4;max-width:min(68%,620px);padding:8px 10px;border:2px solid #000;background:#fff;color:#000;font:700 clamp(8px,1.25cqmin,11px)/1.45 "Press Start 2P",monospace;box-shadow:3px 3px 0 rgba(0,0,0,.28);pointer-events:none}
 .awful-cases .runner-controls__prompt[hidden]{display:none}
-.awful-cases .runner-controls{top:clamp(44px,8cqh,68px);right:clamp(8px,2cqmin,18px);bottom:auto;grid-template-columns:repeat(2,minmax(64px,88px));gap:6px}
+.awful-cases .runner-controls{top:clamp(44px,8cqh,68px);right:clamp(8px,2cqmin,18px);bottom:auto;grid-template-columns:repeat(6,minmax(24px,44px));gap:6px}
 .awful-cases .runner-controls:not([hidden]){display:grid}
 .awful-cases .runner-controls button{min-block-size:44px;padding:5px 4px;box-shadow:2px 2px 0 rgba(0,0,0,.25)}
+.awful-cases .runner-controls button[data-awful-cases-action="upper"]{grid-area:1/3/2/5}
+.awful-cases .runner-controls button[data-awful-cases-action="title"]{grid-area:2/1/3/3}
+.awful-cases .runner-controls button[data-awful-cases-action="lower"]{grid-area:2/3/3/5}
+.awful-cases .runner-controls button[data-awful-cases-action="toggle"]{grid-area:2/5/3/7}
+.awful-cases .runner-controls button[data-awful-cases-action="lint"]{grid-area:3/1/4/4}
+.awful-cases .runner-controls button[data-awful-cases-action="sentence"]{grid-area:3/4/4/7}
 .awful-cases .runner-controls button[data-active="true"]{background:#000;color:#fff;transform:translate(1px,1px);box-shadow:none}
 .awful-cases .runner-controls b{font-size:16px}
 .awful-cases .runner-controls span{font-size:6px;line-height:1.25}
@@ -79,7 +86,7 @@
   .awful-cases .start__actions{gap:4px}
   .awful-cases .start__action{padding:6px;gap:4px 6px}
   .awful-cases .start__tip{padding:6px 8px}
-  .awful-cases .start__button{justify-self:stretch}
-  .awful-cases .runner-controls{top:auto;left:8px;right:8px;bottom:8px;grid-template-columns:repeat(3,minmax(44px,1fr))}
+  .awful-cases .start__button{justify-self:center;width:min(100%,240px)}
+  .awful-cases .runner-controls{top:auto;left:8px;right:8px;bottom:8px;grid-template-columns:repeat(6,minmax(0,1fr))}
   .awful-cases .runner-controls__prompt{left:8px;right:8px;bottom:108px;max-width:none}
 }

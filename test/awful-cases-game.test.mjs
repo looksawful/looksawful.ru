@@ -48,6 +48,31 @@ test("embedded game exposes the shared root and control hooks", async () => {
   assert.match(source, /data-runner-action="sentence"/);
 });
 
+test("Awful Cases exposes onboarding and contextual guidance in both surfaces", async () => {
+  const [component, standalone, runtime, componentStyles, standaloneStyles] = await Promise.all([
+    readSource("../src/components/specialized/awful-cases-game.ts"),
+    readSource("../public/pets/awful-cases/index.html"),
+    readSource("../src/components/awful-cases-runtime.js"),
+    readSource("../src/styles/components.css"),
+    readSource("../public/pets/awful-cases/awful-cases.css"),
+  ]);
+
+  for (const source of [component, standalone]) {
+    assert.match(source, /data-awful-cases-onboarding/);
+    assert.match(source, /data-awful-cases-onboarding-actions/);
+    assert.match(source, /data-awful-cases-prompt/);
+  }
+  assert.match(runtime, /data-awful-cases-onboarding-actions/);
+  assert.match(runtime, /button\.dataset\.active/);
+  assert.match(runtime, /sessionAccuracy/);
+
+  for (const styles of [componentStyles, standaloneStyles]) {
+    assert.match(styles, /\.start\{[^}]*text-align:center/);
+    assert.match(styles, /\.start__button\{[^}]*justify-self:center/);
+    assert.doesNotMatch(styles, /\.start__action-example\{[^}]*white-space:nowrap/);
+  }
+});
+
 test("Awful Cases keeps responsive mobile geometry and fine-pointer control hiding", async () => {
   const source = await readSource("../src/styles/components.css");
   assert.match(source, /&\[data-device="browser"\] \.mockup__viewport \{\s*aspect-ratio: 1 \/ 1;/);

@@ -237,19 +237,19 @@ export function enhanceAwfulCases(root, { locale = "en" } = {}) {
     ctx.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h));
   }
 
-  function setFont(size = view.font, weight = 900) {
-    ctx.font = `${weight} ${Math.round(size)}px "Press Start 2P", monospace`;
+  function setFont(size = view.font, weight = 800) {
+    ctx.font = `${weight} ${Math.round(size)}px Inter, Arial, sans-serif`;
     ctx.textAlign = "center";
     ctx.textBaseline = "alphabetic";
-    ctx.fillStyle = "#000";
+    ctx.fillStyle = "#111";
     ctx.fontKerning = "normal";
   }
 
-  function textMetrics(text, size = view.font, weight = 900) {
+  function textMetrics(text, size = view.font, weight = 800) {
     setFont(size, weight);
     const m = ctx.measureText(text);
-    const ascent = Math.ceil(m.actualBoundingBoxAscent || size * 0.78);
-    const descent = Math.ceil(m.actualBoundingBoxDescent || size * 0.22);
+    const ascent = Math.ceil(m.actualBoundingBoxAscent || size * 0.76);
+    const descent = Math.ceil(m.actualBoundingBoxDescent || size * 0.2);
     return { width: m.width, ascent, descent, height: ascent + descent };
   }
 
@@ -261,55 +261,46 @@ export function enhanceAwfulCases(root, { locale = "en" } = {}) {
     return textMetrics(text, size).height;
   }
 
-  function drawTextTop(text, x, topY, size, color = "#000", alpha = 1, weight = 900) {
+  function drawWordCard(text, x, topY, size, mode = "normal", alpha = 1, weight = 800, color = null) {
     const m = textMetrics(text, size, weight);
-    const baseline = Math.round(topY + m.ascent);
+    const padX = Math.round(clamp(size * 0.48, 9 * view.scale, 22 * view.scale));
+    const padY = Math.round(clamp(size * 0.28, 6 * view.scale, 13 * view.scale));
+    const cardW = Math.ceil(m.width + padX * 2);
+    const cardH = Math.ceil(m.height + padY * 2);
+    const left = Math.round(x - cardW * 0.5);
+    const top = Math.round(topY - padY);
+    const radius = Math.round(clamp(8 * view.scale, 5, 11));
+    const shadow = Math.round(clamp(3 * view.scale, 2, 4));
+    const palette =
+      mode === "error"
+        ? { fill: "#ffe8e5", border: "#8f1f16", text: "#8f1f16" }
+        : mode === "correct"
+          ? { fill: "#e1f4df", border: "#1c6b2a", text: "#1c6b2a" }
+          : { fill: "#fffdf0", border: "#111", text: color ?? "#111" };
+
     ctx.save();
-    setFont(size, weight);
     ctx.globalAlpha = alpha;
-    ctx.lineJoin = "round";
-    ctx.lineWidth = Math.max(2, Math.round(size * 0.08));
-    ctx.strokeStyle = "#fff";
-    ctx.strokeText(text, Math.round(x), baseline);
-    ctx.fillStyle = color;
-    ctx.fillText(text, Math.round(x), baseline);
+    ctx.beginPath();
+    ctx.roundRect(left + shadow, top + shadow, cardW, cardH, radius);
+    ctx.fillStyle = "rgb(0 0 0 / 28%)";
+    ctx.fill();
+    ctx.beginPath();
+    ctx.roundRect(left, top, cardW, cardH, radius);
+    ctx.fillStyle = palette.fill;
+    ctx.fill();
+    ctx.strokeStyle = palette.border;
+    ctx.lineWidth = Math.max(1.5, 1.5 * view.scale);
+    ctx.stroke();
+
+    setFont(size, weight);
+    ctx.fillStyle = palette.text;
+    ctx.fillText(text, Math.round(x), Math.round(topY + m.ascent));
     ctx.restore();
     return m;
   }
 
-  function drawTextTopSurface(text, x, topY, size, mode = "normal", alpha = 1, weight = 900) {
-    const m = textMetrics(text, size, weight);
-    const baseline = Math.round(topY + m.ascent);
-
-    let lightColor = "#000";
-    let darkColor = "#fff";
-
-    if (mode === "error") {
-      lightColor = "#c00000";
-      darkColor = "#ff4040";
-    } else if (mode === "correct") {
-      lightColor = "#008a24";
-      darkColor = "#30ff65";
-    }
-
-    ctx.save();
-    setFont(size, weight);
-    ctx.globalAlpha = alpha;
-    ctx.lineJoin = "round";
-    ctx.lineWidth = Math.max(2, Math.round(size * 0.08));
-    ctx.strokeStyle = "#fff";
-    ctx.strokeText(text, Math.round(x), baseline);
-    ctx.fillStyle = lightColor;
-    ctx.fillText(text, Math.round(x), baseline);
-    ctx.beginPath();
-    ctx.rect(0, view.floor, view.w, view.h - view.floor);
-    ctx.clip();
-    ctx.strokeStyle = "#000";
-    ctx.strokeText(text, Math.round(x), baseline);
-    ctx.fillStyle = darkColor;
-    ctx.fillText(text, Math.round(x), baseline);
-    ctx.restore();
-    return m;
+  function drawTextTopSurface(text, x, topY, size, mode = "normal", alpha = 1, weight = 800) {
+    return drawWordCard(text, x, topY, size, mode, alpha, weight);
   }
 
   function fitTaskTextSize(base, text, maxChars, minScale = 0.58) {
@@ -320,15 +311,10 @@ export function enhanceAwfulCases(root, { locale = "en" } = {}) {
 
   function taskSizes(task) {
     const longForm = task.type === "lint" || task.type === "sentence";
-    const inputBase = longForm
-      ? view.font * 0.9
-      : task.type === "lower"
-        ? view.font * 1.24
-        : view.font * 1.12;
-    const outputBase = longForm ? view.font * 0.82 : view.font * 1.02;
+    const base = longForm ? view.font * 0.84 : view.font * 1.04;
     return {
-      input: fitTaskTextSize(inputBase, task.input, longForm ? 18 : 11),
-      output: fitTaskTextSize(outputBase, task.output, longForm ? 20 : 12),
+      input: fitTaskTextSize(base, task.input, longForm ? 20 : 13),
+      output: fitTaskTextSize(base, task.output, longForm ? 22 : 14),
     };
   }
 
@@ -858,33 +844,18 @@ export function enhanceAwfulCases(root, { locale = "en" } = {}) {
     const sizes = taskSizes(task);
     const inputH = visualTextHeight(task.input, sizes.input);
     const outputH = visualTextHeight(task.output, sizes.output);
-    let inputTop;
-    if (task.type === "upper") {
-      inputTop = floor + 48 * view.scale;
-    } else {
-      inputTop = floor - inputH - 16 * view.scale;
-    }
+    const inputTop = floor - inputH - 24 * view.scale;
+    const outputTop = floor - outputH - 24 * view.scale;
 
     if (task.target <= 0) {
       const wrongShake = task.errorTime > 0 ? Math.sin(game.time * 80) * 4 * view.scale : 0;
-      const aboveGround = task.type !== "upper";
-      if (task.errorTime > 0) {
-        drawTextTopSurface(task.input, x + wrongShake, inputTop, sizes.input, "error");
-      } else if (aboveGround) {
-        drawTextTop(task.input, x + wrongShake, inputTop, sizes.input, "#b30000", 1, 900);
-      } else {
-        drawTextTopSurface(task.input, x + wrongShake, inputTop, sizes.input, "normal");
-      }
+      const mode = task.errorTime > 0 ? "error" : "normal";
+      drawTextTopSurface(task.input, x + wrongShake, inputTop, sizes.input, mode);
       return;
     }
 
-    const startSize = sizes.input;
-    const finalSize = sizes.output;
-    const size = startSize + (finalSize - startSize) * p;
-    const startTop =
-      task.type === "upper" ? floor + 50 * view.scale : floor - outputH - 16 * view.scale;
-    const finalTop = floor;
-    const top = startTop + (finalTop - startTop) * p;
+    const size = sizes.input + (sizes.output - sizes.input) * p;
+    const top = inputTop + (outputTop - inputTop) * p;
     const mode = (task.correctTime || 0) > 0 ? "correct" : "normal";
 
     drawTextTopSurface(task.output, x, top, size, mode);
