@@ -55,7 +55,7 @@ const meta = {
     },
     docs: {
       description: {
-        component: "Canonical layout-pattern specimens. Prose owns direct-child typographic rhythm; Stack owns uniform container rhythm. Sensetique Production exercises the real multi-paragraph section-intro renderer.",
+        component: "Canonical layout-pattern specimens. Prose owns direct-child typographic rhythm; Stack owns uniform container rhythm; Text Pair owns asymmetric heading-to-copy composition. Sensetique Production exercises the real multi-paragraph section-intro renderer.",
       },
     },
   },
@@ -81,13 +81,13 @@ export const ProseSimple = {
   },
 };
 
-export const SensetiqueProductionIntro = {
+export const TextPairSensetiqueProduction = {
   render: () => `
     <main style="container-type:inline-size;padding:clamp(1.5rem,4vw,4rem)">
       ${renderSectionIntro(sensetiqueProductionIntro, { reveal: false })}
     </main>
   `,
   parameters: {
-    looksawful: { state: "multi-paragraph-section-intro" },
+    looksawful: { state: "intrinsic-text-pair" },
   },
 };
