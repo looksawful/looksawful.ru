@@ -98,6 +98,12 @@
   min-inline-size: var(--text-pair-content-min, 50%);
 }
 
+.text-pair > :only-child {
+  flex-basis: 100%;
+  flex-grow: 1;
+  min-inline-size: 0;
+}
+
 .stack {
   display: flex;
   flex-direction: column;
