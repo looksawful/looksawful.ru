@@ -50,6 +50,31 @@
   margin-block-start: var(--prose-space, var(--prose-flow, 1.5em));
 }
 
+@property --text-pair-align {
+  syntax: "*";
+  inherits: false;
+}
+
+@property --text-pair-side-size {
+  syntax: "*";
+  inherits: false;
+}
+
+@property --text-pair-content-min {
+  syntax: "*";
+  inherits: false;
+}
+
+@property --text-pair-row-gap {
+  syntax: "*";
+  inherits: false;
+}
+
+@property --text-pair-column-gap {
+  syntax: "*";
+  inherits: false;
+}
+
 /* Asymmetric typographic pair. The first child has a preferred/intrinsic
    side measure; the second owns the remaining space and forces an intrinsic
    wrap when it can no longer keep its minimum share. */
