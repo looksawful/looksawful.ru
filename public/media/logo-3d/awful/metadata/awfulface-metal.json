@@ -3,15 +3,15 @@
   "family": "AWFUL",
   "variant": "awfulface",
   "colorway": null,
-  "source": "public/favicon.svg",
+  "source": "public/media/projects/awfulface/logo/source/awfulface-mark-3d.svg",
   "sourceType": "vector-svg",
-  "sourceSha256": "3b7041a6d73bc16caca3bc4c38d218e9159ab28f2b830bd2b307c0e666e9a79c",
+  "sourceSha256": "af2c2d46a4a734abeb24df847601627872d83511cd5c5c9b03c32293d8b92971",
   "materialId": "neutral-metal",
   "geometryProfile": "jestei-reference",
   "dimensions": [
-    2.0,
+    1.675693,
     0.38,
-    1.999578
+    2.0
   ],
   "formats": [
     "glb",
@@ -19,8 +19,8 @@
     "obj",
     "stl"
   ],
-  "blenderVersion": "5.2.1 LTS",
   "localMasterFormats": [
     "blend"
-  ]
+  ],
+  "blenderVersion": "5.2.1 LTS"
 }

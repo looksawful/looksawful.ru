@@ -7,6 +7,7 @@ import sys
 from pathlib import Path
 
 import bpy
+import bmesh
 
 
 def cli_args():
@@ -103,13 +104,67 @@ def normalize_curve(curve, profile):
     bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
     return mesh
 
-def finish_geometry(mesh, profile):
+ZERO_AREA_EPSILON = 1e-12
+
+
+def collapse_zero_area_faces(bm, zero_area_epsilon=ZERO_AREA_EPSILON, max_rounds=24):
+    for _ in range(max_rounds):
+        zero_faces = [face for face in bm.faces if face.is_valid and face.calc_area() <= zero_area_epsilon]
+        if not zero_faces:
+            return
+        collapse_edges = {
+            min(face.edges, key=lambda edge: (edge.verts[0].co - edge.verts[1].co).length)
+            for face in zero_faces
+            if face.edges
+        }
+        if not collapse_edges:
+            break
+        bmesh.ops.collapse(bm, edges=list(collapse_edges), uvs=False)
+        bmesh.ops.remove_doubles(bm, verts=list(bm.verts), dist=1e-8)
+    remaining = [face for face in bm.faces if face.is_valid and face.calc_area() <= zero_area_epsilon]
+    if remaining:
+        raise RuntimeError(f"zero-area faces remain after cleanup: {len(remaining)}")
+
+
+def clean_mesh_topology(mesh, triangulate=False, zero_area_epsilon=ZERO_AREA_EPSILON):
+    bm = bmesh.new()
+    bm.from_mesh(mesh.data)
+    bmesh.ops.remove_doubles(bm, verts=list(bm.verts), dist=1e-6)
+    bmesh.ops.dissolve_degenerate(bm, edges=list(bm.edges), dist=1e-9)
+    if triangulate:
+        bmesh.ops.triangulate(bm, faces=list(bm.faces))
+        bmesh.ops.dissolve_degenerate(bm, edges=list(bm.edges), dist=1e-9)
+    else:
+        bmesh.ops.dissolve_limit(
+            bm,
+            angle_limit=0.001,
+            verts=list(bm.verts),
+            edges=list(bm.edges),
+            use_dissolve_boundaries=False,
+        )
+    collapse_zero_area_faces(bm, zero_area_epsilon=zero_area_epsilon)
+    bmesh.ops.recalc_face_normals(bm, faces=list(bm.faces))
+    non_manifold = [edge for edge in bm.edges if not edge.is_manifold]
+    zero_faces = [face for face in bm.faces if face.calc_area() <= zero_area_epsilon]
+    if non_manifold or zero_faces:
+        bm.free()
+        raise RuntimeError(
+            f"Topology QA failed: non-manifold={len(non_manifold)} zero-area={len(zero_faces)}"
+        )
+    bm.to_mesh(mesh.data)
+    bm.free()
+    mesh.data.update()
+
+
+def finish_geometry(mesh, profile, zero_area_epsilon=ZERO_AREA_EPSILON):
+    clean_mesh_topology(mesh, triangulate=False, zero_area_epsilon=zero_area_epsilon)
     bevel = mesh.modifiers.new(name="JesteiReferenceBevel", type="BEVEL")
     bevel.width = float(profile.get("bevelRatio", 0.0)) * float(profile["frontSpan"])
-    bevel.segments = int(profile.get("bevelSegments", 3))
+    bevel.segments = int(profile.get("bevelSegments", 1))
     bevel.limit_method = "ANGLE"
     bpy.context.view_layer.objects.active = mesh
     bpy.ops.object.modifier_apply(modifier=bevel.name)
+    clean_mesh_topology(mesh, triangulate=True, zero_area_epsilon=zero_area_epsilon)
     bpy.ops.object.origin_set(type="ORIGIN_GEOMETRY", center="BOUNDS")
     mesh.location = (0.0, 0.0, 0.0)
     if hasattr(bpy.ops.object, "shade_smooth_by_angle"):
@@ -140,7 +195,8 @@ def export_target(repo_root, target, manifest, profile, blend_dir=None):
     output.parent.mkdir(parents=True, exist_ok=True)
     reset_scene()
     curve = join_imported_curves(source)
-    mesh = finish_geometry(normalize_curve(curve, profile), profile)
+    zero_area_epsilon = float(target.get("zeroAreaEpsilon", ZERO_AREA_EPSILON))
+    mesh = finish_geometry(normalize_curve(curve, profile), profile, zero_area_epsilon)
     mesh.name = re.sub(r"[^A-Za-z0-9_.-]+", "_", target["id"])
     material_id = target["materialId"]
     assign_material(mesh, material_id, manifest["materials"][material_id])

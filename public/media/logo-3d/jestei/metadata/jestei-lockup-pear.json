@@ -11,7 +11,7 @@
   "dimensions": [
     2.0,
     0.38,
-    0.347895
+    0.347896
   ],
   "formats": [
     "glb",
@@ -19,8 +19,8 @@
     "obj",
     "stl"
   ],
-  "blenderVersion": "5.2.1 LTS",
   "localMasterFormats": [
     "blend"
-  ]
+  ],
+  "blenderVersion": "5.2.1 LTS"
 }

@@ -14,6 +14,7 @@ test("logo 3d generation uses the measured latest Jestei depth profile", async (
   assert.equal(profile.frontSpan, 2);
   assert.equal(profile.depth, 0.38);
   assert.equal(profile.depthRatio, 0.19);
+  assert.equal(profile.bevelSegments, 1);
 });
 
 test("Blender generator exists and all vector targets have unique outputs", async () => {
@@ -36,6 +37,17 @@ test("generator compensates SVG import scale before mesh conversion", async () =
   assert.ok(applyScaleIndex > convertIndex, "SVG scale must be applied after conversion");
 });
 
+
+test("generator enforces manifold zero-degenerate production topology", async () => {
+  const source = await readFile(generatorUrl, "utf8");
+  assert.match(source, /import bmesh/);
+  assert.match(source, /remove_doubles/);
+  assert.match(source, /dissolve_limit/);
+  assert.match(source, /bmesh\.ops\.collapse/);
+  assert.match(source, /bmesh\.ops\.triangulate/);
+  assert.match(source, /is_manifold/);
+  assert.match(source, /zero-area/i);
+});
 
 test("production pack keeps Blender master local and exports portable formats", async () => {
   const manifest = JSON.parse(await readFile(manifestUrl, "utf8"));

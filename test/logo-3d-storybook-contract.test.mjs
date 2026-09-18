@@ -20,3 +20,11 @@ test("shared logo viewer keeps the existing fit, wireframe and fullscreen contro
   assert.match(source, /data-jestei-action="fullscreen"/);
   assert.match(source, /HDRLoader/);
 });
+
+test("logo switching reuses the canvas without leaking or force-losing WebGL context", async () => {
+  const source = await readFile(storyUrl, "utf8");
+  assert.doesNotMatch(source, /forceContextLoss/);
+  assert.match(source, /removeEventListener\("change", renderModeHandler\)/);
+  assert.match(source, /removeEventListener\("click", fitHandler\)/);
+  assert.match(source, /removeEventListener\("click", fullscreenHandler\)/);
+});

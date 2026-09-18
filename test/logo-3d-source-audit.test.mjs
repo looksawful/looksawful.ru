@@ -11,6 +11,7 @@ test("classifies real vector SVG sources", async () => {
     "public/favicon.svg",
     "public/media/projects/jestei/logo/source/logo-secondary.svg",
     "public/media/projects/lyve/logo/source/01-lyve-logo.svg",
+    "public/media/projects/progresstrad/logo/source/02-progresstrad-vector-recovered.svg",
     "public/media/projects/sensetique/logo/sensetique_logo_svg/02_lockups/112_lockups_r18_c01.svg",
   ]) {
     assert.equal(classifySvgMarkup(await read(path)).kind, "vector-svg", path);

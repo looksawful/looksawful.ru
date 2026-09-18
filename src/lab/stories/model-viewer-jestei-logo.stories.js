@@ -412,25 +412,28 @@ const mountViewer = async (root, entry) => {
     if (edgeRoot) edgeRoot.visible = showEdges;
     render();
   };
+  const renderModeHandler = (event) => updateRenderMode(event.currentTarget.value);
   renderModeInputs.forEach((input) => {
-    input.addEventListener("change", () => updateRenderMode(input.value));
+    input.addEventListener("change", renderModeHandler);
   });
 
   const fitButton = root.querySelector('[data-jestei-action="fit"]');
-  fitButton?.addEventListener("click", () => {
+  const fitHandler = () => {
     if (!model) return;
     fitModel(model, camera, controls);
     render();
-  });
+  };
+  fitButton?.addEventListener("click", fitHandler);
 
   const fullscreenButton = root.querySelector('[data-jestei-action="fullscreen"]');
-  fullscreenButton?.addEventListener("click", async () => {
+  const fullscreenHandler = async () => {
     if (!document.fullscreenElement) {
       await surface.requestFullscreen?.();
     } else {
       await document.exitFullscreen?.();
     }
-  });
+  };
+  fullscreenButton?.addEventListener("click", fullscreenHandler);
 
   resize();
 
@@ -438,6 +441,9 @@ const mountViewer = async (root, entry) => {
     disposed = true;
     resizeObserver.disconnect();
     controls.removeEventListener("change", render);
+    renderModeInputs.forEach((input) => input.removeEventListener("change", renderModeHandler));
+    fitButton?.removeEventListener("click", fitHandler);
+    fullscreenButton?.removeEventListener("click", fullscreenHandler);
     controls.dispose();
     environment?.dispose();
     edgeObjects.forEach((lines) => lines.geometry?.dispose?.());
@@ -452,7 +458,6 @@ const mountViewer = async (root, entry) => {
       });
     }
     renderer.dispose();
-    renderer.forceContextLoss();
   };
 };
 
