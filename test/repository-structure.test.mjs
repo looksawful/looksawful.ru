@@ -64,6 +64,7 @@ test("repository root contains only intentional source directories", async () =>
     ".github",
     "docs",
     "lab",
+    "gallery",
     "public",
     "shootings",
     "src",
