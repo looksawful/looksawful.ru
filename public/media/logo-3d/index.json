@@ -15,12 +15,12 @@
       "variant": "awfulface",
       "colorway": null,
       "materialId": "neutral-metal",
-      "source": "/public/favicon.svg",
-      "sourceSha256": "3b7041a6d73bc16caca3bc4c38d218e9159ab28f2b830bd2b307c0e666e9a79c",
+      "source": "/public/media/projects/awfulface/logo/source/awfulface-mark-3d.svg",
+      "sourceSha256": "af2c2d46a4a734abeb24df847601627872d83511cd5c5c9b03c32293d8b92971",
       "dimensions": [
-        2,
+        1.675693,
         0.38,
-        1.999578
+        2
       ],
       "files": {
         "glb": "/public/media/logo-3d/awful/awfulface-metal.glb",
@@ -43,7 +43,7 @@
       "dimensions": [
         2,
         0.38,
-        0.347895
+        0.347896
       ],
       "files": {
         "glb": "/public/media/logo-3d/jestei/jestei-lockup-metal.glb",
@@ -66,7 +66,7 @@
       "dimensions": [
         2,
         0.38,
-        0.347895
+        0.347896
       ],
       "files": {
         "glb": "/public/media/logo-3d/jestei/jestei-lockup-biloba.glb",
@@ -89,7 +89,7 @@
       "dimensions": [
         2,
         0.38,
-        0.347895
+        0.347896
       ],
       "files": {
         "glb": "/public/media/logo-3d/jestei/jestei-lockup-blue.glb",
@@ -112,7 +112,7 @@
       "dimensions": [
         2,
         0.38,
-        0.347895
+        0.347896
       ],
       "files": {
         "glb": "/public/media/logo-3d/jestei/jestei-lockup-orange.glb",
@@ -135,7 +135,7 @@
       "dimensions": [
         2,
         0.38,
-        0.347895
+        0.347896
       ],
       "files": {
         "glb": "/public/media/logo-3d/jestei/jestei-lockup-pear.glb",
@@ -379,16 +379,16 @@
     },
     {
       "id": "lyve-moscow-metal",
-      "family": "LYVР“в‚¬ Moscow",
+      "family": "LYV? Moscow",
       "variant": "primary",
       "colorway": null,
       "materialId": "neutral-metal",
-      "source": "/public/media/projects/lyve/logo/source/01-lyve-logo.svg",
-      "sourceSha256": "12da9a1072afd06d5259d90001f7f587e96c26667ba1a79c309d4828d454096e",
+      "source": "/public/media/projects/lyve/logo/source/02-lyve-logo-3d-clean.svg",
+      "sourceSha256": "5a334574622b9b5d09e3891b1400d9246596aa900e09ee8b6434a32ad98cfeba",
       "dimensions": [
         2,
         0.38,
-        0.536945
+        0.537022
       ],
       "files": {
         "glb": "/public/media/logo-3d/lyve/lyve-moscow-metal.glb",
@@ -398,6 +398,29 @@
       },
       "preview": "/public/media/logo-3d/lyve/preview/lyve-moscow-metal.png",
       "metadata": "/public/media/logo-3d/lyve/metadata/lyve-moscow-metal.json",
+      "referenceModel": null
+    },
+    {
+      "id": "progress-tradition-metal",
+      "family": "Progress Tradition",
+      "variant": "primary",
+      "colorway": null,
+      "materialId": "neutral-metal",
+      "source": "/public/media/projects/progresstrad/logo/source/02-progresstrad-vector-recovered.svg",
+      "sourceSha256": "3457485172b8d36d551e22c725bde56934cb739d71dfc03386f87ff0fe057886",
+      "dimensions": [
+        1.999999,
+        0.38,
+        1.78995
+      ],
+      "files": {
+        "glb": "/public/media/logo-3d/progress-tradition/progress-tradition-metal.glb",
+        "fbx": "/public/media/logo-3d/progress-tradition/progress-tradition-metal.fbx",
+        "obj": "/public/media/logo-3d/progress-tradition/progress-tradition-metal.obj",
+        "stl": "/public/media/logo-3d/progress-tradition/progress-tradition-metal.stl"
+      },
+      "preview": "/public/media/logo-3d/progress-tradition/preview/progress-tradition-metal.png",
+      "metadata": "/public/media/logo-3d/progress-tradition/metadata/progress-tradition-metal.json",
       "referenceModel": null
     },
     {

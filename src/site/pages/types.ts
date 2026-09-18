@@ -11,7 +11,7 @@ export interface PageDiscovery {
 export type EntityPageId = CanonicalEntityPageId;
 
 export type StaticPageId = "cv" | "privacy";
-export type SitePageId = "home" | StaticPageId | "not-found" | EntityPageId;
+export type SitePageId = "home" | "gallery" | StaticPageId | "not-found" | EntityPageId;
 
 export interface VitePageBuild {
   kind: "vite";
@@ -23,7 +23,7 @@ export interface PublicStaticPageBuild {
 }
 
 export type SitePageBuild = VitePageBuild | PublicStaticPageBuild;
-export type SitePageRenderer = "home" | "entity" | "cv" | "privacy" | "not-found";
+export type SitePageRenderer = "home" | "gallery" | "entity" | "static-project" | "cv" | "privacy" | "not-found";
 
 interface BasePageDefinition {
   id: SitePageId;
@@ -41,6 +41,13 @@ export interface HomePageDefinition extends BasePageDefinition {
   build: VitePageBuild;
 }
 
+export interface GalleryPageDefinition extends BasePageDefinition {
+  type: "gallery";
+  id: "gallery";
+  renderer: "gallery";
+  build: VitePageBuild;
+}
+
 export interface CasePageDefinition extends BasePageDefinition {
   type: "case";
   id: `case:${CaseId}`;
@@ -49,13 +56,25 @@ export interface CasePageDefinition extends BasePageDefinition {
   build: VitePageBuild;
 }
 
-export interface ProjectPageDefinition extends BasePageDefinition {
+export interface EntityProjectPageDefinition extends BasePageDefinition {
   type: "project";
   id: `project:${ProjectId}`;
   entityId: ProjectId;
   renderer: "entity";
   build: VitePageBuild;
 }
+
+export interface StaticProjectPageDefinition extends BasePageDefinition {
+  type: "project";
+  id: `project:${ProjectId}`;
+  entityId: ProjectId;
+  renderer: "static-project";
+  build: PublicStaticPageBuild;
+}
+
+export type ProjectPageDefinition =
+  | EntityProjectPageDefinition
+  | StaticProjectPageDefinition;
 
 export interface CollectionPageDefinition extends BasePageDefinition {
   type: "collection";
@@ -91,11 +110,14 @@ export interface NotFoundPageDefinition extends BasePageDefinition {
 
 export type EntityPageDefinition =
   | CasePageDefinition
-  | ProjectPageDefinition
+  | EntityProjectPageDefinition
   | CollectionPageDefinition;
 
 export type SitePageDefinition =
   | HomePageDefinition
-  | EntityPageDefinition
+  | GalleryPageDefinition
+  | CasePageDefinition
+  | ProjectPageDefinition
+  | CollectionPageDefinition
   | StaticPageDefinition
   | NotFoundPageDefinition;

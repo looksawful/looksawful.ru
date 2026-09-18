@@ -78,7 +78,7 @@ test("Jestei compact preview exposes only the terminal full-case CTA", () => {
   );
 });
 
-test("standalone Jestei starts without the role and period project head", () => {
+test("standalone Jestei keeps compact metadata without duplicating project identity", () => {
   const homepage = renderHomepagePage(indexSource);
   const homeStart = homepage.indexOf('id="project-jestei"');
   const homeEnd = homepage.indexOf('id="project-styx"');
@@ -88,8 +88,11 @@ test("standalone Jestei starts without the role and period project head", () => 
   const page = getPageByPath("/work/jestei-pool/");
   assert.ok(page && page.type === "case");
   const standalone = renderStandaloneEntityPage(page);
-  assert.doesNotMatch(standalone, /class="project__head"/);
-  assert.match(standalone, /class="project__intro wrapper prose editorial-grid"/);
+  assert.match(standalone, /class="project__head"/);
+  assert.doesNotMatch(standalone, /class="project__name"/);
+  assert.match(standalone, /class="project__role"/);
+  assert.match(standalone, /class="project__period"/);
+  assert.match(standalone, /class="project__intro wrapper editorial-grid"/);
   assert.match(standalone, /class="project__title"/);
 });
 

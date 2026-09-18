@@ -42,9 +42,10 @@
 }
 
 .site-nav__breadcrumbs {
-  display: flex;
-  align-items: baseline;
-  gap: 0.35rem;
+  --cluster-wrap: nowrap;
+  --cluster-align: baseline;
+  --cluster-space: 0.35rem;
+
   overflow: hidden;
   color: var(--clr-text-muted);
   font-size: var(--fs-200);

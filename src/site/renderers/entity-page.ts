@@ -34,9 +34,17 @@ function renderCanonicalEntityArticle(page: EntityPageDefinition): string {
   const content = getEntityPageContent(entityPageContentRegistry, page.id);
   const presentation = getEntityShellPresentation(page.id);
   const standalonePresentation = getEntityStandalonePresentation(page.id);
+  const pagePresentation =
+    page.type === "case" || page.type === "project"
+      ? {
+          ...standalonePresentation,
+          intro: { ...standalonePresentation.intro, head: false },
+        }
+      : standalonePresentation;
+
   return renderEntityShell(content, {
     ...presentation,
-    standalonePresentation,
+    standalonePresentation: pagePresentation,
     introHeadingLevel: 1,
     specialized: { jesteiTrackFilter: renderJesteiTrackFilter },
   });

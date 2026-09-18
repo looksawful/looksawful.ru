@@ -1021,6 +1021,16 @@
       }
     },
     {
+      "assetId": "dava-23-source-01-934x1400",
+      "usage": {
+        "kind": "direct-placement",
+        "ownerId": "dava-23-source-01-934x1400-use-01",
+        "sourcePath": "src/data/media/entries",
+        "fieldPath": "dava-23-source-01-934x1400-use-01",
+        "blockingDelete": true
+      }
+    },
+    {
       "assetId": "device-ipad-pro-11-m5-v6-model",
       "usage": {
         "kind": "direct-placement",
@@ -9257,12 +9267,13 @@
     },
     {
       "id": "awful-studio",
-      "coverEntryId": "useful-awful-studio-cover-use-01"
+      "coverEntryId": "useful-awful-studio-cover-use-01",
+      "href": "/work/awful-studio/"
     },
     {
       "id": "berserk-timer",
       "coverEntryId": "useful-berserk-timer-cover-use-01",
-      "href": "/pets/berserk-timer/"
+      "href": "/work/berserk-timer/"
     },
     {
       "id": "moves-awful",

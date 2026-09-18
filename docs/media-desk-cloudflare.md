@@ -97,5 +97,5 @@ The iOS/WebKit login regression is closed: a same-origin login `POST` with a val
 
 Fast CI verifies both page-usage and static-usage snapshots before the fast test suite. This prevents media-entry or Useful-card changes from leaving deterministic delete-dependency snapshots stale on `dev`.
 
-The only intentionally manual acceptance item is authenticated production Safari/iPhone smoke after password rotation. It is tracked in issue #974 because CI and repository tooling must not receive the plaintext Media Desk password or session cookie.
+Authenticated production Safari/iPhone smoke after password rotation was completed on 2026-09-18 in the real device/browser session, and issue #974 is closed as completed. CI and repository tooling continue to avoid the plaintext Media Desk password and session cookie.
 

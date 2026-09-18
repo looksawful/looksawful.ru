@@ -98,11 +98,24 @@ async function verifyDocument(page, route, label) {
       : "";
     const article = document.getElementById(expected.articleId);
     const canonical = document.querySelector('link[rel="canonical"]')?.getAttribute("href") || "";
+    const projectHeadIdentity = article instanceof HTMLElement
+      ? [...article.querySelectorAll(".project__head .project__name, .project__head > img")]
+      : [];
+    const projectHeadIdentityVisible = projectHeadIdentity.some((node) => {
+      if (!(node instanceof HTMLElement)) return false;
+      const style = getComputedStyle(node);
+      const rect = node.getBoundingClientRect();
+      return style.display !== "none" && style.visibility !== "hidden" && rect.width > 1 && rect.height > 1;
+    });
+    const siteNavBar = document.querySelector(".site-nav__bar");
+    const siteNavBarRect = siteNavBar instanceof HTMLElement ? siteNavBar.getBoundingClientRect() : null;
     return {
       bodyHeight: document.body.getBoundingClientRect().height,
       h1Count: h1.length,
       h1Name: headingName,
       articleExists: article instanceof HTMLElement,
+      projectHeadIdentityVisible,
+      siteNavBarVisible: Boolean(siteNavBarRect && siteNavBarRect.width > 1 && siteNavBarRect.height >= 44),
       pageType: document.body.dataset.pageType,
       pageId: document.body.dataset.pageId,
       entityId: document.body.dataset.entityId,
@@ -116,6 +129,10 @@ async function verifyDocument(page, route, label) {
   assert(state.h1Count === 1, `${label}: expected exactly one light-DOM h1, got ${state.h1Count}`);
   assert(state.h1Name.length > 0, `${label}: h1 has no accessible name`);
   assert(state.articleExists, `${label}: missing ${route.articleId}`);
+  if (route.pageType === "case") {
+    assert(!state.projectHeadIdentityVisible, `${label}: standalone case restored full project identity in compact head`);
+    assert(state.siteNavBarVisible, `${label}: compact site header is missing`);
+  }
   assert(state.pageType === route.pageType, `${label}: wrong data-page-type ${state.pageType}`);
   assert(state.pageId === route.pageId, `${label}: wrong data-page-id ${state.pageId}`);
   assert(state.entityId === route.entityId, `${label}: wrong data-entity-id ${state.entityId}`);

@@ -167,10 +167,11 @@
 }
 
 .project-nav__top {
-  display: inline-flex;
-  align-items: baseline;
+  --cluster-wrap: nowrap;
+  --cluster-align: baseline;
+  --cluster-space: 0.32rem;
+
   justify-self: end;
-  gap: 0.32rem;
 
   color: var(--clr-text-muted);
   font-size: clamp(0.72rem, 0.68rem + 0.15cqi, 0.84rem);
@@ -230,9 +231,9 @@
   }
 
   .project-nav__top {
-    align-items: center;
-    justify-content: center;
-    gap: 0;
+    --cluster-align: center;
+    --cluster-justify: center;
+    --cluster-space: 0;
     min-inline-size: 2.75rem;
     min-block-size: 2.75rem;
   }

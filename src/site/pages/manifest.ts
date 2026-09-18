@@ -17,6 +17,18 @@ export const sitePages = [
     },
   },
   {
+    id: "gallery",
+    type: "gallery",
+    path: "/gallery/",
+    enabled: true,
+    renderer: "gallery",
+    build: VITE_BUILD,
+    discovery: {
+      listed: true,
+      indexable: true,
+    },
+  },
+  {
     id: "case:jestei-pool",
     type: "case",
     entityId: "jestei-pool",
@@ -76,6 +88,22 @@ export const sitePages = [
     enabled: true,
     renderer: "entity",
     build: VITE_BUILD,
+    discovery: {
+      listed: false,
+      indexable: false,
+    },
+  },
+  {
+    id: "project:berserk-timer",
+    type: "project",
+    entityId: "berserk-timer",
+    path: "/work/berserk-timer/",
+    enabled: true,
+    renderer: "static-project",
+    build: {
+      kind: "public-static",
+      sourcePath: "public/work/berserk-timer/index.html",
+    },
     discovery: {
       listed: false,
       indexable: false,

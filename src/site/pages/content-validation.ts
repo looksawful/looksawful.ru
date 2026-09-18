@@ -3,7 +3,7 @@ import type { EntityShellPresentationRegistry } from "./entity-presentation.ts";
 import type { EntityPageDefinition, SitePageDefinition } from "./types.ts";
 
 function isEntityPage(page: SitePageDefinition): page is EntityPageDefinition {
-  return page.type === "case" || page.type === "project" || page.type === "collection";
+  return page.renderer === "entity";
 }
 
 export interface PageContentCoverageOptions {

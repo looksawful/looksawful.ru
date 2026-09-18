@@ -12,6 +12,7 @@ import { behanceShootingMediaEntries } from "./behance-shootings.ts";
 import { berryMediaEntries } from "./berry.ts";
 import { berserkTimerMediaEntries } from "./berserk-timer.ts";
 import { deviceModelMediaEntries } from "./devices.ts";
+import { davaMediaEntries } from "./dava.ts";
 import { esmiMediaEntries } from "./esmi.ts";
 import { evashaMediaEntries } from "./evasha.ts";
 import { hypressionMediaEntries } from "./hypression.ts";
@@ -34,6 +35,7 @@ const rawMediaEntries = [
   ...berryMediaEntries,
   ...berserkTimerMediaEntries,
   ...deviceModelMediaEntries,
+  ...davaMediaEntries,
   ...esmiMediaEntries,
   ...evashaMediaEntries,
   ...hypressionMediaEntries,

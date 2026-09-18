@@ -41,7 +41,6 @@ export const entityShellPresentationRegistry: EntityShellPresentationRegistry = 
 ]);
 
 const entityStandalonePresentationRegistry = new Map<EntityPageId, EntityStandalonePresentation>([
-  ["case:jestei-pool", { intro: { head: false, role: false, period: false } }],
   ["case:styx", { hiddenSectionIds: ["styx-social-instructions"] }],
   ["collection:music-photography", {
     intro: {

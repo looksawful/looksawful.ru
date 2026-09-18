@@ -12,12 +12,10 @@ function entityPage(path) {
   return page;
 }
 
-test("standalone presentation registry owns temporary case and collection copy policies", () => {
+test("standalone presentation registry owns only page-specific copy exceptions", () => {
   assert.equal(typeof presentationModule.getEntityStandalonePresentation, "function");
   const jestei = presentationModule.getEntityStandalonePresentation("case:jestei-pool");
-  assert.equal(jestei.intro?.head, false);
-  assert.equal(jestei.intro?.role, false);
-  assert.equal(jestei.intro?.period, false);
+  assert.deepEqual(jestei, {});
 
   const styx = presentationModule.getEntityStandalonePresentation("case:styx");
   assert.deepEqual(styx.hiddenSectionIds, ["styx-social-instructions"]);
@@ -35,14 +33,26 @@ test("generic standalone entity renderer contains no direct Styx or Shootings pa
   assert.doesNotMatch(source, /case:styx|collection:music-photography|withoutStyxSocialInstructions|shootingsVisualOnlyContent/);
 });
 
-test("standalone policy preserves approved Jestei, Styx and Shootings output", () => {
-  const jestei = renderStandaloneEntityPage(entityPage("/work/jestei-pool/"));
-  assert.doesNotMatch(jestei, /class="project__head"/);
-  assert.match(jestei, /Jestei Pool/);
+test("standalone case and project pages keep compact navigation without duplicate header identity", () => {
+  const paths = [
+    "/work/jestei-pool/",
+    "/work/styx/",
+    "/work/sensetique/",
+    "/work/awful-cases/",
+    "/work/awful-studio/",
+    "/work/moves-awful/",
+    "/work/berry-social-content-2020/",
+  ];
+
+  for (const path of paths) {
+    const html = renderStandaloneEntityPage(entityPage(path));
+    assert.match(html, /data-site-navigation/);
+    assert.match(html, /data-site-menu-toggle/);
+    assert.doesNotMatch(html, /class="project__name"/);
+  }
 
   const styx = renderStandaloneEntityPage(entityPage("/work/styx/"));
   assert.doesNotMatch(styx, /id="styx-social-instructions"/);
-  assert.match(styx, /Styx Jewel/);
 
   const shootings = renderStandaloneEntityPage(entityPage("/shootings/"));
   assert.match(shootings, /<h1[^>]*>\s*Съёмки\s*<\/h1>/);

@@ -19,7 +19,7 @@ function renderBreadcrumbs(page: SitePageDefinition): string {
     })
     .join('<span class="site-nav__breadcrumb-separator" aria-hidden="true">/</span>');
 
-  return `<nav class="site-nav__breadcrumbs" aria-label="Хлебные крошки">${content}</nav>`;
+  return `<nav class="site-nav__breadcrumbs cluster" aria-label="Хлебные крошки">${content}</nav>`;
 }
 
 function renderAwfulface(): string {

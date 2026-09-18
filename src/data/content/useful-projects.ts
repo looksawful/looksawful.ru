@@ -17,8 +17,8 @@ export type UsefulProjectState = (typeof USEFUL_PROJECT_STATES)[number];
 export const USEFUL_PROJECT_DEFINITIONS = [
   { id: "awful-cases", href: "/work/awful-cases/", coverEntryId: "useful-awful-cases-cover-use-01" },
   { id: "moves-awful", href: "/work/moves-awful/", coverEntryId: "useful-moves-awful-cover-use-01" },
-  { id: "berserk-timer", href: "/pets/berserk-timer/", coverEntryId: "useful-berserk-timer-cover-use-01" },
-  { id: "awful-studio", coverEntryId: "useful-awful-studio-cover-use-01" },
+  { id: "berserk-timer", href: "/work/berserk-timer/", coverEntryId: "useful-berserk-timer-cover-use-01" },
+  { id: "awful-studio", href: "/work/awful-studio/", coverEntryId: "useful-awful-studio-cover-use-01" },
   { id: "awful-mockups", coverEntryId: "useful-awful-mockups-cover-use-01" },
   { id: "awful-3d-mockups", coverEntryId: "useful-awful-3d-mockups-cover-use-01" },
 ] as const;

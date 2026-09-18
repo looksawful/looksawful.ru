@@ -96,7 +96,7 @@ export function mountSiteAnalyticsConsent({
     if (root.querySelector("[data-site-analytics-consent]")) return;
 
     panel = root.createElement("aside");
-    panel.className = "site-analytics-consent";
+    panel.className = "site-analytics-consent cluster";
     panel.dataset.siteAnalyticsConsent = "";
     panel.setAttribute("aria-label", "Настройки cookies");
 
@@ -110,7 +110,7 @@ export function mountSiteAnalyticsConsent({
     copy.append(privacy);
 
     const actions = root.createElement("div");
-    actions.className = "site-analytics-consent__actions";
+    actions.className = "site-analytics-consent__actions cluster";
     accept = button(root, "Принять", "granted");
     reject = button(root, "Отклонить", "denied");
     actions.append(accept, reject);

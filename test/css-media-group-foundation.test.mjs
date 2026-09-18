@@ -7,7 +7,6 @@ const media = readFileSync(new URL("../src/styles/media.css", import.meta.url), 
 const components = readFileSync(new URL("../src/styles/components.css", import.meta.url), "utf8");
 
 const movedSelectors = [
-  /(?:^|\n)\.media-group__head\s*\{/,
   /(?:^|\n)\.media-group__items\s*\{/,
   /(?:^|\n)\.media-group\s*>\s*\.media-group__items\.reel,\n\.media-group\s+\.media-group__middle\.reel\s*\{/,
 ];
@@ -27,6 +26,9 @@ test("media-group foundation first safe slice moves only media-group substructur
     assert.match(media, selector, `media.css must own ${selector}`);
     assert.doesNotMatch(components, selector, `components.css must no longer own ${selector}`);
   }
+
+  assert.doesNotMatch(media, /(?:^|\n)\.media-group__head\s*\{/, "generic media-group head rhythm is owned by prose");
+  assert.doesNotMatch(components, /(?:^|\n)\.media-group__head\s*\{/, "generic media-group head must not regain local spacing");
 });
 
 test("media-group spacing resolves explicit specialization inputs before project and system fallbacks", () => {
@@ -50,7 +52,7 @@ test("media-group spacing resolves explicit specialization inputs before project
     media,
     /\.media-group\s*\{[\s\S]*?--group-gap:\s*var\(--media-group-gap,\s*var\(--project-media-gap,\s*var\(--size-300\)\)\);[\s\S]*?--group-row-gap:\s*var\(--media-group-row-gap,\s*var\(--project-media-row-gap,\s*var\(--group-gap\)\)\);[\s\S]*?--group-columns:\s*2;[\s\S]*?--group-mobile-columns:\s*2;[\s\S]*?container:\s*media-group\s*\/\s*inline-size;[\s\S]*?display:\s*grid;[\s\S]*?inline-size:\s*min\(100%,\s*var\(--group-max,\s*var\(--project-media-max\)\)\);[\s\S]*?min-inline-size:\s*0;/,
   );
-  assert.match(media, /\.media-group__head\s*\{[\s\S]*?display:\s*grid;[\s\S]*?gap:\s*0\.35rem;/);
+  assert.doesNotMatch(media, /(?:^|\n)\.media-group__head\s*\{[\s\S]*?gap:/);
   assert.match(media, /\.media-group__items\s*\{[\s\S]*?min-inline-size:\s*0;/);
   assert.match(
     media,
