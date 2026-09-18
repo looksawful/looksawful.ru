@@ -261,9 +261,9 @@
       "materialId": "neutral-metal",
       "sourceType": "vector-svg",
       "status": "ready",
-      "source": "public/favicon.svg",
+      "source": "public/media/projects/awfulface/logo/source/awfulface-mark-3d.svg",
       "output": "public/media/logo-3d/awful/awfulface-metal.glb",
-      "provenance": "Canonical static Awfulface geometry; no hidden navigation morph targets."
+      "provenance": "Deterministic vector derivative of canonical public/favicon.svg: dark Awfulface identity only; open SVG strokes expanded to filled contours without raster tracing."
     },
     {
       "id": "sensetique-metal",
@@ -279,15 +279,15 @@
     },
     {
       "id": "lyve-moscow-metal",
-      "family": "LYVР“в‚¬ Moscow",
+      "family": "LYV? Moscow",
       "variant": "primary",
       "colorway": null,
       "materialId": "neutral-metal",
       "sourceType": "vector-svg",
       "status": "ready",
-      "source": "public/media/projects/lyve/logo/source/01-lyve-logo.svg",
+      "source": "public/media/projects/lyve/logo/source/02-lyve-logo-3d-clean.svg",
       "output": "public/media/logo-3d/lyve/lyve-moscow-metal.glb",
-      "provenance": null
+      "provenance": "3D-clean vector derivative of canonical 01-lyve-logo.svg: removed one 0.67-unit edge export artifact; the authored main path is unchanged."
     },
     {
       "id": "line-metal",
@@ -307,11 +307,12 @@
       "variant": "primary",
       "colorway": null,
       "materialId": "neutral-metal",
-      "sourceType": "raster-wrapper",
-      "status": "source-recovery-required",
-      "source": "public/media/projects/progresstrad/logo/source/01-progresstrad-logo.svg",
+      "sourceType": "vector-svg",
+      "status": "ready",
+      "source": "public/media/projects/progresstrad/logo/source/02-progresstrad-vector-recovered.svg",
       "output": "public/media/logo-3d/progress-tradition/progress-tradition-metal.glb",
-      "provenance": "Current SVG contains embedded raster image; recover original vector or trace with review."
+      "provenance": "Recovered without raster tracing from the vector logo block in Maket_Rovenko.pdf (Progress-Tradition publication layout, 2016); PDF text was converted to paths and clone references were flattened.",
+      "zeroAreaEpsilon": 1e-08
     },
     {
       "id": "s-and-s-metal",
@@ -344,7 +345,7 @@
       "depth": 0.38,
       "depthRatio": 0.19,
       "bevelRatio": 0.0125,
-      "bevelSegments": 3,
+      "bevelSegments": 1,
       "widthAxis": "X",
       "depthAxis": "Y",
       "upAxis": "Z"

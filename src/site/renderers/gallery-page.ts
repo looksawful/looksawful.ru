@@ -1,7 +1,9 @@
 import {
   getGalleryItems,
+  getGalleryModelItems,
   getGallerySeriesId,
   type GalleryItem,
+  type GalleryModelItem,
 } from "../../data/media/gallery.ts";
 import { responsiveImageSrcSet } from "../../data/media/responsive.ts";
 import { escapeHtml } from "../../utils/html.ts";
@@ -35,6 +37,15 @@ function renderGalleryCard(item: GalleryItem): string {
 </figure>`;
 }
 
+function renderGalleryModelCard(item: GalleryModelItem): string {
+  return `<figure class="gallery-card gallery-card--model" data-gallery-model-card>
+  <div class="gallery-model" data-model-viewer-runtime data-model-src="${escapeHtml(item.asset.src)}" data-model-autorotate="false" role="img" aria-label="${escapeHtml(item.alt)}">
+    <img class="gallery-model__poster" src="${escapeHtml(item.posterSrc)}" alt="" loading="lazy" decoding="async">
+    <canvas class="gallery-model__canvas" data-model-viewer-canvas aria-hidden="true"></canvas>
+  </div>
+</figure>`;
+}
+
 function renderGallerySeries(items: readonly GalleryItem[]): string {
   return groupBySeries(items)
     .map(({ id, items: seriesItems }) => `<section class="gallery-series" data-gallery-series="${escapeHtml(id)}">
@@ -45,16 +56,28 @@ function renderGallerySeries(items: readonly GalleryItem[]): string {
     .join("\n");
 }
 
+function renderGalleryModelSeries(items: readonly GalleryModelItem[]): string {
+  if (!items.length) return "";
+
+  return `<section class="gallery-series gallery-series--models" data-gallery-series="${escapeHtml(items[0].seriesId)}">
+  <div class="gallery-series__grid" data-gallery-series-grid>
+    ${items.map(renderGalleryModelCard).join("\n    ")}
+  </div>
+</section>`;
+}
+
 export function renderGalleryPage(page: GalleryPageDefinition): string {
   const items = getGalleryItems();
+  const modelItems = getGalleryModelItems();
 
   return renderPageShell({
     page,
     title: "gallery — Иван Крушинский",
-    description: "Photography archive by Ivan Krushinsky.",
+    description: "Photography and selected 3D archive by Ivan Krushinsky.",
     content: `<section class="gallery" data-gallery>
   <div class="gallery__content">
 ${renderGallerySeries(items)}
+${renderGalleryModelSeries(modelItems)}
   </div>
 </section>
 <script type="module" src="/src/components/gallery/gallery-entry.ts"></script>`,

@@ -1,0 +1,26 @@
+{
+  "id": "progress-tradition-metal",
+  "family": "Progress Tradition",
+  "variant": "primary",
+  "colorway": null,
+  "source": "public/media/projects/progresstrad/logo/source/02-progresstrad-vector-recovered.svg",
+  "sourceType": "vector-svg",
+  "sourceSha256": "3457485172b8d36d551e22c725bde56934cb739d71dfc03386f87ff0fe057886",
+  "materialId": "neutral-metal",
+  "geometryProfile": "jestei-reference",
+  "dimensions": [
+    1.999999,
+    0.38,
+    1.78995
+  ],
+  "formats": [
+    "glb",
+    "fbx",
+    "obj",
+    "stl"
+  ],
+  "localMasterFormats": [
+    "blend"
+  ],
+  "blenderVersion": "5.2.1 LTS"
+}

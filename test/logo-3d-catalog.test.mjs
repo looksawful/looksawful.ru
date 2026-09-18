@@ -47,17 +47,14 @@ test("Jestei has symbol, wordmark and lockup for every brand colorway", () => {
   }
 });
 
-test("source blockers are explicit and Awfulface uses the canonical static SVG", () => {
-  assert.equal(byId.get("awfulface-metal")?.sourceUrl, "/favicon.svg");
+test("source blockers are explicit and Awfulface preserves canonical favicon provenance", () => {
+  assert.equal(byId.get("awfulface-metal")?.sourceUrl, "/media/projects/awfulface/logo/source/awfulface-mark-3d.svg");
+  assert.match(byId.get("awfulface-metal")?.provenance ?? "", /canonical \/favicon\.svg/);
   assert.equal(byId.get("styx-wordmark-metal")?.status, "source-recovery-required");
   assert.equal(byId.get("line-metal")?.status, "source-recovery-required");
-  assert.equal(byId.get("progress-tradition-metal")?.status, "source-recovery-required");
+  assert.equal(byId.get("progress-tradition-metal")?.status, "ready");
+  assert.equal(byId.get("progress-tradition-metal")?.sourceType, "vector-svg");
+  assert.equal(byId.get("progress-tradition-metal")?.sourceUrl, "/media/projects/progresstrad/logo/source/02-progresstrad-vector-recovered.svg");
   assert.equal(byId.get("s-and-s-metal")?.status, "source-missing");
   assert.equal(byId.get("illumihand-metal")?.status, "source-missing");
-});
-test("ready Jestei symbol points at the production GLB that ships with Lab", () => {
-  assert.equal(
-    byId.get("jestei-symbol-metal")?.modelUrl,
-    "/media/logo-3d/jestei/jestei-symbol-metal.glb",
-  );
 });

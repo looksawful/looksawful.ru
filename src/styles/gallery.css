@@ -42,6 +42,61 @@
     border-radius: inherit;
   }
 
+  .gallery-card--model {
+    aspect-ratio: 1;
+    cursor: grab;
+  }
+
+  .gallery-card--model:active {
+    cursor: grabbing;
+  }
+
+  .gallery-model {
+    position: relative;
+    inline-size: 100%;
+    block-size: 100%;
+    overflow: hidden;
+  }
+
+  .gallery-model__poster,
+  .gallery-model__canvas {
+    position: absolute;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+  }
+
+  .gallery-model__poster {
+    object-fit: contain;
+    padding: 7%;
+    transition: opacity 140ms ease;
+  }
+
+  .gallery-model__canvas {
+    display: block;
+    opacity: 0;
+    touch-action: none;
+  }
+
+  .gallery-model[data-model-state="ready"] .gallery-model__poster {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .gallery-model[data-model-state="ready"] .gallery-model__canvas {
+    opacity: 1;
+  }
+
+  .gallery-model[data-model-state="error"] .gallery-model__poster {
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gallery-model__poster {
+      transition: none;
+    }
+  }
+
   @media (max-width: 1500px) {
     .gallery-series__grid {
       grid-template-columns: repeat(4, minmax(0, 1fr));

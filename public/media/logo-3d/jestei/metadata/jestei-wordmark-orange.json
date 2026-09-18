@@ -19,8 +19,8 @@
     "obj",
     "stl"
   ],
-  "blenderVersion": "5.2.1 LTS",
   "localMasterFormats": [
     "blend"
-  ]
+  ],
+  "blenderVersion": "5.2.1 LTS"
 }
