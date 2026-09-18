@@ -47,14 +47,12 @@ function getEntityPageCopy(page: EntityPageDefinition): {
   };
 }
 
-function withoutJesteiMetaHead(content: EntityPageContent): EntityPageContent {
+function withoutStandaloneIdentity(content: EntityPageContent): EntityPageContent {
   return {
     ...content,
     intro: {
       ...content.intro,
       head: undefined,
-      role: undefined,
-      period: undefined,
     },
   };
 }
@@ -105,10 +103,17 @@ function standalonePresentationContent(
   page: EntityPageDefinition,
   content: EntityPageContent,
 ): EntityPageContent {
-  if (page.id === "case:jestei-pool") return withoutJesteiMetaHead(content);
-  if (page.id === "case:styx") return withoutStyxSocialInstructions(content);
   if (page.id === "collection:music-photography") return shootingsVisualOnlyContent(content);
-  return content;
+
+  const pageContent = page.id === "case:styx"
+    ? withoutStyxSocialInstructions(content)
+    : content;
+
+  if (page.type === "case" || page.type === "project") {
+    return withoutStandaloneIdentity(pageContent);
+  }
+
+  return pageContent;
 }
 
 function renderCanonicalEntityArticle(page: EntityPageDefinition): string {
