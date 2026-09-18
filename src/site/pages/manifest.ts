@@ -82,6 +82,19 @@ export const sitePages = [
     },
   },
   {
+    id: "project:awful-studio",
+    type: "project",
+    entityId: "awful-studio",
+    path: "/work/awful-studio/",
+    enabled: true,
+    renderer: "entity",
+    build: VITE_BUILD,
+    discovery: {
+      listed: false,
+      indexable: false,
+    },
+  },
+  {
     id: "project:moves-awful",
     type: "project",
     entityId: "moves-awful",

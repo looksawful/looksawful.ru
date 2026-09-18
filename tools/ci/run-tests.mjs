@@ -1,4 +1,4 @@
-﻿import { readdirSync } from "node:fs";
+import { readdirSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -38,9 +38,17 @@ export const fastTests = new Set([
   "test/domain-taxonomy-references.test.mjs",
   "test/editorial-content-boundary.test.mjs",
   "test/editorial-copy-optional.test.mjs",
-  "test/homepage-compact-curation-834.test.mjs",
-  "test/jestei-event-migration.test.mjs",
+  "test/homepage-compact-curation.test.mjs",
+  "test/jestei-event-contract.test.mjs",
+  "test/lab-vite-config.test.mjs",
   "test/lighthouse-ci-config.test.mjs",
+  "test/logo-3d-catalog.test.mjs",
+  "test/logo-3d-generator-contract.test.mjs",
+  "test/logo-3d-index.test.mjs",
+  "test/logo-3d-manifest.test.mjs",
+  "test/logo-3d-output-pack.test.mjs",
+  "test/logo-3d-source-audit.test.mjs",
+  "test/logo-3d-storybook-contract.test.mjs",
   "test/media-desk-cloudflare-auth.test.mjs",
   "test/media-desk-cloudflare-destructive-authority.test.mjs",
   "test/media-desk-cms-asset-resolver.test.mjs",
@@ -85,6 +93,8 @@ export const fastTests = new Set([
   "test/project-card-hover.test.mjs",
   "test/project-lead-desktop-width.test.mjs",
   "test/repository-growth-policy.test.mjs",
+  "test/release-preflight.test.mjs",
+  "test/release-verification-temp-root.test.mjs",
   "test/search-presentation.test.mjs",
   // CONTRACT: one document H1 on Home and one textual H1 on every indexable portfolio page.
   "test/seo-heading-structure-contract.test.mjs",

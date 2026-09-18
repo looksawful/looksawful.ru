@@ -7,6 +7,14 @@ const commit = process.env.LAB_BUILD_COMMIT ?? process.env.GITHUB_SHA ?? "local"
 const buildTime = process.env.LAB_BUILD_TIME ?? new Date().toISOString();
 
 export default defineConfig({
+  css: {
+    lightningcss: {
+      drafts: {
+        scrollNavigationControls: true,
+      },
+    },
+  },
+
   server: {
     host: "127.0.0.1",
   },

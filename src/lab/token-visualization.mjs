@@ -10,6 +10,7 @@ export function classifyToken(name, value) {
   if (/line-height|leading/.test(n)) return "line-height";
   if (/letter-spacing|tracking/.test(n)) return "letter-spacing";
   if (/font-family|font-face|^--font(?:-|$)/.test(n)) return "font-family";
+  if (/aspect-ratio|(?:^|-)ratio(?:-|$)/.test(n) || /^\d*\.?\d+\s*\/\s*\d*\.?\d+$/.test(v)) return "aspect-ratio";
   if (/radius|rounded/.test(n)) return "radius";
   if (/shadow/.test(n)) return "shadow";
   if (/opacity|alpha/.test(n)) return "opacity";
@@ -40,4 +41,25 @@ export function resolveTokenValue(value, values, stack = new Set()) {
 
 export function tokenAliases(value) {
   return [...String(value).matchAll(VAR_RE)].map((match) => match[1]);
+}
+
+export function groupTokensByKind(tokens) {
+  const groups = new Map();
+  for (const token of tokens) {
+    const items = groups.get(token.kind);
+    if (items) items.push(token);
+    else groups.set(token.kind, [token]);
+  }
+  return groups;
+}
+export function buildTokenRegistry(declarations) {
+  return declarations.map((declaration) => {
+    const raw = String(declaration.raw).trim();
+    return {
+      ...declaration,
+      raw,
+      aliases: tokenAliases(raw),
+      kind: classifyToken(declaration.name, raw),
+    };
+  });
 }
