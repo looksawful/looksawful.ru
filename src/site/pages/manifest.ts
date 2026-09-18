@@ -94,6 +94,22 @@ export const sitePages = [
     },
   },
   {
+    id: "project:berserk-timer",
+    type: "project",
+    entityId: "berserk-timer",
+    path: "/work/berserk-timer/",
+    enabled: true,
+    renderer: "static-project",
+    build: {
+      kind: "public-static",
+      sourcePath: "public/work/berserk-timer/index.html",
+    },
+    discovery: {
+      listed: false,
+      indexable: false,
+    },
+  },
+  {
     id: "project:awful-studio",
     type: "project",
     entityId: "awful-studio",

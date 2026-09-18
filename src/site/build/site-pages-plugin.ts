@@ -86,6 +86,7 @@ export function createSitePagesPlugin(root = process.cwd()): Plugin {
         if (page.renderer === "gallery" && page.type === "gallery") {
           return renderGalleryPage(page);
         }
+        if (page.renderer === "static-project") return html;
         if (page.renderer === "entity") return renderStandaloneEntityPage(page);
         if (page.renderer === "not-found") return renderNotFoundPage(page);
 

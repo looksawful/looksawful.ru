@@ -34,6 +34,7 @@ const expectedRoutes = new Map([
   ["case:sensetique", "/work/sensetique/"],
   ["collection:music-photography", "/shootings/"],
   ["project:awful-cases", "/work/awful-cases/"],
+  ["project:berserk-timer", "/work/berserk-timer/"],
   ["project:awful-studio", "/work/awful-studio/"],
   ["project:moves-awful", "/work/moves-awful/"],
   ["project:berry-social-content-2020", "/work/berry-social-content-2020/"],
@@ -132,6 +133,15 @@ test("public-static sourcePath owns both dev request path and production target"
     path.resolve("/repo", "dist/privacy/index.html"),
   );
 
+  const berserk = sitePages.find((page) => page.id === "project:berserk-timer");
+  assert.ok(berserk && berserk.build.kind === "public-static", "missing public-static Berserk Timer page");
+  assert.equal(berserk.renderer, "static-project");
+  assert.equal(publicStaticRequestPath(berserk), "/work/berserk-timer/index.html");
+  assert.equal(
+    publicStaticOutputPath(berserk, "/repo"),
+    path.resolve("/repo", "dist/work/berserk-timer/index.html"),
+  );
+
   const relocated = {
     ...cv,
     build: {
@@ -164,6 +174,7 @@ test("entity routes reference the existing domain model", () => {
     ["case:sensetique", { type: "case", entityId: "sensetique" }],
     ["collection:music-photography", { type: "collection", entityId: "music-photography" }],
     ["project:awful-cases", { type: "project", entityId: "awful-cases" }],
+    ["project:berserk-timer", { type: "project", entityId: "berserk-timer" }],
     ["project:moves-awful", { type: "project", entityId: "moves-awful" }],
     ["project:berry-social-content-2020", { type: "project", entityId: "berry-social-content-2020" }],
   ]);

@@ -23,7 +23,7 @@ export interface PublicStaticPageBuild {
 }
 
 export type SitePageBuild = VitePageBuild | PublicStaticPageBuild;
-export type SitePageRenderer = "home" | "gallery" | "entity" | "cv" | "privacy" | "not-found";
+export type SitePageRenderer = "home" | "gallery" | "entity" | "static-project" | "cv" | "privacy" | "not-found";
 
 interface BasePageDefinition {
   id: SitePageId;
@@ -56,13 +56,25 @@ export interface CasePageDefinition extends BasePageDefinition {
   build: VitePageBuild;
 }
 
-export interface ProjectPageDefinition extends BasePageDefinition {
+export interface EntityProjectPageDefinition extends BasePageDefinition {
   type: "project";
   id: `project:${ProjectId}`;
   entityId: ProjectId;
   renderer: "entity";
   build: VitePageBuild;
 }
+
+export interface StaticProjectPageDefinition extends BasePageDefinition {
+  type: "project";
+  id: `project:${ProjectId}`;
+  entityId: ProjectId;
+  renderer: "static-project";
+  build: PublicStaticPageBuild;
+}
+
+export type ProjectPageDefinition =
+  | EntityProjectPageDefinition
+  | StaticProjectPageDefinition;
 
 export interface CollectionPageDefinition extends BasePageDefinition {
   type: "collection";
@@ -98,12 +110,14 @@ export interface NotFoundPageDefinition extends BasePageDefinition {
 
 export type EntityPageDefinition =
   | CasePageDefinition
-  | ProjectPageDefinition
+  | EntityProjectPageDefinition
   | CollectionPageDefinition;
 
 export type SitePageDefinition =
   | HomePageDefinition
   | GalleryPageDefinition
-  | EntityPageDefinition
+  | CasePageDefinition
+  | ProjectPageDefinition
+  | CollectionPageDefinition
   | StaticPageDefinition
   | NotFoundPageDefinition;
