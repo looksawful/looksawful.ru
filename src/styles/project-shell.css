@@ -192,11 +192,15 @@
 /* Section copy: Sensetique is the baseline for all projects. */
 
 .section-copy {
+  --text-pair-side-size: clamp(10rem, 28%, 22rem);
+  --text-pair-content-min: 64%;
+  --text-pair-row-gap: 1.5em;
+  --text-pair-column-gap: clamp(2rem, 6cqi, 7rem);
+
   max-inline-size: none;
 }
 
 .section-copy__title {
-  max-inline-size: 12ch;
   font-size: clamp(1.55rem, 1.2rem + 1.15cqi, 2.35rem);
   font-weight: var(--fw-600);
   line-height: 1;
@@ -204,24 +208,15 @@
 }
 
 .section-copy__text {
-  max-inline-size: var(--project-copy-max);
+  min-inline-size: 0;
   font-size: clamp(1rem, 0.925rem + 0.35cqi, 1.25rem);
   font-weight: var(--fw-400);
   line-height: 1.48;
   letter-spacing: -0.012em;
 }
 
-@container project-section (width > 45rem) {
-  .section-copy {
-    display: grid;
-    grid-template-columns: minmax(10rem, 0.72fr) minmax(0, 1.28fr);
-    column-gap: clamp(2rem, 6cqi, 7rem);
-    align-items: start;
-  }
-
-  .section-copy > * + * {
-    margin-block-start: 0;
-  }
+.section-copy__text > * {
+  max-inline-size: var(--project-copy-max);
 }
 
 .project__section > :is(h2, h3),
