@@ -141,7 +141,7 @@ function renderArea(area: ExpertiseArea, index: number): string {
 
   return `
     <li class="expertise__item" data-expertise-item="${area.id}">
-      <div class="expertise__head prose">
+      <div class="expertise__head text-pair">
         <h3 class="expertise__title">${area.title}</h3>
         <p class="expertise__description">${area.description}</p>
       </div>
