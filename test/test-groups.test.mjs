@@ -44,6 +44,7 @@ test("fast tests are opt-in contracts while broad cheap coverage stays available
   assert.equal(fastTests.has("test/new-widget-regression.test.mjs"), false);
   assert.equal(fastTests.has("test/before-after-renderer-contract.test.mjs"), false);
   assert.equal(fastTests.has("test/cms-publication-scope.test.mjs"), true);
+  assert.equal(fastTests.has("test/lab-vite-config.test.mjs"), true);
   assert.equal(fastTests.has("test/logo-3d-catalog.test.mjs"), true);
   assert.equal(fastTests.has("test/logo-3d-generator-contract.test.mjs"), true);
   assert.equal(fastTests.has("test/logo-3d-index.test.mjs"), true);
