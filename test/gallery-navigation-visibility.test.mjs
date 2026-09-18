@@ -8,18 +8,18 @@ import {
 } from "../src/site/navigation/model.ts";
 import { sitePages } from "../src/site/pages/manifest.ts";
 
-test("Gallery stays hidden from primary navigation while retaining its Russian label", () => {
+test("Gallery is visible in primary navigation with its Russian label", () => {
   const menu = getPrimaryNavigationItems();
   assert.equal(
     menu.some(({ id }) => id === "gallery"),
-    false,
-    "Gallery must not render in the primary menu yet",
+    true,
+    "Gallery must render in the primary menu",
   );
 
   const label = navigationLabels.find(({ id }) => id === "gallery");
-  assert.equal(label?.label, "галерея");
+  assert.equal(label?.label, "Галерея");
 
   const page = sitePages.find(({ id }) => id === "gallery");
   assert.ok(page, "missing Gallery SitePage");
-  assert.equal(getBreadcrumbItems(page).at(-1)?.label, "галерея");
+  assert.equal(getBreadcrumbItems(page).at(-1)?.label, "Галерея");
 });

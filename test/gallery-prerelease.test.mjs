@@ -9,17 +9,17 @@ import { getPrimaryNavigationItems } from "../src/site/navigation/model.ts";
 
 const galleryPage = () => sitePages.find((page) => page.id === "gallery");
 
-const requiredMusicianProjectIds = [
+const requiredDefaultProjectIds = [
   "shootings-obladaet",
   "shootings-evasha",
   "shootings-igguana",
   "shootings-esmi",
   "shootings-hypression",
   "shootings-ofelia",
+  "shootings-behance-offmi",
 ];
 
 const defaultHiddenProjectIds = [
-  "shootings-behance-offmi",
   "shootings-dava",
   "shootings-behance-ecobasik",
   "shootings-behance-cinema-stills-2",
@@ -56,15 +56,15 @@ test("Gallery is a first-class manifest-owned SitePage", () => {
   assert.equal(getPageByPath("/gallery")?.id, "gallery");
 });
 
-test("Gallery keeps primary navigation identity but is hidden from rendered primary items", () => {
+test("Gallery is a visible primary navigation destination", () => {
   assert.ok(
     PRIMARY_NAVIGATION_PAGE_IDS.includes("gallery"),
     "navigation identity must retain the gallery SitePage id",
   );
   assert.equal(
     getPrimaryNavigationItems().some((candidate) => candidate.id === "gallery"),
-    false,
-    "Gallery must remain hidden from the primary menu",
+    true,
+    "Gallery must render in the primary menu",
   );
 });
 
@@ -75,16 +75,16 @@ test("Gallery public contract is one photo-only collection without layer APIs", 
   assert.equal(gallery.getGalleryItemsForLayer, undefined, "public Gallery must not filter by production/art layers");
 });
 
-test("Gallery defaults to musician photography plus Styx photography", async () => {
+test("Gallery defaults to the approved musician photography set including Ofelia and OFFMi plus Styx photography", async () => {
   const gallery = await import("../src/data/media/gallery.ts");
   const items = gallery.getGalleryItems();
 
   assert.ok(items.length > 0, "Gallery must not be empty");
 
-  for (const projectId of requiredMusicianProjectIds) {
+  for (const projectId of requiredDefaultProjectIds) {
     assert.ok(
       items.some((item) => item.projectIds.includes(projectId)),
-      `missing musician photography project ${projectId}`,
+      `missing default Gallery photography project ${projectId}`,
     );
   }
 

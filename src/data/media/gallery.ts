@@ -14,13 +14,14 @@ export interface GalleryItem extends CatalogItem {
   seriesOrder: number;
 }
 
-const DEFAULT_MUSICIAN_PROJECT_IDS = new Set([
+const DEFAULT_GALLERY_PROJECT_IDS = new Set([
   "shootings-obladaet",
   "shootings-evasha",
   "shootings-igguana",
   "shootings-esmi",
   "shootings-hypression",
   "shootings-ofelia",
+  "shootings-behance-offmi",
 ]);
 
 function isCanonicalPhotograph(item: MediaCatalogItem): boolean {
@@ -31,7 +32,7 @@ function isCanonicalPhotograph(item: MediaCatalogItem): boolean {
 
 function isDefaultGalleryPhotograph(item: MediaCatalogItem): boolean {
   return item.projectIds.some((projectId) => (
-    DEFAULT_MUSICIAN_PROJECT_IDS.has(projectId)
+    DEFAULT_GALLERY_PROJECT_IDS.has(projectId)
     || projectId.startsWith("styx-")
   ));
 }
@@ -66,7 +67,7 @@ function toGalleryItems(catalogItems: readonly CatalogItem[]): readonly GalleryI
 /**
  * Gallery is a curated view over the canonical Media Catalog.
  *
- * Musician and Styx photography form the default portfolio selection.
+ * Curated musician photography and Styx photography form the default portfolio selection.
  * Any other real photograph remains hidden until the existing
  * `showInCatalog` / "Показывать в галерее" editorial flag is enabled in
  * CMS or MediaDesk. Non-photographic assets never enter Gallery even when a
