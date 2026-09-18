@@ -26,8 +26,8 @@
 }
 
 .expertise__head {
-  --text-pair-side-size: 14rem;
-  --text-pair-content-min: 58%;
+  --text-pair-side-size: clamp(12rem, 32%, 18rem);
+  --text-pair-content-min: 62.5%;
   --text-pair-row-gap: 1.25em;
   --text-pair-column-gap: var(--size-400);
 
