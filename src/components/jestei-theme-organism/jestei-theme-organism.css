@@ -472,11 +472,11 @@
 
   .jestei-theme-organism__chips,
   .jestei-theme-organism__palette {
-    display: flex;
-    flex-wrap: nowrap;
-    align-items: center;
-    justify-content: space-around;
-    gap: 0;
+    --cluster-wrap: nowrap;
+    --cluster-align: center;
+    --cluster-justify: space-around;
+    --cluster-space: 0;
+
     min-inline-size: 0;
   }
 
