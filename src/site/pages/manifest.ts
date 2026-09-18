@@ -149,6 +149,19 @@ export const sitePages = [
     },
   },
   {
+    id: "project:sea",
+    type: "project",
+    entityId: "sea",
+    path: "/work/sea/",
+    enabled: true,
+    renderer: "entity",
+    build: VITE_BUILD,
+    discovery: {
+      listed: false,
+      indexable: false,
+    },
+  },
+  {
     id: "project:moves-awful",
     type: "project",
     entityId: "moves-awful",
