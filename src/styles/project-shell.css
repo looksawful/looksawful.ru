@@ -192,8 +192,8 @@
 /* Section copy: Sensetique is the baseline for all projects. */
 
 .section-copy {
-  --text-pair-side-size: clamp(10rem, 24cqi, 17rem);
-  --text-pair-content-min: 58%;
+  --text-pair-side-size: clamp(10rem, 28%, 22rem);
+  --text-pair-content-min: 64%;
   --text-pair-row-gap: 1.5em;
   --text-pair-column-gap: clamp(2rem, 6cqi, 7rem);
 
