@@ -170,6 +170,17 @@ if (document.querySelector('[data-jestei-theme-organism][data-jestei-theme-insta
     });
 }
 
+if (document.querySelector("[data-model-viewer-runtime]")) {
+  void import("./components/model-viewer.ts")
+    .then(({ createModelViewers }) => {
+      if (destroyed) return;
+      destroys.push(createModelViewers({ root: document, motion }));
+    })
+    .catch((error: unknown) => {
+      console.error("Model viewer runtime failed to load.", error);
+    });
+}
+
 destroys.push(createMediaLightbox({ root: document }));
 destroys.push(createMediaDecks({ root: document, motion }));
 destroys.push(createInfiniteReels({ root: document, motion }));

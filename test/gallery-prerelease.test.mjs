@@ -68,11 +68,31 @@ test("Gallery is a visible primary navigation destination", () => {
   );
 });
 
-test("Gallery public contract is one photo-only collection without layer APIs", async () => {
+test("Gallery public contract keeps one photo collection plus an explicit 3D series without layer APIs", async () => {
   const gallery = await import("../src/data/media/gallery.ts");
   assert.equal(gallery.galleryLayers, undefined, "public Gallery must not expose layer tabs");
   assert.equal(gallery.DEFAULT_GALLERY_LAYER, undefined, "public Gallery must not have a layer state");
   assert.equal(gallery.getGalleryItemsForLayer, undefined, "public Gallery must not filter by production/art layers");
+  assert.equal(typeof gallery.getGalleryModelItems, "function");
+});
+
+test("Gallery 3D curation exposes exactly the five approved Jestei Pool symbols", async () => {
+  const gallery = await import("../src/data/media/gallery.ts");
+  const models = gallery.getGalleryModelItems();
+
+  assert.deepEqual(
+    models.map((item) => item.id),
+    [
+      "jestei-symbol-metal",
+      "jestei-symbol-pear",
+      "jestei-symbol-orange",
+      "jestei-symbol-blue",
+      "jestei-symbol-biloba",
+    ],
+  );
+  assert.ok(models.every((item) => item.asset.type === "model"));
+  assert.ok(models.every((item) => item.asset.src.endsWith(".glb")));
+  assert.ok(models.every((item) => item.posterSrc.endsWith(".png")));
 });
 
 test("Gallery defaults to the approved musician photography set including Ofelia and OFFMi plus Styx photography", async () => {

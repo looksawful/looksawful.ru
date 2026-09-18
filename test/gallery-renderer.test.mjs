@@ -51,6 +51,30 @@ test("Gallery output keeps invisible series boundaries and intrinsic image geome
   assert.doesNotMatch(html, /gallery-series__title|data-gallery-series-title/);
 });
 
+test("Gallery renders exactly five approved Jestei symbols as interactive model cards", () => {
+  const modelCards = [...html.matchAll(/<figure class="gallery-card gallery-card--model"[\s\S]*?<\/figure>/g)]
+    .map((match) => match[0]);
+
+  assert.equal(modelCards.length, 5);
+  assert.deepEqual(
+    modelCards.map((card) => card.match(/data-model-src="([^"]+)"/)?.[1]),
+    [
+      "/media/logo-3d/jestei/jestei-symbol-metal.glb",
+      "/media/logo-3d/jestei/jestei-symbol-pear.glb",
+      "/media/logo-3d/jestei/jestei-symbol-orange.glb",
+      "/media/logo-3d/jestei/jestei-symbol-blue.glb",
+      "/media/logo-3d/jestei/jestei-symbol-biloba.glb",
+    ],
+  );
+
+  for (const card of modelCards) {
+    assert.match(card, /data-model-autorotate="false"/);
+    assert.match(card, /data-model-viewer-runtime/);
+    assert.match(card, /data-model-viewer-canvas/);
+    assert.doesNotMatch(card, /\bdata-gallery-card\b/, "3D models must not enter the PhotoSwipe stream");
+  }
+});
+
 test("Gallery cards never expose an empty accessible image label when canonical title exists", () => {
   const cards = [...html.matchAll(/<figure class="gallery-card"[\s\S]*?<\/figure>/g)].map((match) => match[0]);
   assert.ok(cards.length > 0, "Gallery must render cards");
@@ -70,14 +94,21 @@ test("Gallery exposes canonical credits to the PhotoSwipe caption adapter", () =
   assert.match(lightboxSource, /captionHtml/);
 });
 
-test("Gallery PhotoSwipe credits stay readable over arbitrary photography", () => {
+test("Gallery PhotoSwipe credits inherit a high-contrast lightbox surface", () => {
+  const lightboxRule = mediaLightboxCss.match(
+    /\.media-lightbox\s*\{([\s\S]*?)\n\}/,
+  )?.[1] ?? "";
+  const photoswipeBackgroundRule = mediaLightboxCss.match(
+    /\.media-lightbox--photoswipe \.pswp__bg\s*\{([\s\S]*?)\n\}/,
+  )?.[1] ?? "";
   const captionRule = mediaLightboxCss.match(
     /\.media-lightbox--photoswipe \.media-lightbox__caption\s*\{([\s\S]*?)\n\}/,
   )?.[1] ?? "";
 
-  assert.match(captionRule, /color:\s*#fff\b/);
-  assert.match(captionRule, /background:/);
-  assert.match(captionRule, /padding:/);
+  assert.match(lightboxRule, /color:\s*#fff\b/);
+  assert.match(lightboxRule, /background:/);
+  assert.match(photoswipeBackgroundRule, /background:\s*rgb\(0 0 0 \/ 1\)/);
+  assert.match(captionRule, /position:\s*absolute/);
 });
 
 test("Gallery CSS has no retired heading styles and explicitly avoids masonry mechanics", () => {
@@ -88,6 +119,9 @@ test("Gallery CSS has no retired heading styles and explicitly avoids masonry me
   assert.doesNotMatch(galleryCss, /grid-row-end\s*:/);
   assert.doesNotMatch(galleryCss, /gallery-row-span/);
   assert.doesNotMatch(galleryCss, /data-gallery-layout-ready/);
+  assert.match(galleryCss, /\.gallery-card--model\s*\{/);
+  assert.match(galleryCss, /\.gallery-model\[data-model-state="ready"\]/);
+  assert.match(galleryCss, /touch-action:\s*none/);
 });
 
 test("Gallery lightbox reads the one public photo stream instead of retired layer panels", () => {
