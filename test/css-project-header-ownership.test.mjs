@@ -16,6 +16,8 @@ test("project header canonical owner contains base, wide, compact and typography
   assert.match(header, /\.project__period\s*\{[\s\S]*?grid-area:\s*period;/);
   assert.match(header, /@container project \(width > 50rem\)[\s\S]*?\.project__head\s*\{/);
   assert.match(header, /@container project \(width <= 50rem\)[\s\S]*?\.project__name,[\s\S]*?\.project__head > img/);
+  assert.match(header, /body:is\(\[data-page-type="case"\], \[data-page-type="project"\]\) \.project__head[\s\S]*?grid-template-areas:\s*"role period"/);
+  assert.match(header, /body:is\(\[data-page-type="case"\], \[data-page-type="project"\]\) \.project__name,[\s\S]*?\.project__head > img[\s\S]*?display:\s*none/);
   assert.match(header, /\.project__head\s*\{\s*line-height:\s*var\(--lh-heading\);\s*\}/);
 });
 
@@ -35,11 +37,13 @@ test("project header source order and Design Capture ownership stay explicit", (
   const wide = header.indexOf("@container project (width > 50rem)");
   const compact = header.indexOf("@container project (width <= 50rem)");
   const typography = header.lastIndexOf(".project__head {\n    line-height: var(--lh-heading);");
+  const standalone = header.indexOf('body:is([data-page-type="case"], [data-page-type="project"]) .project__head');
 
   assert.ok(base >= 0, "missing base project header block");
   assert.ok(wide > base, "wide header contract must follow base");
   assert.ok(compact > wide, "compact extension must preserve its later source order");
-  assert.ok(typography > compact, "late typography refinement must remain last within the owner");
+  assert.ok(typography > compact, "typography refinement must follow responsive container rules");
+  assert.ok(standalone > typography, "standalone case/project contract must override every responsive preview rule");
 
   const marker = 'name: "project-header"';
   const from = captureConfig.indexOf(marker);

@@ -107,6 +107,7 @@ const expectedIdentitySets = {
     "awful-cases",
     "moves-awful",
     "berserk-timer",
+    "awful-3d-mockups",
     "awful-studio",
   ],
   Client: [

@@ -60,8 +60,9 @@
 }
 
 /* Compact project headers keep only metadata when the project identity is
-   already established by the case itself. The canonical DOM stays shared;
-   wide layouts restore the identity through the base project header rules. */
+   already established by the case itself. Homepage/container previews may
+   restore identity at wide sizes; standalone case/project pages override that
+   below and remain metadata-only at every width. */
 @container project (width <= 50rem) {
   .project__head {
     grid-template-areas: "role period";
