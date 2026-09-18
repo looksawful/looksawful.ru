@@ -79,6 +79,12 @@
    side measure; the second owns the remaining space and forces an intrinsic
    wrap when it can no longer keep its minimum share. */
 .text-pair {
+  /* Public configuration is non-inheriting. Snapshot the two child-owned
+     values here so direct children can consume them without leaking the
+     outer instance into a nested text-pair. */
+  --_text-pair-side-size: var(--text-pair-side-size, auto);
+  --_text-pair-content-min: var(--text-pair-content-min, 50%);
+
   display: flex;
   flex-wrap: wrap;
   align-items: var(--text-pair-align, flex-start);
@@ -88,19 +94,21 @@
 }
 
 .text-pair > :first-child {
-  flex-basis: var(--text-pair-side-size, auto);
+  flex-basis: var(--_text-pair-side-size);
   flex-grow: 1;
+  flex-shrink: 0;
 }
 
 .text-pair > :last-child {
   flex-basis: 0;
   flex-grow: 999;
-  min-inline-size: var(--text-pair-content-min, 50%);
+  min-inline-size: var(--_text-pair-content-min);
 }
 
 .text-pair > :only-child {
   flex-basis: 100%;
   flex-grow: 1;
+  flex-shrink: 1;
   min-inline-size: 0;
 }
 
