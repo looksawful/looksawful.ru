@@ -10,6 +10,10 @@
 
 **Spec:** `docs/superpowers/specs/2026-09-18-unified-ui-primitives-design.md`
 
+## Current execution status
+
+Phase 1 is the current merge scope: Tasks 1–2 plus the relevant verification from Task 5. Tasks 3–4 are intentionally deferred until the shared primitives have been visually reviewed in Storybook. They are follow-up adoption work, not a merge gate for the UI Lab slice.
+
 ## Global Constraints
 
 - Do not add Tailwind, Material Web, React, Sass or CSS-in-JS to the production site.
@@ -117,7 +121,7 @@ Expected: PASS.
 Commit:
 `feat: document UI primitives in Storybook`
 
-### Task 3: Adopt controls in safe production owners
+### Task 3: Adopt controls in safe production owners — deferred Phase 2
 
 **Files:**
 - Modify: `src/components/site-analytics-consent.ts`
@@ -155,7 +159,7 @@ Expected: PASS.
 Commit:
 `refactor: adopt shared control primitive`
 
-### Task 4: Adopt action links and safe chips without flattening Jestei
+### Task 4: Adopt action links and safe chips without flattening Jestei — deferred Phase 2
 
 **Files:**
 - Modify: `src/components/composition/resource-links.ts`
@@ -191,6 +195,8 @@ Commit:
 `refactor: compose actions with UI primitives`
 
 ### Task 5: Validate inventory, visual system and final branch
+
+For Phase 1, run the quality gates applicable to the primitive contract and Storybook/LAB. Site-owner migration checks become mandatory when Phase 2 starts.
 
 **Files:**
 - Update docs only if implementation diverged from the spec.
