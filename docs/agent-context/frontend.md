@@ -28,8 +28,9 @@ Ordinary reveals use the existing reveal contract. GSAP is for orchestration tha
 
 - `prose` owns vertical rhythm between direct typographic children. Keep its current `1.5em` default unless a deliberate local art-direction override is required.
 - `stack` owns uniform vertical rhythm between containers/components; do not substitute it for prose merely because both stack vertically.
-- `cluster` owns peer inline groups; `split` owns container composition; `editorial-grid` owns authored editorial tracks.
+- `cluster` owns peer inline groups; `split` owns container composition; `text-pair` owns an asymmetric typographic pair such as heading/label plus explanatory copy; `editorial-grid` owns authored editorial tracks.
 - Multi-paragraph section intros must render as exactly two layout roles when a title exists: the title and one `.section-copy__text.prose` wrapper containing all paragraphs. Never allow each paragraph to become a direct Grid/Flex layout item.
+- `text-pair` should choose horizontal versus stacked composition intrinsically from available inline space; do not recreate its state change with a viewport/device breakpoint.
 - Layout width and readable text measure are separate concerns. A layout primitive may size the track; readable measure belongs inside that track.
 
 ## Quality
