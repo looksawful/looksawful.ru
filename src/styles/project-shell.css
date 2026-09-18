@@ -201,7 +201,6 @@
 }
 
 .section-copy__title {
-  max-inline-size: 12ch;
   font-size: clamp(1.55rem, 1.2rem + 1.15cqi, 2.35rem);
   font-weight: var(--fw-600);
   line-height: 1;
@@ -209,11 +208,15 @@
 }
 
 .section-copy__text {
-  max-inline-size: var(--project-copy-max);
+  min-inline-size: 0;
   font-size: clamp(1rem, 0.925rem + 0.35cqi, 1.25rem);
   font-weight: var(--fw-400);
   line-height: 1.48;
   letter-spacing: -0.012em;
+}
+
+.section-copy__text > * {
+  max-inline-size: var(--project-copy-max);
 }
 
 .project__section > :is(h2, h3),
