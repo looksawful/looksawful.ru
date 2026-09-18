@@ -36,7 +36,17 @@ test("project intro keeps homepage h2 by default and supports standalone h1", ()
   const homepage = renderProjectIntro(jesteiIntro);
   const standalone = renderProjectIntro(jesteiIntro, { headingLevel: 1 });
 
-  assert.match(homepage, /<h2 class="project__title"/);
-  assert.match(standalone, /<h1 class="project__title"/);
-  assert.doesNotMatch(standalone, /<h2 class="project__title"/);
+  assert.match(homepage, /<h2 class="project__title project__title--logo"/);
+  assert.match(standalone, /<h1 class="project__title project__title--logo"/);
+  assert.doesNotMatch(standalone, /<h2 class="project__title project__title--logo"/);
+});
+
+test("project intro exposes title kind so readable measure only applies to text", () => {
+  const textTitle = renderProjectIntro({
+    title: { type: "text", text: "A deliberately long project title" },
+  });
+  const logoTitle = renderProjectIntro(jesteiIntro);
+
+  assert.match(textTitle, /class="project__title project__title--text"/);
+  assert.match(logoTitle, /class="project__title project__title--logo"/);
 });
