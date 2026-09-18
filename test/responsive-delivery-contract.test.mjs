@@ -37,6 +37,16 @@ test("registry-backed images use generated responsive variants without duplicati
   assert.doesNotMatch(spaced, /Screenshot 2026/);
 });
 
+test("responsive srcset keeps the source master as the largest candidate", () => {
+  const asset = mediaAssets.find(({ id }) => id === "jestei-01-source-01-823x419");
+  assert.ok(asset && asset.type === "image");
+
+  assert.equal(
+    responsiveImageSrcSet(asset),
+    "/media/generated/responsive/projects/jestei/01/source/01-823x419@480.webp 480w, /media/projects/jestei/01/source/01-823x419.webp 823w",
+  );
+});
+
 test("responsive delivery fails closed when an asset path changes before its catalog is regenerated", () => {
   const currentAsset = mediaAssets.find(({ id }) => id === "project-index-jestei-pool-cover");
   assert.ok(currentAsset && currentAsset.type === "image");

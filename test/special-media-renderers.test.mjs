@@ -166,3 +166,18 @@ test("standalone legacy media can omit intrinsic element dimensions without chan
   assert.match(html, /--media-ratio: 16 \/ 9/);
   assert.doesNotMatch(html, /\s(?:width|height)="[0-9]+"/);
 });
+
+
+test("registered model media renders through the production model viewer shell", () => {
+  const html = renderMediaFigure({
+    entryId: "device-iphone-17-v30-model-use-01",
+    captionView: "summary",
+    lightbox: false,
+    surface: { ratio: "4 / 5" },
+  });
+
+  assert.match(html, /data-model-viewer-runtime=""/);
+  assert.match(html, /data-model-src="\/media\/models\/devices\/iphone-17-v30\.meshopt\.glb"/);
+  assert.match(html, /<canvas[^>]*data-model-viewer-canvas=""/);
+  assert.doesNotMatch(html, /<(?:img|video)\b/);
+});

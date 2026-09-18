@@ -1,4 +1,8 @@
-import type { MediaEntryId } from "./media/index.ts";
+import coverOverridesSource from "../content/subproject-card-covers.json" with { type: "json" };
+import { usefulProjectsContent, USEFUL_PROJECT_DEFINITIONS } from "./content/useful-projects.ts";
+import { mediaEntries, type MediaEntryId } from "./media/index.ts";
+
+const coverOverrides = coverOverridesSource as Readonly<Record<string, string>>;
 
 export type SubprojectCardShape = "landscape" | "square" | "portrait";
 
@@ -10,6 +14,8 @@ export interface SubprojectCardData {
   shape: SubprojectCardShape;
   href?: string;
   source?: "site" | "behance";
+  badge?: string;
+  state?: "live" | "coming-soon";
 }
 
 export interface SubprojectCardGroupData {
@@ -17,6 +23,27 @@ export interface SubprojectCardGroupData {
   title: string;
   description?: string;
   cards: readonly SubprojectCardData[];
+}
+
+export function applySubprojectCardCoverOverrides<T extends SubprojectCardData>(
+  cards: readonly T[],
+  overrides: Readonly<Record<string, string>>,
+): readonly T[] {
+  const cardIds = new Set(cards.map(({ id }) => id));
+  for (const ownerId of Object.keys(overrides)) {
+    if (!cardIds.has(ownerId)) throw new Error(`Unknown subproject card cover owner: ${ownerId}`);
+  }
+  return cards.map((card) => {
+    const coverEntryId = overrides[card.id];
+    return coverEntryId ? { ...card, coverEntryId: coverEntryId as MediaEntryId } as T : card;
+  });
+}
+
+function coverOverridesFor(cards: readonly SubprojectCardData[]): Readonly<Record<string, string>> {
+  const ids = new Set(cards.map(({ id }) => id));
+  return Object.fromEntries(
+    Object.entries(coverOverrides).filter(([ownerId]) => ids.has(ownerId)),
+  );
 }
 
 const photographedCards = [
@@ -407,47 +434,55 @@ export const shootingCardGroups = [
     id: "photographed",
     title: "снимал",
     description: "Фотографии, лукбуки, портреты, обложки и авторские серии.",
-    cards: photographedCards,
+    cards: applySubprojectCardCoverOverrides(photographedCards, coverOverridesFor(photographedCards)),
   },
   {
     id: "produced",
     title: "продюсировал",
     description: "Коммерческие и редакционные съёмки с подтверждённым продюсерским кредитом.",
-    cards: producedCards,
+    cards: applySubprojectCardCoverOverrides(producedCards, coverOverridesFor(producedCards)),
   },
   {
     id: "sensetique",
     title: "Sensetique / production",
     description: "Другие коммерческие и редакционные съёмки команды Sensetique.",
-    cards: sensetiqueCards,
+    cards: applySubprojectCardCoverOverrides(sensetiqueCards, coverOverridesFor(sensetiqueCards)),
   },
 ] as const satisfies readonly SubprojectCardGroupData[];
 
-export const petProjectCards = [
-  {
-    id: "awful-cases",
-    title: "Awful Cases",
-    description: "Утилита для Windows, которая меняет регистр и типографику выделенного текста. · Разработчик · 2024–2026",
-    coverEntryId: "awful-cases-assets-screenshot-2026-08-14-174113-use-01",
-    shape: "landscape",
-    href: "https://github.com/looksawful/awful-cases",
-    source: "site",
-  },
-  {
-    id: "moves-awful",
-    title: "Moves Awful",
-    description: "Библиотека анимированных галерей для лендингов. · Разработчик · 2025",
-    coverEntryId: "moves-awful-jestei-landing-animation-01-use-01",
-    shape: "landscape",
-    source: "site",
-  },
-  {
-    id: "berserk-timer",
-    title: "Berserk Timer",
-    description: "CLI-таймер с режимом свидетеля и гибкой настройкой длительности. · Разработчик",
-    coverEntryId: "berserk-timer-cover-use-01",
-    shape: "landscape",
-    href: "/pets/berserk-timer/",
-    source: "site",
-  },
-] as const satisfies readonly SubprojectCardData[];
+export const petProjectCardsBase: readonly SubprojectCardData[] = usefulProjectsContent.cards
+  .filter((card) => card.visible)
+  .map((card) => {
+    const definition = USEFUL_PROJECT_DEFINITIONS.find(({ id }) => id === card.id);
+    if (!definition) throw new Error(`Missing useful project definition: ${card.id}`);
+    return {
+      id: card.id,
+      title: card.title,
+      description: card.description,
+      coverEntryId: definition.coverEntryId as MediaEntryId,
+      shape: "portrait",
+      ...(card.state === "live" && "href" in definition ? { href: definition.href } : {}),
+      source: "site",
+      ...(card.badge ? { badge: card.badge } : {}),
+      state: card.state === "live" ? "live" : "coming-soon",
+    };
+  });
+
+export const petProjectCards = applySubprojectCardCoverOverrides(
+  petProjectCardsBase,
+  coverOverridesFor(petProjectCardsBase),
+);
+
+const allSubprojectCardIds = new Set<string>([
+  ...shootingCardGroups.flatMap(({ cards }) => cards.map(({ id }) => id)),
+  ...petProjectCards.map(({ id }) => id),
+]);
+const mediaEntryIds = new Set<string>(mediaEntries.map(({ id }) => id));
+for (const [ownerId, entryId] of Object.entries(coverOverrides)) {
+  if (!allSubprojectCardIds.has(ownerId)) {
+    throw new Error(`Unknown subproject card cover owner: ${ownerId}`);
+  }
+  if (!mediaEntryIds.has(entryId)) {
+    throw new Error(`Unknown subproject card cover media entry: ${entryId}`);
+  }
+}

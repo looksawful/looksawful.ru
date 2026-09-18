@@ -91,7 +91,6 @@
 .subproject-card__media {
   --radius-max: var(--radius-poster);
 
-  position: relative;
   display: grid;
   min-inline-size: 0;
   overflow: hidden;
@@ -124,23 +123,6 @@
   object-position: center;
   transform: scale(1);
   transition: transform 220ms ease;
-}
-
-.subproject-card__badge {
-  position: absolute;
-  z-index: 2;
-  inset-block-start: var(--size-200);
-  inset-inline-start: var(--size-200);
-  padding: var(--size-100) var(--size-200);
-  border: var(--border-width-100) solid var(--clr-border);
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--clr-surface), transparent 8%);
-  color: var(--clr-foreground);
-  font-size: var(--fs-200);
-  font-weight: var(--fw-600);
-  line-height: 1;
-  letter-spacing: 0.02em;
-  backdrop-filter: blur(0.5rem);
 }
 
 .subproject-card__caption {

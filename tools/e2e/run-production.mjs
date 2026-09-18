@@ -1,6 +1,5 @@
 import { runQuickSmoke, runMediaSanity } from "./run-smoke.mjs";
-import { isDirectExecution, withE2ERuntime } from "./runtime.mjs";
-import { runPortfolioPetProductionSanity } from "./run-portfolio-pet-production.mjs";
+import { createInternalAnalyticsBrowser, isDirectExecution, withE2ERuntime } from "./runtime.mjs";
 
 async function inspectImage(locator, label) {
   await locator.waitFor({ state: "attached", timeout: 10_000 });
@@ -106,7 +105,7 @@ async function runJesteiFilterArtworkSanity({ browser, baseUrl }) {
     });
 
     const filter = page.locator("playlist-filter-workflow");
-    await filter.waitFor({ state: "visible", timeout: 30_000 });
+    await filter.waitFor({ state: "visible", timeout: 10_000 });
 
     const allStars = filter.locator(".rating-star img");
     const visibleStars = await visibleLocators(allStars);
@@ -146,137 +145,19 @@ async function runJesteiFilterArtworkSanity({ browser, baseUrl }) {
   }
 }
 
-async function assertNoHorizontalOverflow(page, label) {
-  const geometry = await page.evaluate(() => ({
-    viewport: window.innerWidth,
-    scrollWidth: document.documentElement.scrollWidth,
-  }));
-  if (geometry.scrollWidth > geometry.viewport + 1) {
-    throw new Error(`[gallery-qa] ${label} horizontal overflow: ${JSON.stringify(geometry)}`);
-  }
-}
-
-async function waitForGalleryItemUrl(page, expectedItemId) {
-  await page.waitForFunction((itemId) => {
-    const current = new URL(window.location.href).searchParams.get("item");
-    return itemId === null ? current === null : current === itemId;
-  }, expectedItemId, { timeout: 5_000 });
-}
-
-async function waitForGalleryViewer(page, open) {
-  await page.waitForFunction((shouldBeOpen) => {
-    const viewer = document.querySelector(".pswp");
-    return shouldBeOpen ? Boolean(viewer) : !viewer;
-  }, open, { timeout: 5_000 });
-}
-
-async function runGallerySanity({ browser, baseUrl }) {
-  const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
-  const browserMessages = [];
-  page.on("console", (message) => {
-    if (message.type() === "error") browserMessages.push(`error: ${message.text()}`);
-  });
-  page.on("pageerror", (error) => browserMessages.push(`pageerror: ${error.message}`));
-
-  try {
-    await page.goto(new URL("/gallery/", baseUrl).href, {
-      waitUntil: "domcontentloaded",
-      timeout: 30_000,
-    });
-
-    const gallery = page.locator("[data-gallery]");
-    await gallery.waitFor({ state: "visible", timeout: 15_000 });
-    const cards = page.locator("[data-gallery-card]");
-    const cardCount = await cards.count();
-    if (cardCount < 2) throw new Error(`[gallery-qa] expected at least 2 cards, found ${cardCount}`);
-    await assertNoHorizontalOverflow(page, "desktop");
-
-    const firstCard = cards.first();
-    await firstCard.scrollIntoViewIfNeeded();
-    const firstId = await firstCard.getAttribute("data-gallery-item-id");
-    if (!firstId) throw new Error("[gallery-qa] first card has no stable item id");
-
-    const historyBeforeOpen = await page.evaluate(() => window.history.length);
-    await firstCard.focus();
-    await page.keyboard.press("Enter");
-    await waitForGalleryViewer(page, true);
-    await waitForGalleryItemUrl(page, firstId);
-
-    const historyAfterOpen = await page.evaluate(() => window.history.length);
-    if (historyAfterOpen !== historyBeforeOpen + 1) {
-      throw new Error(`[gallery-qa] opening viewer must push one history entry: ${historyBeforeOpen} -> ${historyAfterOpen}`);
-    }
-
-    await page.keyboard.press("ArrowRight");
-    await page.waitForFunction((previousId) => {
-      const current = new URL(window.location.href).searchParams.get("item");
-      return Boolean(current && current !== previousId);
-    }, firstId, { timeout: 5_000 });
-    const secondId = new URL(page.url()).searchParams.get("item");
-    if (!secondId) throw new Error("[gallery-qa] viewer navigation lost item URL state");
-
-    const historyAfterSlide = await page.evaluate(() => window.history.length);
-    if (historyAfterSlide !== historyAfterOpen) {
-      throw new Error(`[gallery-qa] slide navigation must replace history, not grow it: ${historyAfterOpen} -> ${historyAfterSlide}`);
-    }
-
-    await page.goBack();
-    await waitForGalleryItemUrl(page, null);
-    await waitForGalleryViewer(page, false);
-
-    await page.goForward();
-    await waitForGalleryItemUrl(page, secondId);
-    await waitForGalleryViewer(page, true);
-
-    await page.keyboard.press("Escape");
-    await waitForGalleryItemUrl(page, null);
-    await waitForGalleryViewer(page, false);
-    const focusedGalleryCard = await page.evaluate(() => Boolean(document.activeElement?.closest?.("[data-gallery-card]")));
-    if (!focusedGalleryCard) throw new Error("[gallery-qa] viewer close did not restore focus to a Gallery card");
-
-    await page.goto(new URL(`/gallery/?item=${encodeURIComponent(firstId)}`, baseUrl).href, {
-      waitUntil: "domcontentloaded",
-      timeout: 30_000,
-    });
-    await waitForGalleryViewer(page, true);
-    await waitForGalleryItemUrl(page, firstId);
-    await page.keyboard.press("Escape");
-    await waitForGalleryViewer(page, false);
-    await waitForGalleryItemUrl(page, null);
-    if (new URL(page.url()).pathname !== "/gallery/") {
-      throw new Error(`[gallery-qa] closing a direct deep link left Gallery: ${page.url()}`);
-    }
-
-    await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto(new URL("/gallery/", baseUrl).href, {
-      waitUntil: "domcontentloaded",
-      timeout: 30_000,
-    });
-    await page.locator("[data-gallery]").waitFor({ state: "visible", timeout: 15_000 });
-    await assertNoHorizontalOverflow(page, "mobile");
-    const mobileFirstCard = page.locator("[data-gallery-card]").first();
-    await mobileFirstCard.scrollIntoViewIfNeeded();
-    if (!await mobileFirstCard.isVisible()) throw new Error("[gallery-qa] first mobile card is not visible");
-    await mobileFirstCard.click();
-    await waitForGalleryViewer(page, true);
-
-    console.log(`[gallery-qa] ${cardCount} cards; history, deep-link, focus and responsive checks: OK`);
-  } catch (error) {
-    if (browserMessages.length) {
-      console.error(`[gallery-qa] browser messages:\n${browserMessages.join("\n")}`);
-    }
-    throw error;
-  } finally {
-    await page.close();
-  }
-}
-
-export async function runProductionE2E({ browser, baseUrl }) {
-  await runPortfolioPetProductionSanity({ browser, baseUrl });
-  await runQuickSmoke({ browser, baseUrl, cvMode: "production" });
-  await runMediaSanity({ browser, baseUrl });
-  await runJesteiFilterArtworkSanity({ browser, baseUrl });
-  await runGallerySanity({ browser, baseUrl });
+export async function runProductionE2E(
+  { browser, baseUrl },
+  {
+    createAnalyticsBrowser = createInternalAnalyticsBrowser,
+    quickSmoke = runQuickSmoke,
+    mediaSanity = runMediaSanity,
+    filterArtworkSanity = runJesteiFilterArtworkSanity,
+  } = {},
+) {
+  const analyticsSafeBrowser = createAnalyticsBrowser(browser);
+  await quickSmoke({ browser: analyticsSafeBrowser, baseUrl, cvMode: "production" });
+  await mediaSanity({ browser: analyticsSafeBrowser, baseUrl });
+  await filterArtworkSanity({ browser: analyticsSafeBrowser, baseUrl });
 }
 
 if (isDirectExecution(import.meta.url)) {

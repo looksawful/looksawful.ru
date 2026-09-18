@@ -1,6 +1,4 @@
 import "./styles/site-analytics-consent.css";
-import "./styles/portfolio-pet.css";
-import "./styles/contact-form-hub.css";
 
 import { createMediaRuntimeHealth } from "./components/media-runtime-health.ts";
 import { hydrateDeferredVideoSource } from "./components/deferred-video-source.ts";
@@ -15,10 +13,9 @@ import { createBerserkAudioPlayers } from "./components/berserk-audio-player.ts"
 import { mountExpertise } from "./components/expertise.ts";
 import { mountExperience } from "./components/experience.ts";
 import { mountSiteAnalyticsConsent } from "./components/site-analytics-consent.ts";
-import { mountPortfolioPet } from "./components/portfolio-pet.ts";
-import { mountContactFormHub } from "./components/contact-form-hub.ts";
 import {
   mountSiteAnalytics,
+  mountSiteAnalyticsCaseEndTracking,
   mountSiteAnalyticsGoalTracking,
 } from "./components/site-analytics.ts";
 import { initBeforeAfter } from "./components/before-after.ts";
@@ -104,6 +101,7 @@ const siteAnalyticsConfig = {
 };
 
 let destroySiteAnalyticsGoalTracking: Destroy = noop;
+let destroySiteAnalyticsCaseEndTracking: Destroy = noop;
 let destroySiteAnalyticsConsent: Destroy = noop;
 if (import.meta.env.PROD) {
   mountSiteAnalytics({
@@ -112,6 +110,11 @@ if (import.meta.env.PROD) {
     config: siteAnalyticsConfig,
   });
   destroySiteAnalyticsGoalTracking = mountSiteAnalyticsGoalTracking({
+    root: document,
+    target: window,
+    config: siteAnalyticsConfig,
+  });
+  destroySiteAnalyticsCaseEndTracking = mountSiteAnalyticsCaseEndTracking({
     root: document,
     target: window,
     config: siteAnalyticsConfig,
@@ -129,10 +132,9 @@ mountExperience(document);
 const motion = createMotionPreference();
 const destroys: Destroy[] = [
   destroySiteAnalyticsGoalTracking,
+  destroySiteAnalyticsCaseEndTracking,
   destroySiteAnalyticsConsent,
 ];
-destroys.push(mountPortfolioPet(document, { enabled: true }));
-destroys.push(mountContactFormHub(document));
 let destroyed = false;
 
 numberMediaCaptions(document);
@@ -167,6 +169,17 @@ if (document.querySelector('[data-jestei-theme-organism][data-jestei-theme-insta
     })
     .catch((error: unknown) => {
       console.error("Jestei theme organism runtime failed to load.", error);
+    });
+}
+
+if (document.querySelector("[data-model-viewer-runtime]")) {
+  void import("./components/model-viewer.ts")
+    .then(({ createModelViewers }) => {
+      if (destroyed) return;
+      destroys.push(createModelViewers({ root: document, motion }));
+    })
+    .catch((error: unknown) => {
+      console.error("Model viewer runtime failed to load.", error);
     });
 }
 

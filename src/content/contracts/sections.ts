@@ -15,14 +15,6 @@ export const SECTION_TYPES = ["content", "project", "project-group", "specialize
 
 export type SectionType = (typeof SECTION_TYPES)[number];
 
-export const SPECIALIZED_SECTION_KINDS = [
-  "jestei-track-filter",
-  "moves-canvas-demo",
-  "berserk-timer-showcase",
-] as const;
-
-export type SpecializedSectionKind = (typeof SPECIALIZED_SECTION_KINDS)[number];
-
 export type SectionLayout =
   | "stack"
   | "mockup-grid-reel"
@@ -94,8 +86,7 @@ export interface ProjectGroupSection {
 /**
  * Closed specialized section contract for section-level runtime that cannot be
  * represented by an ordinary ContentBlock without changing DOM ownership.
- * Additional specialized sections must be added as named union members and to
- * SPECIALIZED_SECTION_KINDS so registry/Storybook parity checks can discover them.
+ * Additional specialized sections must be added as named union members.
  */
 export interface JesteiTrackFilterSection {
   type: "specialized";
@@ -113,17 +104,7 @@ export interface MovesCanvasDemoSection {
   gallery: MovesAnimatedCanvasGalleryData<MediaEntryId>;
 }
 
-export interface BerserkTimerShowcaseSection {
-  type: "specialized";
-  kind: "berserk-timer-showcase";
-  id: SectionId;
-  projectId: ProjectId;
-}
-
-export type SpecializedSection =
-  | JesteiTrackFilterSection
-  | MovesCanvasDemoSection
-  | BerserkTimerShowcaseSection;
+export type SpecializedSection = JesteiTrackFilterSection | MovesCanvasDemoSection;
 
 export type Section =
   | ContentSection

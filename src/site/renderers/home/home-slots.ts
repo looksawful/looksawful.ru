@@ -16,7 +16,6 @@ import {
   movesAwfulIntro,
   movesAwfulLandingMedia,
 } from "../../../data/content/moves-awful.ts";
-import { petProjectCards } from "../../../data/pet-project-cards.ts";
 import { progressTraditionIntro } from "../../../data/content/progress-tradition.ts";
 import {
   sandsFeatureMockupDeck,
@@ -27,6 +26,7 @@ import { portfolioSensetiqueStrip } from "../../../data/content/sensetique.ts";
 import { portfolioShootingsStrip } from "../../../data/content/shootings.ts";
 import { portfolioScanographyStrip } from "../../../data/content/styx.ts";
 import { getVisibleProjectCardPresentations } from "../../../data/projects.ts";
+import { petProjectCards } from "../../../data/subproject-cards.ts";
 
 import { renderAnimatedCanvasGallery } from "../../../templates/animated-canvas-gallery.ts";
 import { renderClientLogo } from "../../../templates/client-logo.ts";

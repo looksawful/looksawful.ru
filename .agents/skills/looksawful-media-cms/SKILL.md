@@ -5,7 +5,7 @@ description: Use for Pages CMS models, Media Catalog, media uploads/derivatives,
 
 # Looksawful media and CMS
 
-Use the canonical architecture, not assumptions from an older roadmap.
+Use the canonical architecture and live branch policy, not assumptions from an older roadmap.
 
 ## Read first
 
@@ -35,10 +35,14 @@ Do not turn Pages CMS into a generic page builder.
 - Generated responsive/video assets and generated TypeScript indexes are never hand-edited.
 - Do not create placeholder media to satisfy validation.
 
-## CMS publication boundary
+## CMS publication and authoring boundary
 
 - CMS publication authorization and classifiers are protected policy surfaces.
-- `dev` is the CMS working source; trusted publication policy is executed from `prod` according to the current architecture.
+- **CURRENT project branch contract:** `dev` is GitHub default + working/integration; `prod` is production/release/deploy. Editorial batches use the permanent `content/text-cms` branch and remain there until the user explicitly marks the batch ready (`готово`). Only then reconcile/validate and integrate into fresh `dev`; production publication remains a separate `dev -> prod` release.
+- **CURRENT local Desk topology:** ordinary `npm run desk` is READ ONLY, loopback-only and has no hidden `media:ensure`/sync startup. Explicit `npm run desk:write` is the only local write launcher; it is guarded to exact `content/text-cms`, rejects CI/GitHub Actions, rejects direct `dev`/`prod` and unintended branches, and rejects host overrides.
+- **CURRENT authoring provenance guard:** `tools/cms-authoring-topology.mjs` reports branch/worktree/HEAD, fresh `dev`, dirty/ahead/behind/divergence, READY state and CMS-only scope without reset/rebase/merge/commit/push. Diverged authoring/dev histories fail closed with `reconciliation-required`.
+- **CURRENT write persistence:** Desk text/media mutations require revision-aware `expectedRevision`; stale sources fail with conflict semantics; validated single-file replacements are staged; bulk writes prevalidate and use rollback-backed all-or-nothing service semantics under the documented failure model. See `docs/content-media-desk-api.md` and the owning tests before changing this boundary.
+- **OPEN issue ownership:** #451/#452/#453 remain open for residual end-to-end acceptance/Pages CMS enforcement/E2E/closeout as applicable. Do not infer from their open state that the safeguards above are absent, and do not close them merely from this agent skill.
 - `ENGINEERING`, `UNKNOWN`, mixed scope, or unsafe topology must block publication. Do not add an override to bypass this.
 - Do not change `.pages.yml`, workflows, scope/topology tools or publication semantics as a side effect of an ordinary content/media task.
 

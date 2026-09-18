@@ -16,8 +16,11 @@ type LightboxRoot = ParentNode & EventTarget;
 type LightboxMedia = HTMLImageElement | HTMLVideoElement;
 
 function mediaFor(source: HTMLElement): LightboxMedia | null {
-  return source.querySelector<HTMLImageElement | HTMLVideoElement>(
-    "[data-slide][data-active] img, [data-slide][data-active] video, img, video",
+  return (
+    source.querySelector<HTMLImageElement | HTMLVideoElement>(
+      "[data-slide][data-active] img, [data-slide][data-active] video",
+    ) ||
+    source.querySelector<HTMLImageElement | HTMLVideoElement>("img, video")
   );
 }
 

@@ -3,6 +3,7 @@ node_modules/
 
 # builds
 dist/
+dist-lab/
 dist-ssr/
 build/
 out/
@@ -57,6 +58,7 @@ _reports/
 _rollback-audit/
 
 # local-only working area
+.worktrees/
 _local/*
 _local/design-capture/
 !_local/comments/
@@ -124,7 +126,6 @@ public/assets/media/cases/
 .cache/media/
 media/.compression-backup/
 .prototypes/
-.editorconfig
 
 # Reproducible derivatives are generated/ensured by the media pipeline and are not committed.
 public/media/generated/responsive/

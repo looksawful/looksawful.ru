@@ -1,5 +1,6 @@
 import type { ProjectData } from "../../../types/project.ts";
 import { awfulCasesEditorialContent } from "../../content/awful-cases-editorial.ts";
+import { awfulStudioIntro } from "../../content/awful-studio.ts";
 
 export const otherProjects = [
   {
@@ -74,13 +75,12 @@ export const otherProjects = [
   {
     id: "awful-studio",
     name: "AWFUL STUDIO",
-    date: "2026",
-    status: "active",
+    date: awfulStudioIntro.period,
+    status: "completed",
     collectionIds: ["pet-projects"],
-    summary: "Расширение Blender для сборки виртуальной предметной студии.",
-    description:
-      "Blender-native виртуальная предметная и рекламная студия для сборки редактируемых сцен, света, камер, окружения, процедурных мокапов и motion-пресетов без замены нативных инструментов Blender.",
-    engagementTypeIds: ["self-initiated"],
+    summary: awfulStudioIntro.summary,
+    description: awfulStudioIntro.lead,
+    engagementTypeIds: ["self-initiated", "open-source"],
     primaryRoleId: "developer",
     roleIds: ["developer"],
   },

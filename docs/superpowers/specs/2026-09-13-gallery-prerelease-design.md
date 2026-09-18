@@ -8,7 +8,7 @@ Gallery is one curated public photography surface. It is not a second media regi
 
 ## Canonical product contract
 
-Gallery contains photographs only.
+Gallery v1 contains photographs only. Curated 3D is the next planned extension and must be added through an explicit typed media contract rather than by weakening photography eligibility.
 
 There is exactly one public stream:
 
@@ -26,15 +26,15 @@ The default visible selection is deliberately small and music-focused:
 - IGGUANA photography;
 - ESMI photography;
 - HYPRESSION photography;
+- OFELIA photography;
 - OFFMi photography;
-- DAVA photography;
 - STYX photography.
 
 A musician is included only when an actual photographic asset exists in the canonical media registry. A collage, illustration or design asset does not become Gallery-eligible merely because its subject is a musician. Boulevard Depo currently has a collage-art record but no canonical photographic asset in the current media set, so it stays out until a real photograph is registered.
 
 All other genuine photography remains available in the existing Media Catalog but is hidden from Gallery by default. Editors may opt an individual photograph into Gallery using the existing `showInCatalog` field exposed in CMS/MediaDesk as `Показывать в галерее`. No Gallery-specific visibility database or second registry is introduced.
 
-`production` may describe context or role, but it is never a separate Gallery category. Standalone digital art, collage, illustration, graphic design, 3D renders, identity work, UI/product work, equipment/documentation imagery and other non-photographic material are outside Gallery.
+`production` may describe context or role, but it is never a separate Gallery category. Standalone digital art, collage, illustration, graphic design, identity work, UI/product work, equipment/documentation imagery and other non-photographic material remain outside Gallery v1. Curated 3D models/renders are reserved for the explicit next Gallery phase.
 
 A Gallery item must be a canonical image whose direct media metadata contains `workAreaIds: ["photography", ...]`. The broader Public Catalog direction `photo` is not sufficient because project/deliverable taxonomy can derive that direction for non-photographic design assets. Free-form credits, titles, filenames and folder paths are never parsed to guess that an item is a photograph.
 
@@ -76,7 +76,7 @@ If a photograph exists in the live media inventory but is absent from the TS med
 
 Do not add direct media URLs to Gallery as a shortcut.
 
-DAVA is the first corrected example: its existing physical file is registered as a normal MediaAsset and MediaEntry under canonical project `shootings-dava` rather than being special-cased in the renderer.
+DAVA remains a canonical MediaAsset + MediaEntry + Project record under `shootings-dava`, but it is intentionally private from current public Gallery/logo-wall projections. Its presence keeps the database complete without implying publication.
 
 ## Duplicate and editorial policy
 
@@ -192,8 +192,8 @@ Required before calling the curated preview candidate ready:
 
 - typecheck;
 - Fast CI including curated Gallery contracts;
-- default Gallery includes OBLADAET, EVASHA, IGGUANA, ESMI, HYPRESSION, OFFMi, DAVA and STYX photography;
-- non-default Shootings projects such as Ofelia, Ecobasik, cinema stills, model tests and editorial photography are absent unless explicitly opted in;
+- default Gallery includes OBLADAET, EVASHA, IGGUANA, ESMI, HYPRESSION, OFELIA, OFFMi and STYX photography;
+- non-default Shootings projects such as Ecobasik, cinema stills, model tests and editorial photography are absent unless explicitly opted in;
 - direct `workAreaIds` photography guard rejects design false positives even if their broader direction resolves to `photo`;
 - `showInCatalog=false` hides optional photography and `showInCatalog=true` enables it;
 - CSS architecture checks;

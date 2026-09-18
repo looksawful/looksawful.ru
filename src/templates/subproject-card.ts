@@ -1,4 +1,3 @@
-import type { PetProjectCardData } from "../data/pet-project-cards.ts";
 import type {
   SubprojectCardData,
   SubprojectCardGroupData,
@@ -11,7 +10,7 @@ interface RenderSubprojectCardOptions {
   reveal?: boolean;
 }
 
-function renderCardBody(card: SubprojectCardData, badge?: string): string {
+function renderCardBody(card: SubprojectCardData): string {
   const media = renderMediaElement(card.coverEntryId, {
     loading: "lazy",
     video: {
@@ -26,8 +25,8 @@ function renderCardBody(card: SubprojectCardData, badge?: string): string {
   return `
     <figure class="subproject-card__figure">
       <div class="subproject-card__media">
-        ${badge ? `<span class="subproject-card__badge">${escapeHtml(badge)}</span>` : ""}
         ${media}
+        ${card.badge ? `<span class="subproject-card__badge">${escapeHtml(card.badge)}</span>` : ""}
       </div>
       <figcaption class="subproject-card__caption">
         <h3 class="subproject-card__title">${escapeHtml(card.title)}</h3>
@@ -37,45 +36,16 @@ function renderCardBody(card: SubprojectCardData, badge?: string): string {
   `;
 }
 
-function renderCardAttributes(
-  card: SubprojectCardData,
-  options: RenderSubprojectCardOptions = {},
-  state?: PetProjectCardData["state"],
-): string {
-  const reveal = renderRevealAttribute(options.reveal ? "card" : false);
-  const stateAttribute = state ? ` data-card-state="${state}"` : "";
-
-  return `class="subproject-card" data-shape="${card.shape}" data-subproject-id="${escapeHtml(card.id)}"${stateAttribute}${reveal}`;
-}
-
 export function renderSubprojectCard(
   card: SubprojectCardData,
   options: RenderSubprojectCardOptions = {},
 ): string {
   const body = renderCardBody(card);
-  const attributes = renderCardAttributes(card, options);
+  const reveal = renderRevealAttribute(options.reveal ? "card" : false);
+  const state = card.state ? ` data-state="${escapeHtml(card.state)}"` : "";
+  const attributes = `class="subproject-card" data-shape="${card.shape}" data-subproject-id="${escapeHtml(card.id)}"${state}${reveal}`;
 
   if (!card.href) {
-    return `<article ${attributes}>${body}</article>`;
-  }
-
-  const external = /^https?:\/\//.test(card.href);
-  const target = external ? ' target="_blank" rel="noopener noreferrer"' : "";
-
-  return `<a ${attributes} href="${escapeHtml(card.href)}"${target}>${body}</a>`;
-}
-
-function getPetProjectBadge(card: PetProjectCardData): string | undefined {
-  if (card.state === "coming-soon") return "COMING SOON";
-  if (card.badge === "new") return "NEW";
-  return undefined;
-}
-
-function renderPetProjectCard(card: PetProjectCardData): string {
-  const body = renderCardBody(card, getPetProjectBadge(card));
-  const attributes = renderCardAttributes(card, { reveal: true }, card.state);
-
-  if (card.state === "coming-soon") {
     return `<article ${attributes}>${body}</article>`;
   }
 
@@ -103,6 +73,6 @@ export function renderSubprojectCardGroups(groups: readonly SubprojectCardGroupD
   return groups.map(renderSubprojectCardGroup).join("\n");
 }
 
-export function renderPetProjectCards(cards: readonly PetProjectCardData[]): string {
-  return cards.map(renderPetProjectCard).join("\n");
+export function renderPetProjectCards(cards: readonly SubprojectCardData[]): string {
+  return cards.map((card) => renderSubprojectCard(card, { reveal: true })).join("\n");
 }

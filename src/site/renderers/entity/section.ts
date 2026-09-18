@@ -1,9 +1,6 @@
 import { renderResourceLinks } from "../../../components/composition/resource-links.ts";
 import { renderSectionIntro } from "../../../components/composition/section-intro.ts";
-import {
-  renderBerserkTimerShowcase,
-  renderMovesCanvasDemo,
-} from "../../../components/specialized/index.ts";
+import { renderMovesCanvasDemo } from "../../../components/specialized/index.ts";
 import {
   assertNeverSection,
   type JesteiTrackFilterSection,
@@ -330,8 +327,6 @@ function renderSpecializedSection(
     }
     case "moves-canvas-demo":
       return renderMovesCanvasDemoSection(section);
-    case "berserk-timer-showcase":
-      return renderBerserkTimerShowcase();
     default: {
       const exhaustive: never = section;
       throw new Error(`Unhandled SpecializedSection: ${JSON.stringify(exhaustive)}`);
@@ -340,9 +335,7 @@ function renderSpecializedSection(
 }
 
 function shouldRenderOuterDivider(section: Section): boolean {
-  if (section.type === "specialized") {
-    return section.kind !== "berserk-timer-showcase";
-  }
+  if (section.type === "specialized") return true;
   return section.presentation?.outerDivider !== false;
 }
 

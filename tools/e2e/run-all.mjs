@@ -1,5 +1,7 @@
 import { runSmokeCv } from "./smoke-cv.mjs";
 import { runSmokeNavigation } from "./smoke-site-navigation.mjs";
+import { runMediaLightboxSmoke } from "./smoke-media-lightbox.mjs";
+import { runMediaDeckSmoke } from "./smoke-media-deck.mjs";
 import { runSmokeSite } from "./smoke-site.mjs";
 import { isDirectExecution, withE2ERuntime } from "./runtime.mjs";
 import { mapWithConcurrency } from "./concurrency.mjs";
@@ -7,14 +9,20 @@ import { runSmokeMpa } from "./smoke-mpa.mjs";
 import { runSmokeProjectPages } from "./smoke-project-pages.mjs";
 import { runQuickSmoke } from "./run-smoke.mjs";
 
+export const DIRECT_E2E_CV_MODE = "production";
+
+export function getDirectSmokeSuiteOptions({ browser, baseUrl }) {
+  return { browser, baseUrl, cvMode: DIRECT_E2E_CV_MODE };
+}
+
 export async function runAllSmokeSuites({ browser, baseUrl, cvMode = "authored" }) {
   await runQuickSmoke({ browser, baseUrl, cvMode });
   await mapWithConcurrency([
-    runSmokeSite, runSmokeNavigation, runSmokeMpa, runSmokeProjectPages,
+    runSmokeSite, runSmokeNavigation, runMediaLightboxSmoke, runMediaDeckSmoke, runSmokeMpa, runSmokeProjectPages,
     (runtime) => runSmokeCv({ ...runtime, mode: cvMode }),
   ], 2, (suite) => suite({ browser, baseUrl }));
 }
 
 if (isDirectExecution(import.meta.url)) {
-  await withE2ERuntime(({ browser, baseUrl }) => runAllSmokeSuites({ browser, baseUrl, cvMode: "production" }));
+  await withE2ERuntime((runtime) => runAllSmokeSuites(getDirectSmokeSuiteOptions(runtime)));
 }

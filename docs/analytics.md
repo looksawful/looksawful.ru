@@ -22,6 +22,8 @@ A stored `denied` value always suppresses Yandex Metrica, including in an RU ses
 
 Regional resolution is session-scoped, not permanent consent. A normalized two-letter country code is stored in `sessionStorage` under `looksawful:analytics-region`. When no explicit consent and no cached region exist, the runtime resolves the country from `/cdn-cgi/trace` and then `https://api.country.is/`. RU may auto-start Yandex; non-RU or unresolved sessions render the consent control instead.
 
+Owner/agent QA can opt a browser out of collection with `localStorage["looksawful:analytics-internal"] = "1"`. Internal traffic suppression happens before provider loading and goal tracking so production verification does not contaminate the small real-user sample.
+
 The counter initializes with:
 
 - `clickmap: true`
@@ -38,23 +40,74 @@ Create these as **JavaScript event** goals in the Yandex Metrica counter. Goal I
 | Goal ID | Meaning | Parameters |
 | --- | --- | --- |
 | `project_open` | Visitor follows an internal link to `/work/...` | source page, target path |
+| `case_end` | Visitor reaches the document end of a standalone Case page | source page, bounded canonical case ID |
 | `cv_open` | Visitor opens `/cv/` from a tracked portfolio page | source page |
+| `cv_engaged` | Visitor meaningfully engages with `/cv/` | source page |
+| `cv_project_open` | Visitor opens a `/work/...` case from `/cv/` | source page, target path |
+| `cv_end` | Visitor reaches the actual document end of `/cv/` | source page |
 | `contact_email` | Visitor activates an email link | source page |
 | `contact_phone` | Visitor activates a phone link | source page |
 | `contact_telegram` | Visitor activates a Telegram link | source page |
 | `download` | Visitor activates a link with the `download` attribute | source page, target path when available |
 
+`case_end` and `cv_end` are semantic rather than generic percentage-scroll goals. `case_end` is attached only when `body[data-page-type="case"]` exposes a bounded canonical `data-entity-id`, fires once when the document end becomes visible, and then removes its scroll/resize listeners. `/cv/` additionally exposes `cv_engaged`, `cv_project_open` and `cv_end` so recruiter behavior can be analyzed without creating 25/50/75 percent conversion goals.
+
 Do not turn generic clicks, slider changes, lightbox navigation or scroll depth into goals. Click maps, link tracking, scroll maps and Webvisor already cover exploratory behavior. Goals are reserved for meaningful intent/conversion signals.
+
+## Outreach attribution
+
+Controlled recruiter and portfolio links use one bounded campaign vocabulary so attributable traffic does not collapse into undifferentiated Direct:
+
+| Channel | `utm_source` | `utm_medium` | Allowed `utm_campaign` |
+| --- | --- | --- | --- |
+| HH recruiter message | `hh` | `message` | `job_search` |
+| HH profile | `hh` | `profile` | `job_search`, `portfolio` |
+| Telegram recruiter DM | `telegram` | `dm` | `job_search` |
+| Telegram channel | `telegram` | `channel` | `portfolio` |
+| Telegram profile | `telegram` | `profile` | `portfolio` |
+| Instagram recruiter DM | `instagram` | `dm` | `job_search` |
+| Instagram bio | `instagram` | `bio` | `portfolio` |
+| Instagram story | `instagram` | `story` | `portfolio` |
+| Instagram post | `instagram` | `post` | `portfolio` |
+| Instagram reel | `instagram` | `reel` | `portfolio` |
+| LinkedIn recruiter DM | `linkedin` | `dm` | `job_search` |
+| LinkedIn profile | `linkedin` | `profile` | `job_search`, `portfolio` |
+| LinkedIn post | `linkedin` | `post` | `portfolio` |
+| Behance profile | `behance` | `profile` | `portfolio` |
+| Behance project | `behance` | `project` | `portfolio` |
+| VK profile | `vk` | `profile` | `portfolio` |
+| VK DM | `vk` | `dm` | `job_search`, `portfolio` |
+| VK post | `vk` | `post` | `portfolio` |
+| FashionBank profile | `fashionbank` | `profile` | `portfolio` |
+| FashionBank project | `fashionbank` | `project` | `portfolio` |
+| Email outreach | `email` | `outreach` | `job_search` |
+| Email signature | `email` | `signature` | `portfolio` |
+
+Optional `utm_content` is limited to a technical destination/case token such as `jestei-pool`. Optional `utm_id` is an opaque batch token such as `2026w38a`. Never put recruiter names, email addresses, company/person pairs, message text or other PII in UTM values.
+
+Generate links through the repository-owned allowlisted utility instead of manually composing query strings:
+
+```bash
+npm run outreach:link -- --destination /work/jestei-pool/ --source hh --medium message --campaign job_search --content jestei-pool --batch 2026w38a
+```
+
+The utility accepts only canonical `https://www.looksawful.ru` paths, approved source/medium/campaign combinations, bounded slug-like optional attribution values, and no unknown fields. It rejects existing query strings/fragments so canonical page identity stays clean before UTM parameters are added.
+
+Interpretation model:
+
+- `qualified_visit`: opened a project/CV and then completed at least one strong action (`case_end`, `download`, contact);
+- `recruiter_qualified_visit`: `utm_campaign=job_search` plus at least one strong intent action;
+- `contact_conversion`: contacts divided by qualified visits.
 
 ## Consent behavior
 
 Portfolio-runtime pages mount the shared consent component from `src/components/site-analytics-consent.ts`.
 
-The runtime first respects GPC/DNT and any explicit stored choice. Without an explicit choice it reuses the session-scoped region when available; otherwise it resolves the region and stores only that country code for the current browser session. An RU result may mount Yandex without showing the consent control. A non-RU or unresolved result renders the control, where `granted` or `denied` is stored in localStorage as the explicit user choice.
+The runtime first respects GPC/DNT, internal-traffic suppression and any explicit stored choice. Without an explicit choice it reuses the session-scoped region when available; otherwise it resolves the region and stores only that country code for the current browser session. An RU result may mount Yandex without showing the consent control. A non-RU or unresolved result renders the control, where `granted` or `denied` is stored in localStorage as the explicit user choice.
 
 The consent control links to the canonical public `/privacy/` page. That page allows the visitor to clear only the explicit localStorage choice. Clearing it does not turn the session region into consent or erase it: the next tracked page applies the same regional rule again, so RU may auto-start and non-RU/unknown sessions may ask again.
 
-`/cv/` is a `public-static` page and does not load `src/main.js`. Its production artifact is finalized by `src/site/build/public-static-build-plugin.ts` during the Vite production build. That step composes the canonical CV content, removes disabled experience entries and injects the small isolated analytics bootstrap. The bootstrap uses the same explicit-consent localStorage key, the same session-scoped region key, the same RU/non-RU decision rule and the same goal IDs.
+`/cv/` is a `public-static` page and does not load `src/main.js`. Its production artifact is finalized by `src/site/build/public-static-build-plugin.ts` during the Vite production build. That step composes the canonical CV content, removes disabled experience entries and injects the small isolated analytics bootstrap. The bootstrap uses the same explicit-consent localStorage key, the same session-scoped region key, the same RU/non-RU decision rule, internal-traffic suppression and the same goal vocabulary.
 
 The Yandex `<noscript>` tracking pixel is intentionally omitted. A pixel that fires with JavaScript disabled cannot observe the JavaScript consent/region state and would bypass the delayed-loading contract.
 
@@ -77,9 +130,9 @@ Localhost and `*.localhost` previews do not mount analytics.
 
 ## Yandex dashboard checklist
 
-Before merging the analytics PR to a deployable branch:
+Before releasing the semantic CV funnel to production:
 
-1. Create the six JavaScript event goals listed above in counter `112065623`.
+1. Keep the existing JavaScript event goals and create the three CV goals `cv_engaged`, `cv_project_open` and `cv_end` in counter `112065623` so all ten runtime goal IDs are configured.
 2. Keep Webvisor, click map and link tracking enabled for the counter.
 3. Enable **Do not store full IP addresses of site visitors** when required by the site's privacy requirements.
 4. Accept the Yandex Metrica Data Processing Agreement when GDPR applies.

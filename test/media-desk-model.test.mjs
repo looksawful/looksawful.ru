@@ -6,6 +6,11 @@ import {
   getMediaDeskIssues,
   mediaDeskCompleteness,
 } from "../src/devtools/media-desk/model.ts";
+import {
+  buildMediaDeskInventoryIndex,
+  filterMediaDeskInventoryRecords,
+  summarizeMediaDeskDiagnostics,
+} from "../src/devtools/media-desk/inventory-model.ts";
 
 const projectNames = new Map([
   ["project-a", "Alpha Project"],
@@ -104,4 +109,74 @@ test("completeness sorting places better-described records first", () => {
   );
 
   assert.deepEqual(result.map(({ asset }) => asset.id), ["complete", "incomplete"]);
+});
+
+test("inventory index derives direct/poster placement usage without changing canonical items", () => {
+  const items = [
+    item(),
+    item({ asset: { id: "asset-b", type: "image", src: "/media/b.webp" }, title: "Beta" }),
+    item({ asset: { id: "poster-a", type: "image", src: "/media/poster.webp" }, title: "Poster" }),
+  ];
+  const entries = [
+    { id: "section-a-use-01", assetId: "asset-a", projectIds: ["project-a"], posterAssetId: "poster-a" },
+    { id: "section-b-use-01", assetId: "asset-a", projectIds: ["project-b"] },
+  ];
+
+  const records = buildMediaDeskInventoryIndex(items, entries);
+  const assetA = records.find((record) => record.assetId === "asset-a");
+  const poster = records.find((record) => record.assetId === "poster-a");
+
+  assert.equal(assetA?.usage.direct, 2);
+  assert.equal(assetA?.usage.poster, 0);
+  assert.deepEqual(assetA?.usage.entryIds, ["section-a-use-01", "section-b-use-01"]);
+  assert.deepEqual(assetA?.usage.projectIds, ["project-a", "project-b"]);
+  assert.equal(poster?.usage.direct, 0);
+  assert.equal(poster?.usage.poster, 1);
+  assert.deepEqual(items[0].projectIds, ["project-a"]);
+});
+
+test("inventory diagnostics deterministically classify orphan, missing source and duplicate paths", () => {
+  const items = [
+    item(),
+    item({ asset: { id: "asset-b", type: "image", src: "/media/a.webp" }, title: "Duplicate path" }),
+    item({ asset: { id: "asset-c", type: "image", src: "" }, title: "Missing source" }),
+  ];
+  const entries = [{ id: "used-a", assetId: "asset-a", projectIds: ["project-a"] }];
+
+  const records = buildMediaDeskInventoryIndex(items, entries);
+  const summary = summarizeMediaDeskDiagnostics(records);
+
+  assert.deepEqual(records.find(({ assetId }) => assetId === "asset-a")?.diagnostics, ["duplicate-path"]);
+  assert.deepEqual(records.find(({ assetId }) => assetId === "asset-b")?.diagnostics, ["orphan", "duplicate-path"]);
+  assert.deepEqual(records.find(({ assetId }) => assetId === "asset-c")?.diagnostics, ["orphan", "missing-source"]);
+  assert.deepEqual(summary, {
+    orphan: 2,
+    "missing-source": 1,
+    "duplicate-id": 0,
+    "duplicate-path": 2,
+  });
+});
+
+test("inventory filters compose search, usage and diagnostic state", () => {
+  const items = [
+    item(),
+    item({
+      asset: { id: "asset-b", type: "image", src: "/media/b.webp" },
+      title: "Beta placement",
+      projectIds: ["project-b"],
+    }),
+  ];
+  const entries = [{ id: "styx-lookbook-hero", assetId: "asset-b", projectIds: ["project-b"] }];
+  const records = buildMediaDeskInventoryIndex(items, entries);
+
+  assert.deepEqual(
+    filterMediaDeskInventoryRecords(records, { search: "styx-lookbook", usage: "used", diagnostic: "all" })
+      .map(({ assetId }) => assetId),
+    ["asset-b"],
+  );
+  assert.deepEqual(
+    filterMediaDeskInventoryRecords(records, { usage: "orphan", diagnostic: "orphan" })
+      .map(({ assetId }) => assetId),
+    ["asset-a"],
+  );
 });

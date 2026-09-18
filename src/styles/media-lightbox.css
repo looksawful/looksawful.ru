@@ -147,14 +147,6 @@
   inset-inline-start: calc(var(--media-lightbox-inset) + env(safe-area-inset-left, 0px));
   inset-inline-end: calc(var(--media-lightbox-inset) + env(safe-area-inset-right, 0px));
   inset-block-end: calc(var(--media-lightbox-inset) + env(safe-area-inset-bottom, 0px));
-  max-inline-size: min(42rem, calc(100vw - (var(--media-lightbox-inset) * 2)));
-  margin: 0;
-  padding: 0.625rem 0.75rem;
-  color: #fff;
-  background: rgb(0 0 0 / 0.88);
-  font-size: 0.75rem;
-  line-height: 1.4;
-  pointer-events: none;
 }
 
 .media-lightbox--photoswipe .media-lightbox__caption[hidden] {

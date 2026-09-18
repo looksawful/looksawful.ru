@@ -6,8 +6,9 @@ import { cvContent } from "../src/data/cv.ts";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
-test("CV smoke exposes authored and production hidden-card contracts", async () => {
+test("CV smoke exposes authored and production contracts with authored as the standalone default", async () => {
   const smokeCv = await import("../tools/e2e/smoke-cv.mjs");
+  assert.equal(smokeCv.DEFAULT_CV_SMOKE_MODE, "authored");
   assert.equal(typeof smokeCv.getExpectedCvHiddenCards, "function");
   const authoredHidden = cvContent.experience.filter(({ visible }) => !visible).length;
   assert.equal(smokeCv.getExpectedCvHiddenCards("authored"), authoredHidden);
@@ -15,36 +16,55 @@ test("CV smoke exposes authored and production hidden-card contracts", async () 
   assert.throws(() => smokeCv.getExpectedCvHiddenCards("invalid"), /invalid CV smoke mode/i);
 });
 
-test("CV runner accepts an explicit mode and direct execution stays authored", async () => {
-  const source = await read("tools/e2e/smoke-cv.mjs");
-  assert.match(source, /runSmokeCv\(\{\s*browser,\s*baseUrl,\s*mode\s*=\s*["']authored["']/s);
-  assert.match(source, /getExpectedCvHiddenCards\(mode\)/);
-  assert.match(source, /runSmokeCv\(\{\s*browser,\s*baseUrl,\s*mode:\s*["']authored["']/s);
+test("caption QA is import-safe and exposes an explicit runner", async () => {
+  const captionQa = await import("../tools/capture-caption-qa.mjs");
+  assert.equal(typeof captionQa.captureCaptionQa, "function");
 });
 
-test("caption QA stays optional and import-safe", async () => {
-  const source = await read("tools/capture-caption-qa.mjs");
-  assert.match(source, /export async function captureCaptionQa\(\{\s*browser,\s*baseUrl,/s);
-  assert.match(source, /if \(isDirectExecution\(import\.meta\.url\)\)/);
-  assert.match(source, /withE2ERuntime/);
-  assert.doesNotMatch(source, /chromium\.launch/);
-});
+test("production E2E wraps the supplied browser once and runs only production gates", async () => {
+  const { runProductionE2E } = await import("../tools/e2e/run-production.mjs");
+  const browser = { kind: "raw" };
+  const analyticsSafeBrowser = { kind: "analytics-safe" };
+  const baseUrl = "https://preview.example/";
+  const calls = [];
 
-test("production E2E runner reuses one runtime for compact production smoke and media sanity only", async () => {
-  const source = await read("tools/e2e/run-production.mjs");
-  assert.match(source, /runQuickSmoke\(\{\s*browser,\s*baseUrl,\s*cvMode:\s*["']production["']/s);
-  assert.match(source, /runMediaSanity\(\{\s*browser,\s*baseUrl\s*\}\)/s);
-  assert.match(source, /withE2ERuntime/);
-  assert.doesNotMatch(source, /captureCaptionQa|runAllSmokeSuites|runSmokeNavigation|runSmokeMpa/);
-});
-
-test("full combined E2E validates production CV output on direct execution", async () => {
-  const source = await read("tools/e2e/run-all.mjs");
-  assert.match(source, /runAllSmokeSuites\(\{\s*browser,\s*baseUrl,\s*cvMode\s*=\s*["']authored["']/s);
-  assert.match(
-    source,
-    /isDirectExecution\(import\.meta\.url\)[\s\S]*?runAllSmokeSuites\(\{\s*browser,\s*baseUrl,\s*cvMode:\s*["']production["']/s,
+  await runProductionE2E(
+    { browser, baseUrl },
+    {
+      createAnalyticsBrowser(value) {
+        calls.push(["wrap", value]);
+        return analyticsSafeBrowser;
+      },
+      async quickSmoke(options) {
+        calls.push(["quick", options]);
+      },
+      async mediaSanity(options) {
+        calls.push(["media", options]);
+      },
+      async filterArtworkSanity(options) {
+        calls.push(["filter-art", options]);
+      },
+    },
   );
+
+  assert.deepEqual(calls, [
+    ["wrap", browser],
+    ["quick", { browser: analyticsSafeBrowser, baseUrl, cvMode: "production" }],
+    ["media", { browser: analyticsSafeBrowser, baseUrl }],
+    ["filter-art", { browser: analyticsSafeBrowser, baseUrl }],
+  ]);
+});
+
+test("direct full E2E options force production CV output", async () => {
+  const { DIRECT_E2E_CV_MODE, getDirectSmokeSuiteOptions } = await import("../tools/e2e/run-all.mjs");
+  const browser = { kind: "browser" };
+  const baseUrl = "https://preview.example/";
+  assert.equal(DIRECT_E2E_CV_MODE, "production");
+  assert.deepEqual(getDirectSmokeSuiteOptions({ browser, baseUrl }), {
+    browser,
+    baseUrl,
+    cvMode: "production",
+  });
 });
 
 test("production CV analytics bootstrap expectation follows configured providers", async () => {

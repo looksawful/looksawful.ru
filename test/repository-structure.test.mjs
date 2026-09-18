@@ -64,6 +64,7 @@ test("repository root contains only intentional source directories", async () =>
     ".github",
     "docs",
     "gallery",
+    "lab",
     "public",
     "shootings",
     "src",
@@ -107,7 +108,7 @@ test("the obsolete interactive JavaScript compatibility shim is retired", async 
   );
 });
 
-test("authored JavaScript under src is limited to explicitly tracked legacy migrations and the still-consumed main entry shim", async () => {
+test("authored production JavaScript under src is limited to explicitly tracked legacy migrations and the still-consumed main entry shim", async () => {
   const allowed = [
     "components/animated-canvas-gallery.js",
     "components/awful-cases-game.js",
@@ -116,9 +117,22 @@ test("authored JavaScript under src is limited to explicitly tracked legacy migr
   ];
   const javascript = (await collectFiles(path.join(root, "src")))
     .filter((file) => file.endsWith(".js"))
+    .filter((file) => !file.startsWith("lab/"))
     .sort();
 
   assert.deepEqual(javascript, allowed);
+});
+
+test("Lab Storybook JavaScript remains isolated from the production JavaScript migration guard", async () => {
+  const labJavascript = (await collectFiles(path.join(root, "src", "lab")))
+    .filter((file) => file.endsWith(".js"))
+    .sort();
+
+  assert.ok(labJavascript.length > 0, "expected Storybook JavaScript under src/lab");
+  assert.ok(
+    labJavascript.every((file) => file.startsWith("stories/") && file.endsWith(".stories.js")),
+    `unexpected authored JavaScript in src/lab: ${labJavascript.join(", ")}`,
+  );
 });
 
 test("application development tooling has a canonical src/devtools boundary", async () => {

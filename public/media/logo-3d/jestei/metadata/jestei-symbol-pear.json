@@ -1,0 +1,26 @@
+{
+  "id": "jestei-symbol-pear",
+  "family": "Jestei Pool",
+  "variant": "symbol",
+  "colorway": "pear",
+  "source": "public/media/projects/jestei/logo/source/logo-secondary.svg",
+  "sourceType": "vector-svg",
+  "sourceSha256": "ae94d7fa94d62eea1022a6f8113dd8d7670492b6292eaa5a6985011ae83ee38c",
+  "materialId": "jestei-pear-plastic",
+  "geometryProfile": "jestei-reference",
+  "dimensions": [
+    2.0,
+    0.38,
+    1.999471
+  ],
+  "formats": [
+    "glb",
+    "fbx",
+    "obj",
+    "stl"
+  ],
+  "localMasterFormats": [
+    "blend"
+  ],
+  "blenderVersion": "5.2.1 LTS"
+}

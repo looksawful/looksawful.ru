@@ -1,0 +1,27 @@
+{
+  "id": "device-iphone-17-v30-model",
+  "title": "iPhone 17 mockup",
+  "alt": "",
+  "description": "",
+  "date": "2026",
+  "workAreaIds": [
+    "3d",
+    "product-design",
+    "art-direction"
+  ],
+  "projectTypeIds": [
+    "3d-project"
+  ],
+  "deliverableIds": [
+    "screen-mockup",
+    "design-assets"
+  ],
+  "tags": [
+    "3D",
+    "device mockup",
+    "Apple"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

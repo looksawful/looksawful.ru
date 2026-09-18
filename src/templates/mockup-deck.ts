@@ -1,5 +1,6 @@
 import { getMediaAsset, getMediaEntry, type MediaEntryId } from "../data/media/index.ts";
 import type { MediaCaptionData } from "../types/media.ts";
+import type { EditorialCopyRenderOptions } from "../types/render-options.ts";
 import type {
   MockupDeckCanvasSlideData,
   MockupDeckData,
@@ -60,8 +61,11 @@ function renderSlideCaptionLine(slide: MockupDeckSlideData<MediaEntryId>): strin
   return renderMediaCaptionLine(slide.entryId);
 }
 
-function renderCaptions(data: MockupDeckData<MediaEntryId>): string {
-  if (data.captions === false) return "";
+function renderCaptions(
+  data: MockupDeckData<MediaEntryId>,
+  options: EditorialCopyRenderOptions,
+): string {
+  if (options.showEditorialCopy === false || data.captions === false) return "";
   if (data.captions === "empty") {
     return `<div class="media__caption mockup__captions pile" aria-live="polite"></div>`;
   }
@@ -97,32 +101,40 @@ function renderDeckAttributes(data: MockupDeckData<MediaEntryId>): string {
   return attributes.join(" ");
 }
 
-function renderCanvasSlide(slide: MockupDeckCanvasSlideData<MediaEntryId>, active: boolean): string {
+function renderCanvasSlide(
+  slide: MockupDeckCanvasSlideData<MediaEntryId>,
+  active: boolean,
+  options: EditorialCopyRenderOptions,
+): string {
   const classes = ["mockup__slide", slide.className].filter(Boolean).join(" ");
   const ariaHidden = slide.ariaHidden ? ' aria-hidden="true"' : "";
   const activeAttribute = active ? ' data-active=""' : "";
-  return `<div${ariaHidden} class="${escapeHtml(classes)}"${activeAttribute} data-slide="">${renderAnimatedCanvasGallery(slide.gallery)}</div>`;
+  return `<div${ariaHidden} class="${escapeHtml(classes)}"${activeAttribute} data-slide="">${renderAnimatedCanvasGallery(slide.gallery, options)}</div>`;
 }
 
 function renderStandardSlide(
   slide: MockupDeckSlideData<MediaEntryId>,
   index: number,
+  options: EditorialCopyRenderOptions,
 ): string {
   if (slide.kind === "canvas-gallery") {
-    return renderCanvasSlide(slide, index === 0);
+    return renderCanvasSlide(slide, index === 0, options);
   }
 
   return `<div class="mockup__slide"${index === 0 ? ' data-active=""' : ""} data-slide="">${renderSlideMedia(slide)}</div>`;
 }
 
-function renderStandard(data: StandardMockupDeckData<MediaEntryId>): string {
+function renderStandard(
+  data: StandardMockupDeckData<MediaEntryId>,
+  options: EditorialCopyRenderOptions,
+): string {
   const classes = ["media", "mockup", data.className].filter(Boolean).join(" ");
   const role = data.role ? ` data-role="${escapeHtml(data.role)}"` : "";
   const theme = data.theme ? ` data-mockup-theme="${escapeHtml(data.theme)}"` : "";
   const style = data.style ? ` style="${escapeHtml(data.style)}"` : "";
   const deck = renderDeckAttributes(data);
 
-  const slides = data.slides.map(renderStandardSlide).join("\n");
+  const slides = data.slides.map((slide, index) => renderStandardSlide(slide, index, options)).join("\n");
 
   return `
     <figure class="${escapeHtml(classes)}" data-caption-view="${escapeHtml(
@@ -133,13 +145,16 @@ function renderStandard(data: StandardMockupDeckData<MediaEntryId>): string {
           <div class="mockup__slides pile">${slides}</div>
         </div>
       </div>
-      ${renderCaptions(data)}
+      ${renderCaptions(data, options)}
       ${data.controls === false ? "" : renderControls(data.slides.length)}
     </figure>
   `;
 }
 
-function renderMobileDevice(data: Extract<MockupDeckData<MediaEntryId>, { variant: "mobile-device" }>): string {
+function renderMobileDevice(
+  data: Extract<MockupDeckData<MediaEntryId>, { variant: "mobile-device" }>,
+  options: EditorialCopyRenderOptions,
+): string {
   const classes = ["media", data.className].filter(Boolean).join(" ");
   const deck = renderDeckAttributes(data);
   const slides = data.slides
@@ -157,12 +172,15 @@ function renderMobileDevice(data: Extract<MockupDeckData<MediaEntryId>, { varian
           <span aria-hidden="true" class="mobile-mockup__home-indicator"></span>
         </div>
       </div>
-      ${renderCaptions(data)}
+      ${renderCaptions(data, options)}
       ${data.controls ? renderControls(data.slides.length) : ""}
     </figure>
   `;
 }
 
-export function renderMockupDeck(data: MockupDeckData<MediaEntryId>): string {
-  return data.variant === "standard" ? renderStandard(data) : renderMobileDevice(data);
+export function renderMockupDeck(
+  data: MockupDeckData<MediaEntryId>,
+  options: EditorialCopyRenderOptions = {},
+): string {
+  return data.variant === "standard" ? renderStandard(data, options) : renderMobileDevice(data, options);
 }

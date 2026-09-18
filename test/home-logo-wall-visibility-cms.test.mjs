@@ -78,7 +78,6 @@ test("disabled Homepage sections are absent from generated output", async () => 
 
   assert.doesNotMatch(rendered, /class="pet-projects"/);
   assert.doesNotMatch(rendered, /id="pet-projects-title"/);
-  assert.doesNotMatch(rendered, />Полезное</);
 });
 
 test("Homepage visibility content is explicitly authorized for CMS publication", () => {

@@ -1,74 +1,67 @@
-import type { EntityPageId } from "./types.ts";
+﻿import type { EntityPageId } from "./types.ts";
+
+export interface EntityIntroPresentationPolicy {
+  head?: boolean;
+  role?: boolean;
+  period?: boolean;
+  summary?: boolean;
+  lead?: boolean;
+  links?: boolean;
+}
+
+export interface EntitySectionPresentationPolicy {
+  copy?: boolean;
+  omitEmpty?: boolean;
+}
+
+export interface EntityStandalonePresentation {
+  intro?: EntityIntroPresentationPolicy;
+  hiddenSectionIds?: readonly string[];
+  sections?: EntitySectionPresentationPolicy;
+  suppressCaptions?: boolean;
+}
 
 export interface EntityShellPresentation {
   articleId: string;
   theme: string;
   navigationProject: boolean;
-  showIntro?: boolean;
 }
 
-export type EntityShellPresentationRegistry = ReadonlyMap<
-  EntityPageId,
-  EntityShellPresentation
->;
+export type EntityShellPresentationRegistry = ReadonlyMap<EntityPageId, EntityShellPresentation>;
 
-export const entityShellPresentationRegistry: EntityShellPresentationRegistry = new Map<
-  EntityPageId,
-  EntityShellPresentation
->([
-  ["case:jestei-pool", {
-    articleId: "project-jestei",
-    theme: "pink-red",
-    navigationProject: true,
-  }],
-  ["case:styx", {
-    articleId: "project-styx",
-    theme: "red-pink",
-    navigationProject: true,
-  }],
-  ["case:sensetique", {
-    articleId: "project-sensetique",
-    theme: "pink-red",
-    navigationProject: true,
-  }],
+export const entityShellPresentationRegistry: EntityShellPresentationRegistry = new Map([
+  ["case:jestei-pool", { articleId: "project-jestei", theme: "pink-red", navigationProject: true }],
+  ["case:styx", { articleId: "project-styx", theme: "red-pink", navigationProject: true }],
+  ["case:sensetique", { articleId: "project-sensetique", theme: "pink-red", navigationProject: true }],
+  ["collection:music-photography", { articleId: "project-shootings", theme: "neutral", navigationProject: true }],
+  ["project:awful-cases", { articleId: "project-awful-cases", theme: "neutral", navigationProject: false }],
+  ["project:awful-studio", { articleId: "project-awful-studio", theme: "neutral", navigationProject: false }],
+  ["project:moves-awful", { articleId: "project-moves-awful", theme: "orange-cream", navigationProject: false }],
+  ["project:berry-social-content-2020", { articleId: "project-berry-social-content-2020", theme: "berry-pink", navigationProject: false }],
+]);
+
+const entityStandalonePresentationRegistry = new Map<EntityPageId, EntityStandalonePresentation>([
+  ["case:styx", { hiddenSectionIds: ["styx-social-instructions"] }],
   ["collection:music-photography", {
-    articleId: "project-shootings",
-    theme: "neutral",
-    navigationProject: true,
-  }],
-  ["project:awful-cases", {
-    articleId: "project-awful-cases",
-    theme: "neutral",
-    navigationProject: false,
-  }],
-  ["project:moves-awful", {
-    articleId: "project-moves-awful",
-    theme: "orange-cream",
-    navigationProject: false,
-  }],
-  ["project:berserk-timer", {
-    articleId: "project-berserk-timer",
-    theme: "neutral",
-    navigationProject: false,
-  }],
-  ["project:awful-studio", {
-    articleId: "project-awful-studio",
-    theme: "neutral",
-    navigationProject: false,
-  }],
-  ["project:berry-social-content-2020", {
-    articleId: "project-berry-social-content-2020",
-    theme: "berry-pink",
-    navigationProject: false,
+    intro: {
+      head: false,
+      role: false,
+      period: false,
+      summary: false,
+      lead: false,
+      links: false,
+    },
+    sections: { copy: false, omitEmpty: true },
+    suppressCaptions: true,
   }],
 ]);
 
 export function getEntityShellPresentation(pageId: EntityPageId): EntityShellPresentation {
   const presentation = entityShellPresentationRegistry.get(pageId);
-
-  if (!presentation) {
-    throw new Error(`Missing entity shell presentation: ${pageId}`);
-  }
-
+  if (!presentation) throw new Error(`Missing entity shell presentation: ${pageId}`);
   return presentation;
+}
+
+export function getEntityStandalonePresentation(pageId: EntityPageId): EntityStandalonePresentation {
+  return entityStandalonePresentationRegistry.get(pageId) ?? {};
 }
