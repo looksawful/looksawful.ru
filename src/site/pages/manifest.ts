@@ -136,6 +136,32 @@ export const sitePages = [
     },
   },
   {
+    id: "project:keys",
+    type: "project",
+    entityId: "keys",
+    path: "/work/keys/",
+    enabled: true,
+    renderer: "entity",
+    build: VITE_BUILD,
+    discovery: {
+      listed: false,
+      indexable: false,
+    },
+  },
+  {
+    id: "project:sea",
+    type: "project",
+    entityId: "sea",
+    path: "/work/sea/",
+    enabled: true,
+    renderer: "entity",
+    build: VITE_BUILD,
+    discovery: {
+      listed: false,
+      indexable: false,
+    },
+  },
+  {
     id: "project:moves-awful",
     type: "project",
     entityId: "moves-awful",

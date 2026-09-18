@@ -7,7 +7,9 @@ import { awful3dMockupsPageContent } from "./projects/awful-3d-mockups.ts";
 import { awfulCasesPageContent } from "./projects/awful-cases.ts";
 import { awfulStudioPageContent } from "./projects/awful-studio.ts";
 import { berrySocialContentPageContent } from "./projects/berry-social-content-2020.ts";
+import { keysPageContent } from "./projects/keys.ts";
 import { movesAwfulPageContent } from "./projects/moves-awful.ts";
+import { seaPageContent } from "./projects/sea.ts";
 import { createEntityPageContentRegistry } from "./registry.ts";
 import { validateEntityPageContents } from "./validation.ts";
 
@@ -25,7 +27,9 @@ export const entityPageContents = [
   awful3dMockupsPageContent,
   awfulStudioPageContent,
   berrySocialContentPageContent,
+  keysPageContent,
   movesAwfulPageContent,
+  seaPageContent,
 ] as const satisfies readonly EntityPageContent[];
 
 validateEntityPageContents(entityPageContents);
