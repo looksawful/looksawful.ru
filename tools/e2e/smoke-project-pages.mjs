@@ -48,9 +48,22 @@ async function verifyProjectPage(page, route, label) {
     const article = document.getElementById(expected.articleId);
     const h1s = [...document.querySelectorAll("h1")];
     const robots = document.querySelector('meta[name="robots"]')?.getAttribute("content") || "";
+    const projectHeadIdentity = article instanceof HTMLElement
+      ? [...article.querySelectorAll(".project__head .project__name, .project__head > img")]
+      : [];
+    const projectHeadIdentityVisible = projectHeadIdentity.some((node) => {
+      if (!(node instanceof HTMLElement)) return false;
+      const style = getComputedStyle(node);
+      const rect = node.getBoundingClientRect();
+      return style.display !== "none" && style.visibility !== "hidden" && rect.width > 1 && rect.height > 1;
+    });
+    const siteNavBar = document.querySelector(".site-nav__bar");
+    const siteNavBarRect = siteNavBar instanceof HTMLElement ? siteNavBar.getBoundingClientRect() : null;
     return {
       articleExists: article instanceof HTMLElement,
       articleHidden: article instanceof HTMLElement ? article.hidden : null,
+      projectHeadIdentityVisible,
+      siteNavBarVisible: Boolean(siteNavBarRect && siteNavBarRect.width > 1 && siteNavBarRect.height >= 44),
       pageType: document.body.dataset.pageType,
       pageId: document.body.dataset.pageId,
       entityId: document.body.dataset.entityId,
@@ -65,6 +78,8 @@ async function verifyProjectPage(page, route, label) {
 
   assert(state.articleExists, `${label}: missing ${route.articleId}`);
   assert(state.articleHidden === false, `${label}: standalone Project article is still hidden`);
+  assert(!state.projectHeadIdentityVisible, `${label}: standalone project restored full project identity in compact head`);
+  assert(state.siteNavBarVisible, `${label}: compact site header is missing`);
   assert(state.pageType === "project", `${label}: wrong data-page-type ${state.pageType}`);
   assert(state.pageId === route.pageId, `${label}: wrong data-page-id ${state.pageId}`);
   assert(state.entityId === route.entityId, `${label}: wrong data-entity-id ${state.entityId}`);
