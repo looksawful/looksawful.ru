@@ -110,6 +110,19 @@ export const sitePages = [
     },
   },
   {
+    id: "project:awful-3d-mockups",
+    type: "project",
+    entityId: "awful-3d-mockups",
+    path: "/work/awful-3d-mockups/",
+    enabled: true,
+    renderer: "entity",
+    build: VITE_BUILD,
+    discovery: {
+      listed: false,
+      indexable: false,
+    },
+  },
+  {
     id: "project:awful-studio",
     type: "project",
     entityId: "awful-studio",
