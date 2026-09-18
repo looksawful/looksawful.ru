@@ -29,12 +29,15 @@ test("preview packaging redirects tracked oversized assets and only surrogates g
   const dist = path.join(root, "dist");
   await mkdir(path.join(dist, "media/projects/demo"), { recursive: true });
   await mkdir(path.join(dist, "media/generated/video/demo"), { recursive: true });
+  await mkdir(path.join(dist, "lab/system/media/generated/video/demo"), { recursive: true });
 
   const trackedLarge = path.join(dist, "media/projects/demo/master.mov");
   const generatedLarge = path.join(dist, "media/generated/video/demo/delivery.web.mp4");
+  const storybookGeneratedLarge = path.join(dist, "lab/system/media/generated/video/demo/story.web.mp4");
   const small = path.join(dist, "small.txt");
   await writeFile(trackedLarge, "x".repeat(TEST_OVERSIZED_BYTES));
   await writeFile(generatedLarge, "y".repeat(TEST_OVERSIZED_BYTES));
+  await writeFile(storybookGeneratedLarge, "s".repeat(TEST_OVERSIZED_BYTES));
   await writeFile(small, "small");
 
   const manifest = await prepareCloudflarePagesPreview({
@@ -51,6 +54,7 @@ test("preview packaging redirects tracked oversized assets and only surrogates g
 
   await assert.rejects(stat(trackedLarge), { code: "ENOENT" });
   assert.equal(await readFile(generatedLarge, "utf8"), "preview");
+  assert.equal(await readFile(storybookGeneratedLarge, "utf8"), "preview");
   assert.equal(await readFile(small, "utf8"), "small");
 
   const redirects = await readFile(path.join(dist, "_redirects"), "utf8");
@@ -59,6 +63,10 @@ test("preview packaging redirects tracked oversized assets and only surrogates g
   assert.deepEqual(
     manifest.records.map(({ path: assetPath, handling }) => ({ path: assetPath, handling })),
     [
+      {
+        path: "lab/system/media/generated/video/demo/story.web.mp4",
+        handling: "preview-only-generated-video-surrogate",
+      },
       {
         path: "media/generated/video/demo/delivery.web.mp4",
         handling: "preview-only-generated-video-surrogate",
