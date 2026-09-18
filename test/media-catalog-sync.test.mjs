@@ -30,3 +30,15 @@ test("unchanged upload structural validation needs no ffprobe and rejects stale/
   await assert.rejects(checkStoredUploadedRecord({ ...record, src: "/media/missing.png" }, { repoRoot: root }), /does not exist/);
   await assert.rejects(syncMediaCatalog({ repoRoot: root, checkStored: true }), /read-only/);
 });
+
+test("media catalog import index can preserve stable existing import slots", async () => {
+  const { renderMediaCatalogImportIndex } = await import("../tools/sync-media-catalog.mjs");
+  const output = renderMediaCatalogImportIndex({
+    registeredFilenames: ["zeta.json", "alpha.json", "new.json"],
+    uploadedFilenames: [],
+    preserveInputOrder: true,
+  });
+
+  assert.ok(output.indexOf("zeta.json") < output.indexOf("alpha.json"));
+  assert.ok(output.indexOf("alpha.json") < output.indexOf("new.json"));
+});

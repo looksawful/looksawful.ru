@@ -89,6 +89,7 @@ const expectedIdentitySets = {
     "shootings-igguana",
     "shootings-esmi",
     "shootings-hypression",
+    "shootings-dava",
     "shootings-ofelia",
     "shootings-berry-model-tests",
     "shootings-berry-editorial",
