@@ -17,6 +17,9 @@ test("text-pair owns the asymmetric intrinsic wrapping algorithm", () => {
 test("section copy and expertise consume text-pair instead of hand-authored split rules", () => {
   assert.match(sectionIntro, /class="section-copy text-pair"/);
   assert.match(expertise, /class="expertise__head text-pair"/);
+  assert.match(expertise, /class="expertise__copy"[\s\S]*?class="expertise__description"/);
   assert.doesNotMatch(projectShell, /@container project-section \(width > 45rem\)[\s\S]*?\.section-copy\s*\{/);
+  assert.doesNotMatch(projectShell, /\.section-copy__title\s*\{[\s\S]*?max-inline-size:/);
+  assert.match(projectShell, /\.section-copy__text\s*>\s*\*\s*\{[\s\S]*?max-inline-size:\s*var\(--project-copy-max\);/);
   assert.doesNotMatch(expertiseCss, /\.expertise__head\s*\{[\s\S]*?grid-template-columns:/);
 });
