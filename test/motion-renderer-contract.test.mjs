@@ -64,7 +64,7 @@ test("section intro renderer marks the composition boundary and copy targets", (
     bodyClassName: "custom-copy",
   });
 
-  assert.match(wrapped, /<header class="section-copy prose"[^>]*\bdata-reveal-group/);
+  assert.match(wrapped, /<header class="section-copy text-pair"[^>]*\bdata-reveal-group/);
   assert.match(wrapped, /<h3 class="section-copy__title"[^>]*\bdata-reveal="copy"/);
   assert.match(wrapped, /<div class="section-copy__text prose custom-copy"[^>]*\bdata-reveal="copy"/);
   assert.equal(revealCount(wrapped), 2, "body wrapper should reveal once instead of each nested paragraph");
@@ -76,7 +76,7 @@ test("section intro renderer marks the composition boundary and copy targets", (
 
   assert.match(
     singleParagraphs,
-    /<header class="section-copy prose"[\s\S]*?<h3 class="section-copy__title"[\s\S]*?<div class="section-copy__text prose">[\s\S]*?<p[^>]*>First<\/p>[\s\S]*?<p[^>]*>Second<\/p>[\s\S]*?<\/div>/,
+    /<header class="section-copy text-pair"[\s\S]*?<h3 class="section-copy__title"[\s\S]*?<div class="section-copy__text prose">[\s\S]*?<p[^>]*>First<\/p>[\s\S]*?<p[^>]*>Second<\/p>[\s\S]*?<\/div>/,
     "multi-paragraph copy must remain one direct layout item with nested prose",
   );
   assert.equal((singleParagraphs.match(/class="section-copy__text prose"/g) ?? []).length, 1);
