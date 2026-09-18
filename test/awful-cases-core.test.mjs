@@ -1,0 +1,112 @@
+import assert from "node:assert/strict";
+import test from "node:test";
+
+import {
+  ACTION_ORDER,
+  ACTIONS,
+  SESSION_PLAN,
+  actionFromCode,
+  createSessionStats,
+  missIsLethal,
+  phaseForIndex,
+  recordCorrect,
+  recordMistake,
+  sessionAccuracy,
+} from "../src/components/awful-cases-core.js";
+
+test("Awful Cases exposes the six real training actions", () => {
+  assert.deepEqual(ACTION_ORDER, ["upper", "lower", "toggle", "title", "lint", "sentence"]);
+  assert.deepEqual(ACTIONS.upper, { code: "KeyW", label: "W", appKey: "W" });
+  assert.deepEqual(ACTIONS.lower, { code: "KeyS", label: "S", appKey: "S" });
+  assert.deepEqual(ACTIONS.toggle, { code: "KeyD", label: "D", appKey: "D" });
+  assert.deepEqual(ACTIONS.title, { code: "KeyA", label: "A", appKey: "A" });
+  assert.deepEqual(ACTIONS.lint, { code: "PageDown", label: "PgDn", appKey: "PgDn" });
+  assert.deepEqual(ACTIONS.sentence, { code: "Delete", label: "Del", appKey: "Delete" });
+});
+
+test("Awful Cases action mapping stays unique", () => {
+  const codes = ACTION_ORDER.map((type) => ACTIONS[type].code);
+  const appKeys = ACTION_ORDER.map((type) => ACTIONS[type].appKey);
+  assert.equal(new Set(codes).size, ACTION_ORDER.length);
+  assert.equal(new Set(appKeys).size, ACTION_ORDER.length);
+});
+
+test("sessionAccuracy reports useful percentages", () => {
+  assert.equal(sessionAccuracy({ correct: 0, mistakes: 0 }), 100);
+  assert.equal(sessionAccuracy({ correct: 3, mistakes: 1 }), 75);
+  assert.equal(sessionAccuracy({ correct: 1, mistakes: 2 }), 33);
+});
+
+test("Awful Cases session has tutorial, practice and exam phases", () => {
+  assert.equal(SESSION_PLAN.length, 18);
+  assert.deepEqual(
+    SESSION_PLAN.slice(0, 6).map(({ type }) => type),
+    ACTION_ORDER,
+  );
+  assert.equal(SESSION_PLAN.filter(({ phase }) => phase === "tutorial").length, 6);
+  assert.equal(SESSION_PLAN.filter(({ phase }) => phase === "practice").length, 6);
+  assert.equal(SESSION_PLAN.filter(({ phase }) => phase === "exam").length, 6);
+  assert.equal(phaseForIndex(0), "tutorial");
+  assert.equal(phaseForIndex(6), "practice");
+  assert.equal(phaseForIndex(12), "exam");
+  assert.equal(phaseForIndex(999), "exam");
+});
+
+test("physical keys resolve to semantic actions", () => {
+  assert.equal(actionFromCode("KeyW"), "upper");
+  assert.equal(actionFromCode("KeyS"), "lower");
+  assert.equal(actionFromCode("KeyD"), "toggle");
+  assert.equal(actionFromCode("KeyA"), "title");
+  assert.equal(actionFromCode("PageDown"), "lint");
+  assert.equal(actionFromCode("Delete"), "sentence");
+  assert.equal(actionFromCode("ArrowUp"), null);
+});
+
+test("session stats reward correctness and bounded streaks", () => {
+  let stats = createSessionStats();
+  assert.deepEqual(stats, {
+    resolved: 0,
+    correct: 0,
+    mistakes: 0,
+    score: 0,
+    streak: 0,
+    bestStreak: 0,
+  });
+
+  stats = recordCorrect(stats);
+  assert.deepEqual(stats, {
+    resolved: 1,
+    correct: 1,
+    mistakes: 0,
+    score: 100,
+    streak: 1,
+    bestStreak: 1,
+  });
+
+  stats = recordCorrect(stats);
+  assert.equal(stats.score, 225);
+  assert.equal(stats.streak, 2);
+  assert.equal(stats.bestStreak, 2);
+});
+
+test("mistakes reset streak and recovered misses resolve without credit", () => {
+  let stats = recordCorrect(createSessionStats());
+  stats = recordMistake(stats);
+  assert.equal(stats.resolved, 1);
+  assert.equal(stats.correct, 1);
+  assert.equal(stats.mistakes, 1);
+  assert.equal(stats.streak, 0);
+  assert.equal(stats.score, 100);
+
+  stats = recordMistake(stats, { resolve: true });
+  assert.equal(stats.resolved, 2);
+  assert.equal(stats.correct, 1);
+  assert.equal(stats.mistakes, 2);
+  assert.equal(stats.streak, 0);
+});
+
+test("only exam misses are lethal", () => {
+  assert.equal(missIsLethal("tutorial"), false);
+  assert.equal(missIsLethal("practice"), false);
+  assert.equal(missIsLethal("exam"), true);
+});
