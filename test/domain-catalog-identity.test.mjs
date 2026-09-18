@@ -110,6 +110,7 @@ const expectedIdentitySets = {
     "awful-3d-mockups",
     "keys",
     "sea",
+    "shaders",
     "awful-studio",
   ],
   Client: [

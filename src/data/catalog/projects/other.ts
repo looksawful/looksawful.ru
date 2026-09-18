@@ -4,6 +4,7 @@ import { awful3dMockupsIntro } from "../../content/awful-3d-mockups.ts";
 import { awfulStudioIntro } from "../../content/awful-studio.ts";
 import { keysIntro } from "../../content/keys.ts";
 import { seaIntro } from "../../content/sea.ts";
+import { shadersIntro } from "../../content/shaders.ts";
 
 export const otherProjects = [
   {
@@ -106,6 +107,18 @@ export const otherProjects = [
     collectionIds: ["pet-projects"],
     summary: seaIntro.summary,
     description: seaIntro.lead,
+    engagementTypeIds: ["self-initiated"],
+    primaryRoleId: "developer",
+    roleIds: ["developer"],
+  },
+  {
+    id: "shaders",
+    name: "Shaders",
+    date: shadersIntro.period,
+    status: "active",
+    collectionIds: ["pet-projects"],
+    summary: shadersIntro.summary,
+    description: shadersIntro.lead,
     engagementTypeIds: ["self-initiated"],
     primaryRoleId: "developer",
     roleIds: ["developer"],

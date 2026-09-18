@@ -39,6 +39,7 @@ export const entityShellPresentationRegistry: EntityShellPresentationRegistry = 
   ["project:awful-studio", { articleId: "project-awful-studio", theme: "neutral", navigationProject: false }],
   ["project:keys", { articleId: "project-keys", theme: "neutral", navigationProject: false }],
   ["project:sea", { articleId: "project-sea", theme: "neutral", navigationProject: false }],
+  ["project:shaders", { articleId: "project-shaders", theme: "neutral", navigationProject: false }],
   ["project:moves-awful", { articleId: "project-moves-awful", theme: "orange-cream", navigationProject: false }],
   ["project:berry-social-content-2020", { articleId: "project-berry-social-content-2020", theme: "berry-pink", navigationProject: false }],
 ]);
