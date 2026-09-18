@@ -196,6 +196,12 @@ Indexable pages receive canonical and Open Graph URL metadata using the centrali
 
 Direct-link-only Project pages and 404 receive `noindex,nofollow` and are excluded from sitemap generation.
 
+### Standalone entity header contract
+
+Standalone `case` and `project` pages keep the shared compact site navigation, but their project header is metadata-only at every viewport width: role and period remain, while the duplicate project name/logo identity is omitted. Homepage and embedded project previews may still show the full project identity. Collection pages, including `/shootings/`, are not part of this rule.
+
+The renderer owns the semantic suppression through `src/site/renderers/entity-page.ts`; `src/styles/project-header.css` preserves the visual contract as a responsive fallback/owner. Keep both browser regression coverage and CSS ownership tests when changing this behavior.
+
 Do not create a second production-origin constant or a parallel sitemap/metadata system.
 
 ## Adding a Case page
