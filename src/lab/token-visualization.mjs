@@ -10,6 +10,7 @@ export function classifyToken(name, value) {
   if (/line-height|leading/.test(n)) return "line-height";
   if (/letter-spacing|tracking/.test(n)) return "letter-spacing";
   if (/font-family|font-face|^--font(?:-|$)/.test(n)) return "font-family";
+  if (/aspect-ratio|(?:^|-)ratio(?:-|$)/.test(n) || /^\d*\.?\d+\s*\/\s*\d*\.?\d+$/.test(v)) return "aspect-ratio";
   if (/radius|rounded/.test(n)) return "radius";
   if (/shadow/.test(n)) return "shadow";
   if (/opacity|alpha/.test(n)) return "opacity";
