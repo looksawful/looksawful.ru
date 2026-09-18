@@ -2,11 +2,11 @@ import type { MediaAsset } from "../../../types/media.ts";
 
 export const deviceModelMediaAssets = [
   {
-    id: "device-iphone-17-v29-model",
+    id: "device-iphone-17-v30-model",
     type: "model",
-    src: "/media/models/devices/iphone-17-v29.meshopt.glb",
+    src: "/media/models/devices/iphone-17-v30.meshopt.glb",
     mimeType: "model/gltf-binary",
-    byteLength: 537276,
+    byteLength: 2068960,
   },
   {
     id: "device-ipad-pro-11-m5-v6-model",

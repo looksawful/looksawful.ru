@@ -3,8 +3,8 @@ import type { MediaAssetId } from "../assets/index.ts";
 
 export const deviceModelMediaEntries = [
   {
-    id: "device-iphone-17-v29-model-use-01",
-    assetId: "device-iphone-17-v29-model",
+    id: "device-iphone-17-v30-model-use-01",
+    assetId: "device-iphone-17-v30-model",
     purpose: "supporting",
   },
   {

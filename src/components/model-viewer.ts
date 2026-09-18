@@ -335,7 +335,7 @@ export function createModelViewers(
           if (!entry.isIntersecting) return;
           const element = entry.target;
           if (!(element instanceof HTMLElement)) return;
-          observer.unobserve(element);
+          observer?.unobserve(element);
           mount(element);
         });
       }, { rootMargin: MODEL_VIEWER_ROOT_MARGIN, threshold: 0 })

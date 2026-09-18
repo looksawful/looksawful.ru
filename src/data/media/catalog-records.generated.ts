@@ -101,7 +101,7 @@ import registered0098 from "../../content/media-catalog/registered/berry-05-sour
 import registered0099 from "../../content/media-catalog/registered/berserk-timer-cover.json" with { type: "json" };
 import registered0100 from "../../content/media-catalog/registered/device-ipad-pro-11-m5-v6-model.json" with { type: "json" };
 import registered0101 from "../../content/media-catalog/registered/device-ipad-pro-13-m5-v6-model.json" with { type: "json" };
-import registered0102 from "../../content/media-catalog/registered/device-iphone-17-v29-model.json" with { type: "json" };
+import registered0102 from "../../content/media-catalog/registered/device-iphone-17-v30-model.json" with { type: "json" };
 import registered0103 from "../../content/media-catalog/registered/device-macbook-pro-14-m5-v1-model.json" with { type: "json" };
 import registered0104 from "../../content/media-catalog/registered/esmi-12-source-01-1x1.json" with { type: "json" };
 import registered0105 from "../../content/media-catalog/registered/evasha-05-source-01-1x1.json" with { type: "json" };
