@@ -4,6 +4,10 @@
     "label": "Иван Крушинский"
   },
   {
+    "id": "gallery",
+    "label": "Галерея"
+  },
+  {
     "id": "case:jestei-pool",
     "label": "Jestei Pool"
   },

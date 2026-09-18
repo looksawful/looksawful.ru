@@ -90,6 +90,13 @@ export const shootingsProjects = [
   },
   {
     ...musicPhotographyBase,
+    id: "shootings-dava",
+    name: "Dava — Дикая любовь",
+    clientIds: ["dava"],
+    roleIds: ["photographer"],
+  },
+  {
+    ...musicPhotographyBase,
     id: "shootings-ofelia",
     name: ofeliaEditorial.title,
     date: ofeliaEditorial.date,

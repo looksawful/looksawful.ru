@@ -130,6 +130,11 @@ test("client logo presentation follows the current visibility registry", async (
 
   assert.deepEqual(clientLogos.map(({ id }) => id), expectedVisibleIds);
   assert.ok(clientLogos.every(({ visible }) => visible === true));
+  assert.equal(
+    visibility.find(({ id }) => id === "dava")?.visible,
+    false,
+    "Dava stays canonical but must not appear in the public logo wall unless explicitly requested",
+  );
 });
 
 test("client logo adapter rejects missing, duplicate and unknown visibility identity", async () => {
