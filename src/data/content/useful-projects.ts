@@ -20,7 +20,7 @@ export const USEFUL_PROJECT_DEFINITIONS = [
   { id: "berserk-timer", href: "/work/berserk-timer/", coverEntryId: "useful-berserk-timer-cover-use-01" },
   { id: "awful-studio", href: "/work/awful-studio/", coverEntryId: "useful-awful-studio-cover-use-01" },
   { id: "awful-mockups", coverEntryId: "useful-awful-mockups-cover-use-01" },
-  { id: "awful-3d-mockups", coverEntryId: "useful-awful-3d-mockups-cover-use-01" },
+  { id: "awful-3d-mockups", href: "/work/awful-3d-mockups/", coverEntryId: "useful-awful-3d-mockups-cover-use-01" },
 ] as const;
 
 export type UsefulProjectId = (typeof USEFUL_PROJECT_DEFINITIONS)[number]["id"];

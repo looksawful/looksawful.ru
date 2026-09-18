@@ -9254,7 +9254,8 @@
   "petCards": [
     {
       "id": "awful-3d-mockups",
-      "coverEntryId": "useful-awful-3d-mockups-cover-use-01"
+      "coverEntryId": "useful-awful-3d-mockups-cover-use-01",
+      "href": "/work/awful-3d-mockups/"
     },
     {
       "id": "awful-cases",
