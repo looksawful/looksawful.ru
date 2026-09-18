@@ -85,6 +85,7 @@ export const fastTests = new Set([
   "test/media-desk-revision-session.test.mjs",
   "test/media-desk-transaction-invariants.test.mjs",
   "test/media-desk-transactions.test.mjs",
+  "test/media-semantic-baseline.test.mjs",
   "test/media-tools/affected-media-ci.test.mjs",
   "test/media-tools/media-cache-fingerprint-scope.test.mjs",
   "test/outreach-link.test.mjs",
