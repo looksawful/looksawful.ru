@@ -61,6 +61,7 @@ const CLOUDFLARE_BEACON_SRC = "https://static.cloudflareinsights.com/beacon.min.
 const YANDEX_METRIKA_SRC = "https://mc.yandex.ru/metrika/tag.js";
 const ANALYTICS_CONSENT_KEY = "looksawful:analytics-consent";
 const ANALYTICS_INTERNAL_KEY = "looksawful:analytics-internal";
+const ANALYTICS_TRAFFIC_MODE_PARAM = "analytics-traffic";
 const ANALYTICS_REGION_KEY = "looksawful:analytics-region";
 const noop = () => {};
 
@@ -118,6 +119,38 @@ export function isLocalAnalyticsHostname(hostname: string): boolean {
     || normalized === "127.0.0.1"
     || normalized === "::1"
     || normalized.endsWith(".localhost");
+}
+
+export type SiteAnalyticsTrafficMode = "internal" | "external" | null;
+
+export function applySiteAnalyticsTrafficModeFromUrl(
+  target: Pick<Window, "history" | "localStorage" | "location">,
+): SiteAnalyticsTrafficMode {
+  let url: URL;
+  try {
+    url = new URL(target.location.href);
+  } catch {
+    return null;
+  }
+
+  const mode = url.searchParams.get(ANALYTICS_TRAFFIC_MODE_PARAM);
+  if (mode !== "internal" && mode !== "external") return null;
+
+  try {
+    if (mode === "internal") target.localStorage.setItem(ANALYTICS_INTERNAL_KEY, "1");
+    else target.localStorage.removeItem(ANALYTICS_INTERNAL_KEY);
+  } catch {
+    return null;
+  }
+
+  url.searchParams.delete(ANALYTICS_TRAFFIC_MODE_PARAM);
+  try {
+    target.history.replaceState(null, "", url.href);
+  } catch {
+    // The traffic mode is already persisted; URL cleanup is best effort.
+  }
+
+  return mode;
 }
 
 export function isSiteAnalyticsInternalTraffic(target: Pick<Window, "localStorage">): boolean {
@@ -261,6 +294,7 @@ function queueYandexInit(target: Window, counterId: number): void {
 export function mountSiteAnalytics({ root, target, config }: MountSiteAnalyticsOptions): SiteAnalyticsProvider[] {
   if (isLocalAnalyticsHostname(target.location.hostname)) return [];
 
+  applySiteAnalyticsTrafficModeFromUrl(target);
   const privacy = readSitePrivacySignals(target);
   const analyticsConsent = hasSiteAnalyticsConsent(target);
   const internalTraffic = isSiteAnalyticsInternalTraffic(target);
@@ -382,6 +416,7 @@ export function mountSiteAnalyticsGoalTracking({
   config,
 }: MountSiteAnalyticsGoalTrackingOptions): () => void {
   if (isLocalAnalyticsHostname(target.location.hostname)) return noop;
+  applySiteAnalyticsTrafficModeFromUrl(target);
   if (isSiteAnalyticsInternalTraffic(target)) return noop;
   if (!parseYandexCounterId(config.yandexCounterId)) return noop;
 

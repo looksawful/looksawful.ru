@@ -85,3 +85,45 @@ test("internal marker storage failures fail open without breaking the site", asy
 
   assert.equal(isSiteAnalyticsInternalTraffic(target), false);
 });
+
+test("traffic-mode URL marks the browser internal and removes only its control parameter", async () => {
+  const { applySiteAnalyticsTrafficModeFromUrl, isSiteAnalyticsInternalTraffic } = await loadAnalytics();
+  const store = new Map();
+  const replacements = [];
+  const target = {
+    location: { href: "https://www.looksawful.ru/work/styx/?foo=1&analytics-traffic=internal#gallery" },
+    history: { replaceState(_state, _title, url) { replacements.push(String(url)); } },
+    localStorage: {
+      getItem(key) { return store.get(key) ?? null; },
+      setItem(key, value) { store.set(key, String(value)); },
+      removeItem(key) { store.delete(key); },
+    },
+  };
+
+  assert.equal(applySiteAnalyticsTrafficModeFromUrl(target), "internal");
+  assert.equal(isSiteAnalyticsInternalTraffic(target), true);
+  assert.deepEqual(replacements, ["https://www.looksawful.ru/work/styx/?foo=1#gallery"]);
+});
+
+test("traffic-mode URL can restore external analytics without touching consent", async () => {
+  const { applySiteAnalyticsTrafficModeFromUrl, isSiteAnalyticsInternalTraffic } = await loadAnalytics();
+  const store = new Map([
+    ["looksawful:analytics-internal", "1"],
+    ["looksawful:analytics-consent", "granted"],
+  ]);
+  const replacements = [];
+  const target = {
+    location: { href: "https://www.looksawful.ru/?analytics-traffic=external" },
+    history: { replaceState(_state, _title, url) { replacements.push(String(url)); } },
+    localStorage: {
+      getItem(key) { return store.get(key) ?? null; },
+      setItem(key, value) { store.set(key, String(value)); },
+      removeItem(key) { store.delete(key); },
+    },
+  };
+
+  assert.equal(applySiteAnalyticsTrafficModeFromUrl(target), "external");
+  assert.equal(isSiteAnalyticsInternalTraffic(target), false);
+  assert.equal(store.get("looksawful:analytics-consent"), "granted");
+  assert.deepEqual(replacements, ["https://www.looksawful.ru/"]);
+});
