@@ -50,6 +50,60 @@
   margin-block-start: var(--prose-space, var(--prose-flow, 1.5em));
 }
 
+@property --text-pair-align {
+  syntax: "*";
+  inherits: false;
+}
+
+@property --text-pair-side-size {
+  syntax: "*";
+  inherits: false;
+}
+
+@property --text-pair-content-min {
+  syntax: "*";
+  inherits: false;
+}
+
+@property --text-pair-row-gap {
+  syntax: "*";
+  inherits: false;
+}
+
+@property --text-pair-column-gap {
+  syntax: "*";
+  inherits: false;
+}
+
+/* Asymmetric typographic pair. The first child has a preferred/intrinsic
+   side measure; the second owns the remaining space and forces an intrinsic
+   wrap when it can no longer keep its minimum share. */
+.text-pair {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: var(--text-pair-align, flex-start);
+  gap:
+    var(--text-pair-row-gap, var(--size-400))
+    var(--text-pair-column-gap, var(--size-500));
+}
+
+.text-pair > :first-child {
+  flex-basis: var(--text-pair-side-size, auto);
+  flex-grow: 1;
+}
+
+.text-pair > :last-child {
+  flex-basis: 0;
+  flex-grow: 999;
+  min-inline-size: var(--text-pair-content-min, 50%);
+}
+
+.text-pair > :only-child {
+  flex-basis: 100%;
+  flex-grow: 1;
+  min-inline-size: 0;
+}
+
 .stack {
   display: flex;
   flex-direction: column;
