@@ -1,0 +1,27 @@
+{
+  "id": "device-macbook-pro-14-m5-v1-model",
+  "title": "MacBook Pro 14 M5 mockup",
+  "alt": "",
+  "description": "",
+  "date": "2026",
+  "workAreaIds": [
+    "3d",
+    "product-design",
+    "art-direction"
+  ],
+  "projectTypeIds": [
+    "3d-project"
+  ],
+  "deliverableIds": [
+    "screen-mockup",
+    "design-assets"
+  ],
+  "tags": [
+    "3D",
+    "device mockup",
+    "Apple"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}
