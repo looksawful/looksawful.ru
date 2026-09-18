@@ -30,14 +30,17 @@ test("preview packaging redirects tracked oversized assets and only surrogates g
   await mkdir(path.join(dist, "media/projects/demo"), { recursive: true });
   await mkdir(path.join(dist, "media/generated/video/demo"), { recursive: true });
   await mkdir(path.join(dist, "lab/system/media/generated/video/demo"), { recursive: true });
+  await mkdir(path.join(dist, "lab/system/media/projects/demo"), { recursive: true });
 
   const trackedLarge = path.join(dist, "media/projects/demo/master.mov");
   const generatedLarge = path.join(dist, "media/generated/video/demo/delivery.web.mp4");
   const storybookGeneratedLarge = path.join(dist, "lab/system/media/generated/video/demo/story.web.mp4");
+  const storybookTrackedLarge = path.join(dist, "lab/system/media/projects/demo/master.png");
   const small = path.join(dist, "small.txt");
   await writeFile(trackedLarge, "x".repeat(TEST_OVERSIZED_BYTES));
   await writeFile(generatedLarge, "y".repeat(TEST_OVERSIZED_BYTES));
   await writeFile(storybookGeneratedLarge, "s".repeat(TEST_OVERSIZED_BYTES));
+  await writeFile(storybookTrackedLarge, "t".repeat(TEST_OVERSIZED_BYTES));
   await writeFile(small, "small");
 
   const manifest = await prepareCloudflarePagesPreview({
@@ -45,7 +48,10 @@ test("preview packaging redirects tracked oversized assets and only surrogates g
     repository: "looksawful/looksawful.ru",
     headSha: SHA,
     limitBytes: TEST_LIMIT_BYTES,
-    isTracked: (repoPath) => repoPath === "public/media/projects/demo/master.mov",
+    isTracked: (repoPath) => [
+      "public/media/projects/demo/master.mov",
+      "public/media/projects/demo/master.png",
+    ].includes(repoPath),
     transcodeGeneratedVideo: async (filePath) => {
       await writeFile(filePath, "preview");
       return 7;
@@ -55,10 +61,12 @@ test("preview packaging redirects tracked oversized assets and only surrogates g
   await assert.rejects(stat(trackedLarge), { code: "ENOENT" });
   assert.equal(await readFile(generatedLarge, "utf8"), "preview");
   assert.equal(await readFile(storybookGeneratedLarge, "utf8"), "preview");
+  await assert.rejects(stat(storybookTrackedLarge), { code: "ENOENT" });
   assert.equal(await readFile(small, "utf8"), "small");
 
   const redirects = await readFile(path.join(dist, "_redirects"), "utf8");
   assert.match(redirects, new RegExp(`/media/projects/demo/master\\.mov https://raw\\.githubusercontent\\.com/looksawful/looksawful\\.ru/${SHA}/public/media/projects/demo/master\\.mov 302`));
+  assert.match(redirects, new RegExp(`/lab/system/media/projects/demo/master\\.png https://raw\\.githubusercontent\\.com/looksawful/looksawful\\.ru/${SHA}/public/media/projects/demo/master\\.png 302`));
 
   assert.deepEqual(
     manifest.records.map(({ path: assetPath, handling }) => ({ path: assetPath, handling })),
@@ -66,6 +74,10 @@ test("preview packaging redirects tracked oversized assets and only surrogates g
       {
         path: "lab/system/media/generated/video/demo/story.web.mp4",
         handling: "preview-only-generated-video-surrogate",
+      },
+      {
+        path: "lab/system/media/projects/demo/master.png",
+        handling: "exact-sha-github-raw-redirect",
       },
       {
         path: "media/generated/video/demo/delivery.web.mp4",
