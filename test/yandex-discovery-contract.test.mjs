@@ -34,6 +34,7 @@ test("sitemap canonical set is derived from enabled indexable SitePages", async 
   assert.deepEqual(urls, [
     "https://www.looksawful.ru/",
     "https://www.looksawful.ru/cv/",
+    "https://www.looksawful.ru/gallery/",
     "https://www.looksawful.ru/privacy/",
     "https://www.looksawful.ru/shootings/",
     "https://www.looksawful.ru/work/jestei-pool/",

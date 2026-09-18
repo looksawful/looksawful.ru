@@ -1021,6 +1021,16 @@
       }
     },
     {
+      "assetId": "dava-23-source-01-934x1400",
+      "usage": {
+        "kind": "direct-placement",
+        "ownerId": "dava-23-source-01-934x1400-use-01",
+        "sourcePath": "src/data/media/entries",
+        "fieldPath": "dava-23-source-01-934x1400-use-01",
+        "blockingDelete": true
+      }
+    },
+    {
       "assetId": "device-ipad-pro-11-m5-v6-model",
       "usage": {
         "kind": "direct-placement",
