@@ -22,8 +22,8 @@ test("media-group base moves the generic media-group base into the canonical med
   assert.doesNotMatch(components, /(?:^|\n)\.media-group\s*\{/);
 
   const baseIndex = media.search(/(?:^|\n)\.media-group\s*\{/);
-  const headIndex = media.search(/(?:^|\n)\.media-group__head\s*\{/);
-  assert.ok(baseIndex >= 0 && headIndex >= 0 && baseIndex < headIndex, "generic base must precede media-group substructure");
+  const itemsIndex = media.search(/(?:^|\n)\.media-group__items\s*\{/);
+  assert.ok(baseIndex >= 0 && itemsIndex >= 0 && baseIndex < itemsIndex, "generic base must precede media-group substructure");
 });
 
 test("media-group base keeps authored component specializations outside the generic media owner", () => {
