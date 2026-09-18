@@ -1547,6 +1547,18 @@ export const responsiveMediaVariants = {
       "height": 800
     }
   ],
+  "dava-23-source-01-934x1400": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/23/source/01-934x1400@480.webp",
+      "width": 480,
+      "height": 719
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/23/source/01-934x1400@768.webp",
+      "width": 768,
+      "height": 1151
+    }
+  ],
   "esmi-12-source-01-1x1": [
     {
       "src": "/media/generated/responsive/projects/shootings/12/source/01-1x1@480.webp",

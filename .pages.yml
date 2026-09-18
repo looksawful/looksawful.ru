@@ -66,6 +66,7 @@ components:
         - { name: shootings-igguana, label: "Igguana" }
         - { name: shootings-esmi, label: "ESMI" }
         - { name: shootings-hypression, label: "HYPRESSION" }
+        - { name: shootings-dava, label: "Dava — Дикая любовь" }
         - { name: shootings-ofelia, label: "Ofelia" }
         - { name: shootings-berry-model-tests, label: "Berry Agency — модельные тесты" }
         - { name: shootings-berry-editorial, label: "Berry Agency — эдиториал с моделью агентства" }

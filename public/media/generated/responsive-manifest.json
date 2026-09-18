@@ -10,38 +10,6 @@
   "quality": 84,
   "assets": [
     {
-      "id": "awful-cases-atlas",
-      "src": "/media/interactive/awful-cases-atlas.png",
-      "sourceWidth": 1620,
-      "sourceHeight": 230,
-      "sourceBytes": 507338,
-      "sourceHash": "f4b314a36c7a34dae3e6e5e1229b71555856da10ae166d3142582f2d802c2244",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/interactive/awful-cases-atlas@480.webp",
-          "width": 480,
-          "height": 68,
-          "bytes": 20008,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/interactive/awful-cases-atlas@768.webp",
-          "width": 768,
-          "height": 109,
-          "bytes": 36788,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/interactive/awful-cases-atlas@1280.webp",
-          "width": 1280,
-          "height": 182,
-          "bytes": 69724,
-          "format": "webp"
-        }
-      ]
-    },
-    {
       "id": "awful-cases-assets-recording-2026-08-15-121210-poster",
       "src": "/pets/awful-cases/assets/recording-2026-08-15-121210-poster.webp",
       "sourceWidth": 1720,
@@ -106,1285 +74,33 @@
       ]
     },
     {
-      "id": "behance-photography-and-digital-art-for-obladaet-001",
-      "src": "/media/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/001.webp",
-      "sourceWidth": 4812,
-      "sourceHeight": 6016,
-      "sourceBytes": 5294968,
-      "sourceHash": "5e6d3ed846ee55e201999ec4feea7811277e4c19745032c17d3c9830f0994ffe",
+      "id": "awful-cases-atlas",
+      "src": "/media/interactive/awful-cases-atlas.png",
+      "sourceWidth": 1620,
+      "sourceHeight": 230,
+      "sourceBytes": 507338,
+      "sourceHash": "f4b314a36c7a34dae3e6e5e1229b71555856da10ae166d3142582f2d802c2244",
       "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
       "variants": [
         {
-          "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/001@480.webp",
+          "src": "/media/generated/responsive/interactive/awful-cases-atlas@480.webp",
           "width": 480,
-          "height": 600,
-          "bytes": 57804,
+          "height": 68,
+          "bytes": 20008,
           "format": "webp"
         },
         {
-          "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/001@768.webp",
+          "src": "/media/generated/responsive/interactive/awful-cases-atlas@768.webp",
           "width": 768,
-          "height": 960,
-          "bytes": 122490,
+          "height": 109,
+          "bytes": 36788,
           "format": "webp"
         },
         {
-          "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/001@1280.webp",
+          "src": "/media/generated/responsive/interactive/awful-cases-atlas@1280.webp",
           "width": 1280,
-          "height": 1600,
-          "bytes": 274194,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/001@1920.webp",
-          "width": 1920,
-          "height": 2400,
-          "bytes": 533296,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/001@2560.webp",
-          "width": 2560,
-          "height": 3201,
-          "bytes": 852444,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "behance-photography-and-digital-art-for-obladaet-002",
-      "src": "/media/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/002.webp",
-      "sourceWidth": 4016,
-      "sourceHeight": 5020,
-      "sourceBytes": 6993878,
-      "sourceHash": "f9afbd15cdf11630abac58e3d0179a4f17f8178efed91c0a3831d8b7aee71eec",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/002@480.webp",
-          "width": 480,
-          "height": 600,
-          "bytes": 34068,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/002@768.webp",
-          "width": 768,
-          "height": 960,
-          "bytes": 102780,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/002@1280.webp",
-          "width": 1280,
-          "height": 1600,
-          "bytes": 362322,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/002@1920.webp",
-          "width": 1920,
-          "height": 2400,
-          "bytes": 914172,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/002@2560.webp",
-          "width": 2560,
-          "height": 3200,
-          "bytes": 1605002,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "behance-photography-and-digital-art-for-obladaet-003",
-      "src": "/media/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/003.webp",
-      "sourceWidth": 4812,
-      "sourceHeight": 6016,
-      "sourceBytes": 1181188,
-      "sourceHash": "8fd8cb3f68f6cbf19d8b045f2dc717fd55ce249676b115561225a7698bfba740",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/003@480.webp",
-          "width": 480,
-          "height": 600,
-          "bytes": 20168,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/003@768.webp",
-          "width": 768,
-          "height": 960,
-          "bytes": 40530,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/003@1280.webp",
-          "width": 1280,
-          "height": 1600,
-          "bytes": 83836,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/003@1920.webp",
-          "width": 1920,
-          "height": 2400,
-          "bytes": 150166,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/003@2560.webp",
-          "width": 2560,
-          "height": 3201,
-          "bytes": 226122,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "behance-photography-and-digital-art-for-obladaet-004",
-      "src": "/media/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/004.webp",
-      "sourceWidth": 4016,
-      "sourceHeight": 5020,
-      "sourceBytes": 723044,
-      "sourceHash": "50dc2bede69a1b604d19d22abbe9bbfed213f2ed26b77b81a8949fd56dfd7b64",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/004@480.webp",
-          "width": 480,
-          "height": 600,
-          "bytes": 27490,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/004@768.webp",
-          "width": 768,
-          "height": 960,
-          "bytes": 56010,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/004@1280.webp",
-          "width": 1280,
-          "height": 1600,
-          "bytes": 108600,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/004@1920.webp",
-          "width": 1920,
-          "height": 2400,
-          "bytes": 173532,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/004@2560.webp",
-          "width": 2560,
-          "height": 3200,
-          "bytes": 245418,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "behance-photography-and-digital-art-for-obladaet-005",
-      "src": "/media/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/005.webp",
-      "sourceWidth": 4016,
-      "sourceHeight": 5020,
-      "sourceBytes": 1719748,
-      "sourceHash": "b3a427194b478641756123fc385f372d03f8daaf9b92cbf12f5746e8ddfea0cc",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/005@480.webp",
-          "width": 480,
-          "height": 600,
-          "bytes": 28764,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/005@768.webp",
-          "width": 768,
-          "height": 960,
-          "bytes": 54650,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/005@1280.webp",
-          "width": 1280,
-          "height": 1600,
-          "bytes": 114950,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/005@1920.webp",
-          "width": 1920,
-          "height": 2400,
-          "bytes": 220396,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/005@2560.webp",
-          "width": 2560,
-          "height": 3200,
-          "bytes": 361186,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "behance-photography-and-digital-art-for-obladaet-006",
-      "src": "/media/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/006.webp",
-      "sourceWidth": 4016,
-      "sourceHeight": 4624,
-      "sourceBytes": 3147118,
-      "sourceHash": "b18596e934c493e492482ec935d904a711a67b9ee67ce8b3807b3b72e0c7ab85",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/006@480.webp",
-          "width": 480,
-          "height": 553,
-          "bytes": 37440,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/006@768.webp",
-          "width": 768,
-          "height": 884,
-          "bytes": 115984,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/006@1280.webp",
-          "width": 1280,
-          "height": 1474,
-          "bytes": 363042,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/006@1920.webp",
-          "width": 1920,
-          "height": 2211,
-          "bytes": 758254,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/006@2560.webp",
-          "width": 2560,
-          "height": 2948,
-          "bytes": 1131534,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "behance-ecobasik-001",
-      "src": "/media/projects/shootings/behance/ecobasik/source/001.webp",
-      "sourceWidth": 1148,
-      "sourceHeight": 1435,
-      "sourceBytes": 292974,
-      "sourceHash": "a2a90a03c26f14f1be448ac8c29d6fc1cdc372e4aba4be24f02880e6be6cfc0e",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/001@480.webp",
-          "width": 480,
-          "height": 600,
-          "bytes": 15476,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/001@768.webp",
-          "width": 768,
-          "height": 960,
-          "bytes": 38772,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "behance-ecobasik-002",
-      "src": "/media/projects/shootings/behance/ecobasik/source/002.webp",
-      "sourceWidth": 1148,
-      "sourceHeight": 1435,
-      "sourceBytes": 345344,
-      "sourceHash": "b06de10675c26c8d4f9ebb191a29d0bca3bbf93900c52bcf43cf29b295c454af",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/002@480.webp",
-          "width": 480,
-          "height": 600,
-          "bytes": 23802,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/002@768.webp",
-          "width": 768,
-          "height": 960,
-          "bytes": 65104,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "behance-ecobasik-003",
-      "src": "/media/projects/shootings/behance/ecobasik/source/003.webp",
-      "sourceWidth": 1148,
-      "sourceHeight": 1435,
-      "sourceBytes": 314092,
-      "sourceHash": "d1c95c3e81277f301a1250f6667799053ad4ad88b808ad85f209aadebe31e4c8",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/003@480.webp",
-          "width": 480,
-          "height": 600,
-          "bytes": 22658,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/003@768.webp",
-          "width": 768,
-          "height": 960,
-          "bytes": 58988,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "behance-ecobasik-004",
-      "src": "/media/projects/shootings/behance/ecobasik/source/004.webp",
-      "sourceWidth": 1148,
-      "sourceHeight": 1435,
-      "sourceBytes": 105842,
-      "sourceHash": "410d746e854c8d3cde6845dc3ab4d7a44aa96f97c39c1945100bd1919008979e",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/004@480.webp",
-          "width": 480,
-          "height": 600,
-          "bytes": 11132,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/004@768.webp",
-          "width": 768,
-          "height": 960,
-          "bytes": 23762,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "behance-ecobasik-005",
-      "src": "/media/projects/shootings/behance/ecobasik/source/005.webp",
-      "sourceWidth": 1148,
-      "sourceHeight": 1435,
-      "sourceBytes": 199714,
-      "sourceHash": "01a3e801089f0dddd9b06ebd0db732fb27e24251a46fe47d2613166fc5954245",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/005@480.webp",
-          "width": 480,
-          "height": 600,
-          "bytes": 15984,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/005@768.webp",
-          "width": 768,
-          "height": 960,
-          "bytes": 38518,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "behance-ecobasik-006",
-      "src": "/media/projects/shootings/behance/ecobasik/source/006.webp",
-      "sourceWidth": 1148,
-      "sourceHeight": 1435,
-      "sourceBytes": 221406,
-      "sourceHash": "e69ccde70f323c2c36db7c70c57411178f09cdb906087eb80ccbe365e010b42a",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/006@480.webp",
-          "width": 480,
-          "height": 600,
-          "bytes": 18894,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/006@768.webp",
-          "width": 768,
-          "height": 960,
-          "bytes": 45674,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "behance-ecobasik-007",
-      "src": "/media/projects/shootings/behance/ecobasik/source/007.webp",
-      "sourceWidth": 1149,
-      "sourceHeight": 1436,
-      "sourceBytes": 389142,
-      "sourceHash": "76e744a4207768b3813d3d19886805a87edae9d180c0e0076d6bc734051f4186",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/007@480.webp",
-          "width": 480,
-          "height": 600,
-          "bytes": 35134,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/007@768.webp",
-          "width": 768,
-          "height": 960,
-          "bytes": 82406,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "behance-ecobasik-008",
-      "src": "/media/projects/shootings/behance/ecobasik/source/008.webp",
-      "sourceWidth": 1150,
-      "sourceHeight": 1437,
-      "sourceBytes": 408240,
-      "sourceHash": "7cdcbc516bbac92dac09963776ed7c3721e32a663892b2c66f02154999845c93",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/008@480.webp",
-          "width": 480,
-          "height": 600,
-          "bytes": 32742,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/008@768.webp",
-          "width": 768,
-          "height": 960,
-          "bytes": 79374,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "behance-ecobasik-009",
-      "src": "/media/projects/shootings/behance/ecobasik/source/009.webp",
-      "sourceWidth": 1148,
-      "sourceHeight": 1435,
-      "sourceBytes": 503982,
-      "sourceHash": "a20e33d0db6a101e79b57abb748b7c1a92eea653824fa5b4dae95933a5888d73",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/009@480.webp",
-          "width": 480,
-          "height": 600,
-          "bytes": 41918,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/009@768.webp",
-          "width": 768,
-          "height": 960,
-          "bytes": 99820,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "behance-ecobasik-010",
-      "src": "/media/projects/shootings/behance/ecobasik/source/010.webp",
-      "sourceWidth": 1148,
-      "sourceHeight": 1435,
-      "sourceBytes": 411396,
-      "sourceHash": "8d3a3a4b1e02f53b516c31106b836e79393891296465b23c6850b8d96dcbb1a8",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/010@480.webp",
-          "width": 480,
-          "height": 600,
-          "bytes": 35412,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/010@768.webp",
-          "width": 768,
-          "height": 960,
-          "bytes": 83098,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "behance-ecobasik-011",
-      "src": "/media/projects/shootings/behance/ecobasik/source/011.webp",
-      "sourceWidth": 1148,
-      "sourceHeight": 1435,
-      "sourceBytes": 335838,
-      "sourceHash": "b50bb401f558b4502216cf8d577d7438e155493e889eebe4e38fde6589f61e94",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/011@480.webp",
-          "width": 480,
-          "height": 600,
-          "bytes": 37930,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/011@768.webp",
-          "width": 768,
-          "height": 960,
-          "bytes": 88516,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "behance-ecobasik-012",
-      "src": "/media/projects/shootings/behance/ecobasik/source/012.webp",
-      "sourceWidth": 1148,
-      "sourceHeight": 1435,
-      "sourceBytes": 198272,
-      "sourceHash": "94f38d6ea9ad1061a7fae63e1d67b9137bbdad930d4d96d6183fc7b4ae198242",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/012@480.webp",
-          "width": 480,
-          "height": 600,
-          "bytes": 14780,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/012@768.webp",
-          "width": 768,
-          "height": 960,
-          "bytes": 36050,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "behance-ecobasik-013",
-      "src": "/media/projects/shootings/behance/ecobasik/source/013.webp",
-      "sourceWidth": 1148,
-      "sourceHeight": 1435,
-      "sourceBytes": 519286,
-      "sourceHash": "1d3c77df5d1eaa3f48b63e14e06380a2a74f9a8604083ecc9ff520417f030dfa",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/013@480.webp",
-          "width": 480,
-          "height": 600,
-          "bytes": 39202,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/013@768.webp",
-          "width": 768,
-          "height": 960,
-          "bytes": 102062,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "behance-obladaet-content-covers-001",
-      "src": "/media/projects/shootings/behance/obladaet-content-covers/source/001.webp",
-      "sourceWidth": 1853,
-      "sourceHeight": 2362,
-      "sourceBytes": 578036,
-      "sourceHash": "7e2adc382996c2eba0836007dd3038cea9d59042a6a8e30ec7b973ef649f658c",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/001@480.webp",
-          "width": 480,
-          "height": 612,
-          "bytes": 9102,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/001@768.webp",
-          "width": 768,
-          "height": 979,
-          "bytes": 23264,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/001@1280.webp",
-          "width": 1280,
-          "height": 1632,
-          "bytes": 71964,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "behance-obladaet-content-covers-002",
-      "src": "/media/projects/shootings/behance/obladaet-content-covers/source/002.webp",
-      "sourceWidth": 2550,
-      "sourceHeight": 3188,
-      "sourceBytes": 2104936,
-      "sourceHash": "6c4e9a0f537d5a3043a3d28ddaa6f679910b9da9a9f84163dede57ff371985f1",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/002@480.webp",
-          "width": 480,
-          "height": 600,
-          "bytes": 46044,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/002@768.webp",
-          "width": 768,
-          "height": 960,
-          "bytes": 113948,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/002@1280.webp",
-          "width": 1280,
-          "height": 1600,
-          "bytes": 322396,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/002@1920.webp",
-          "width": 1920,
-          "height": 2400,
-          "bytes": 677948,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "behance-obladaet-content-covers-003",
-      "src": "/media/projects/shootings/behance/obladaet-content-covers/source/003.webp",
-      "sourceWidth": 1435,
-      "sourceHeight": 1438,
-      "sourceBytes": 314238,
-      "sourceHash": "91fab9f57fb1002ba144615d12cb754df388ba9406ed3d7104993a193e6d4f41",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/003@480.webp",
-          "width": 480,
-          "height": 481,
-          "bytes": 39982,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/003@768.webp",
-          "width": 768,
-          "height": 770,
-          "bytes": 82730,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/003@1280.webp",
-          "width": 1280,
-          "height": 1283,
-          "bytes": 161268,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "behance-obladaet-content-covers-004",
-      "src": "/media/projects/shootings/behance/obladaet-content-covers/source/004.webp",
-      "sourceWidth": 1846,
-      "sourceHeight": 2308,
-      "sourceBytes": 1024396,
-      "sourceHash": "d06a0235b8fa52723205255d3fefbf830f2800abcee9114890f6e1b9c9ed9e61",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/004@480.webp",
-          "width": 480,
-          "height": 600,
-          "bytes": 21438,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/004@768.webp",
-          "width": 768,
-          "height": 960,
-          "bytes": 60618,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/004@1280.webp",
-          "width": 1280,
-          "height": 1600,
-          "bytes": 201310,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "behance-obladaet-content-covers-005",
-      "src": "/media/projects/shootings/behance/obladaet-content-covers/source/005.webp",
-      "sourceWidth": 1200,
-      "sourceHeight": 1652,
-      "sourceBytes": 394350,
-      "sourceHash": "f1a8a949b55065aac94f43c706927198c51cb60d4b3387e25eff108765b3f388",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/005@480.webp",
-          "width": 480,
-          "height": 661,
-          "bytes": 36960,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/005@768.webp",
-          "width": 768,
-          "height": 1057,
-          "bytes": 85190,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "behance-obladaet-content-covers-006",
-      "src": "/media/projects/shootings/behance/obladaet-content-covers/source/006.webp",
-      "sourceWidth": 750,
-      "sourceHeight": 850,
-      "sourceBytes": 54930,
-      "sourceHash": "f4ef9a9d6438359aa39bb561ec6cad7fe374a548d52085b46c6b79b7914af345",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/006@480.webp",
-          "width": 480,
-          "height": 544,
-          "bytes": 15586,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "behance-obladaet-content-covers-007",
-      "src": "/media/projects/shootings/behance/obladaet-content-covers/source/007.webp",
-      "sourceWidth": 2160,
-      "sourceHeight": 2700,
-      "sourceBytes": 671602,
-      "sourceHash": "e037a165944e859d36316bdfe4b247b4ebeb4b10312ac47d75343b0d5a027c73",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/007@480.webp",
-          "width": 480,
-          "height": 600,
-          "bytes": 45100,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/007@768.webp",
-          "width": 768,
-          "height": 960,
-          "bytes": 90390,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/007@1280.webp",
-          "width": 1280,
-          "height": 1600,
-          "bytes": 191864,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/007@1920.webp",
-          "width": 1920,
-          "height": 2400,
-          "bytes": 332974,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "behance-obladaet-content-covers-008",
-      "src": "/media/projects/shootings/behance/obladaet-content-covers/source/008.webp",
-      "sourceWidth": 2160,
-      "sourceHeight": 2700,
-      "sourceBytes": 492280,
-      "sourceHash": "a1eecd5a9b6359056292a493616df9cd2133045fa2ddeec4982255ea3294cb03",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/008@480.webp",
-          "width": 480,
-          "height": 600,
-          "bytes": 46190,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/008@768.webp",
-          "width": 768,
-          "height": 960,
-          "bytes": 85994,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/008@1280.webp",
-          "width": 1280,
-          "height": 1600,
-          "bytes": 167490,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/008@1920.webp",
-          "width": 1920,
-          "height": 2400,
-          "bytes": 268730,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "behance-hypression-001",
-      "src": "/media/projects/shootings/behance/hypression/source/001.webp",
-      "sourceWidth": 1400,
-      "sourceHeight": 1400,
-      "sourceBytes": 584980,
-      "sourceHash": "f4c592767dca16370d32358562c63c17e1984ef9fd30aa4ac58db8990918efd3",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/hypression/source/001@480.webp",
-          "width": 480,
-          "height": 480,
-          "bytes": 33572,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/hypression/source/001@768.webp",
-          "width": 768,
-          "height": 768,
-          "bytes": 83962,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "behance-hypression-002",
-      "src": "/media/projects/shootings/behance/hypression/source/002.webp",
-      "sourceWidth": 1334,
-      "sourceHeight": 1334,
-      "sourceBytes": 502746,
-      "sourceHash": "fe9088f2f5151f946c86ecc636a450e6430d84d50dd2628a44a679a84c612f2d",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/hypression/source/002@480.webp",
-          "width": 480,
-          "height": 480,
-          "bytes": 42730,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/hypression/source/002@768.webp",
-          "width": 768,
-          "height": 768,
-          "bytes": 97396,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "behance-hypression-003",
-      "src": "/media/projects/shootings/behance/hypression/source/003.webp",
-      "sourceWidth": 854,
-      "sourceHeight": 1280,
-      "sourceBytes": 400920,
-      "sourceHash": "44c72516987ff999794ffb340b06b5da41bd65a007ad86f1024935e1af8340ba",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/hypression/source/003@480.webp",
-          "width": 480,
-          "height": 719,
-          "bytes": 50626,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/hypression/source/003@768.webp",
-          "width": 768,
-          "height": 1151,
-          "bytes": 154246,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "behance-hypression-005",
-      "src": "/media/projects/shootings/behance/hypression/source/005.webp",
-      "sourceWidth": 898,
-      "sourceHeight": 1257,
-      "sourceBytes": 372680,
-      "sourceHash": "236c669ad70b076c3d6c7dcdbb9af6c04b83cc15f040a9d6448fd773837e85a4",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/hypression/source/005@480.webp",
-          "width": 480,
-          "height": 672,
-          "bytes": 51226,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/hypression/source/005@768.webp",
-          "width": 768,
-          "height": 1075,
-          "bytes": 117862,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "behance-hypression-006",
-      "src": "/media/projects/shootings/behance/hypression/source/006.webp",
-      "sourceWidth": 1068,
-      "sourceHeight": 1334,
-      "sourceBytes": 472690,
-      "sourceHash": "4654bed1caaf987b6a51ac8047f89675636d93d8b209ee35185c72625be328b4",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/hypression/source/006@480.webp",
-          "width": 480,
-          "height": 600,
-          "bytes": 25712,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/hypression/source/006@768.webp",
-          "width": 768,
-          "height": 959,
-          "bytes": 84278,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "behance-hypression-008",
-      "src": "/media/projects/shootings/behance/hypression/source/008.webp",
-      "sourceWidth": 1066,
-      "sourceHeight": 1334,
-      "sourceBytes": 387088,
-      "sourceHash": "764951428e8976dac81a964383a77c7cef5a8e876accf335f471a7fded224682",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/hypression/source/008@480.webp",
-          "width": 480,
-          "height": 601,
-          "bytes": 28536,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/hypression/source/008@768.webp",
-          "width": 768,
-          "height": 961,
-          "bytes": 72914,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "behance-hypression-009",
-      "src": "/media/projects/shootings/behance/hypression/source/009.webp",
-      "sourceWidth": 1334,
-      "sourceHeight": 1334,
-      "sourceBytes": 784786,
-      "sourceHash": "b66f6d07d4cd05e99eebc39050a5933fdcced070349adf8020453ff5c916322d",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/hypression/source/009@480.webp",
-          "width": 480,
-          "height": 480,
-          "bytes": 47400,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/hypression/source/009@768.webp",
-          "width": 768,
-          "height": 768,
-          "bytes": 126180,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "behance-offmi-001",
-      "src": "/media/projects/shootings/behance/offmi/source/001.webp",
-      "sourceWidth": 1125,
-      "sourceHeight": 1125,
-      "sourceBytes": 217120,
-      "sourceHash": "bdc1b5b0583624e24b15f13a106086a927be10dcd2be8f9d130307dd8f2e9579",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/offmi/source/001@480.webp",
-          "width": 480,
-          "height": 480,
-          "bytes": 12696,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/offmi/source/001@768.webp",
-          "width": 768,
-          "height": 768,
-          "bytes": 38926,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "behance-offmi-002",
-      "src": "/media/projects/shootings/behance/offmi/source/002.webp",
-      "sourceWidth": 5186,
-      "sourceHeight": 4149,
-      "sourceBytes": 1088408,
-      "sourceHash": "2a27ee3513392c05c5e0e2d4263f44ee87172b903b43dff22bf860d6d6ccb173",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/offmi/source/002@480.webp",
-          "width": 480,
-          "height": 384,
-          "bytes": 18018,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/offmi/source/002@768.webp",
-          "width": 768,
-          "height": 614,
-          "bytes": 34482,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/offmi/source/002@1280.webp",
-          "width": 1280,
-          "height": 1024,
-          "bytes": 69980,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/offmi/source/002@1920.webp",
-          "width": 1920,
-          "height": 1536,
-          "bytes": 122650,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/offmi/source/002@2560.webp",
-          "width": 2560,
-          "height": 2048,
-          "bytes": 180750,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "behance-offmi-003",
-      "src": "/media/projects/shootings/behance/offmi/source/003.webp",
-      "sourceWidth": 4368,
-      "sourceHeight": 5460,
-      "sourceBytes": 512578,
-      "sourceHash": "b25cc5dc63d03c93174fccec6a7422e00b6728bd19be2c68116957e92da66072",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/offmi/source/003@480.webp",
-          "width": 480,
-          "height": 600,
-          "bytes": 8526,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/offmi/source/003@768.webp",
-          "width": 768,
-          "height": 960,
-          "bytes": 17028,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/offmi/source/003@1280.webp",
-          "width": 1280,
-          "height": 1600,
-          "bytes": 36202,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/offmi/source/003@1920.webp",
-          "width": 1920,
-          "height": 2400,
-          "bytes": 67836,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/offmi/source/003@2560.webp",
-          "width": 2560,
-          "height": 3200,
-          "bytes": 105888,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "behance-offmi-004",
-      "src": "/media/projects/shootings/behance/offmi/source/004.webp",
-      "sourceWidth": 4389,
-      "sourceHeight": 4389,
-      "sourceBytes": 341876,
-      "sourceHash": "1aa55e02a7088e55349d726ca6b4597d698526b8c7b9fc0d0e75725ba0714de7",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/offmi/source/004@480.webp",
-          "width": 480,
-          "height": 480,
-          "bytes": 9518,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/offmi/source/004@768.webp",
-          "width": 768,
-          "height": 768,
-          "bytes": 16832,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/offmi/source/004@1280.webp",
-          "width": 1280,
-          "height": 1280,
-          "bytes": 33800,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/offmi/source/004@1920.webp",
-          "width": 1920,
-          "height": 1920,
-          "bytes": 58594,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/offmi/source/004@2560.webp",
-          "width": 2560,
-          "height": 2560,
-          "bytes": 87312,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "behance-offmi-005",
-      "src": "/media/projects/shootings/behance/offmi/source/005.webp",
-      "sourceWidth": 896,
-      "sourceHeight": 1280,
-      "sourceBytes": 120668,
-      "sourceHash": "5cecd4e0073cdb4fb2081c4de7f7743efd67c9d3a13e75e35e7104df3060a1ef",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/offmi/source/005@480.webp",
-          "width": 480,
-          "height": 686,
-          "bytes": 11316,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/offmi/source/005@768.webp",
-          "width": 768,
-          "height": 1097,
-          "bytes": 30632,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "behance-cinema-stills-2-001",
-      "src": "/media/projects/shootings/behance/cinema-stills-2/source/001.webp",
-      "sourceWidth": 2048,
-      "sourceHeight": 3089,
-      "sourceBytes": 1684500,
-      "sourceHash": "ff3df95bf55dbceaf24fdfa06d712eae21538c8b16d2f0110a58c0de2df88d08",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/cinema-stills-2/source/001@480.webp",
-          "width": 480,
-          "height": 724,
-          "bytes": 45036,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/cinema-stills-2/source/001@768.webp",
-          "width": 768,
-          "height": 1158,
-          "bytes": 95676,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/cinema-stills-2/source/001@1280.webp",
-          "width": 1280,
-          "height": 1931,
-          "bytes": 235924,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "behance-cinema-stills-2-002",
-      "src": "/media/projects/shootings/behance/cinema-stills-2/source/002.webp",
-      "sourceWidth": 2048,
-      "sourceHeight": 2562,
-      "sourceBytes": 847756,
-      "sourceHash": "49b19bd6a84bb645722a8e84336b80959c590a705265fa7813e3226a25057b10",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/cinema-stills-2/source/002@480.webp",
-          "width": 480,
-          "height": 600,
-          "bytes": 34398,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/cinema-stills-2/source/002@768.webp",
-          "width": 768,
-          "height": 961,
-          "bytes": 69478,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/cinema-stills-2/source/002@1280.webp",
-          "width": 1280,
-          "height": 1601,
-          "bytes": 155494,
+          "height": 182,
+          "bytes": 69724,
           "format": "webp"
         }
       ]
@@ -2425,6 +1141,395 @@
       ]
     },
     {
+      "id": "behance-cinema-stills-2-001",
+      "src": "/media/projects/shootings/behance/cinema-stills-2/source/001.webp",
+      "sourceWidth": 2048,
+      "sourceHeight": 3089,
+      "sourceBytes": 1684500,
+      "sourceHash": "ff3df95bf55dbceaf24fdfa06d712eae21538c8b16d2f0110a58c0de2df88d08",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/cinema-stills-2/source/001@480.webp",
+          "width": 480,
+          "height": 724,
+          "bytes": 45036,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/cinema-stills-2/source/001@768.webp",
+          "width": 768,
+          "height": 1158,
+          "bytes": 95676,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/cinema-stills-2/source/001@1280.webp",
+          "width": 1280,
+          "height": 1931,
+          "bytes": 235924,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "behance-cinema-stills-2-002",
+      "src": "/media/projects/shootings/behance/cinema-stills-2/source/002.webp",
+      "sourceWidth": 2048,
+      "sourceHeight": 2562,
+      "sourceBytes": 847756,
+      "sourceHash": "49b19bd6a84bb645722a8e84336b80959c590a705265fa7813e3226a25057b10",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/cinema-stills-2/source/002@480.webp",
+          "width": 480,
+          "height": 600,
+          "bytes": 34398,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/cinema-stills-2/source/002@768.webp",
+          "width": 768,
+          "height": 961,
+          "bytes": 69478,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/cinema-stills-2/source/002@1280.webp",
+          "width": 1280,
+          "height": 1601,
+          "bytes": 155494,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "behance-ecobasik-001",
+      "src": "/media/projects/shootings/behance/ecobasik/source/001.webp",
+      "sourceWidth": 1148,
+      "sourceHeight": 1435,
+      "sourceBytes": 292974,
+      "sourceHash": "a2a90a03c26f14f1be448ac8c29d6fc1cdc372e4aba4be24f02880e6be6cfc0e",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/001@480.webp",
+          "width": 480,
+          "height": 600,
+          "bytes": 15476,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/001@768.webp",
+          "width": 768,
+          "height": 960,
+          "bytes": 38772,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "behance-ecobasik-002",
+      "src": "/media/projects/shootings/behance/ecobasik/source/002.webp",
+      "sourceWidth": 1148,
+      "sourceHeight": 1435,
+      "sourceBytes": 345344,
+      "sourceHash": "b06de10675c26c8d4f9ebb191a29d0bca3bbf93900c52bcf43cf29b295c454af",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/002@480.webp",
+          "width": 480,
+          "height": 600,
+          "bytes": 23802,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/002@768.webp",
+          "width": 768,
+          "height": 960,
+          "bytes": 65104,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "behance-ecobasik-003",
+      "src": "/media/projects/shootings/behance/ecobasik/source/003.webp",
+      "sourceWidth": 1148,
+      "sourceHeight": 1435,
+      "sourceBytes": 314092,
+      "sourceHash": "d1c95c3e81277f301a1250f6667799053ad4ad88b808ad85f209aadebe31e4c8",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/003@480.webp",
+          "width": 480,
+          "height": 600,
+          "bytes": 22658,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/003@768.webp",
+          "width": 768,
+          "height": 960,
+          "bytes": 58988,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "behance-ecobasik-004",
+      "src": "/media/projects/shootings/behance/ecobasik/source/004.webp",
+      "sourceWidth": 1148,
+      "sourceHeight": 1435,
+      "sourceBytes": 105842,
+      "sourceHash": "410d746e854c8d3cde6845dc3ab4d7a44aa96f97c39c1945100bd1919008979e",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/004@480.webp",
+          "width": 480,
+          "height": 600,
+          "bytes": 11132,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/004@768.webp",
+          "width": 768,
+          "height": 960,
+          "bytes": 23762,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "behance-ecobasik-005",
+      "src": "/media/projects/shootings/behance/ecobasik/source/005.webp",
+      "sourceWidth": 1148,
+      "sourceHeight": 1435,
+      "sourceBytes": 199714,
+      "sourceHash": "01a3e801089f0dddd9b06ebd0db732fb27e24251a46fe47d2613166fc5954245",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/005@480.webp",
+          "width": 480,
+          "height": 600,
+          "bytes": 15984,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/005@768.webp",
+          "width": 768,
+          "height": 960,
+          "bytes": 38518,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "behance-ecobasik-006",
+      "src": "/media/projects/shootings/behance/ecobasik/source/006.webp",
+      "sourceWidth": 1148,
+      "sourceHeight": 1435,
+      "sourceBytes": 221406,
+      "sourceHash": "e69ccde70f323c2c36db7c70c57411178f09cdb906087eb80ccbe365e010b42a",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/006@480.webp",
+          "width": 480,
+          "height": 600,
+          "bytes": 18894,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/006@768.webp",
+          "width": 768,
+          "height": 960,
+          "bytes": 45674,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "behance-ecobasik-007",
+      "src": "/media/projects/shootings/behance/ecobasik/source/007.webp",
+      "sourceWidth": 1149,
+      "sourceHeight": 1436,
+      "sourceBytes": 389142,
+      "sourceHash": "76e744a4207768b3813d3d19886805a87edae9d180c0e0076d6bc734051f4186",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/007@480.webp",
+          "width": 480,
+          "height": 600,
+          "bytes": 35134,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/007@768.webp",
+          "width": 768,
+          "height": 960,
+          "bytes": 82406,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "behance-ecobasik-008",
+      "src": "/media/projects/shootings/behance/ecobasik/source/008.webp",
+      "sourceWidth": 1150,
+      "sourceHeight": 1437,
+      "sourceBytes": 408240,
+      "sourceHash": "7cdcbc516bbac92dac09963776ed7c3721e32a663892b2c66f02154999845c93",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/008@480.webp",
+          "width": 480,
+          "height": 600,
+          "bytes": 32742,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/008@768.webp",
+          "width": 768,
+          "height": 960,
+          "bytes": 79374,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "behance-ecobasik-009",
+      "src": "/media/projects/shootings/behance/ecobasik/source/009.webp",
+      "sourceWidth": 1148,
+      "sourceHeight": 1435,
+      "sourceBytes": 503982,
+      "sourceHash": "a20e33d0db6a101e79b57abb748b7c1a92eea653824fa5b4dae95933a5888d73",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/009@480.webp",
+          "width": 480,
+          "height": 600,
+          "bytes": 41918,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/009@768.webp",
+          "width": 768,
+          "height": 960,
+          "bytes": 99820,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "behance-ecobasik-010",
+      "src": "/media/projects/shootings/behance/ecobasik/source/010.webp",
+      "sourceWidth": 1148,
+      "sourceHeight": 1435,
+      "sourceBytes": 411396,
+      "sourceHash": "8d3a3a4b1e02f53b516c31106b836e79393891296465b23c6850b8d96dcbb1a8",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/010@480.webp",
+          "width": 480,
+          "height": 600,
+          "bytes": 35412,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/010@768.webp",
+          "width": 768,
+          "height": 960,
+          "bytes": 83098,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "behance-ecobasik-011",
+      "src": "/media/projects/shootings/behance/ecobasik/source/011.webp",
+      "sourceWidth": 1148,
+      "sourceHeight": 1435,
+      "sourceBytes": 335838,
+      "sourceHash": "b50bb401f558b4502216cf8d577d7438e155493e889eebe4e38fde6589f61e94",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/011@480.webp",
+          "width": 480,
+          "height": 600,
+          "bytes": 37930,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/011@768.webp",
+          "width": 768,
+          "height": 960,
+          "bytes": 88516,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "behance-ecobasik-012",
+      "src": "/media/projects/shootings/behance/ecobasik/source/012.webp",
+      "sourceWidth": 1148,
+      "sourceHeight": 1435,
+      "sourceBytes": 198272,
+      "sourceHash": "94f38d6ea9ad1061a7fae63e1d67b9137bbdad930d4d96d6183fc7b4ae198242",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/012@480.webp",
+          "width": 480,
+          "height": 600,
+          "bytes": 14780,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/012@768.webp",
+          "width": 768,
+          "height": 960,
+          "bytes": 36050,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "behance-ecobasik-013",
+      "src": "/media/projects/shootings/behance/ecobasik/source/013.webp",
+      "sourceWidth": 1148,
+      "sourceHeight": 1435,
+      "sourceBytes": 519286,
+      "sourceHash": "1d3c77df5d1eaa3f48b63e14e06380a2a74f9a8604083ecc9ff520417f030dfa",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/013@480.webp",
+          "width": 480,
+          "height": 600,
+          "bytes": 39202,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/013@768.webp",
+          "width": 768,
+          "height": 960,
+          "bytes": 102062,
+          "format": "webp"
+        }
+      ]
+    },
+    {
       "id": "behance-editorial-photography-001",
       "src": "/media/projects/shootings/behance/editorial-photography/source/001.webp",
       "sourceWidth": 3000,
@@ -2604,6 +1709,901 @@
           "width": 2560,
           "height": 3202,
           "bytes": 1008776,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "behance-hypression-001",
+      "src": "/media/projects/shootings/behance/hypression/source/001.webp",
+      "sourceWidth": 1400,
+      "sourceHeight": 1400,
+      "sourceBytes": 584980,
+      "sourceHash": "f4c592767dca16370d32358562c63c17e1984ef9fd30aa4ac58db8990918efd3",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/hypression/source/001@480.webp",
+          "width": 480,
+          "height": 480,
+          "bytes": 33572,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/hypression/source/001@768.webp",
+          "width": 768,
+          "height": 768,
+          "bytes": 83962,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "behance-hypression-002",
+      "src": "/media/projects/shootings/behance/hypression/source/002.webp",
+      "sourceWidth": 1334,
+      "sourceHeight": 1334,
+      "sourceBytes": 502746,
+      "sourceHash": "fe9088f2f5151f946c86ecc636a450e6430d84d50dd2628a44a679a84c612f2d",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/hypression/source/002@480.webp",
+          "width": 480,
+          "height": 480,
+          "bytes": 42730,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/hypression/source/002@768.webp",
+          "width": 768,
+          "height": 768,
+          "bytes": 97396,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "behance-hypression-003",
+      "src": "/media/projects/shootings/behance/hypression/source/003.webp",
+      "sourceWidth": 854,
+      "sourceHeight": 1280,
+      "sourceBytes": 400920,
+      "sourceHash": "44c72516987ff999794ffb340b06b5da41bd65a007ad86f1024935e1af8340ba",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/hypression/source/003@480.webp",
+          "width": 480,
+          "height": 719,
+          "bytes": 50626,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/hypression/source/003@768.webp",
+          "width": 768,
+          "height": 1151,
+          "bytes": 154246,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "behance-hypression-005",
+      "src": "/media/projects/shootings/behance/hypression/source/005.webp",
+      "sourceWidth": 898,
+      "sourceHeight": 1257,
+      "sourceBytes": 372680,
+      "sourceHash": "236c669ad70b076c3d6c7dcdbb9af6c04b83cc15f040a9d6448fd773837e85a4",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/hypression/source/005@480.webp",
+          "width": 480,
+          "height": 672,
+          "bytes": 51226,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/hypression/source/005@768.webp",
+          "width": 768,
+          "height": 1075,
+          "bytes": 117862,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "behance-hypression-006",
+      "src": "/media/projects/shootings/behance/hypression/source/006.webp",
+      "sourceWidth": 1068,
+      "sourceHeight": 1334,
+      "sourceBytes": 472690,
+      "sourceHash": "4654bed1caaf987b6a51ac8047f89675636d93d8b209ee35185c72625be328b4",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/hypression/source/006@480.webp",
+          "width": 480,
+          "height": 600,
+          "bytes": 25712,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/hypression/source/006@768.webp",
+          "width": 768,
+          "height": 959,
+          "bytes": 84278,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "behance-hypression-008",
+      "src": "/media/projects/shootings/behance/hypression/source/008.webp",
+      "sourceWidth": 1066,
+      "sourceHeight": 1334,
+      "sourceBytes": 387088,
+      "sourceHash": "764951428e8976dac81a964383a77c7cef5a8e876accf335f471a7fded224682",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/hypression/source/008@480.webp",
+          "width": 480,
+          "height": 601,
+          "bytes": 28536,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/hypression/source/008@768.webp",
+          "width": 768,
+          "height": 961,
+          "bytes": 72914,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "behance-hypression-009",
+      "src": "/media/projects/shootings/behance/hypression/source/009.webp",
+      "sourceWidth": 1334,
+      "sourceHeight": 1334,
+      "sourceBytes": 784786,
+      "sourceHash": "b66f6d07d4cd05e99eebc39050a5933fdcced070349adf8020453ff5c916322d",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/hypression/source/009@480.webp",
+          "width": 480,
+          "height": 480,
+          "bytes": 47400,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/hypression/source/009@768.webp",
+          "width": 768,
+          "height": 768,
+          "bytes": 126180,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "behance-obladaet-content-covers-001",
+      "src": "/media/projects/shootings/behance/obladaet-content-covers/source/001.webp",
+      "sourceWidth": 1853,
+      "sourceHeight": 2362,
+      "sourceBytes": 578036,
+      "sourceHash": "7e2adc382996c2eba0836007dd3038cea9d59042a6a8e30ec7b973ef649f658c",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/001@480.webp",
+          "width": 480,
+          "height": 612,
+          "bytes": 9102,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/001@768.webp",
+          "width": 768,
+          "height": 979,
+          "bytes": 23264,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/001@1280.webp",
+          "width": 1280,
+          "height": 1632,
+          "bytes": 71964,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "behance-obladaet-content-covers-002",
+      "src": "/media/projects/shootings/behance/obladaet-content-covers/source/002.webp",
+      "sourceWidth": 2550,
+      "sourceHeight": 3188,
+      "sourceBytes": 2104936,
+      "sourceHash": "6c4e9a0f537d5a3043a3d28ddaa6f679910b9da9a9f84163dede57ff371985f1",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/002@480.webp",
+          "width": 480,
+          "height": 600,
+          "bytes": 46044,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/002@768.webp",
+          "width": 768,
+          "height": 960,
+          "bytes": 113948,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/002@1280.webp",
+          "width": 1280,
+          "height": 1600,
+          "bytes": 322396,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/002@1920.webp",
+          "width": 1920,
+          "height": 2400,
+          "bytes": 677948,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "behance-obladaet-content-covers-003",
+      "src": "/media/projects/shootings/behance/obladaet-content-covers/source/003.webp",
+      "sourceWidth": 1435,
+      "sourceHeight": 1438,
+      "sourceBytes": 314238,
+      "sourceHash": "91fab9f57fb1002ba144615d12cb754df388ba9406ed3d7104993a193e6d4f41",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/003@480.webp",
+          "width": 480,
+          "height": 481,
+          "bytes": 39982,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/003@768.webp",
+          "width": 768,
+          "height": 770,
+          "bytes": 82730,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/003@1280.webp",
+          "width": 1280,
+          "height": 1283,
+          "bytes": 161268,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "behance-obladaet-content-covers-004",
+      "src": "/media/projects/shootings/behance/obladaet-content-covers/source/004.webp",
+      "sourceWidth": 1846,
+      "sourceHeight": 2308,
+      "sourceBytes": 1024396,
+      "sourceHash": "d06a0235b8fa52723205255d3fefbf830f2800abcee9114890f6e1b9c9ed9e61",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/004@480.webp",
+          "width": 480,
+          "height": 600,
+          "bytes": 21438,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/004@768.webp",
+          "width": 768,
+          "height": 960,
+          "bytes": 60618,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/004@1280.webp",
+          "width": 1280,
+          "height": 1600,
+          "bytes": 201310,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "behance-obladaet-content-covers-005",
+      "src": "/media/projects/shootings/behance/obladaet-content-covers/source/005.webp",
+      "sourceWidth": 1200,
+      "sourceHeight": 1652,
+      "sourceBytes": 394350,
+      "sourceHash": "f1a8a949b55065aac94f43c706927198c51cb60d4b3387e25eff108765b3f388",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/005@480.webp",
+          "width": 480,
+          "height": 661,
+          "bytes": 36960,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/005@768.webp",
+          "width": 768,
+          "height": 1057,
+          "bytes": 85190,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "behance-obladaet-content-covers-006",
+      "src": "/media/projects/shootings/behance/obladaet-content-covers/source/006.webp",
+      "sourceWidth": 750,
+      "sourceHeight": 850,
+      "sourceBytes": 54930,
+      "sourceHash": "f4ef9a9d6438359aa39bb561ec6cad7fe374a548d52085b46c6b79b7914af345",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/006@480.webp",
+          "width": 480,
+          "height": 544,
+          "bytes": 15586,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "behance-obladaet-content-covers-007",
+      "src": "/media/projects/shootings/behance/obladaet-content-covers/source/007.webp",
+      "sourceWidth": 2160,
+      "sourceHeight": 2700,
+      "sourceBytes": 671602,
+      "sourceHash": "e037a165944e859d36316bdfe4b247b4ebeb4b10312ac47d75343b0d5a027c73",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/007@480.webp",
+          "width": 480,
+          "height": 600,
+          "bytes": 45100,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/007@768.webp",
+          "width": 768,
+          "height": 960,
+          "bytes": 90390,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/007@1280.webp",
+          "width": 1280,
+          "height": 1600,
+          "bytes": 191864,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/007@1920.webp",
+          "width": 1920,
+          "height": 2400,
+          "bytes": 332974,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "behance-obladaet-content-covers-008",
+      "src": "/media/projects/shootings/behance/obladaet-content-covers/source/008.webp",
+      "sourceWidth": 2160,
+      "sourceHeight": 2700,
+      "sourceBytes": 492280,
+      "sourceHash": "a1eecd5a9b6359056292a493616df9cd2133045fa2ddeec4982255ea3294cb03",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/008@480.webp",
+          "width": 480,
+          "height": 600,
+          "bytes": 46190,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/008@768.webp",
+          "width": 768,
+          "height": 960,
+          "bytes": 85994,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/008@1280.webp",
+          "width": 1280,
+          "height": 1600,
+          "bytes": 167490,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/008@1920.webp",
+          "width": 1920,
+          "height": 2400,
+          "bytes": 268730,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "behance-offmi-001",
+      "src": "/media/projects/shootings/behance/offmi/source/001.webp",
+      "sourceWidth": 1125,
+      "sourceHeight": 1125,
+      "sourceBytes": 217120,
+      "sourceHash": "bdc1b5b0583624e24b15f13a106086a927be10dcd2be8f9d130307dd8f2e9579",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/offmi/source/001@480.webp",
+          "width": 480,
+          "height": 480,
+          "bytes": 12696,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/offmi/source/001@768.webp",
+          "width": 768,
+          "height": 768,
+          "bytes": 38926,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "behance-offmi-002",
+      "src": "/media/projects/shootings/behance/offmi/source/002.webp",
+      "sourceWidth": 5186,
+      "sourceHeight": 4149,
+      "sourceBytes": 1088408,
+      "sourceHash": "2a27ee3513392c05c5e0e2d4263f44ee87172b903b43dff22bf860d6d6ccb173",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/offmi/source/002@480.webp",
+          "width": 480,
+          "height": 384,
+          "bytes": 18018,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/offmi/source/002@768.webp",
+          "width": 768,
+          "height": 614,
+          "bytes": 34482,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/offmi/source/002@1280.webp",
+          "width": 1280,
+          "height": 1024,
+          "bytes": 69980,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/offmi/source/002@1920.webp",
+          "width": 1920,
+          "height": 1536,
+          "bytes": 122650,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/offmi/source/002@2560.webp",
+          "width": 2560,
+          "height": 2048,
+          "bytes": 180750,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "behance-offmi-003",
+      "src": "/media/projects/shootings/behance/offmi/source/003.webp",
+      "sourceWidth": 4368,
+      "sourceHeight": 5460,
+      "sourceBytes": 512578,
+      "sourceHash": "b25cc5dc63d03c93174fccec6a7422e00b6728bd19be2c68116957e92da66072",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/offmi/source/003@480.webp",
+          "width": 480,
+          "height": 600,
+          "bytes": 8526,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/offmi/source/003@768.webp",
+          "width": 768,
+          "height": 960,
+          "bytes": 17028,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/offmi/source/003@1280.webp",
+          "width": 1280,
+          "height": 1600,
+          "bytes": 36202,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/offmi/source/003@1920.webp",
+          "width": 1920,
+          "height": 2400,
+          "bytes": 67836,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/offmi/source/003@2560.webp",
+          "width": 2560,
+          "height": 3200,
+          "bytes": 105888,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "behance-offmi-004",
+      "src": "/media/projects/shootings/behance/offmi/source/004.webp",
+      "sourceWidth": 4389,
+      "sourceHeight": 4389,
+      "sourceBytes": 341876,
+      "sourceHash": "1aa55e02a7088e55349d726ca6b4597d698526b8c7b9fc0d0e75725ba0714de7",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/offmi/source/004@480.webp",
+          "width": 480,
+          "height": 480,
+          "bytes": 9518,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/offmi/source/004@768.webp",
+          "width": 768,
+          "height": 768,
+          "bytes": 16832,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/offmi/source/004@1280.webp",
+          "width": 1280,
+          "height": 1280,
+          "bytes": 33800,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/offmi/source/004@1920.webp",
+          "width": 1920,
+          "height": 1920,
+          "bytes": 58594,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/offmi/source/004@2560.webp",
+          "width": 2560,
+          "height": 2560,
+          "bytes": 87312,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "behance-offmi-005",
+      "src": "/media/projects/shootings/behance/offmi/source/005.webp",
+      "sourceWidth": 896,
+      "sourceHeight": 1280,
+      "sourceBytes": 120668,
+      "sourceHash": "5cecd4e0073cdb4fb2081c4de7f7743efd67c9d3a13e75e35e7104df3060a1ef",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/offmi/source/005@480.webp",
+          "width": 480,
+          "height": 686,
+          "bytes": 11316,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/offmi/source/005@768.webp",
+          "width": 768,
+          "height": 1097,
+          "bytes": 30632,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "behance-photography-and-digital-art-for-obladaet-001",
+      "src": "/media/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/001.webp",
+      "sourceWidth": 4812,
+      "sourceHeight": 6016,
+      "sourceBytes": 5294968,
+      "sourceHash": "5e6d3ed846ee55e201999ec4feea7811277e4c19745032c17d3c9830f0994ffe",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/001@480.webp",
+          "width": 480,
+          "height": 600,
+          "bytes": 57804,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/001@768.webp",
+          "width": 768,
+          "height": 960,
+          "bytes": 122490,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/001@1280.webp",
+          "width": 1280,
+          "height": 1600,
+          "bytes": 274194,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/001@1920.webp",
+          "width": 1920,
+          "height": 2400,
+          "bytes": 533296,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/001@2560.webp",
+          "width": 2560,
+          "height": 3201,
+          "bytes": 852444,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "behance-photography-and-digital-art-for-obladaet-002",
+      "src": "/media/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/002.webp",
+      "sourceWidth": 4016,
+      "sourceHeight": 5020,
+      "sourceBytes": 6993878,
+      "sourceHash": "f9afbd15cdf11630abac58e3d0179a4f17f8178efed91c0a3831d8b7aee71eec",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/002@480.webp",
+          "width": 480,
+          "height": 600,
+          "bytes": 34068,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/002@768.webp",
+          "width": 768,
+          "height": 960,
+          "bytes": 102780,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/002@1280.webp",
+          "width": 1280,
+          "height": 1600,
+          "bytes": 362322,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/002@1920.webp",
+          "width": 1920,
+          "height": 2400,
+          "bytes": 914172,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/002@2560.webp",
+          "width": 2560,
+          "height": 3200,
+          "bytes": 1605002,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "behance-photography-and-digital-art-for-obladaet-003",
+      "src": "/media/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/003.webp",
+      "sourceWidth": 4812,
+      "sourceHeight": 6016,
+      "sourceBytes": 1181188,
+      "sourceHash": "8fd8cb3f68f6cbf19d8b045f2dc717fd55ce249676b115561225a7698bfba740",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/003@480.webp",
+          "width": 480,
+          "height": 600,
+          "bytes": 20168,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/003@768.webp",
+          "width": 768,
+          "height": 960,
+          "bytes": 40530,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/003@1280.webp",
+          "width": 1280,
+          "height": 1600,
+          "bytes": 83836,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/003@1920.webp",
+          "width": 1920,
+          "height": 2400,
+          "bytes": 150166,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/003@2560.webp",
+          "width": 2560,
+          "height": 3201,
+          "bytes": 226122,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "behance-photography-and-digital-art-for-obladaet-004",
+      "src": "/media/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/004.webp",
+      "sourceWidth": 4016,
+      "sourceHeight": 5020,
+      "sourceBytes": 723044,
+      "sourceHash": "50dc2bede69a1b604d19d22abbe9bbfed213f2ed26b77b81a8949fd56dfd7b64",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/004@480.webp",
+          "width": 480,
+          "height": 600,
+          "bytes": 27490,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/004@768.webp",
+          "width": 768,
+          "height": 960,
+          "bytes": 56010,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/004@1280.webp",
+          "width": 1280,
+          "height": 1600,
+          "bytes": 108600,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/004@1920.webp",
+          "width": 1920,
+          "height": 2400,
+          "bytes": 173532,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/004@2560.webp",
+          "width": 2560,
+          "height": 3200,
+          "bytes": 245418,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "behance-photography-and-digital-art-for-obladaet-005",
+      "src": "/media/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/005.webp",
+      "sourceWidth": 4016,
+      "sourceHeight": 5020,
+      "sourceBytes": 1719748,
+      "sourceHash": "b3a427194b478641756123fc385f372d03f8daaf9b92cbf12f5746e8ddfea0cc",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/005@480.webp",
+          "width": 480,
+          "height": 600,
+          "bytes": 28764,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/005@768.webp",
+          "width": 768,
+          "height": 960,
+          "bytes": 54650,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/005@1280.webp",
+          "width": 1280,
+          "height": 1600,
+          "bytes": 114950,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/005@1920.webp",
+          "width": 1920,
+          "height": 2400,
+          "bytes": 220396,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/005@2560.webp",
+          "width": 2560,
+          "height": 3200,
+          "bytes": 361186,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "behance-photography-and-digital-art-for-obladaet-006",
+      "src": "/media/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/006.webp",
+      "sourceWidth": 4016,
+      "sourceHeight": 4624,
+      "sourceBytes": 3147118,
+      "sourceHash": "b18596e934c493e492482ec935d904a711a67b9ee67ce8b3807b3b72e0c7ab85",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/006@480.webp",
+          "width": 480,
+          "height": 553,
+          "bytes": 37440,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/006@768.webp",
+          "width": 768,
+          "height": 884,
+          "bytes": 115984,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/006@1280.webp",
+          "width": 1280,
+          "height": 1474,
+          "bytes": 363042,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/006@1920.webp",
+          "width": 1920,
+          "height": 2211,
+          "bytes": 758254,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/006@2560.webp",
+          "width": 2560,
+          "height": 2948,
+          "bytes": 1131534,
           "format": "webp"
         }
       ]
@@ -2850,6 +2850,31 @@
           "width": 1280,
           "height": 800,
           "bytes": 28338,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "dava-23-source-01-934x1400",
+      "src": "/media/projects/shootings/23/source/01-934x1400.webp",
+      "sourceWidth": 934,
+      "sourceHeight": 1400,
+      "sourceBytes": 77110,
+      "sourceHash": "f72bd0476cadb7fee1048444fdb075b0ab85cf6225c2f8c408d95c1808f3af80",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/shootings/23/source/01-934x1400@480.webp",
+          "width": 480,
+          "height": 719,
+          "bytes": 26770,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/23/source/01-934x1400@768.webp",
+          "width": 768,
+          "height": 1151,
+          "bytes": 55920,
           "format": "webp"
         }
       ]
@@ -3852,70 +3877,6 @@
       ]
     },
     {
-      "id": "jestei-08-source-03-1681x1938",
-      "src": "/media/projects/jestei/08/source/03-1681x1938.webp",
-      "sourceWidth": 1681,
-      "sourceHeight": 1938,
-      "sourceBytes": 177890,
-      "sourceHash": "604426347020e4ce30e29119b13874b9d383b04724f41798f5f4f4f8246a02fa",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/jestei/08/source/03-1681x1938@480.webp",
-          "width": 480,
-          "height": 553,
-          "bytes": 22198,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/jestei/08/source/03-1681x1938@768.webp",
-          "width": 768,
-          "height": 885,
-          "bytes": 47012,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/jestei/08/source/03-1681x1938@1280.webp",
-          "width": 1280,
-          "height": 1476,
-          "bytes": 105048,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "jestei-08-source-04-697x644",
-      "src": "/media/projects/jestei/08/source/04-697x644.webp",
-      "sourceWidth": 2091,
-      "sourceHeight": 1932,
-      "sourceBytes": 370772,
-      "sourceHash": "09641f26571f437c5f99afd2bcaf053ea4fca7e32bf87ef9b888c89a459ac32f",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/jestei/08/source/04-697x644@480.webp",
-          "width": 480,
-          "height": 444,
-          "bytes": 30226,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/jestei/08/source/04-697x644@768.webp",
-          "width": 768,
-          "height": 710,
-          "bytes": 55862,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/jestei/08/source/04-697x644@1280.webp",
-          "width": 1280,
-          "height": 1183,
-          "bytes": 111916,
-          "format": "webp"
-        }
-      ]
-    },
-    {
       "id": "jestei-05-source-01-701x452",
       "src": "/media/projects/jestei/05/source/01-701x452.webp",
       "sourceWidth": 5608,
@@ -4415,6 +4376,70 @@
           "width": 2560,
           "height": 1148,
           "bytes": 469078,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "jestei-08-source-03-1681x1938",
+      "src": "/media/projects/jestei/08/source/03-1681x1938.webp",
+      "sourceWidth": 1681,
+      "sourceHeight": 1938,
+      "sourceBytes": 177890,
+      "sourceHash": "604426347020e4ce30e29119b13874b9d383b04724f41798f5f4f4f8246a02fa",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/jestei/08/source/03-1681x1938@480.webp",
+          "width": 480,
+          "height": 553,
+          "bytes": 22198,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/jestei/08/source/03-1681x1938@768.webp",
+          "width": 768,
+          "height": 885,
+          "bytes": 47012,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/jestei/08/source/03-1681x1938@1280.webp",
+          "width": 1280,
+          "height": 1476,
+          "bytes": 105048,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "jestei-08-source-04-697x644",
+      "src": "/media/projects/jestei/08/source/04-697x644.webp",
+      "sourceWidth": 2091,
+      "sourceHeight": 1932,
+      "sourceBytes": 370772,
+      "sourceHash": "09641f26571f437c5f99afd2bcaf053ea4fca7e32bf87ef9b888c89a459ac32f",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/jestei/08/source/04-697x644@480.webp",
+          "width": 480,
+          "height": 444,
+          "bytes": 30226,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/jestei/08/source/04-697x644@768.webp",
+          "width": 768,
+          "height": 710,
+          "bytes": 55862,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/jestei/08/source/04-697x644@1280.webp",
+          "width": 1280,
+          "height": 1183,
+          "bytes": 111916,
           "format": "webp"
         }
       ]
@@ -5272,259 +5297,6 @@
           "width": 768,
           "height": 768,
           "bytes": 9422,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "jestei-logo-source-14-png-icon-only-logo-event-shield-only",
-      "src": "/media/projects/jestei/logo/source/14-png-icon-only-logo-event-shield-only.png",
-      "sourceWidth": 1024,
-      "sourceHeight": 1024,
-      "sourceBytes": 40932,
-      "sourceHash": "9babfa247b3225c7d4f6fd4a236f5b646f875fabc55047663d9098f0ad5b1bba",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/jestei/logo/source/14-png-icon-only-logo-event-shield-only@480.webp",
-          "width": 480,
-          "height": 480,
-          "bytes": 32808,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/jestei/logo/source/14-png-icon-only-logo-event-shield-only@768.webp",
-          "width": 768,
-          "height": 768,
-          "bytes": 53744,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "jestei-logo-source-35-jestei-logo-depth-reference",
-      "src": "/media/projects/jestei/logo/source/35-jestei-logo-depth-reference.png",
-      "sourceWidth": 1312,
-      "sourceHeight": 413,
-      "sourceBytes": 85303,
-      "sourceHash": "d3b29c59a7d3c0ef151dce4b115a87b106abc2badb82eabdabdc40c520be8109",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/jestei/logo/source/35-jestei-logo-depth-reference@480.webp",
-          "width": 480,
-          "height": 151,
-          "bytes": 4550,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/jestei/logo/source/35-jestei-logo-depth-reference@768.webp",
-          "width": 768,
-          "height": 242,
-          "bytes": 7984,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "jestei-system-logo-source-logo-anatomy-slide",
-      "src": "/media/projects/jestei/system/logo/source/logo-anatomy-slide.png",
-      "sourceWidth": 1942,
-      "sourceHeight": 891,
-      "sourceBytes": 286098,
-      "sourceHash": "73096d56c84c836af0e8d424580f1433f475fedf7235da441dcfb622989b7abe",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/jestei/system/logo/source/logo-anatomy-slide@480.webp",
-          "width": 480,
-          "height": 220,
-          "bytes": 9254,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/jestei/system/logo/source/logo-anatomy-slide@768.webp",
-          "width": 768,
-          "height": 352,
-          "bytes": 16562,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/jestei/system/logo/source/logo-anatomy-slide@1280.webp",
-          "width": 1280,
-          "height": 587,
-          "bytes": 32802,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "jestei-system-logo-source-logo-color-slide",
-      "src": "/media/projects/jestei/system/logo/source/logo-color-slide.png",
-      "sourceWidth": 1246,
-      "sourceHeight": 594,
-      "sourceBytes": 112564,
-      "sourceHash": "35523fca8860705fad6c6fa379d387eb15e8b2a48d18b6c1e9228bf0bb356e39",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/jestei/system/logo/source/logo-color-slide@480.webp",
-          "width": 480,
-          "height": 229,
-          "bytes": 9096,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/jestei/system/logo/source/logo-color-slide@768.webp",
-          "width": 768,
-          "height": 366,
-          "bytes": 16294,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "jestei-system-logo-source-logo-wordmark-stack",
-      "src": "/media/projects/jestei/system/logo/source/logo-wordmark-stack.png",
-      "sourceWidth": 614,
-      "sourceHeight": 247,
-      "sourceBytes": 62901,
-      "sourceHash": "1cee7cdffea4344a8fc34be32f3ca9e778a3e81ef69834073871277b4bbe161e",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/jestei/system/logo/source/logo-wordmark-stack@480.webp",
-          "width": 480,
-          "height": 193,
-          "bytes": 12504,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "jestei-system-logo-source-logo-type-slide",
-      "src": "/media/projects/jestei/system/logo/source/logo-type-slide.png",
-      "sourceWidth": 1717,
-      "sourceHeight": 884,
-      "sourceBytes": 55979,
-      "sourceHash": "aca4b80ddabbee8be45b41bd16d53dd98e586091e6002df510aecd5d2c838494",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/jestei/system/logo/source/logo-type-slide@480.webp",
-          "width": 480,
-          "height": 247,
-          "bytes": 9806,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/jestei/system/logo/source/logo-type-slide@768.webp",
-          "width": 768,
-          "height": 395,
-          "bytes": 16564,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/jestei/system/logo/source/logo-type-slide@1280.webp",
-          "width": 1280,
-          "height": 659,
-          "bytes": 28190,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "jestei-system-logo-source-logo-system-01",
-      "src": "/media/projects/jestei/system/logo/source/logo-system-01.webp",
-      "sourceWidth": 1646,
-      "sourceHeight": 867,
-      "sourceBytes": 204796,
-      "sourceHash": "b23906ed0c085ba494f041f5e4e8e4448c75c38ea536b120e0cd4149b263f960",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/jestei/system/logo/source/logo-system-01@480.webp",
-          "width": 480,
-          "height": 253,
-          "bytes": 9810,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/jestei/system/logo/source/logo-system-01@768.webp",
-          "width": 768,
-          "height": 405,
-          "bytes": 18498,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/jestei/system/logo/source/logo-system-01@1280.webp",
-          "width": 1280,
-          "height": 674,
-          "bytes": 32532,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "jestei-system-type-source-logo-druk-slide",
-      "src": "/media/projects/jestei/system/type/source/logo-druk-slide.png",
-      "sourceWidth": 1790,
-      "sourceHeight": 891,
-      "sourceBytes": 71247,
-      "sourceHash": "8c60bbe0954554e3c652995fc390d2ff800df57f7ef9032e31abe62cad924ff0",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/jestei/system/type/source/logo-druk-slide@480.webp",
-          "width": 480,
-          "height": 239,
-          "bytes": 10088,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/jestei/system/type/source/logo-druk-slide@768.webp",
-          "width": 768,
-          "height": 382,
-          "bytes": 17958,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/jestei/system/type/source/logo-druk-slide@1280.webp",
-          "width": 1280,
-          "height": 637,
-          "bytes": 33884,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "jestei-system-editorial-source-jestei-product-canvas-161",
-      "src": "/media/projects/jestei/system/editorial/source/jestei-product-canvas-161.png",
-      "sourceWidth": 1600,
-      "sourceHeight": 1000,
-      "sourceBytes": 226839,
-      "sourceHash": "420835211f169d30abbac96da75e070d6b8acc3dce7d20386b5e2dcb932110aa",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/jestei/system/editorial/source/jestei-product-canvas-161@480.webp",
-          "width": 480,
-          "height": 300,
-          "bytes": 11100,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/jestei/system/editorial/source/jestei-product-canvas-161@768.webp",
-          "width": 768,
-          "height": 480,
-          "bytes": 20410,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/jestei/system/editorial/source/jestei-product-canvas-161@1280.webp",
-          "width": 1280,
-          "height": 800,
-          "bytes": 34766,
           "format": "webp"
         }
       ]
@@ -7155,31 +6927,6 @@
       ]
     },
     {
-      "id": "jestei-14-poster-01-4x5",
-      "src": "/media/projects/jestei/14/poster/01-4x5.webp",
-      "sourceWidth": 1080,
-      "sourceHeight": 1350,
-      "sourceBytes": 34236,
-      "sourceHash": "c851aa36e0febb3de1d6c476c4834386790684f9a3070fe4ab64c2bea4ce2efe",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/jestei/14/poster/01-4x5@480.webp",
-          "width": 480,
-          "height": 600,
-          "bytes": 7114,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/jestei/14/poster/01-4x5@768.webp",
-          "width": 768,
-          "height": 960,
-          "bytes": 12014,
-          "format": "webp"
-        }
-      ]
-    },
-    {
       "id": "jestei-13-poster-13-1280x588",
       "src": "/media/projects/jestei/13/poster/13-1280x588.webp",
       "sourceWidth": 1280,
@@ -7205,26 +6952,26 @@
       ]
     },
     {
-      "id": "jestei-redpolitika-preview",
-      "src": "/media/projects/jestei/redpolitika/preview-copy.webp",
-      "sourceWidth": 1323,
-      "sourceHeight": 827,
-      "sourceBytes": 70338,
-      "sourceHash": "88f73972226e38a6350aa87e0e5c153749e70150f80183015be499a52f0589f3",
+      "id": "jestei-14-poster-01-4x5",
+      "src": "/media/projects/jestei/14/poster/01-4x5.webp",
+      "sourceWidth": 1080,
+      "sourceHeight": 1350,
+      "sourceBytes": 34236,
+      "sourceHash": "c851aa36e0febb3de1d6c476c4834386790684f9a3070fe4ab64c2bea4ce2efe",
       "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
       "variants": [
         {
-          "src": "/media/generated/responsive/projects/jestei/redpolitika/preview-copy@480.webp",
+          "src": "/media/generated/responsive/projects/jestei/14/poster/01-4x5@480.webp",
           "width": 480,
-          "height": 300,
-          "bytes": 15878,
+          "height": 600,
+          "bytes": 7114,
           "format": "webp"
         },
         {
-          "src": "/media/generated/responsive/projects/jestei/redpolitika/preview-copy@768.webp",
+          "src": "/media/generated/responsive/projects/jestei/14/poster/01-4x5@768.webp",
           "width": 768,
-          "height": 480,
-          "bytes": 30758,
+          "height": 960,
+          "bytes": 12014,
           "format": "webp"
         }
       ]
@@ -7328,6 +7075,284 @@
           "width": 1280,
           "height": 808,
           "bytes": 89334,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "jestei-logo-source-14-png-icon-only-logo-event-shield-only",
+      "src": "/media/projects/jestei/logo/source/14-png-icon-only-logo-event-shield-only.png",
+      "sourceWidth": 1024,
+      "sourceHeight": 1024,
+      "sourceBytes": 40932,
+      "sourceHash": "9babfa247b3225c7d4f6fd4a236f5b646f875fabc55047663d9098f0ad5b1bba",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/jestei/logo/source/14-png-icon-only-logo-event-shield-only@480.webp",
+          "width": 480,
+          "height": 480,
+          "bytes": 32808,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/jestei/logo/source/14-png-icon-only-logo-event-shield-only@768.webp",
+          "width": 768,
+          "height": 768,
+          "bytes": 53744,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "jestei-logo-source-35-jestei-logo-depth-reference",
+      "src": "/media/projects/jestei/logo/source/35-jestei-logo-depth-reference.png",
+      "sourceWidth": 1312,
+      "sourceHeight": 413,
+      "sourceBytes": 85303,
+      "sourceHash": "d3b29c59a7d3c0ef151dce4b115a87b106abc2badb82eabdabdc40c520be8109",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/jestei/logo/source/35-jestei-logo-depth-reference@480.webp",
+          "width": 480,
+          "height": 151,
+          "bytes": 4550,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/jestei/logo/source/35-jestei-logo-depth-reference@768.webp",
+          "width": 768,
+          "height": 242,
+          "bytes": 7984,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "jestei-redpolitika-preview",
+      "src": "/media/projects/jestei/redpolitika/preview-copy.webp",
+      "sourceWidth": 1323,
+      "sourceHeight": 827,
+      "sourceBytes": 70338,
+      "sourceHash": "88f73972226e38a6350aa87e0e5c153749e70150f80183015be499a52f0589f3",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/jestei/redpolitika/preview-copy@480.webp",
+          "width": 480,
+          "height": 300,
+          "bytes": 15878,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/jestei/redpolitika/preview-copy@768.webp",
+          "width": 768,
+          "height": 480,
+          "bytes": 30758,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "jestei-system-editorial-source-jestei-product-canvas-161",
+      "src": "/media/projects/jestei/system/editorial/source/jestei-product-canvas-161.png",
+      "sourceWidth": 1600,
+      "sourceHeight": 1000,
+      "sourceBytes": 226839,
+      "sourceHash": "420835211f169d30abbac96da75e070d6b8acc3dce7d20386b5e2dcb932110aa",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/jestei/system/editorial/source/jestei-product-canvas-161@480.webp",
+          "width": 480,
+          "height": 300,
+          "bytes": 11100,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/jestei/system/editorial/source/jestei-product-canvas-161@768.webp",
+          "width": 768,
+          "height": 480,
+          "bytes": 20410,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/jestei/system/editorial/source/jestei-product-canvas-161@1280.webp",
+          "width": 1280,
+          "height": 800,
+          "bytes": 34766,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "jestei-system-logo-source-logo-anatomy-slide",
+      "src": "/media/projects/jestei/system/logo/source/logo-anatomy-slide.png",
+      "sourceWidth": 1942,
+      "sourceHeight": 891,
+      "sourceBytes": 286098,
+      "sourceHash": "73096d56c84c836af0e8d424580f1433f475fedf7235da441dcfb622989b7abe",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/jestei/system/logo/source/logo-anatomy-slide@480.webp",
+          "width": 480,
+          "height": 220,
+          "bytes": 9254,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/jestei/system/logo/source/logo-anatomy-slide@768.webp",
+          "width": 768,
+          "height": 352,
+          "bytes": 16562,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/jestei/system/logo/source/logo-anatomy-slide@1280.webp",
+          "width": 1280,
+          "height": 587,
+          "bytes": 32802,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "jestei-system-logo-source-logo-color-slide",
+      "src": "/media/projects/jestei/system/logo/source/logo-color-slide.png",
+      "sourceWidth": 1246,
+      "sourceHeight": 594,
+      "sourceBytes": 112564,
+      "sourceHash": "35523fca8860705fad6c6fa379d387eb15e8b2a48d18b6c1e9228bf0bb356e39",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/jestei/system/logo/source/logo-color-slide@480.webp",
+          "width": 480,
+          "height": 229,
+          "bytes": 9096,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/jestei/system/logo/source/logo-color-slide@768.webp",
+          "width": 768,
+          "height": 366,
+          "bytes": 16294,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "jestei-system-logo-source-logo-system-01",
+      "src": "/media/projects/jestei/system/logo/source/logo-system-01.webp",
+      "sourceWidth": 1646,
+      "sourceHeight": 867,
+      "sourceBytes": 204796,
+      "sourceHash": "b23906ed0c085ba494f041f5e4e8e4448c75c38ea536b120e0cd4149b263f960",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/jestei/system/logo/source/logo-system-01@480.webp",
+          "width": 480,
+          "height": 253,
+          "bytes": 9810,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/jestei/system/logo/source/logo-system-01@768.webp",
+          "width": 768,
+          "height": 405,
+          "bytes": 18498,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/jestei/system/logo/source/logo-system-01@1280.webp",
+          "width": 1280,
+          "height": 674,
+          "bytes": 32532,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "jestei-system-logo-source-logo-type-slide",
+      "src": "/media/projects/jestei/system/logo/source/logo-type-slide.png",
+      "sourceWidth": 1717,
+      "sourceHeight": 884,
+      "sourceBytes": 55979,
+      "sourceHash": "aca4b80ddabbee8be45b41bd16d53dd98e586091e6002df510aecd5d2c838494",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/jestei/system/logo/source/logo-type-slide@480.webp",
+          "width": 480,
+          "height": 247,
+          "bytes": 9806,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/jestei/system/logo/source/logo-type-slide@768.webp",
+          "width": 768,
+          "height": 395,
+          "bytes": 16564,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/jestei/system/logo/source/logo-type-slide@1280.webp",
+          "width": 1280,
+          "height": 659,
+          "bytes": 28190,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "jestei-system-logo-source-logo-wordmark-stack",
+      "src": "/media/projects/jestei/system/logo/source/logo-wordmark-stack.png",
+      "sourceWidth": 614,
+      "sourceHeight": 247,
+      "sourceBytes": 62901,
+      "sourceHash": "1cee7cdffea4344a8fc34be32f3ca9e778a3e81ef69834073871277b4bbe161e",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/jestei/system/logo/source/logo-wordmark-stack@480.webp",
+          "width": 480,
+          "height": 193,
+          "bytes": 12504,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "jestei-system-type-source-logo-druk-slide",
+      "src": "/media/projects/jestei/system/type/source/logo-druk-slide.png",
+      "sourceWidth": 1790,
+      "sourceHeight": 891,
+      "sourceBytes": 71247,
+      "sourceHash": "8c60bbe0954554e3c652995fc390d2ff800df57f7ef9032e31abe62cad924ff0",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/jestei/system/type/source/logo-druk-slide@480.webp",
+          "width": 480,
+          "height": 239,
+          "bytes": 10088,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/jestei/system/type/source/logo-druk-slide@768.webp",
+          "width": 768,
+          "height": 382,
+          "bytes": 17958,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/jestei/system/type/source/logo-druk-slide@1280.webp",
+          "width": 1280,
+          "height": 637,
+          "bytes": 33884,
           "format": "webp"
         }
       ]
@@ -7733,6 +7758,149 @@
       ]
     },
     {
+      "id": "portfolio-portfolio-extra-02-5x4",
+      "src": "/media/projects/shootings/portfolio/source/portfolio-extra-02-5x4.webp",
+      "sourceWidth": 1400,
+      "sourceHeight": 1120,
+      "sourceBytes": 284384,
+      "sourceHash": "4b744a2e64d23eb4b08462bc9a1bfb2b78592c9a6cf5966f3d1f1811bbc5e288",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/shootings/portfolio/source/portfolio-extra-02-5x4@480.webp",
+          "width": 480,
+          "height": 384,
+          "bytes": 40024,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/portfolio/source/portfolio-extra-02-5x4@768.webp",
+          "width": 768,
+          "height": 614,
+          "bytes": 85224,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "portfolio-portfolio-extra-03-700x559",
+      "src": "/media/projects/shootings/portfolio/source/portfolio-extra-03-700x559.webp",
+      "sourceWidth": 1400,
+      "sourceHeight": 1118,
+      "sourceBytes": 68364,
+      "sourceHash": "a3a61fe6149ddc8b530beb31cf55621ea894aed6b6f56e1cdf571e6660b25d1f",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/shootings/portfolio/source/portfolio-extra-03-700x559@480.webp",
+          "width": 480,
+          "height": 383,
+          "bytes": 14290,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/portfolio/source/portfolio-extra-03-700x559@768.webp",
+          "width": 768,
+          "height": 613,
+          "bytes": 25408,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "portfolio-portfolio-extra-04-4x5",
+      "src": "/media/projects/shootings/portfolio/source/portfolio-extra-04-4x5.webp",
+      "sourceWidth": 1120,
+      "sourceHeight": 1400,
+      "sourceBytes": 250130,
+      "sourceHash": "bae5fa7ad57449a172e3bc9ccf679a6dac4cd92b4cee7b7a30b6728ed084fb17",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/shootings/portfolio/source/portfolio-extra-04-4x5@480.webp",
+          "width": 480,
+          "height": 600,
+          "bytes": 40356,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/portfolio/source/portfolio-extra-04-4x5@768.webp",
+          "width": 768,
+          "height": 960,
+          "bytes": 99766,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "portfolio-portfolio-extra-05-4x5",
+      "src": "/media/projects/shootings/portfolio/source/portfolio-extra-05-4x5.webp",
+      "sourceWidth": 1120,
+      "sourceHeight": 1400,
+      "sourceBytes": 320490,
+      "sourceHash": "6f7a11eb08b46a5a13c6d7aec1910d0dbfd3c8e25e6c16d67f9861a369cb3962",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/shootings/portfolio/source/portfolio-extra-05-4x5@480.webp",
+          "width": 480,
+          "height": 600,
+          "bytes": 71436,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/portfolio/source/portfolio-extra-05-4x5@768.webp",
+          "width": 768,
+          "height": 960,
+          "bytes": 164302,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "portfolio-portfolio-extra-10-854x1280",
+      "src": "/media/projects/shootings/portfolio/source/portfolio-extra-10-854x1280.webp",
+      "sourceWidth": 854,
+      "sourceHeight": 1280,
+      "sourceBytes": 137524,
+      "sourceHash": "54b7e9dd4e4a9aa7195d140d640c29f0e6321b86653cab2f586c3ba52b7ab7bd",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/shootings/portfolio/source/portfolio-extra-10-854x1280@480.webp",
+          "width": 480,
+          "height": 719,
+          "bytes": 30192,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/shootings/portfolio/source/portfolio-extra-10-854x1280@768.webp",
+          "width": 768,
+          "height": 1151,
+          "bytes": 62652,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "portfolio-portfolio-extra-11-1x1",
+      "src": "/media/projects/shootings/portfolio/source/portfolio-extra-11-1x1.webp",
+      "sourceWidth": 600,
+      "sourceHeight": 600,
+      "sourceBytes": 18530,
+      "sourceHash": "60aa8c5b7f8e2653742c089b44592a9ac621a00a1f00d5663dc0aede1eef584c",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/shootings/portfolio/source/portfolio-extra-11-1x1@480.webp",
+          "width": 480,
+          "height": 480,
+          "bytes": 8034,
+          "format": "webp"
+        }
+      ]
+    },
+    {
       "id": "project-index-jestei-pool-cover",
       "src": "/media/projects/index/jestei-pool-cover.webp",
       "sourceWidth": 1580,
@@ -7760,38 +7928,6 @@
           "width": 1280,
           "height": 1102,
           "bytes": 93250,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "project-index-styx-jewel-cover",
-      "src": "/media/projects/index/styx-jewel-cover.webp",
-      "sourceWidth": 1580,
-      "sourceHeight": 1360,
-      "sourceBytes": 608648,
-      "sourceHash": "dd1cef0828aed3e06ecbd18c06c60af7d9efef70e85fd211666546342e70c51a",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/index/styx-jewel-cover@480.webp",
-          "width": 480,
-          "height": 413,
-          "bytes": 15482,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/index/styx-jewel-cover@768.webp",
-          "width": 768,
-          "height": 661,
-          "bytes": 27952,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/index/styx-jewel-cover@1280.webp",
-          "width": 1280,
-          "height": 1102,
-          "bytes": 49578,
           "format": "webp"
         }
       ]
@@ -7856,6 +7992,38 @@
           "width": 1280,
           "height": 1102,
           "bytes": 93988,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "project-index-styx-jewel-cover",
+      "src": "/media/projects/index/styx-jewel-cover.webp",
+      "sourceWidth": 1580,
+      "sourceHeight": 1360,
+      "sourceBytes": 608648,
+      "sourceHash": "dd1cef0828aed3e06ecbd18c06c60af7d9efef70e85fd211666546342e70c51a",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/index/styx-jewel-cover@480.webp",
+          "width": 480,
+          "height": 413,
+          "bytes": 15482,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/index/styx-jewel-cover@768.webp",
+          "width": 768,
+          "height": 661,
+          "bytes": 27952,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/index/styx-jewel-cover@1280.webp",
+          "width": 1280,
+          "height": 1102,
+          "bytes": 49578,
           "format": "webp"
         }
       ]
@@ -12888,6 +13056,49 @@
       ]
     },
     {
+      "id": "styx-logo-source-styx-logo-volume",
+      "src": "/media/projects/styx/logo/source/styx-logo-volume.webp",
+      "sourceWidth": 1400,
+      "sourceHeight": 559,
+      "sourceBytes": 25272,
+      "sourceHash": "ccadc049b76537c43a1f84c978dccc426ea9459b578d439081a42367a6b37bdb",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/styx/logo/source/styx-logo-volume@480.webp",
+          "width": 480,
+          "height": 192,
+          "bytes": 8930,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/styx/logo/source/styx-logo-volume@768.webp",
+          "width": 768,
+          "height": 307,
+          "bytes": 15330,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "styx-logo-source-styxjewel-logo",
+      "src": "/media/projects/styx/logo/source/styxjewel_logo.webp",
+      "sourceWidth": 720,
+      "sourceHeight": 229,
+      "sourceBytes": 18820,
+      "sourceHash": "cf385d6657060e8dd0dc664d5d19aec9438874299e83b9937bf9cb9d3d56191d",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/styx/logo/source/styxjewel_logo@480.webp",
+          "width": 480,
+          "height": 153,
+          "bytes": 11722,
+          "format": "webp"
+        }
+      ]
+    },
+    {
       "id": "styx-screenshot-2026-08-19-135302",
       "src": "/media/projects/styx/Screenshot 2026-08-19 135302.png",
       "sourceWidth": 2096,
@@ -12952,187 +13163,26 @@
       ]
     },
     {
-      "id": "styx-logo-source-styx-logo-volume",
-      "src": "/media/projects/styx/logo/source/styx-logo-volume.webp",
-      "sourceWidth": 1400,
-      "sourceHeight": 559,
-      "sourceBytes": 25272,
-      "sourceHash": "ccadc049b76537c43a1f84c978dccc426ea9459b578d439081a42367a6b37bdb",
+      "id": "useful-awful-3d-mockups-cover",
+      "src": "/media/projects/useful/awful-3d-mockups-cover.webp",
+      "sourceWidth": 1080,
+      "sourceHeight": 1350,
+      "sourceBytes": 28018,
+      "sourceHash": "b41f5605805224e2e01e19ab00be7df4318f3f44a79b6eb6940a25ef04ee8aa4",
       "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
       "variants": [
         {
-          "src": "/media/generated/responsive/projects/styx/logo/source/styx-logo-volume@480.webp",
-          "width": 480,
-          "height": 192,
-          "bytes": 8930,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/styx/logo/source/styx-logo-volume@768.webp",
-          "width": 768,
-          "height": 307,
-          "bytes": 15330,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "styx-logo-source-styxjewel-logo",
-      "src": "/media/projects/styx/logo/source/styxjewel_logo.webp",
-      "sourceWidth": 720,
-      "sourceHeight": 229,
-      "sourceBytes": 18820,
-      "sourceHash": "cf385d6657060e8dd0dc664d5d19aec9438874299e83b9937bf9cb9d3d56191d",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/styx/logo/source/styxjewel_logo@480.webp",
-          "width": 480,
-          "height": 153,
-          "bytes": 11722,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "portfolio-portfolio-extra-02-5x4",
-      "src": "/media/projects/shootings/portfolio/source/portfolio-extra-02-5x4.webp",
-      "sourceWidth": 1400,
-      "sourceHeight": 1120,
-      "sourceBytes": 284384,
-      "sourceHash": "4b744a2e64d23eb4b08462bc9a1bfb2b78592c9a6cf5966f3d1f1811bbc5e288",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/shootings/portfolio/source/portfolio-extra-02-5x4@480.webp",
-          "width": 480,
-          "height": 384,
-          "bytes": 40024,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/portfolio/source/portfolio-extra-02-5x4@768.webp",
-          "width": 768,
-          "height": 614,
-          "bytes": 85224,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "portfolio-portfolio-extra-03-700x559",
-      "src": "/media/projects/shootings/portfolio/source/portfolio-extra-03-700x559.webp",
-      "sourceWidth": 1400,
-      "sourceHeight": 1118,
-      "sourceBytes": 68364,
-      "sourceHash": "a3a61fe6149ddc8b530beb31cf55621ea894aed6b6f56e1cdf571e6660b25d1f",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/shootings/portfolio/source/portfolio-extra-03-700x559@480.webp",
-          "width": 480,
-          "height": 383,
-          "bytes": 14290,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/portfolio/source/portfolio-extra-03-700x559@768.webp",
-          "width": 768,
-          "height": 613,
-          "bytes": 25408,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "portfolio-portfolio-extra-04-4x5",
-      "src": "/media/projects/shootings/portfolio/source/portfolio-extra-04-4x5.webp",
-      "sourceWidth": 1120,
-      "sourceHeight": 1400,
-      "sourceBytes": 250130,
-      "sourceHash": "bae5fa7ad57449a172e3bc9ccf679a6dac4cd92b4cee7b7a30b6728ed084fb17",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/shootings/portfolio/source/portfolio-extra-04-4x5@480.webp",
+          "src": "/media/generated/responsive/projects/useful/awful-3d-mockups-cover@480.webp",
           "width": 480,
           "height": 600,
-          "bytes": 40356,
+          "bytes": 10058,
           "format": "webp"
         },
         {
-          "src": "/media/generated/responsive/projects/shootings/portfolio/source/portfolio-extra-04-4x5@768.webp",
+          "src": "/media/generated/responsive/projects/useful/awful-3d-mockups-cover@768.webp",
           "width": 768,
           "height": 960,
-          "bytes": 99766,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "portfolio-portfolio-extra-05-4x5",
-      "src": "/media/projects/shootings/portfolio/source/portfolio-extra-05-4x5.webp",
-      "sourceWidth": 1120,
-      "sourceHeight": 1400,
-      "sourceBytes": 320490,
-      "sourceHash": "6f7a11eb08b46a5a13c6d7aec1910d0dbfd3c8e25e6c16d67f9861a369cb3962",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/shootings/portfolio/source/portfolio-extra-05-4x5@480.webp",
-          "width": 480,
-          "height": 600,
-          "bytes": 71436,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/portfolio/source/portfolio-extra-05-4x5@768.webp",
-          "width": 768,
-          "height": 960,
-          "bytes": 164302,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "portfolio-portfolio-extra-10-854x1280",
-      "src": "/media/projects/shootings/portfolio/source/portfolio-extra-10-854x1280.webp",
-      "sourceWidth": 854,
-      "sourceHeight": 1280,
-      "sourceBytes": 137524,
-      "sourceHash": "54b7e9dd4e4a9aa7195d140d640c29f0e6321b86653cab2f586c3ba52b7ab7bd",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/shootings/portfolio/source/portfolio-extra-10-854x1280@480.webp",
-          "width": 480,
-          "height": 719,
-          "bytes": 30192,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/portfolio/source/portfolio-extra-10-854x1280@768.webp",
-          "width": 768,
-          "height": 1151,
-          "bytes": 62652,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "portfolio-portfolio-extra-11-1x1",
-      "src": "/media/projects/shootings/portfolio/source/portfolio-extra-11-1x1.webp",
-      "sourceWidth": 600,
-      "sourceHeight": 600,
-      "sourceBytes": 18530,
-      "sourceHash": "60aa8c5b7f8e2653742c089b44592a9ac621a00a1f00d5663dc0aede1eef584c",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/shootings/portfolio/source/portfolio-extra-11-1x1@480.webp",
-          "width": 480,
-          "height": 480,
-          "bytes": 8034,
+          "bytes": 17386,
           "format": "webp"
         }
       ]
@@ -13163,51 +13213,26 @@
       ]
     },
     {
-      "id": "useful-moves-awful-cover-poster",
-      "src": "/media/projects/useful/moves-awful-cover.webp",
+      "id": "useful-awful-mockups-cover",
+      "src": "/media/projects/useful/awful-mockups-cover.webp",
       "sourceWidth": 1080,
       "sourceHeight": 1350,
-      "sourceBytes": 52196,
-      "sourceHash": "f245fb42b9b031519a2f25ef666e890e0684ba7d20bd32db8830aafbc5d1d60e",
+      "sourceBytes": 57272,
+      "sourceHash": "912cd4f210da6d72b1786eed86e758a97f32c95662e8a0d46b7d34b6f18249b8",
       "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
       "variants": [
         {
-          "src": "/media/generated/responsive/projects/useful/moves-awful-cover@480.webp",
+          "src": "/media/generated/responsive/projects/useful/awful-mockups-cover@480.webp",
           "width": 480,
           "height": 600,
-          "bytes": 22696,
+          "bytes": 12256,
           "format": "webp"
         },
         {
-          "src": "/media/generated/responsive/projects/useful/moves-awful-cover@768.webp",
+          "src": "/media/generated/responsive/projects/useful/awful-mockups-cover@768.webp",
           "width": 768,
           "height": 960,
-          "bytes": 41760,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "useful-berserk-timer-cover",
-      "src": "/media/projects/useful/berserk-timer-cover.webp",
-      "sourceWidth": 1080,
-      "sourceHeight": 1350,
-      "sourceBytes": 46420,
-      "sourceHash": "7c05161941ab90bcdf045ba9fbeac89083ca4cd63aa3fdd208c14b93d3f7fd74",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/useful/berserk-timer-cover@480.webp",
-          "width": 480,
-          "height": 600,
-          "bytes": 16976,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/useful/berserk-timer-cover@768.webp",
-          "width": 768,
-          "height": 960,
-          "bytes": 28062,
+          "bytes": 22468,
           "format": "webp"
         }
       ]
@@ -13238,51 +13263,51 @@
       ]
     },
     {
-      "id": "useful-awful-mockups-cover",
-      "src": "/media/projects/useful/awful-mockups-cover.webp",
+      "id": "useful-berserk-timer-cover",
+      "src": "/media/projects/useful/berserk-timer-cover.webp",
       "sourceWidth": 1080,
       "sourceHeight": 1350,
-      "sourceBytes": 57272,
-      "sourceHash": "912cd4f210da6d72b1786eed86e758a97f32c95662e8a0d46b7d34b6f18249b8",
+      "sourceBytes": 46420,
+      "sourceHash": "7c05161941ab90bcdf045ba9fbeac89083ca4cd63aa3fdd208c14b93d3f7fd74",
       "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
       "variants": [
         {
-          "src": "/media/generated/responsive/projects/useful/awful-mockups-cover@480.webp",
+          "src": "/media/generated/responsive/projects/useful/berserk-timer-cover@480.webp",
           "width": 480,
           "height": 600,
-          "bytes": 12256,
+          "bytes": 16976,
           "format": "webp"
         },
         {
-          "src": "/media/generated/responsive/projects/useful/awful-mockups-cover@768.webp",
+          "src": "/media/generated/responsive/projects/useful/berserk-timer-cover@768.webp",
           "width": 768,
           "height": 960,
-          "bytes": 22468,
+          "bytes": 28062,
           "format": "webp"
         }
       ]
     },
     {
-      "id": "useful-awful-3d-mockups-cover",
-      "src": "/media/projects/useful/awful-3d-mockups-cover.webp",
+      "id": "useful-moves-awful-cover-poster",
+      "src": "/media/projects/useful/moves-awful-cover.webp",
       "sourceWidth": 1080,
       "sourceHeight": 1350,
-      "sourceBytes": 28018,
-      "sourceHash": "b41f5605805224e2e01e19ab00be7df4318f3f44a79b6eb6940a25ef04ee8aa4",
+      "sourceBytes": 52196,
+      "sourceHash": "f245fb42b9b031519a2f25ef666e890e0684ba7d20bd32db8830aafbc5d1d60e",
       "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
       "variants": [
         {
-          "src": "/media/generated/responsive/projects/useful/awful-3d-mockups-cover@480.webp",
+          "src": "/media/generated/responsive/projects/useful/moves-awful-cover@480.webp",
           "width": 480,
           "height": 600,
-          "bytes": 10058,
+          "bytes": 22696,
           "format": "webp"
         },
         {
-          "src": "/media/generated/responsive/projects/useful/awful-3d-mockups-cover@768.webp",
+          "src": "/media/generated/responsive/projects/useful/moves-awful-cover@768.webp",
           "width": 768,
           "height": 960,
-          "bytes": 17386,
+          "bytes": 41760,
           "format": "webp"
         }
       ]
