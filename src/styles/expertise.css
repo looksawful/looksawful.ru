@@ -26,8 +26,12 @@
 }
 
 .expertise__head {
+  --text-pair-side-size: 14rem;
+  --text-pair-content-min: 58%;
+  --text-pair-row-gap: 1.25em;
+  --text-pair-column-gap: var(--size-400);
+
   grid-column: 2;
-  display: grid;
   min-inline-size: 0;
 }
 
@@ -87,16 +91,6 @@
   .expertise .expertise__item {
     grid-template-columns: 3rem minmax(0, 1fr);
     gap: 0 var(--size-400);
-  }
-
-  .expertise__head {
-    grid-template-columns: minmax(14rem, 0.75fr) minmax(0, 1.25fr);
-    column-gap: var(--size-400);
-    align-items: start;
-  }
-
-  .expertise__head > * + * {
-    margin-block-start: 0;
   }
 
   .expertise__panel {
