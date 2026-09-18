@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
+import { mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
@@ -7,6 +7,7 @@ import test from "node:test";
 import {
   collectDesignSystemInventory,
   validateDesignSystemInventory,
+  writeDesignSystemInventory,
 } from "../tools/lab/design-system-inventory.mjs";
 
 async function fixture(t, files) {
@@ -251,3 +252,12 @@ test("aggregates canonical declared story states and visibility into source cove
     visibility: ["desktop", "mobile", "reduced-motion", "tablet"],
   });
 });
+
+test("generated inventory title matches the Lab deployment contract", async (t) => {
+  const root = await fixture(t, {});
+  const outDir = path.join(root, "dist", "lab");
+  await writeDesignSystemInventory({ root, outDir });
+  const html = await readFile(path.join(outDir, "system", "inventory.html"), "utf8");
+  assert.match(html, /<title>looksawful Storybook inventory<\/title>/i);
+});
+
