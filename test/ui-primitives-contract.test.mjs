@@ -38,3 +38,16 @@ test("shared primitives consume canonical tokens instead of literal colors", () 
   assert.doesNotMatch(css, /\bhsla?\(/i);
   assert.doesNotMatch(css, /\boklch\(/i);
 });
+
+test("Storybook documents the production primitive contract as canonical atoms", () => {
+  const storyUrl = new URL("../src/lab/stories/ui-primitives.stories.mjs", import.meta.url);
+  assert.equal(existsSync(storyUrl), true, "canonical UI primitive story must exist");
+  const story = readFileSync(storyUrl, "utf8");
+  assert.match(story, /layer:\s*"atom"/);
+  assert.match(story, /policy:\s*"isolated"/);
+  assert.match(story, /canonical:\s*true/);
+  assert.ok(story.includes('"src/styles/primitives.css"'));
+  for (const state of ["default", "focus-visible", "active-or-pressed", "selected", "disabled"]) {
+    assert.ok(story.includes('"' + state + '"'), "missing Storybook interaction state " + state);
+  }
+});
