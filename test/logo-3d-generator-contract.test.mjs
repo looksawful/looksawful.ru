@@ -44,6 +44,7 @@ test("production pack keeps Blender master local and exports portable formats", 
 
   const source = await readFile(generatorUrl, "utf8");
   assert.match(source, /save_as_mainfile/);
+  assert.match(source, /_local[^\n]*logo-3d[^\n]*blend/);
   assert.match(source, /export_scene\.gltf/);
   assert.match(source, /export_scene\.fbx/);
   assert.match(source, /wm\.obj_export/);
