@@ -1,0 +1,27 @@
+{
+  "id": "device-ipad-pro-13-m5-v6-model",
+  "title": "iPad Pro 13 M5 mockup",
+  "alt": "",
+  "description": "",
+  "date": "2026",
+  "workAreaIds": [
+    "3d",
+    "product-design",
+    "art-direction"
+  ],
+  "projectTypeIds": [
+    "3d-project"
+  ],
+  "deliverableIds": [
+    "screen-mockup",
+    "design-assets"
+  ],
+  "tags": [
+    "3D",
+    "device mockup",
+    "Apple"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

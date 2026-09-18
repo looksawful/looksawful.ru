@@ -466,3 +466,27 @@
     }
   }
 }
+
+/* ==================================================
+   3D model viewer
+   ================================================== */
+
+.model-viewer {
+  position: relative;
+  display: block;
+  inline-size: 100%;
+  min-inline-size: 0;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+}
+
+.model-viewer > [data-model-viewer-canvas] {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  touch-action: none;
+}
+
+.model-viewer[data-model-state="loading"] > [data-model-viewer-canvas] {
+  opacity: 0;
+}
