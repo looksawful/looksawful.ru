@@ -16,9 +16,11 @@ const requiredDefaultProjectIds = [
   "shootings-esmi",
   "shootings-hypression",
   "shootings-ofelia",
+  "shootings-behance-offmi",
 ];
 
 const defaultHiddenProjectIds = [
+  "shootings-dava",
   "shootings-behance-ecobasik",
   "shootings-behance-cinema-stills-2",
   "shootings-behance-anka-model-tests",
@@ -73,7 +75,7 @@ test("Gallery public contract is one photo-only collection without layer APIs", 
   assert.equal(gallery.getGalleryItemsForLayer, undefined, "public Gallery must not filter by production/art layers");
 });
 
-test("Gallery defaults to the approved musician photography set including Ofelia, OFFMi and Dava plus Styx photography", async () => {
+test("Gallery defaults to the approved musician photography set including Ofelia and OFFMi plus Styx photography", async () => {
   const gallery = await import("../src/data/media/gallery.ts");
   const items = gallery.getGalleryItems();
 

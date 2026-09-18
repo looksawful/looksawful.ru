@@ -28,7 +28,6 @@ The default visible selection is deliberately small and music-focused:
 - HYPRESSION photography;
 - OFELIA photography;
 - OFFMi photography;
-- DAVA photography;
 - STYX photography.
 
 A musician is included only when an actual photographic asset exists in the canonical media registry. A collage, illustration or design asset does not become Gallery-eligible merely because its subject is a musician. Boulevard Depo currently has a collage-art record but no canonical photographic asset in the current media set, so it stays out until a real photograph is registered.
@@ -77,7 +76,7 @@ If a photograph exists in the live media inventory but is absent from the TS med
 
 Do not add direct media URLs to Gallery as a shortcut.
 
-DAVA is the first corrected example: its existing physical file is registered as a normal MediaAsset and MediaEntry under canonical project `shootings-dava` rather than being special-cased in the renderer.
+DAVA remains a canonical MediaAsset + MediaEntry + Project record under `shootings-dava`, but it is intentionally private from current public Gallery/logo-wall projections. Its presence keeps the database complete without implying publication.
 
 ## Duplicate and editorial policy
 
@@ -193,7 +192,7 @@ Required before calling the curated preview candidate ready:
 
 - typecheck;
 - Fast CI including curated Gallery contracts;
-- default Gallery includes OBLADAET, EVASHA, IGGUANA, ESMI, HYPRESSION, OFELIA, OFFMi, DAVA and STYX photography;
+- default Gallery includes OBLADAET, EVASHA, IGGUANA, ESMI, HYPRESSION, OFELIA, OFFMi and STYX photography;
 - non-default Shootings projects such as Ecobasik, cinema stills, model tests and editorial photography are absent unless explicitly opted in;
 - direct `workAreaIds` photography guard rejects design false positives even if their broader direction resolves to `photo`;
 - `showInCatalog=false` hides optional photography and `showInCatalog=true` enables it;

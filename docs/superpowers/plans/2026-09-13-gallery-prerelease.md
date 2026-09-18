@@ -7,7 +7,7 @@
 `/gallery/` is one curated public photography stream.
 
 - photographs only;
-- default curation: OBLADAET, EVASHA, IGGUANA, ESMI, HYPRESSION, OFELIA, OFFMi, DAVA and STYX photography;
+- default curation: OBLADAET, EVASHA, IGGUANA, ESMI, HYPRESSION, OFELIA, OFFMi and STYX photography;
 - other genuine photography is hidden by default and can be enabled through the existing `showInCatalog` / `Показывать в галерее` editorial control;
 - direct canonical `workAreaIds` membership `photography` is required;
 - a derived Public Catalog `photo` direction alone never proves that an asset is a photograph;
@@ -50,7 +50,7 @@ Required contract:
 8. there is no `galleryLayers`, Production layer or Digital Art layer;
 9. credits/title/path strings are never parsed to infer photography.
 
-DAVA is registered through the normal MediaAsset + MediaEntry + Project + Media Catalog path and has canonical responsive derivatives. Boulevard Depo stays out until a real canonical photographic asset exists; the current record is collage art.
+DAVA remains registered through the normal MediaAsset + MediaEntry + Project + Media Catalog path so the canonical database stays complete, but it is intentionally excluded from all current public Gallery/logo-wall projections until explicitly requested. Boulevard Depo stays out until a real canonical photographic asset exists; the current record is collage art.
 
 ## Task 3: Semantic renderer and site-consistent CSS
 

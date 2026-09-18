@@ -22,7 +22,6 @@ const DEFAULT_GALLERY_PROJECT_IDS = new Set([
   "shootings-hypression",
   "shootings-ofelia",
   "shootings-behance-offmi",
-  "shootings-dava",
 ]);
 
 function isCanonicalPhotograph(item: MediaCatalogItem): boolean {
