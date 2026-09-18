@@ -92,7 +92,7 @@ test("standalone Jestei keeps compact metadata without duplicating project ident
   assert.doesNotMatch(standalone, /class="project__name"/);
   assert.match(standalone, /class="project__role"/);
   assert.match(standalone, /class="project__period"/);
-  assert.match(standalone, /class="project__intro wrapper prose editorial-grid"/);
+  assert.match(standalone, /class="project__intro wrapper editorial-grid"/);
   assert.match(standalone, /class="project__title"/);
 });
 
