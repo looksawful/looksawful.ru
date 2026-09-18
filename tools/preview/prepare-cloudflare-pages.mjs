@@ -205,7 +205,7 @@ export async function prepareCloudflarePagesPreview({
       continue;
     }
 
-    if (/^media\/generated\/video\/.+\.(?:mp4|webm)$/i.test(asset.relativePath)) {
+    if (/^(?:lab\/system\/)?media\/generated\/video\/.+\.(?:mp4|webm)$/i.test(asset.relativePath)) {
       const surrogateBytes = await transcodeGeneratedVideo(asset.absolutePath, { limitBytes });
       records.push({
         path: asset.relativePath,
