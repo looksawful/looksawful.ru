@@ -70,14 +70,21 @@ test("Gallery exposes canonical credits to the PhotoSwipe caption adapter", () =
   assert.match(lightboxSource, /captionHtml/);
 });
 
-test("Gallery PhotoSwipe credits stay readable over arbitrary photography", () => {
+test("Gallery PhotoSwipe credits inherit a high-contrast lightbox surface", () => {
+  const lightboxRule = mediaLightboxCss.match(
+    /\.media-lightbox\s*\{([\s\S]*?)\n\}/,
+  )?.[1] ?? "";
+  const photoswipeBackgroundRule = mediaLightboxCss.match(
+    /\.media-lightbox--photoswipe \.pswp__bg\s*\{([\s\S]*?)\n\}/,
+  )?.[1] ?? "";
   const captionRule = mediaLightboxCss.match(
     /\.media-lightbox--photoswipe \.media-lightbox__caption\s*\{([\s\S]*?)\n\}/,
   )?.[1] ?? "";
 
-  assert.match(captionRule, /color:\s*#fff\b/);
-  assert.match(captionRule, /background:/);
-  assert.match(captionRule, /padding:/);
+  assert.match(lightboxRule, /color:\s*#fff\b/);
+  assert.match(lightboxRule, /background:/);
+  assert.match(photoswipeBackgroundRule, /background:\s*rgb\(0 0 0 \/ 1\)/);
+  assert.match(captionRule, /position:\s*absolute/);
 });
 
 test("Gallery CSS has no retired heading styles and explicitly avoids masonry mechanics", () => {

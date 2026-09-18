@@ -8,7 +8,7 @@ Gallery is one curated public photography surface. It is not a second media regi
 
 ## Canonical product contract
 
-Gallery contains photographs only.
+Gallery v1 contains photographs only. Curated 3D is the next planned extension and must be added through an explicit typed media contract rather than by weakening photography eligibility.
 
 There is exactly one public stream:
 
@@ -35,7 +35,7 @@ A musician is included only when an actual photographic asset exists in the cano
 
 All other genuine photography remains available in the existing Media Catalog but is hidden from Gallery by default. Editors may opt an individual photograph into Gallery using the existing `showInCatalog` field exposed in CMS/MediaDesk as `Показывать в галерее`. No Gallery-specific visibility database or second registry is introduced.
 
-`production` may describe context or role, but it is never a separate Gallery category. Standalone digital art, collage, illustration, graphic design, 3D renders, identity work, UI/product work, equipment/documentation imagery and other non-photographic material are outside Gallery.
+`production` may describe context or role, but it is never a separate Gallery category. Standalone digital art, collage, illustration, graphic design, identity work, UI/product work, equipment/documentation imagery and other non-photographic material remain outside Gallery v1. Curated 3D models/renders are reserved for the explicit next Gallery phase.
 
 A Gallery item must be a canonical image whose direct media metadata contains `workAreaIds: ["photography", ...]`. The broader Public Catalog direction `photo` is not sufficient because project/deliverable taxonomy can derive that direction for non-photographic design assets. Free-form credits, titles, filenames and folder paths are never parsed to guess that an item is a photograph.
 

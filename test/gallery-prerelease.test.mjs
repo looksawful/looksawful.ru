@@ -9,7 +9,7 @@ import { getPrimaryNavigationItems } from "../src/site/navigation/model.ts";
 
 const galleryPage = () => sitePages.find((page) => page.id === "gallery");
 
-const requiredMusicianProjectIds = [
+const requiredDefaultProjectIds = [
   "shootings-obladaet",
   "shootings-evasha",
   "shootings-igguana",
@@ -19,8 +19,6 @@ const requiredMusicianProjectIds = [
 ];
 
 const defaultHiddenProjectIds = [
-  "shootings-behance-offmi",
-  "shootings-dava",
   "shootings-behance-ecobasik",
   "shootings-behance-cinema-stills-2",
   "shootings-behance-anka-model-tests",
@@ -75,16 +73,16 @@ test("Gallery public contract is one photo-only collection without layer APIs", 
   assert.equal(gallery.getGalleryItemsForLayer, undefined, "public Gallery must not filter by production/art layers");
 });
 
-test("Gallery defaults to musician photography including Ofelia plus Styx photography", async () => {
+test("Gallery defaults to the approved musician photography set including Ofelia, OFFMi and Dava plus Styx photography", async () => {
   const gallery = await import("../src/data/media/gallery.ts");
   const items = gallery.getGalleryItems();
 
   assert.ok(items.length > 0, "Gallery must not be empty");
 
-  for (const projectId of requiredMusicianProjectIds) {
+  for (const projectId of requiredDefaultProjectIds) {
     assert.ok(
       items.some((item) => item.projectIds.includes(projectId)),
-      `missing musician photography project ${projectId}`,
+      `missing default Gallery photography project ${projectId}`,
     );
   }
 
