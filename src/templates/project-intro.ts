@@ -162,7 +162,7 @@ export function renderProjectIntro(
   const links = renderLinks(data);
   const projectIntro = titleHtml || summary || lead || links
     ? `
-    <header class="project__intro wrapper prose editorial-grid"${renderRevealGroupAttribute()}>
+    <header class="project__intro wrapper editorial-grid"${renderRevealGroupAttribute()}>
       ${titleHtml}
 
       ${summary}

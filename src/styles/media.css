@@ -91,11 +91,6 @@
   min-inline-size: 0;
 }
 
-.media-group__head {
-  display: grid;
-  gap: 0.35rem;
-}
-
 .media-group__items {
   min-inline-size: 0;
 }

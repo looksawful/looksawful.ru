@@ -35,7 +35,6 @@
 
 .project__intro {
   --wrapper-max-width: var(--content-max-width);
-  --prose-space: 0;
   --editorial-columns: 6;
   --editorial-align: normal;
   --editorial-column-gap: clamp(0.55rem, 2cqi, 1.25rem);
@@ -214,12 +213,14 @@
 
 @container project-section (width > 45rem) {
   .section-copy {
-    --flow-space: 0;
-
     display: grid;
     grid-template-columns: minmax(10rem, 0.72fr) minmax(0, 1.28fr);
     column-gap: clamp(2rem, 6cqi, 7rem);
     align-items: start;
+  }
+
+  .section-copy > * + * {
+    margin-block-start: 0;
   }
 }
 

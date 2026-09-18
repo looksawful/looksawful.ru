@@ -28,7 +28,6 @@
 .expertise__head {
   grid-column: 2;
   display: grid;
-  gap: var(--size-200);
   min-inline-size: 0;
 }
 
@@ -92,8 +91,12 @@
 
   .expertise__head {
     grid-template-columns: minmax(14rem, 0.75fr) minmax(0, 1.25fr);
-    gap: var(--size-400);
+    column-gap: var(--size-400);
     align-items: start;
+  }
+
+  .expertise__head > * + * {
+    margin-block-start: 0;
   }
 
   .expertise__panel {

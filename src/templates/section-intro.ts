@@ -14,28 +14,18 @@ function renderParagraphs(data: SectionIntroData, reveal: boolean): string {
     return "";
   }
 
-  if (data.bodyClassName) {
-    const paragraphHtml = paragraphs
-      .map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`)
-      .join("");
-
-    return `
-      <div class="section-copy__text ${escapeHtml(data.bodyClassName)}"${renderRevealAttribute(
-        reveal ? "copy" : false,
-      )}>
-        ${paragraphHtml}
-      </div>
-    `;
-  }
-
-  return paragraphs
-    .map(
-      (paragraph) =>
-        `<p class="section-copy__text"${renderRevealAttribute(reveal ? "copy" : false)}>${escapeHtml(
-          paragraph,
-        )}</p>`,
-    )
+  const bodyClassName = data.bodyClassName ? ` ${escapeHtml(data.bodyClassName)}` : "";
+  const paragraphReveal = data.bodyClassName ? "" : renderRevealAttribute(reveal ? "copy" : false);
+  const bodyReveal = data.bodyClassName ? renderRevealAttribute(reveal ? "copy" : false) : "";
+  const paragraphHtml = paragraphs
+    .map((paragraph) => `<p${paragraphReveal}>${escapeHtml(paragraph)}</p>`)
     .join("");
+
+  return `
+    <div class="section-copy__text prose${bodyClassName}"${bodyReveal}>
+      ${paragraphHtml}
+    </div>
+  `;
 }
 
 export function renderSectionIntro(data: SectionIntroData, options: SectionIntroRenderOptions = {}): string {
@@ -49,7 +39,7 @@ export function renderSectionIntro(data: SectionIntroData, options: SectionIntro
     : "";
 
   return `
-    <header class="section-copy flow"${renderRevealGroupAttribute(reveal)}>
+    <header class="section-copy prose"${renderRevealGroupAttribute(reveal)}>
       ${title}
 
       ${paragraphs}

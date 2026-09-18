@@ -88,7 +88,7 @@ function renderSectionHead(
       : `${creditsHtml}\n${noteHtml}`;
 
   return `
-    <header class="media-group__head flow"${renderRevealGroupAttribute(reveal)}>
+    <header class="media-group__head prose"${renderRevealGroupAttribute(reveal)}>
       ${content}
     </header>
   `;
