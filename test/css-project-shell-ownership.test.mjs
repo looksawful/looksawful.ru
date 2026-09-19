@@ -53,7 +53,7 @@ test("index no longer carries late project shell typography patches", () => {
   assert.doesNotMatch(withoutImport, /\.project__section\s*>\s*p:not\(\[class\]\)/);
 });
 
-test("canonical project shell preserves base, responsive and late-refinement source order", () => {
+test("canonical project shell keeps typography in its owning selectors", () => {
   assert.equal(existsSync(ownerPath), true, "project-shell.css must exist");
   if (!existsSync(ownerPath)) return;
 
@@ -63,20 +63,23 @@ test("canonical project shell preserves base, responsive and late-refinement sou
   const intro = owner.indexOf(".project__intro {", project);
   const wide = owner.indexOf("@container project (width > 50rem)", intro);
   const sectionCopy = owner.indexOf(".section-copy {", wide);
-  const lateTitle = owner.lastIndexOf("  .project__title {");
-  const lateSectionText = owner.lastIndexOf("  .project__section > p:not([class]),");
 
   assert.ok(base >= 0, "missing project-shell family marker");
   assert.ok(project > base, "project base must follow the family marker");
   assert.ok(intro > project, "project intro must follow project base");
   assert.ok(wide > intro, "wide project-shell rules must follow base rules");
   assert.ok(sectionCopy > wide, "section-copy contract must follow project responsive rules");
-  assert.ok(lateTitle > sectionCopy, "late typography refinements must remain after base section-copy rules");
-  assert.ok(lateSectionText > lateTitle, "late project-section copy refinement must remain in original order");
+
+  assert.match(owner, /\.project__title\s*\{[\s\S]*?line-height:\s*var\(--lh-display\);[\s\S]*?letter-spacing:\s*var\(--ls-heading\);/);
+  assert.match(owner, /\.project__lead,\s*\n\.text-lead\s*\{[\s\S]*?max-inline-size:\s*36ch;[\s\S]*?line-height:\s*var\(--lh-tight\);[\s\S]*?letter-spacing:\s*var\(--ls-tight\);/);
+  assert.match(owner, /\.section-copy__title\s*\{[\s\S]*?line-height:\s*var\(--lh-heading\);[\s\S]*?letter-spacing:\s*var\(--ls-display\);/);
+  assert.match(owner, /\.section-copy__text\s*\{[\s\S]*?line-height:\s*var\(--lh-copy\);[\s\S]*?letter-spacing:\s*var\(--ls-copy\);/);
+
+  const afterSectionCopy = owner.slice(sectionCopy);
+  assert.doesNotMatch(afterSectionCopy, /\n  \.project__title\s*\{\s*line-height:/);
+  assert.doesNotMatch(afterSectionCopy, /\n  \.section-copy__text\s*\{\s*line-height:/);
 
   assert.match(owner, /\.project\s*>\s*:is\(\.media, \.slider\)/);
-  assert.match(owner, /@container project-section \(width > 45rem\)/);
-
   assert.doesNotMatch(owner, /(?:^|\n)\.group-note\b/);
   assert.doesNotMatch(owner, /(?:^|\n)\.editorial-note\b/);
   assert.doesNotMatch(owner, /(?:^|\n)\.credits\b/);
