@@ -119,7 +119,7 @@ test("homepage enabled entities render from canonical PageContent in declared or
     previousIndex = articleIndex;
 
     assert.match(article, /data-section-type=/, `${articleId} must use canonical Section rendering`);
-    assert.match(article, /<h2\b[^>]*class="project__title visually-hidden"/, `${articleId} must keep an accessible h2 without the large visual title on Homepage`);
+    assert.match(article, /<h2\b[^>]*class="project__title project__title--logo visually-hidden"/, `${articleId} must keep an accessible h2 without the large visual title on Homepage`);
     assert.doesNotMatch(article, /<!-- [A-Z][A-Z0-9_]+ -->/);
   }
 });
@@ -136,7 +136,7 @@ test("homepage canonical entities do not depend on legacy entity markers", () =>
 test("standalone Jestei page is isolated from other case DOM and uses h1", () => {
   const html = renderStandaloneEntityPage(page("case:jestei-pool"));
   assert.match(html, /id="project-jestei"/);
-  assert.match(html, /<h1 class="project__title"/);
+  assert.match(html, /<h1 class="project__title project__title--logo"/);
   assert.doesNotMatch(html, /id="project-styx"/);
   assert.doesNotMatch(html, /id="project-sensetique"/);
   assert.doesNotMatch(html, /id="project-shootings"/);
@@ -148,7 +148,7 @@ test("standalone Sensetique page is canonical, isolated, and marker-free", () =>
 
   const html = renderStandaloneEntityPage(page("case:sensetique"));
   assert.match(html, /id="project-sensetique"/);
-  assert.match(html, /<h1 class="project__title"/);
+  assert.match(html, /<h1 class="project__title project__title--logo"/);
   assert.match(html, /id="sensetique-studio"/);
   assert.match(html, /id="sensetique-production"/);
   assert.match(html, /<h3[^>]*>\s*Оборудование\s*<\/h3>/);
@@ -180,7 +180,7 @@ test("standalone Sensetique page is canonical, isolated, and marker-free", () =>
 test("standalone Shootings page uses the Collection route and excludes case DOM", () => {
   const html = renderStandaloneEntityPage(page("collection:music-photography"));
   assert.match(html, /id="project-shootings"/);
-  assert.match(html, /<h1 class="project__title"/);
+  assert.match(html, /<h1 class="project__title project__title--text"/);
   assert.doesNotMatch(html, /id="project-jestei"/);
   assert.doesNotMatch(html, /id="project-styx"/);
   assert.doesNotMatch(html, /id="project-sensetique"/);
@@ -190,7 +190,7 @@ test("standalone Shootings page uses the Collection route and excludes case DOM"
 test("unlisted standalone Project pages render canonical project content", () => {
   const awful = renderStandaloneEntityPage(page("project:awful-cases"));
   assert.match(awful, /id="project-awful-cases"/);
-  assert.match(awful, /<h1 class="project__title"/);
+  assert.match(awful, /<h1 class="project__title project__title--text"/);
   assert.match(awful, /id="awful-cases-demo"/);
   assert.match(awful, /id="awful-cases-settings"/);
   assert.match(awful, /class="media mockup awful-cases-game"/);
@@ -208,7 +208,7 @@ test("unlisted standalone Project pages render canonical project content", () =>
 
   const berry = renderStandaloneEntityPage(page("project:berry-social-content-2020"));
   assert.match(berry, /id="project-berry-social-content-2020"/);
-  assert.match(berry, /<h1 class="project__title"/);
+  assert.match(berry, /<h1 class="project__title project__title--text"/);
   assert.doesNotMatch(berry, /<article\b[^>]*hidden/);
   assert.doesNotMatch(berry, /<!-- BERRY_[A-Z0-9_]+ -->/);
 });
