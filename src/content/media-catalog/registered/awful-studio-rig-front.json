@@ -1,0 +1,26 @@
+{
+  "id": "awful-studio-rig-front",
+  "title": "AWFUL STUDIO",
+  "alt": "Студийная стойка и импульсный источник света, вид спереди",
+  "description": "",
+  "date": "2026",
+  "workAreaIds": [
+    "production",
+    "motion"
+  ],
+  "projectTypeIds": [
+    "catalog"
+  ],
+  "deliverableIds": [
+    "advertising-creative",
+    "catalog"
+  ],
+  "tags": [
+    "продакшен",
+    "моушен",
+    "каталог"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

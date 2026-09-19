@@ -1,0 +1,26 @@
+{
+  "id": "awful-studio-rig-magnum-detail",
+  "title": "AWFUL STUDIO",
+  "alt": "Профиль рефлектора Magnum",
+  "description": "",
+  "date": "2026",
+  "workAreaIds": [
+    "production",
+    "motion"
+  ],
+  "projectTypeIds": [
+    "catalog"
+  ],
+  "deliverableIds": [
+    "advertising-creative",
+    "catalog"
+  ],
+  "tags": [
+    "продакшен",
+    "моушен",
+    "каталог"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}
