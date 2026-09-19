@@ -13,6 +13,14 @@ export const awfulMockupsIntro = {
   summary: "Набор редактируемых PSD-мокапов для презентации интерфейсов и графики.",
   lead:
     "Экран, объект, фон, цвет и обработка собраны отдельно. Мокап можно быстро подстроить под проект, не пересобирая сцену с нуля.",
+  links: [
+    {
+      label: "Скачать PSD",
+      href: "https://disk.yandex.ru/d/wFgt0t6TfjAXcQ",
+      rel: "noopener noreferrer",
+      target: "_blank",
+    },
+  ],
 } as const satisfies ProjectIntroData<LogoUsageId>;
 
 export const awfulMockupsMedia = [
