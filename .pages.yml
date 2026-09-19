@@ -84,6 +84,7 @@ components:
         - { name: awful-cases, label: "Awful Cases" }
         - { name: moves-awful, label: "Moves Awful" }
         - { name: berserk-timer, label: "Berserk Timer" }
+        - { name: awful-mockups, label: "Awful Mockups" }
         - { name: awful-3d-mockups, label: "Awful 3D Mockups" }
         - { name: keys, label: "KEYS" }
         - { name: sea, label: "SEA" }
