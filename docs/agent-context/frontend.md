@@ -32,6 +32,7 @@ Ordinary reveals use the existing reveal contract. GSAP is for orchestration tha
 - Multi-paragraph section intros must render as exactly two layout roles when a title exists: the title and one `.section-copy__text.prose` wrapper containing all paragraphs. Never allow each paragraph to become a direct Grid/Flex layout item.
 - `text-pair` should choose horizontal versus stacked composition intrinsically from available inline space; do not recreate its state change with a viewport/device breakpoint.
 - Layout width and readable text measure are separate concerns. A layout primitive may size the track; readable measure belongs inside that track.
+- Character-based measures such as `ch` belong to typographic content, not logo/media wrappers. Graphic titles should use the available layout track and constrain the asset itself with `max-inline-size: 100%` when needed.
 
 ## Quality
 
