@@ -4,9 +4,16 @@
   "alt": "Телефон рядом с компактной камерой",
   "description": "",
   "date": "",
-  "workAreaIds": [],
-  "projectTypeIds": [],
-  "deliverableIds": [],
+  "workAreaIds": [
+    "graphic-design"
+  ],
+  "projectTypeIds": [
+    "graphic-design-project"
+  ],
+  "deliverableIds": [
+    "design-assets",
+    "screen-mockup"
+  ],
   "tags": [],
   "credits": [],
   "reusable": true,

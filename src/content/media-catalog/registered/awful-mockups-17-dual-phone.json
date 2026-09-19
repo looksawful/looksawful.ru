@@ -4,9 +4,16 @@
   "alt": "Два телефона в вертикальной композиции",
   "description": "",
   "date": "",
-  "workAreaIds": [],
-  "projectTypeIds": [],
-  "deliverableIds": [],
+  "workAreaIds": [
+    "graphic-design"
+  ],
+  "projectTypeIds": [
+    "graphic-design-project"
+  ],
+  "deliverableIds": [
+    "design-assets",
+    "screen-mockup"
+  ],
   "tags": [],
   "credits": [],
   "reusable": true,
