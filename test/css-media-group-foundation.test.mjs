@@ -14,7 +14,7 @@ const movedSelectors = [
 test("media-group foundation first safe slice moves only media-group substructure to the canonical media owner", () => {
   assert.match(
     index,
-    /@import "\.\/patterns\.css" layer\(patterns\);\n@import "\.\/media\.css" layer\(components\);\n@import "\.\/components\.css" layer\(components\);/,
+    /@import "\.\/patterns\.css" layer\(patterns\);\n@import "\.\/primitives\.css" layer\(components\);\n@import "\.\/media\.css" layer\(components\);\n@import "\.\/components\.css" layer\(components\);/,
   );
 
   // The generic media-group base later moved into the same canonical media owner.

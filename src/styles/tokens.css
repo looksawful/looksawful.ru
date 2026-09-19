@@ -81,4 +81,11 @@
 
   --border-width-100: 1px;
   --border-width-200: 2px;
+
+  /* Shared interactive control dimensions. */
+  --control-size-sm: 2.75rem;
+  --control-size-md: 3rem;
+  --control-size-lg: 3.25rem;
+  --control-transition-duration: 160ms;
+  --control-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
