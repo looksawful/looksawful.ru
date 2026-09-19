@@ -4,6 +4,7 @@ import { createMediaRuntimeHealth } from "./components/media-runtime-health.ts";
 import { hydrateDeferredVideoSource } from "./components/deferred-video-source.ts";
 import { createMotionPreference } from "./components/motion-preference.ts";
 import { createInfiniteReels } from "./components/infinite-reel.ts";
+import { createClientLogoMotion } from "./components/client-logo-motion.ts";
 import { createMediaDecks } from "./components/media-deck.ts";
 import { createMediaLightbox } from "./components/media-lightbox.ts";
 import { numberMediaCaptions } from "./components/media-caption-numbering.ts";
@@ -186,6 +187,7 @@ if (document.querySelector("[data-model-viewer-runtime]")) {
 destroys.push(createMediaLightbox({ root: document }));
 destroys.push(createMediaDecks({ root: document, motion }));
 destroys.push(createInfiniteReels({ root: document, motion }));
+destroys.push(createClientLogoMotion({ root: document, motion }));
 destroys.push(initViewportAutoplayVideos(document));
 destroys.push(createMediaRuntimeHealth({ root: document }));
 destroys.push(createCodeBlocks(document));
