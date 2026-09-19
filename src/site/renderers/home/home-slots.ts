@@ -127,6 +127,29 @@ const petProjectsStyles = `
       }
     }
   }
+  @container pet-projects (width > 42rem) {
+    .pet-projects__grid {
+      grid-auto-flow: row;
+      grid-auto-columns: initial;
+      grid-template-columns: repeat(2, minmax(0, var(--pet-card-width)));
+      justify-content: center;
+      overflow-x: visible;
+      overscroll-behavior-inline: auto;
+      scroll-snap-type: none;
+      scroll-padding-inline: 0;
+      padding-inline: var(--section-inline);
+    }
+
+    .pet-projects .subproject-card { scroll-snap-align: none; }
+    .pet-projects .subproject-card__figure { animation: none; scale: 1; }
+  }
+
+  @container pet-projects (width > 68rem) {
+    .pet-projects__grid {
+      grid-template-columns: repeat(3, minmax(0, var(--pet-card-width)));
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .pet-projects .subproject-card__figure { animation: none; scale: 1; }
   }
