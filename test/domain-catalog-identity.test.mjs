@@ -111,6 +111,7 @@ const expectedIdentitySets = {
     "keys",
     "sea",
     "awful-studio",
+    "awful-mockups",
   ],
   Client: [
     "kursovoy",

@@ -1,6 +1,46 @@
 {
   "bindings": [
     {
+      "assetId": "awful-3d-ipad-pro-11-contact",
+      "usage": {
+        "kind": "direct-placement",
+        "ownerId": "awful-3d-ipad-pro-11-contact-use-01",
+        "sourcePath": "src/data/media/entries",
+        "fieldPath": "awful-3d-ipad-pro-11-contact-use-01",
+        "blockingDelete": true
+      }
+    },
+    {
+      "assetId": "awful-3d-ipad-pro-13-contact",
+      "usage": {
+        "kind": "direct-placement",
+        "ownerId": "awful-3d-ipad-pro-13-contact-use-01",
+        "sourcePath": "src/data/media/entries",
+        "fieldPath": "awful-3d-ipad-pro-13-contact-use-01",
+        "blockingDelete": true
+      }
+    },
+    {
+      "assetId": "awful-3d-iphone-17-contact",
+      "usage": {
+        "kind": "direct-placement",
+        "ownerId": "awful-3d-iphone-17-contact-use-01",
+        "sourcePath": "src/data/media/entries",
+        "fieldPath": "awful-3d-iphone-17-contact-use-01",
+        "blockingDelete": true
+      }
+    },
+    {
+      "assetId": "awful-3d-macbook-pro-14-contact",
+      "usage": {
+        "kind": "direct-placement",
+        "ownerId": "awful-3d-macbook-pro-14-contact-use-01",
+        "sourcePath": "src/data/media/entries",
+        "fieldPath": "awful-3d-macbook-pro-14-contact-use-01",
+        "blockingDelete": true
+      }
+    },
+    {
       "assetId": "awful-cases-assets-recording-2026-08-15-121210",
       "usage": {
         "kind": "direct-placement",
@@ -27,6 +67,176 @@
         "ownerId": "awful-cases-assets-screenshot-2026-08-14-174113-use-01",
         "sourcePath": "src/data/media/entries",
         "fieldPath": "awful-cases-assets-screenshot-2026-08-14-174113-use-01",
+        "blockingDelete": true
+      }
+    },
+    {
+      "assetId": "awful-mockups-02-monitor",
+      "usage": {
+        "kind": "direct-placement",
+        "ownerId": "awful-mockups-02-monitor-use-01",
+        "sourcePath": "src/data/media/entries",
+        "fieldPath": "awful-mockups-02-monitor-use-01",
+        "blockingDelete": true
+      }
+    },
+    {
+      "assetId": "awful-mockups-03-phone-fashion",
+      "usage": {
+        "kind": "direct-placement",
+        "ownerId": "awful-mockups-03-phone-fashion-use-01",
+        "sourcePath": "src/data/media/entries",
+        "fieldPath": "awful-mockups-03-phone-fashion-use-01",
+        "blockingDelete": true
+      }
+    },
+    {
+      "assetId": "awful-mockups-11-square",
+      "usage": {
+        "kind": "direct-placement",
+        "ownerId": "awful-mockups-11-square-use-01",
+        "sourcePath": "src/data/media/entries",
+        "fieldPath": "awful-mockups-11-square-use-01",
+        "blockingDelete": true
+      }
+    },
+    {
+      "assetId": "awful-mockups-16-landscape",
+      "usage": {
+        "kind": "direct-placement",
+        "ownerId": "awful-mockups-16-landscape-use-01",
+        "sourcePath": "src/data/media/entries",
+        "fieldPath": "awful-mockups-16-landscape-use-01",
+        "blockingDelete": true
+      }
+    },
+    {
+      "assetId": "awful-mockups-17-dual-phone",
+      "usage": {
+        "kind": "direct-placement",
+        "ownerId": "awful-mockups-17-dual-phone-use-01",
+        "sourcePath": "src/data/media/entries",
+        "fieldPath": "awful-mockups-17-dual-phone-use-01",
+        "blockingDelete": true
+      }
+    },
+    {
+      "assetId": "awful-mockups-18-phone",
+      "usage": {
+        "kind": "direct-placement",
+        "ownerId": "awful-mockups-18-phone-use-01",
+        "sourcePath": "src/data/media/entries",
+        "fieldPath": "awful-mockups-18-phone-use-01",
+        "blockingDelete": true
+      }
+    },
+    {
+      "assetId": "awful-mockups-28-phone-camera",
+      "usage": {
+        "kind": "direct-placement",
+        "ownerId": "awful-mockups-28-phone-camera-use-01",
+        "sourcePath": "src/data/media/entries",
+        "fieldPath": "awful-mockups-28-phone-camera-use-01",
+        "blockingDelete": true
+      }
+    },
+    {
+      "assetId": "awful-mockups-39-print-case",
+      "usage": {
+        "kind": "direct-placement",
+        "ownerId": "awful-mockups-39-print-case-use-01",
+        "sourcePath": "src/data/media/entries",
+        "fieldPath": "awful-mockups-39-print-case-use-01",
+        "blockingDelete": true
+      }
+    },
+    {
+      "assetId": "awful-mockups-photoshop-layers-detail",
+      "usage": {
+        "kind": "direct-placement",
+        "ownerId": "awful-mockups-photoshop-layers-detail-use-01",
+        "sourcePath": "src/data/media/entries",
+        "fieldPath": "awful-mockups-photoshop-layers-detail-use-01",
+        "blockingDelete": true
+      }
+    },
+    {
+      "assetId": "awful-mockups-photoshop-layers-full",
+      "usage": {
+        "kind": "direct-placement",
+        "ownerId": "awful-mockups-photoshop-layers-full-use-01",
+        "sourcePath": "src/data/media/entries",
+        "fieldPath": "awful-mockups-photoshop-layers-full-use-01",
+        "blockingDelete": true
+      }
+    },
+    {
+      "assetId": "awful-studio-rig-fixture-detail",
+      "usage": {
+        "kind": "direct-placement",
+        "ownerId": "awful-studio-rig-fixture-detail-use-01",
+        "sourcePath": "src/data/media/entries",
+        "fieldPath": "awful-studio-rig-fixture-detail-use-01",
+        "blockingDelete": true
+      }
+    },
+    {
+      "assetId": "awful-studio-rig-front",
+      "usage": {
+        "kind": "direct-placement",
+        "ownerId": "awful-studio-rig-front-use-01",
+        "sourcePath": "src/data/media/entries",
+        "fieldPath": "awful-studio-rig-front-use-01",
+        "blockingDelete": true
+      }
+    },
+    {
+      "assetId": "awful-studio-rig-magnum-detail",
+      "usage": {
+        "kind": "direct-placement",
+        "ownerId": "awful-studio-rig-magnum-detail-use-01",
+        "sourcePath": "src/data/media/entries",
+        "fieldPath": "awful-studio-rig-magnum-detail-use-01",
+        "blockingDelete": true
+      }
+    },
+    {
+      "assetId": "awful-studio-rig-three-quarter",
+      "usage": {
+        "kind": "direct-placement",
+        "ownerId": "awful-studio-rig-three-quarter-use-01",
+        "sourcePath": "src/data/media/entries",
+        "fieldPath": "awful-studio-rig-three-quarter-use-01",
+        "blockingDelete": true
+      }
+    },
+    {
+      "assetId": "awful-studio-scene-loft",
+      "usage": {
+        "kind": "direct-placement",
+        "ownerId": "awful-studio-scene-loft-use-01",
+        "sourcePath": "src/data/media/entries",
+        "fieldPath": "awful-studio-scene-loft-use-01",
+        "blockingDelete": true
+      }
+    },
+    {
+      "assetId": "awful-studio-scene-neon",
+      "usage": {
+        "kind": "direct-placement",
+        "ownerId": "awful-studio-scene-neon-use-01",
+        "sourcePath": "src/data/media/entries",
+        "fieldPath": "awful-studio-scene-neon-use-01",
+        "blockingDelete": true
+      }
+    },
+    {
+      "assetId": "awful-studio-scene-white",
+      "usage": {
+        "kind": "direct-placement",
+        "ownerId": "awful-studio-scene-white-use-01",
+        "sourcePath": "src/data/media/entries",
+        "fieldPath": "awful-studio-scene-white-use-01",
         "blockingDelete": true
       }
     },
