@@ -11,6 +11,6 @@ test("canonical typography roles consume semantic line-height and spacing tokens
   assert.match(components, /\.hero[\s\S]*?& h1\s*\{[\s\S]*?line-height:\s*var\(--lh-hero\);[\s\S]*?letter-spacing:\s*var\(--ls-hero\);/);
   assert.match(components, /& > footer > p\s*\{[\s\S]*?line-height:\s*var\(--lh-tight\);[\s\S]*?letter-spacing:\s*var\(--ls-lead\);/);
   assert.match(captions, /\.media__caption\s*\{[\s\S]*?line-height:\s*var\(--lh-caption\);/);
-  assert.match(projectNavigation, /\.project-nav__(?:item|top)[\s\S]*?line-height:\s*var\(--lh-caption\);/);
+  assert.match(projectNavigation, /\.project-nav__link\s*\{[\s\S]*?line-height:\s*var\(--lh-caption\);/);\n  assert.match(projectNavigation, /\.project-nav__top\s*\{[\s\S]*?line-height:\s*var\(--lh-caption\);/);
   assert.match(expertise, /\.expertise__description\s*\{[\s\S]*?line-height:\s*var\(--lh-body\);/);
 });
