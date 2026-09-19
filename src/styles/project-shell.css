@@ -45,7 +45,6 @@
 
 .project__title {
   grid-column: 1 / -1;
-  max-inline-size: 16ch;
   font-size: var(--fs-800);
   font-weight: var(--fw-700);
   line-height: 0.9;
@@ -53,9 +52,17 @@
 
   & > img {
     display: block;
-    /*inline-size: min(100%, 10rem);*/
+    max-inline-size: 100%;
     block-size: auto;
   }
+}
+
+.project__title--text {
+  max-inline-size: 16ch;
+}
+
+.project__title--logo {
+  max-inline-size: none;
 }
 
 .project__summary {
