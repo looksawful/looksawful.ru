@@ -9,10 +9,10 @@ const sectionIntro = readFileSync(new URL("../src/templates/section-intro.ts", i
 const expertise = readFileSync(new URL("../src/components/expertise.ts", import.meta.url), "utf8");
 
 test("text-pair owns the asymmetric intrinsic wrapping algorithm", () => {
-  assert.match(patterns, /\.text-pair\s*\{[\s\S]*?display:\s*flex;[\s\S]*?flex-wrap:\s*wrap;/);
-  assert.match(patterns, /\.text-pair\s*>\s*:first-child\s*\{[\s\S]*?flex-basis:\s*var\(--text-pair-side-size,\s*auto\);[\s\S]*?flex-grow:\s*1;/);
-  assert.match(patterns, /\.text-pair\s*>\s*:last-child\s*\{[\s\S]*?flex-basis:\s*0;[\s\S]*?flex-grow:\s*999;[\s\S]*?min-inline-size:\s*var\(--text-pair-content-min,\s*50%\);/);
-  assert.match(patterns, /\.text-pair\s*>\s*:only-child\s*\{[\s\S]*?flex-basis:\s*100%;[\s\S]*?min-inline-size:\s*0;/);
+  assert.match(patterns, /\.text-pair\s*\{[\s\S]*?--_text-pair-side-size:\s*var\(--text-pair-side-size,\s*auto\);[\s\S]*?--_text-pair-content-min:\s*var\(--text-pair-content-min,\s*50%\);[\s\S]*?display:\s*flex;[\s\S]*?flex-wrap:\s*wrap;/);
+  assert.match(patterns, /\.text-pair\s*>\s*:first-child\s*\{[\s\S]*?flex-basis:\s*var\(--_text-pair-side-size\);[\s\S]*?flex-grow:\s*1;[\s\S]*?flex-shrink:\s*0;/);
+  assert.match(patterns, /\.text-pair\s*>\s*:last-child\s*\{[\s\S]*?flex-basis:\s*0;[\s\S]*?flex-grow:\s*999;[\s\S]*?min-inline-size:\s*var\(--_text-pair-content-min\);/);
+  assert.match(patterns, /\.text-pair\s*>\s*:only-child\s*\{[\s\S]*?flex-basis:\s*100%;[\s\S]*?flex-shrink:\s*1;[\s\S]*?min-inline-size:\s*0;/);
 });
 
 test("section copy and expertise consume text-pair instead of hand-authored split rules", () => {
