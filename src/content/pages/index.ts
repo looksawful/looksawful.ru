@@ -4,6 +4,7 @@ import { sensetiquePageContent } from "./cases/sensetique.ts";
 import { styxPageContent } from "./cases/styx.ts";
 import { shootingsPageContent } from "./collections/shootings.ts";
 import { awful3dMockupsPageContent } from "./projects/awful-3d-mockups.ts";
+import { awfulMockupsPageContent } from "./projects/awful-mockups.ts";
 import { awfulCasesPageContent } from "./projects/awful-cases.ts";
 import { awfulStudioPageContent } from "./projects/awful-studio.ts";
 import { berrySocialContentPageContent } from "./projects/berry-social-content-2020.ts";
@@ -25,6 +26,7 @@ export const entityPageContents = [
   shootingsPageContent,
   awfulCasesPageContent,
   awful3dMockupsPageContent,
+  awfulMockupsPageContent,
   awfulStudioPageContent,
   berrySocialContentPageContent,
   keysPageContent,

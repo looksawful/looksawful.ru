@@ -1,0 +1,26 @@
+{
+  "id": "awful-studio-rig-fixture-detail",
+  "title": "AWFUL STUDIO",
+  "alt": "Деталь корпуса студийного источника света",
+  "description": "",
+  "date": "2026",
+  "workAreaIds": [
+    "production",
+    "motion"
+  ],
+  "projectTypeIds": [
+    "catalog"
+  ],
+  "deliverableIds": [
+    "advertising-creative",
+    "catalog"
+  ],
+  "tags": [
+    "продакшен",
+    "моушен",
+    "каталог"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

@@ -1,0 +1,22 @@
+{
+  "id": "awful-3d-ipad-pro-11-contact",
+  "title": "Awful 3D Mockups",
+  "alt": "Набор проверочных ракурсов 3D-мокапа iPad Pro 11",
+  "description": "",
+  "date": "2026",
+  "workAreaIds": [
+    "motion",
+    "3d"
+  ],
+  "projectTypeIds": [],
+  "deliverableIds": [
+    "screen-mockup"
+  ],
+  "tags": [
+    "моушен",
+    "3D"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

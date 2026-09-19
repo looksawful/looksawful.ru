@@ -1,6 +1,7 @@
 import type { ProjectData } from "../../../types/project.ts";
 import { awfulCasesEditorialContent } from "../../content/awful-cases-editorial.ts";
 import { awful3dMockupsIntro } from "../../content/awful-3d-mockups.ts";
+import { awfulMockupsIntro } from "../../content/awful-mockups.ts";
 import { awfulStudioIntro } from "../../content/awful-studio.ts";
 import { keysIntro } from "../../content/keys.ts";
 import { seaIntro } from "../../content/sea.ts";
@@ -74,6 +75,18 @@ export const otherProjects = [
     engagementTypeIds: ["self-initiated", "open-source"],
     primaryRoleId: "developer",
     roleIds: ["developer"],
+  },
+  {
+    id: "awful-mockups",
+    name: "Awful Mockups",
+    date: awfulMockupsIntro.period,
+    status: "active",
+    collectionIds: ["pet-projects"],
+    summary: awfulMockupsIntro.summary,
+    description: awfulMockupsIntro.lead,
+    engagementTypeIds: ["self-initiated"],
+    primaryRoleId: "graphic-designer",
+    roleIds: ["graphic-designer"],
   },
   {
     id: "awful-3d-mockups",

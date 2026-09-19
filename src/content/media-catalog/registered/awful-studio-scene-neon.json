@@ -1,0 +1,26 @@
+{
+  "id": "awful-studio-scene-neon",
+  "title": "AWFUL STUDIO",
+  "alt": "Тёмная виртуальная студия с неоновым светом",
+  "description": "",
+  "date": "2026",
+  "workAreaIds": [
+    "production",
+    "motion"
+  ],
+  "projectTypeIds": [
+    "catalog"
+  ],
+  "deliverableIds": [
+    "advertising-creative",
+    "catalog"
+  ],
+  "tags": [
+    "продакшен",
+    "моушен",
+    "каталог"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

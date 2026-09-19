@@ -1,0 +1,26 @@
+{
+  "id": "awful-studio-scene-white",
+  "title": "AWFUL STUDIO",
+  "alt": "Белая виртуальная предметная студия",
+  "description": "",
+  "date": "2026",
+  "workAreaIds": [
+    "production",
+    "motion"
+  ],
+  "projectTypeIds": [
+    "catalog"
+  ],
+  "deliverableIds": [
+    "advertising-creative",
+    "catalog"
+  ],
+  "tags": [
+    "продакшен",
+    "моушен",
+    "каталог"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

@@ -10,6 +10,141 @@
   "quality": 84,
   "assets": [
     {
+      "id": "awful-3d-iphone-17-contact",
+      "src": "/media/projects/awful-3d-mockups/iphone-17-contact.jpg",
+      "sourceWidth": 2180,
+      "sourceHeight": 872,
+      "sourceBytes": 165026,
+      "sourceHash": "936cd4302af573401bce5634454640f555bc30392ef5a96b0cfdfb5fe610b0bb",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/awful-3d-mockups/iphone-17-contact@480.webp",
+          "width": 480,
+          "height": 192,
+          "bytes": 6270,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/awful-3d-mockups/iphone-17-contact@768.webp",
+          "width": 768,
+          "height": 307,
+          "bytes": 10454,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/awful-3d-mockups/iphone-17-contact@1280.webp",
+          "width": 1280,
+          "height": 512,
+          "bytes": 19592,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/awful-3d-mockups/iphone-17-contact@1920.webp",
+          "width": 1920,
+          "height": 768,
+          "bytes": 31980,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "awful-3d-ipad-pro-11-contact",
+      "src": "/media/projects/awful-3d-mockups/ipad-pro-11-contact.jpg",
+      "sourceWidth": 1848,
+      "sourceHeight": 3696,
+      "sourceBytes": 159104,
+      "sourceHash": "513963ee363d1b195aa684140b95ca1c050f1ed1337d8acbc7a4cdcb95b82d65",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/awful-3d-mockups/ipad-pro-11-contact@480.webp",
+          "width": 480,
+          "height": 960,
+          "bytes": 4672,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/awful-3d-mockups/ipad-pro-11-contact@768.webp",
+          "width": 768,
+          "height": 1536,
+          "bytes": 8670,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/awful-3d-mockups/ipad-pro-11-contact@1280.webp",
+          "width": 1280,
+          "height": 2560,
+          "bytes": 17392,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "awful-3d-ipad-pro-13-contact",
+      "src": "/media/projects/awful-3d-mockups/ipad-pro-13-contact.jpg",
+      "sourceWidth": 1848,
+      "sourceHeight": 3696,
+      "sourceBytes": 165923,
+      "sourceHash": "48b319d12cfcc8b0663cae4de1a77e6260c9576272a9387a7c9672a123fce752",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/awful-3d-mockups/ipad-pro-13-contact@480.webp",
+          "width": 480,
+          "height": 960,
+          "bytes": 4944,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/awful-3d-mockups/ipad-pro-13-contact@768.webp",
+          "width": 768,
+          "height": 1536,
+          "bytes": 9482,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/awful-3d-mockups/ipad-pro-13-contact@1280.webp",
+          "width": 1280,
+          "height": 2560,
+          "bytes": 18446,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "awful-3d-macbook-pro-14-contact",
+      "src": "/media/projects/awful-3d-mockups/macbook-pro-14-contact.jpg",
+      "sourceWidth": 1848,
+      "sourceHeight": 1848,
+      "sourceBytes": 195382,
+      "sourceHash": "7aa086b4ba21bf48fc1afe0e29fa71ae34c49624f7ae91236d02314859127fbe",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/awful-3d-mockups/macbook-pro-14-contact@480.webp",
+          "width": 480,
+          "height": 480,
+          "bytes": 6472,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/awful-3d-mockups/macbook-pro-14-contact@768.webp",
+          "width": 768,
+          "height": 768,
+          "bytes": 12916,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/awful-3d-mockups/macbook-pro-14-contact@1280.webp",
+          "width": 1280,
+          "height": 1280,
+          "bytes": 30644,
+          "format": "webp"
+        }
+      ]
+    },
+    {
       "id": "awful-cases-atlas",
       "src": "/media/interactive/awful-cases-atlas.png",
       "sourceWidth": 1620,
@@ -101,6 +236,459 @@
           "width": 1280,
           "height": 693,
           "bytes": 36774,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "awful-mockups-02-monitor",
+      "src": "/media/projects/awful-mockups/02-monitor.jpg",
+      "sourceWidth": 1122,
+      "sourceHeight": 1402,
+      "sourceBytes": 75318,
+      "sourceHash": "47bb209922e7a83906fb272a3403a6f1ab431e5cf1ec35afce9897864dc871d3",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/awful-mockups/02-monitor@480.webp",
+          "width": 480,
+          "height": 600,
+          "bytes": 11754,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/awful-mockups/02-monitor@768.webp",
+          "width": 768,
+          "height": 960,
+          "bytes": 19186,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "awful-mockups-03-phone-fashion",
+      "src": "/media/projects/awful-mockups/03-phone-fashion.jpg",
+      "sourceWidth": 1448,
+      "sourceHeight": 1086,
+      "sourceBytes": 226244,
+      "sourceHash": "6f2797929cb7133acf0f488b99e229e60c549c1f82aee4449099891a9f89c936",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/awful-mockups/03-phone-fashion@480.webp",
+          "width": 480,
+          "height": 360,
+          "bytes": 11448,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/awful-mockups/03-phone-fashion@768.webp",
+          "width": 768,
+          "height": 576,
+          "bytes": 23570,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/awful-mockups/03-phone-fashion@1280.webp",
+          "width": 1280,
+          "height": 960,
+          "bytes": 54216,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "awful-mockups-11-square",
+      "src": "/media/projects/awful-mockups/11-square.jpg",
+      "sourceWidth": 1024,
+      "sourceHeight": 1024,
+      "sourceBytes": 199378,
+      "sourceHash": "3f95a04a3353968f102bf4081edddda09df5dcaa85d1b87ea38b3bfdaefde974",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/awful-mockups/11-square@480.webp",
+          "width": 480,
+          "height": 480,
+          "bytes": 31182,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/awful-mockups/11-square@768.webp",
+          "width": 768,
+          "height": 768,
+          "bytes": 66230,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "awful-mockups-16-landscape",
+      "src": "/media/projects/awful-mockups/16-landscape.jpg",
+      "sourceWidth": 1536,
+      "sourceHeight": 1024,
+      "sourceBytes": 74664,
+      "sourceHash": "d7d8305e5ad4787752c3efee2b6f12bf9411e64e52ddd6a5bc858504cd1e2546",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/awful-mockups/16-landscape@480.webp",
+          "width": 480,
+          "height": 320,
+          "bytes": 6966,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/awful-mockups/16-landscape@768.webp",
+          "width": 768,
+          "height": 512,
+          "bytes": 11290,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/awful-mockups/16-landscape@1280.webp",
+          "width": 1280,
+          "height": 853,
+          "bytes": 19746,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "awful-mockups-17-dual-phone",
+      "src": "/media/projects/awful-mockups/17-dual-phone.jpg",
+      "sourceWidth": 1024,
+      "sourceHeight": 1536,
+      "sourceBytes": 159825,
+      "sourceHash": "cf3d597447db2a86c54564addd33230fb49d93f8088ef118bb4c7021b708a181",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/awful-mockups/17-dual-phone@480.webp",
+          "width": 480,
+          "height": 720,
+          "bytes": 14052,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/awful-mockups/17-dual-phone@768.webp",
+          "width": 768,
+          "height": 1152,
+          "bytes": 27082,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "awful-mockups-18-phone",
+      "src": "/media/projects/awful-mockups/18-phone.jpg",
+      "sourceWidth": 1122,
+      "sourceHeight": 1402,
+      "sourceBytes": 48926,
+      "sourceHash": "3d73a4b5f8d38dc90defcb256fb0e21c65eef508adb6cb7a9ac6958b952cab15",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/awful-mockups/18-phone@480.webp",
+          "width": 480,
+          "height": 600,
+          "bytes": 6786,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/awful-mockups/18-phone@768.webp",
+          "width": 768,
+          "height": 960,
+          "bytes": 13252,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "awful-mockups-28-phone-camera",
+      "src": "/media/projects/awful-mockups/28-phone-camera.jpg",
+      "sourceWidth": 1122,
+      "sourceHeight": 1402,
+      "sourceBytes": 305924,
+      "sourceHash": "f12a404a2f648c5ca84d7074cf29b4f1594d9bbd2cd53efae4dd55578d4f1be0",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/awful-mockups/28-phone-camera@480.webp",
+          "width": 480,
+          "height": 600,
+          "bytes": 13126,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/awful-mockups/28-phone-camera@768.webp",
+          "width": 768,
+          "height": 960,
+          "bytes": 42668,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "awful-mockups-39-print-case",
+      "src": "/media/projects/awful-mockups/39-print-case.jpg",
+      "sourceWidth": 1122,
+      "sourceHeight": 1402,
+      "sourceBytes": 595652,
+      "sourceHash": "c903db81507c017545a0e1f3dbdb05abadbc6f01a703383592a9836a978b7053",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/awful-mockups/39-print-case@480.webp",
+          "width": 480,
+          "height": 600,
+          "bytes": 59392,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/awful-mockups/39-print-case@768.webp",
+          "width": 768,
+          "height": 960,
+          "bytes": 171918,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "awful-mockups-photoshop-layers-full",
+      "src": "/media/projects/awful-mockups/photoshop-layers-full.png",
+      "sourceWidth": 2560,
+      "sourceHeight": 1440,
+      "sourceBytes": 159375,
+      "sourceHash": "ecd5e5a43d1bf02637c8049ee78837e3deea5fdc270eee1aa92dd8ba273da723",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/awful-mockups/photoshop-layers-full@480.webp",
+          "width": 480,
+          "height": 270,
+          "bytes": 6144,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/awful-mockups/photoshop-layers-full@768.webp",
+          "width": 768,
+          "height": 432,
+          "bytes": 12110,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/awful-mockups/photoshop-layers-full@1280.webp",
+          "width": 1280,
+          "height": 720,
+          "bytes": 26942,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/awful-mockups/photoshop-layers-full@1920.webp",
+          "width": 1920,
+          "height": 1080,
+          "bytes": 48628,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "awful-mockups-photoshop-layers-detail",
+      "src": "/media/projects/awful-mockups/photoshop-layers-detail.jpg",
+      "sourceWidth": 1408,
+      "sourceHeight": 1200,
+      "sourceBytes": 54048,
+      "sourceHash": "681474861eb4164c58bb4c9ab12e32ead88e21f77677984c436f7089ba153751",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/awful-mockups/photoshop-layers-detail@480.webp",
+          "width": 480,
+          "height": 409,
+          "bytes": 3842,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/awful-mockups/photoshop-layers-detail@768.webp",
+          "width": 768,
+          "height": 655,
+          "bytes": 7520,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "awful-studio-scene-white",
+      "src": "/media/projects/awful-studio/scene-white-studio.png",
+      "sourceWidth": 960,
+      "sourceHeight": 600,
+      "sourceBytes": 519889,
+      "sourceHash": "ba95467cb71eb72ca6dbd413648f75bf348b8d169c4e8e579eb3f099b70cd1dd",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/awful-studio/scene-white-studio@480.webp",
+          "width": 480,
+          "height": 300,
+          "bytes": 3866,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/awful-studio/scene-white-studio@768.webp",
+          "width": 768,
+          "height": 480,
+          "bytes": 7018,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "awful-studio-scene-loft",
+      "src": "/media/projects/awful-studio/scene-loft-daylight.png",
+      "sourceWidth": 960,
+      "sourceHeight": 600,
+      "sourceBytes": 593139,
+      "sourceHash": "46bc653d27c5b983d0c6a10517fb4eaa0bcb1ea75633a5a4aeecb69af175a8d4",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/awful-studio/scene-loft-daylight@480.webp",
+          "width": 480,
+          "height": 300,
+          "bytes": 7880,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/awful-studio/scene-loft-daylight@768.webp",
+          "width": 768,
+          "height": 480,
+          "bytes": 13734,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "awful-studio-scene-neon",
+      "src": "/media/projects/awful-studio/scene-dark-neon.png",
+      "sourceWidth": 960,
+      "sourceHeight": 600,
+      "sourceBytes": 546530,
+      "sourceHash": "e3bd9d2e27ef1fc7453ad73e2e987b5028e883c90d4f6ed110aab0e900dedf1e",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/awful-studio/scene-dark-neon@480.webp",
+          "width": 480,
+          "height": 300,
+          "bytes": 6586,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/awful-studio/scene-dark-neon@768.webp",
+          "width": 768,
+          "height": 480,
+          "bytes": 11930,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "awful-studio-rig-front",
+      "src": "/media/projects/awful-studio/studio-rig-front.png",
+      "sourceWidth": 1024,
+      "sourceHeight": 1024,
+      "sourceBytes": 405532,
+      "sourceHash": "a21376534705810f6ab5ca2fb2d3750aaab54f630810d04cf7a99c64ddcbb33e",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/awful-studio/studio-rig-front@480.webp",
+          "width": 480,
+          "height": 480,
+          "bytes": 8028,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/awful-studio/studio-rig-front@768.webp",
+          "width": 768,
+          "height": 768,
+          "bytes": 13446,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "awful-studio-rig-three-quarter",
+      "src": "/media/projects/awful-studio/studio-rig-three-quarter.png",
+      "sourceWidth": 1024,
+      "sourceHeight": 1024,
+      "sourceBytes": 372642,
+      "sourceHash": "bc0d22e36e66a9ebd5793b5034907e8080656564c709b1544b05fa441f080515",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/awful-studio/studio-rig-three-quarter@480.webp",
+          "width": 480,
+          "height": 480,
+          "bytes": 8564,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/awful-studio/studio-rig-three-quarter@768.webp",
+          "width": 768,
+          "height": 768,
+          "bytes": 14434,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "awful-studio-rig-fixture-detail",
+      "src": "/media/projects/awful-studio/studio-rig-fixture-detail.png",
+      "sourceWidth": 1024,
+      "sourceHeight": 1024,
+      "sourceBytes": 587875,
+      "sourceHash": "6f414b8eb3ebb93c345964ac2a18c8be94c6a49e91171d212935b64d75ae776a",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/awful-studio/studio-rig-fixture-detail@480.webp",
+          "width": 480,
+          "height": 480,
+          "bytes": 13762,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/awful-studio/studio-rig-fixture-detail@768.webp",
+          "width": 768,
+          "height": 768,
+          "bytes": 23850,
+          "format": "webp"
+        }
+      ]
+    },
+    {
+      "id": "awful-studio-rig-magnum-detail",
+      "src": "/media/projects/awful-studio/studio-rig-magnum-detail.png",
+      "sourceWidth": 1024,
+      "sourceHeight": 1024,
+      "sourceBytes": 754282,
+      "sourceHash": "406d58a7a25b910634f12107068268eb29b18d0f1c4228563efc3fe8b797c28a",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/projects/awful-studio/studio-rig-magnum-detail@480.webp",
+          "width": 480,
+          "height": 480,
+          "bytes": 12812,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/projects/awful-studio/studio-rig-magnum-detail@768.webp",
+          "width": 768,
+          "height": 768,
+          "bytes": 22488,
           "format": "webp"
         }
       ]
