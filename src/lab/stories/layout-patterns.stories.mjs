@@ -119,3 +119,29 @@ export const ProjectTitleMeasure = {
     },
   },
 };
+
+
+export const ReelHorizontalOverflow = {
+  render: () => `
+    <main style="padding:clamp(1.5rem,4vw,4rem)">
+      <div
+        class="reel"
+        style="--reel-gap:1rem;--reel-item-size:min(72vw,18rem);--reel-snap-type:inline mandatory;--reel-snap-align:center;padding-block:1rem"
+      >
+        ${["01", "02", "03", "04", "05"].map((label) => `
+          <article style="display:grid;place-items:end start;min-block-size:14rem;padding:1rem;border:1px solid currentColor;border-radius:1rem">
+            <strong>${label}</strong>
+          </article>
+        `).join("")}
+      </div>
+    </main>
+  `,
+  parameters: {
+    looksawful: { state: "horizontal-overflow-reel" },
+    docs: {
+      description: {
+        story: "Reel owns horizontal overflow, snapping and hidden-scrollbar mechanics. Consumers provide item geometry and may switch those mechanics off through reel custom properties.",
+      },
+    },
+  },
+};
