@@ -80,11 +80,17 @@ export async function finalizeProductionCv(
 }
 
 export function createPublicStaticBuildPlugin(root = process.cwd()): Plugin {
+  let finalized = false;
+
   return {
     name: "looksawful-public-static-build",
     apply: "build",
     enforce: "post",
     async closeBundle() {
+      // Vite/Rolldown may invoke closeBundle more than once for the same build.
+      // Production CV finalization removes disabled cards, so it must run once.
+      if (finalized) return;
+      finalized = true;
       await finalizeProductionCv(root);
     },
   };
