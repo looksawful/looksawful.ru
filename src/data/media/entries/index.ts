@@ -8,6 +8,7 @@ import {
 } from "../usage-records.ts";
 
 import { awfulCasesMediaEntries } from "./awful-cases.ts";
+import { awfulMockupsMediaEntries } from "./awful-mockups.ts";
 import { behanceShootingMediaEntries } from "./behance-shootings.ts";
 import { berryMediaEntries } from "./berry.ts";
 import { berserkTimerMediaEntries } from "./berserk-timer.ts";
@@ -31,6 +32,7 @@ import { usefulMediaEntries } from "./useful.ts";
 
 const rawMediaEntries = [
   ...awfulCasesMediaEntries,
+  ...awfulMockupsMediaEntries,
   ...behanceShootingMediaEntries,
   ...berryMediaEntries,
   ...berserkTimerMediaEntries,
