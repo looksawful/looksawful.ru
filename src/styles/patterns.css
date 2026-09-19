@@ -42,10 +42,6 @@
   margin-inline: auto;
 }
 
-.flow > * + * {
-  margin-block-start: var(--flow-space, 1em);
-}
-
 .prose > * + * {
   margin-block-start: var(--prose-space, var(--prose-flow, 1.5em));
 }

@@ -7,9 +7,9 @@ const css = await readFile(
   "utf8",
 );
 
-test("desktop project lead override wins after shared lead constraints", () => {
-  const sharedConstraintIndex = css.lastIndexOf(
-    ".project__lead,\n  .text-lead",
+test("desktop project lead override follows the canonical shared lead constraint", () => {
+  const sharedConstraintIndex = css.indexOf(
+    ".project__lead,\n.text-lead",
   );
   const desktopOverrideIndex = css.lastIndexOf(
     "@container project (width > 50rem)",
