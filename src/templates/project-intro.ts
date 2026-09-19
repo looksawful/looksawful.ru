@@ -151,9 +151,14 @@ export function renderProjectIntro(
   `
     : "";
   const title = renderTitle(data.title);
-  const titleClassName = options.visuallyHideTitle
-    ? "project__title visually-hidden"
-    : "project__title";
+  const titleVariantClassName = `project__title--${data.title.type}`;
+  const titleClassName = [
+    "project__title",
+    titleVariantClassName,
+    options.visuallyHideTitle ? "visually-hidden" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
   const titleHtml = title
     ? `<${headingTag} class="${titleClassName}"${renderRevealAttribute("copy")}>
         ${title}
