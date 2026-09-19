@@ -6,6 +6,7 @@ const patterns = readFileSync(new URL("../src/styles/patterns.css", import.meta.
 const index = readFileSync(new URL("../index.html", import.meta.url), "utf8");
 const mediaGroup = readFileSync(new URL("../src/templates/media-group.ts", import.meta.url), "utf8");
 const sectionRenderer = readFileSync(new URL("../src/site/renderers/entity/section.ts", import.meta.url), "utf8");
+const homeSlots = readFileSync(new URL("../src/site/renderers/home/home-slots.ts", import.meta.url), "utf8");
 
 test("typographic flow uses prose instead of the retired generic flow primitive", () => {
   assert.doesNotMatch(patterns, /\.flow\s*>\s*\*\s*\+\s*\*/);
@@ -15,4 +16,17 @@ test("typographic flow uses prose instead of the retired generic flow primitive"
   assert.match(sectionRenderer, /class="media-group__head prose"/);
   assert.doesNotMatch(index, /class="project__intro[^"]*\bprose\b[^"]*"/);
   assert.doesNotMatch(index, /\bproject__intro--media\b/);
+});
+
+
+test("live pet-project carousel delegates horizontal mechanics to reel", () => {
+  assert.match(homeSlots, /class="pet-projects__grid reel"/);
+  assert.match(homeSlots, /--reel-display:\s*grid;/);
+  assert.match(homeSlots, /--reel-snap-type:\s*inline mandatory;/);
+  assert.match(homeSlots, /--reel-snap-align:\s*center;/);
+  assert.match(homeSlots, /--reel-overflow-x:\s*visible;/);
+  assert.match(homeSlots, /--reel-overscroll-inline:\s*auto;/);
+  assert.doesNotMatch(homeSlots, /\.pet-projects__grid\s*\{[\s\S]*?overflow-x:\s*auto;/);
+  assert.doesNotMatch(homeSlots, /\.pet-projects__grid\s*\{[\s\S]*?scrollbar-width:\s*none;/);
+  assert.doesNotMatch(homeSlots, /\.pet-projects\s+\.subproject-card\s*\{[^}]*scroll-snap-align:/);
 });
