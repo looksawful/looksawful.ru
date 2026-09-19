@@ -17,7 +17,7 @@
     "berserk-timer": {
       "title": "Berserk Timer",
       "description": "CLI-таймер с режимом свидетеля и гибкой настройкой длительности.",
-      "badge": "NEW"
+      "badge": ""
     },
     "awful-studio": {
       "title": "Awful Studio",
@@ -27,7 +27,7 @@
     "awful-mockups": {
       "title": "Awful Mockups",
       "description": "Набор PSD-мокапов для презентации интерфейсов и графики.",
-      "badge": "В разработке"
+      "badge": "(временно недоступно)"
     },
     "awful-3d-mockups": {
       "title": "Awful 3D Mockups",
