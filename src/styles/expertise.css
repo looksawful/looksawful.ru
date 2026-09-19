@@ -46,7 +46,7 @@
   max-inline-size: 62ch;
   color: var(--clr-text-muted);
   font-size: var(--fs-300);
-  line-height: 1.45;
+  line-height: var(--lh-body);
 }
 
 /* The complete accordion body is authored now but intentionally unavailable.
@@ -80,7 +80,7 @@
   gap: var(--size-200);
   max-inline-size: 62ch;
   font-size: var(--fs-300);
-  line-height: 1.45;
+  line-height: var(--lh-body);
 }
 
 .expertise__action::before {

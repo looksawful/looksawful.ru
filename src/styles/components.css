@@ -38,8 +38,8 @@
     max-inline-size: 11ch;
     font-size: var(--fs-900);
     font-weight: var(--fw-700);
-    line-height: 0.82;
-    letter-spacing: -0.065em;
+    line-height: var(--lh-hero);
+    letter-spacing: var(--ls-hero);
     text-transform: lowercase;
   }
 
@@ -56,8 +56,8 @@
     max-inline-size: 42ch;
     font-size: var(--fs-500);
     font-weight: var(--fw-500);
-    line-height: 1.18;
-    letter-spacing: -0.02em;
+    line-height: var(--lh-tight);
+    letter-spacing: var(--ls-lead);
   }
 
   & address {
@@ -261,7 +261,7 @@
   background: var(--clr-surface-page);
   font-size: clamp(0.72rem, 0.68rem + 0.15cqi, 0.84rem);
   font-weight: var(--fw-400);
-  line-height: 1.36;
+  line-height: var(--lh-caption);
 }
 
 .project-card__name {
@@ -327,7 +327,7 @@
   color: color-mix(in srgb, var(--clr-text), transparent 18%);
   font-size: clamp(0.875rem, 0.82rem + 0.18cqi, 1rem);
   font-weight: var(--fw-400);
-  line-height: 1.45;
+  line-height: var(--lh-body);
 }
 
 .credits {
@@ -412,7 +412,7 @@
   color: #fff;
   font-size: clamp(0.72rem, 0.68rem + 0.15cqi, 0.84rem);
   font-weight: var(--fw-400);
-  line-height: 1.36;
+  line-height: var(--lh-caption);
   opacity: 0;
   translate: 0 0.35rem;
   pointer-events: none;
@@ -471,7 +471,7 @@
   color: #fff;
   font-size: clamp(0.72rem, 0.68rem + 0.15cqi, 0.84rem);
   font-weight: var(--fw-400);
-  line-height: 1.36;
+  line-height: var(--lh-caption);
   opacity: 0;
   translate: 0 0.35rem;
   pointer-events: none;
@@ -844,7 +844,7 @@
     font-size: var(--fs-700);
     font-weight: var(--fw-600);
     line-height: 0.95;
-    letter-spacing: -0.045em;
+    letter-spacing: var(--ls-display);
   }
 }
 

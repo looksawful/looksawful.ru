@@ -1,4 +1,5 @@
 import { jesteiIntro } from "../../data/content/jestei-pool.ts";
+import { progressTraditionIntro } from "../../data/content/progress-tradition.ts";
 import { sensetiqueProductionIntro } from "../../data/content/sensetique.ts";
 import { renderProjectIntro } from "../../templates/project-intro.ts";
 import { renderSectionIntro } from "../../templates/section-intro.ts";
@@ -102,10 +103,7 @@ export const ProjectTitleMeasure = {
   render: () => `
     <main class="stack" style="--stack-space:clamp(3rem,7vw,7rem);padding:clamp(1.5rem,4vw,4rem)">
       <section class="project">
-        ${renderProjectIntro({
-          title: { type: "text", text: "Длинный текстовый заголовок проекта" },
-          lead: "Текстовый title сохраняет читаемую меру 16ch как часть типографической арт-дирекции.",
-        })}
+        ${renderProjectIntro(progressTraditionIntro)}
       </section>
       <section class="project">
         ${renderProjectIntro(jesteiIntro)}
@@ -116,7 +114,7 @@ export const ProjectTitleMeasure = {
     looksawful: { state: "project-title-measure" },
     docs: {
       description: {
-        story: "Text project titles keep the 16ch typographic measure. Logo titles use the editorial grid track and never inherit a character-based width cap.",
+        story: "The longest current text-title case, Издательство Прогресс-Традиция, exercises the 16ch art-direction measure against a real logo-title case. Logo titles use the editorial grid track and never inherit a character-based width cap.",
       },
     },
   },

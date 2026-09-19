@@ -13,4 +13,6 @@ test("typographic flow uses prose instead of the retired generic flow primitive"
   assert.match(index, /class="media-group__head prose"/);
   assert.match(mediaGroup, /className\s*\?\?\s*"prose"/);
   assert.match(sectionRenderer, /class="media-group__head prose"/);
+  assert.doesNotMatch(index, /class="project__intro[^"]*\bprose\b[^"]*"/);
+  assert.doesNotMatch(index, /\bproject__intro--media\b/);
 });

@@ -33,6 +33,7 @@ Ordinary reveals use the existing reveal contract. GSAP is for orchestration tha
 - `text-pair` should choose horizontal versus stacked composition intrinsically from available inline space; do not recreate its state change with a viewport/device breakpoint.
 - Layout width and readable text measure are separate concerns. A layout primitive may size the track; readable measure belongs inside that track.
 - Character-based measures such as `ch` belong to typographic content, not logo/media wrappers. Graphic titles should use the available layout track and constrain the asset itself with `max-inline-size: 100%` when needed.
+- When an authored value exactly represents an existing typography role (`hero`, `display`, `heading`, `tight`, `copy`, `caption`, `body`, `lead`), use the semantic token instead of repeating its numeric value. Keep genuinely local art-direction values local rather than forcing them into the token system.
 
 ## Quality
 
