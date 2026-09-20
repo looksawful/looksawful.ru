@@ -11,7 +11,7 @@ export const awfulMockupsMediaEntries = [
     description: "Вертикальная сцена с монитором для презентации интерфейса, лендинга или дашборда.",
     alt: "Вертикальный мокап монитора в рабочей студийной сцене",
     caption: {
-      title: "Monitor workspace",
+      title: "Монитор",
       text: "Вертикальный кадр для интерфейса или лендинга: экран, объект и фон редактируются отдельно.",
       meta: ["PSD", "Smart Object", "desktop"],
     },
@@ -25,7 +25,7 @@ export const awfulMockupsMediaEntries = [
     description: "Постановочная сцена с телефоном и человеком для обложек, первых экранов и визуальных кейсов.",
     alt: "Мокап телефона в постановочной fashion-сцене с человеком",
     caption: {
-      title: "Phone editorial scene",
+      title: "Постановочная сцена",
       text: "Телефон встроен в живой постановочный кадр, но экран остаётся заменяемым через Smart Object.",
       meta: ["PSD", "retouch", "hero"],
     },
@@ -39,7 +39,7 @@ export const awfulMockupsMediaEntries = [
     description: "Квадратный кадр для соцсетей, обложек и компактной сетки портфолио.",
     alt: "Квадратная презентационная сцена из набора Awful Mockups",
     caption: {
-      title: "Square product crop",
+      title: "Квадратный формат",
       text: "Формат для карточек, обложек и быстрых соцсетевых превью без пересборки исходника.",
       meta: ["1:1", "cover", "social"],
     },
@@ -53,7 +53,7 @@ export const awfulMockupsMediaEntries = [
     description: "Горизонтальный кадр для широких секций, слайдов и превью кейса.",
     alt: "Горизонтальный презентационный мокап из набора Awful Mockups",
     caption: {
-      title: "Landscape presentation",
+      title: "Горизонтальная сцена",
       text: "Широкая сцена для слайдов и секций, где нужен спокойный горизонтальный ритм.",
       meta: ["16:10", "slides", "web"],
     },
@@ -67,7 +67,7 @@ export const awfulMockupsMediaEntries = [
     description: "Парная вертикальная сцена для сравнения экранов, состояний интерфейса или кадров до/после.",
     alt: "Два телефона в вертикальной композиции для сравнения экранов",
     caption: {
-      title: "Dual phone stack",
+      title: "Два телефона",
       text: "Два экрана в одном кадре: удобно показывать сценарий, пару состояний или сравнение.",
       meta: ["mobile", "pair", "comparison"],
     },
@@ -81,7 +81,7 @@ export const awfulMockupsMediaEntries = [
     description: "Чистый телефонный кадр для экранов приложения и мобильных интерфейсных состояний.",
     alt: "Чистый мокап телефона с редактируемым экраном",
     caption: {
-      title: "Single phone frame",
+      title: "Телефон",
       text: "Базовая мобильная сцена без лишнего шума: подходит для UI-экранов и быстрых итераций.",
       meta: ["mobile", "clean", "UI"],
     },
@@ -95,7 +95,7 @@ export const awfulMockupsMediaEntries = [
     description: "Предметная сцена для проектов о фото, видео, контенте и цифровых продуктах.",
     alt: "Телефон рядом с компактной камерой в предметной сцене",
     caption: {
-      title: "Phone and camera",
+      title: "Телефон и камера",
       text: "Предметный кадр добавляет контекст: интерфейс можно показать рядом с камерой, контентом или физическим объектом.",
       meta: ["content", "creator", "object"],
     },
@@ -109,7 +109,7 @@ export const awfulMockupsMediaEntries = [
     description: "Печатный объект в прозрачном футляре для презентации айдентики, постеров и упаковки.",
     alt: "Печатный материал в прозрачном футляре для бренд-презентации",
     caption: {
-      title: "Printed case",
+      title: "Печатный носитель",
       text: "Набор не ограничивается экранами: печатный кадр закрывает постеры, обложки и упаковочные задачи.",
       meta: ["print", "brand", "packaging"],
     },
@@ -123,7 +123,7 @@ export const awfulMockupsMediaEntries = [
     description: "Открытый файл Photoshop с общей структурой мокапа и группами слоёв.",
     alt: "Мокап открыт в Photoshop с раскрытой структурой слоёв",
     caption: {
-      title: "PSD layer system",
+      title: "Структура PSD",
       text: "Общий вид файла: исходник, объект, экран, фон и постобработка разделены по группам.",
       meta: ["Photoshop", "layers", "source"],
     },
@@ -137,7 +137,7 @@ export const awfulMockupsMediaEntries = [
     description: "Фрагмент панели слоёв, где видны рабочие группы, маски и редактируемые элементы.",
     alt: "Фрагмент интерфейса Photoshop со слоями, масками и группами мокапа",
     caption: {
-      title: "Editable layer detail",
+      title: "Слои и маски",
       text: "Крупнее видна рабочая логика PSD: маски, корректирующие слои и редактируемый экран не смешаны в один слой.",
       meta: ["Smart Object", "mask", "retouch"],
     },
