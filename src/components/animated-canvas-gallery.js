@@ -685,7 +685,12 @@ const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
 
   syncCanvasSize(canvas.clientWidth, canvas.clientHeight);
   syncStageScale();
-  setVariant("arc", 0);
+  const initialVariant = gallery.dataset.galleryVariant || tabs[0]?.dataset.variant || "arc";
+  const initialTabIndex = Math.max(
+    0,
+    tabs.findIndex((tab) => tab.dataset.variant === initialVariant),
+  );
+  setVariant(initialVariant, initialTabIndex);
 
   document.addEventListener("visibilitychange", handleVisibilityChange);
   reduceMotion.addEventListener?.("change", handleMotionChange);

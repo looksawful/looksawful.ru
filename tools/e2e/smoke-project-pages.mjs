@@ -11,6 +11,13 @@ const ROUTES = [
     requiredSelector: ".awful-cases-game",
   },
   {
+    path: "/work/awful-mockups/",
+    pageId: "project:awful-mockups",
+    entityId: "awful-mockups",
+    articleId: "project-awful-mockups",
+    requiredSelector: "[data-animated-canvas-gallery]",
+  },
+  {
     path: "/work/moves-awful/",
     pageId: "project:moves-awful",
     entityId: "moves-awful",
@@ -92,7 +99,7 @@ async function verifyProjectPage(page, route, label) {
 }
 
 async function verifyProjectRuntime(page, route, label) {
-  if (route.entityId !== "moves-awful") return;
+  if (!["moves-awful", "awful-mockups"].includes(route.entityId)) return;
 
   const gallery = page.locator("[data-animated-canvas-gallery]").first();
   assert(await gallery.count(), `${label}: Moves canvas gallery is missing`);
@@ -108,6 +115,7 @@ async function verifyProjectRuntime(page, route, label) {
     const rect = canvas?.getBoundingClientRect();
     return {
       galleryState: node.getAttribute("data-gallery-state") || "",
+      galleryVariant: node.getAttribute("data-gallery-variant") || "",
       cssWidth: rect?.width ?? 0,
       cssHeight: rect?.height ?? 0,
       bitmapWidth: canvas instanceof HTMLCanvasElement ? canvas.width : 0,
@@ -118,6 +126,18 @@ async function verifyProjectRuntime(page, route, label) {
   assert(state.galleryState !== "error", `${label}: Moves canvas gallery entered error state`);
   assert(state.cssWidth > 2 && state.cssHeight > 2, `${label}: Moves canvas has zero CSS size\n${JSON.stringify(state)}`);
   assert(state.bitmapWidth > 2 && state.bitmapHeight > 2, `${label}: Moves canvas has zero bitmap size\n${JSON.stringify(state)}`);
+
+  if (route.entityId === "awful-mockups") {
+    assert(
+      state.galleryVariant === "showcase-diagonal",
+      `${label}: Awful Mockups did not preserve showcase-diagonal (${state.galleryVariant})`,
+    );
+    const staticPreviewCount = await page.locator("#awful-mockups-showcase .media-group img").count();
+    assert(
+      staticPreviewCount === 8,
+      `${label}: expected 8 static Awful Mockups previews, got ${staticPreviewCount}`,
+    );
+  }
 }
 
 async function audit(browser, route, viewport) {
