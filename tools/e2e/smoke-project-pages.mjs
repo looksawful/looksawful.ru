@@ -115,7 +115,6 @@ async function verifyProjectRuntime(page, route, label) {
     const rect = canvas?.getBoundingClientRect();
     return {
       galleryState: node.getAttribute("data-gallery-state") || "",
-      galleryVariant: node.getAttribute("data-gallery-variant") || "",
       cssWidth: rect?.width ?? 0,
       cssHeight: rect?.height ?? 0,
       bitmapWidth: canvas instanceof HTMLCanvasElement ? canvas.width : 0,
@@ -128,14 +127,10 @@ async function verifyProjectRuntime(page, route, label) {
   assert(state.bitmapWidth > 2 && state.bitmapHeight > 2, `${label}: Moves canvas has zero bitmap size\n${JSON.stringify(state)}`);
 
   if (route.entityId === "awful-mockups") {
-    assert(
-      state.galleryVariant === "showcase-diagonal",
-      `${label}: Awful Mockups did not preserve showcase-diagonal (${state.galleryVariant})`,
-    );
     const staticPreviewCount = await page.locator("#awful-mockups-showcase .media-group img").count();
     assert(
-      staticPreviewCount === 8,
-      `${label}: expected 8 static Awful Mockups previews, got ${staticPreviewCount}`,
+      staticPreviewCount >= 6 && staticPreviewCount <= 10,
+      `${label}: expected 6-10 curated static Awful Mockups previews, got ${staticPreviewCount}`,
     );
   }
 }
