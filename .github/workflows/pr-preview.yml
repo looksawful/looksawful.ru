@@ -413,7 +413,11 @@ jobs:
           changed="$(git diff --name-only "$PR_BASE_SHA" "$PR_HEAD_SHA")"
           mkdir -p visual-review
 
-          if ! grep -Eq '(^|/)awful-mockups|awful-mockups\.ts            echo "- exact SHA: \`$PR_HEAD_SHA\`"
+          if ! grep -Eq '(^|/)awful-mockups|awful-mockups\\.ts        shell: bash
+        run: |
+          {
+            echo "### Verified browser preview"
+            echo "- exact SHA: \`$PR_HEAD_SHA\`"
             echo "- stable human preview: ${PREVIEW_ALIAS_URL:-not available yet}"
             echo "- verified immutable deployment: $PREVIEW_URL"
             echo "- release gate: manual visual approval is still required before merge/deploy"
@@ -471,7 +475,7 @@ jobs:
           import { chromium } from "playwright";
           import { mkdir, writeFile } from "node:fs/promises";
 
-          const rawBaseUrl = process.env.PREVIEW_URL?.trim() ?? "";
+          const rawBaseUrl = (process.env.PREVIEW_URL || "").trim();
           if (!rawBaseUrl) throw new Error("PREVIEW_URL is required.");
           const url = new URL("/work/awful-mockups/", rawBaseUrl);
           const outDir = "visual-review";
@@ -484,12 +488,7 @@ jobs:
           ];
 
           const browser = await chromium.launch({ headless: true });
-          const manifest = {
-            captured: true,
-            sha: process.env.PR_HEAD_SHA,
-            url: url.href,
-            targets: [],
-          };
+          const manifest = { captured: true, sha: process.env.PR_HEAD_SHA, url: url.href, targets: [] };
 
           try {
             for (const target of targets) {
@@ -501,16 +500,15 @@ jobs:
               });
               const page = await context.newPage();
               const errors = [];
-              page.on("pageerror", (error) => errors.push(`pageerror: ${error.message}`));
+              page.on("pageerror", (error) => errors.push("pageerror: " + error.message));
               page.on("console", (message) => {
                 if (message.type() === "error" && !message.text().startsWith("Failed to load resource:")) {
-                  errors.push(`console: ${message.text()}`);
+                  errors.push("console: " + message.text());
                 }
               });
 
-              await page.goto(url.href, { waitUntil: "domcontentloaded", timeout: 30_000 });
-              await page.evaluate(() => document.fonts?.ready);
-
+              await page.goto(url.href, { waitUntil: "domcontentloaded", timeout: 30000 });
+              await page.evaluate(() => document.fonts && document.fonts.ready);
               const scrollHeight = await page.evaluate(() => document.documentElement.scrollHeight);
               for (let y = 0; y < scrollHeight; y += Math.max(400, Math.floor(target.viewport.height * 0.7))) {
                 await page.evaluate((nextY) => window.scrollTo(0, nextY), y);
@@ -519,11 +517,11 @@ jobs:
               await page.evaluate(() => window.scrollTo(0, 0));
               await page.waitForTimeout(200);
 
-              await page.screenshot({ path: `${outDir}/${target.name}-viewport.png`, fullPage: false });
-              await page.screenshot({ path: `${outDir}/${target.name}-full.png`, fullPage: true });
+              await page.screenshot({ path: outDir + "/" + target.name + "-viewport.png", fullPage: false });
+              await page.screenshot({ path: outDir + "/" + target.name + "-full.png", fullPage: true });
 
               const state = await page.evaluate(() => ({
-                title: document.querySelector("h1")?.textContent?.trim() ?? "",
+                title: document.querySelector("h1")?.textContent?.trim() || "",
                 previewCount: document.querySelectorAll("#awful-mockups-showcase .media-group img").length,
                 structureCount: document.querySelectorAll("#awful-mockups-structure .media-group img").length,
                 presentationCount: document.querySelectorAll("#awful-mockups-showcase [data-animated-canvas-gallery], #awful-mockups-showcase .mockup-deck").length,
@@ -537,7 +535,7 @@ jobs:
             await browser.close();
           }
 
-          await writeFile(`${outDir}/manifest.json`, JSON.stringify(manifest, null, 2) + "\n");
+          await writeFile(outDir + "/manifest.json", JSON.stringify(manifest, null, 2) + "\n");
 
           const henConfig = {
             version: 1,
@@ -552,7 +550,7 @@ jobs:
               { image: "desktop-viewport.png", title: "Десктоп" },
             ],
           };
-          await writeFile(`${outDir}/hen-config.json`, JSON.stringify(henConfig, null, 2) + "\n");
+          await writeFile(outDir + "/hen-config.json", JSON.stringify(henConfig, null, 2) + "\n");
           NODE
 
       - name: Upload responsive visual-review screenshots
