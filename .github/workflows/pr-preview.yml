@@ -413,60 +413,7 @@ jobs:
           changed="$(git diff --name-only "$PR_BASE_SHA" "$PR_HEAD_SHA")"
           mkdir -p visual-review
 
-          if printf '%s\n' "$changed" | grep -Eq '(^|/)awful-mockups|awful-mockups\\.ts        shell: bash
-        run: |
-          {
-            echo "### Verified browser preview"
-            echo "- exact SHA: \`$PR_HEAD_SHA\`"
-            echo "- stable human preview: ${PREVIEW_ALIAS_URL:-not available yet}"
-            echo "- verified immutable deployment: $PREVIEW_URL"
-            echo "- release gate: manual visual approval is still required before merge/deploy"
-          } >> "$GITHUB_STEP_SUMMARY"
-
-      - name: Publish verified preview URL in PR
-        if: github.event_name == 'pull_request'
-        continue-on-error: true
-        uses: actions/github-script@v9
-        env:
-          PREVIEW_PR_NUMBER: ${{ env.PR_NUMBER }}
-          PREVIEW_SHA: ${{ env.PR_HEAD_SHA }}
-        with:
-          script: |
-            const marker = '<!-- looksawful-cloudflare-pr-preview -->';
-            const immutableUrl = process.env.PREVIEW_URL;
-            const aliasUrl = process.env.PREVIEW_ALIAS_URL || immutableUrl;
-            const sha = process.env.PREVIEW_SHA;
-            const issueNumber = Number(process.env.PREVIEW_PR_NUMBER);
-            if (!Number.isInteger(issueNumber) || issueNumber < 1) {
-              core.setFailed('Invalid preview PR number.');
-              return;
-            }
-            const body = `${marker}\n## Browser preview\n\n✅ Published exact target \`${sha}\`\n✅ Immutable HTTP identity/noindex check passed\n✅ Oversized preview media routes verified without deleting repository sources\n✅ Playwright browser smoke passed against the immutable public internet deployment\n\n**Preview:** ${aliasUrl}\n\nVerified immutable deployment: ${immutableUrl}\n\nProduction \`looksawful.ru\` was not changed.\n\n**Release rule:** this preview is evidence only. Merge/deploy still requires explicit manual visual approval.`;
-            const comments = await github.paginate(github.rest.issues.listComments, {
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: issueNumber,
-              per_page: 100,
-            });
-            const existing = comments.find((comment) =>
-              comment.user?.type === 'Bot' && comment.body?.includes(marker)
-            );
-            if (existing) {
-              await github.rest.issues.updateComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                comment_id: existing.id,
-                body,
-              });
-            } else {
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: issueNumber,
-                body,
-              });
-            }
-; then
+          if printf '%s\n' "$changed" | grep -Eq '(^|/)awful-mockups|awful-mockups\\.ts$'; then
             node tools/e2e/capture-awful-mockups-review.mjs
           else
             printf '%s\n' '{"captured":false,"reason":"Awful Mockups not affected"}' > visual-review/manifest.json
