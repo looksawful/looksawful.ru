@@ -34,10 +34,18 @@ export const awfulMockupsMedia = [
   { entryId: "awful-mockups-39-print-case-use-01", captionView: "summary" },
 ] as const satisfies readonly MediaFigureData<MediaEntryId>[];
 
+export const awfulMockupsPreviewGroup = {
+  layout: "grid",
+  captionView: "lightbox-only",
+  columns: 2,
+  mobileColumns: 1,
+  items: awfulMockupsMedia.map(({ entryId }) => ({ entryId })),
+} as const satisfies MediaGroupData<MediaEntryId>;
+
 export const awfulMockupsCanvasGallery = {
   profile: "moves",
   variant: "showcase-diagonal",
-  id: "awful-mockups-showcase",
+  id: "awful-mockups-canvas",
   className: "awful-mockups-showcase",
   items: awfulMockupsMedia.map(({ entryId }) => ({ entryId, title: "" })),
 } as const satisfies AnimatedCanvasGalleryData<MediaEntryId>;

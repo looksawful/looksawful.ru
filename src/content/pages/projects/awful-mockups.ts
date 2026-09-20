@@ -2,6 +2,7 @@ import {
   awfulMockupsIntro,
   awfulMockupsMockupDeck,
   awfulMockupsPhotoshopGroup,
+  awfulMockupsPreviewGroup,
   awfulMockupsStructureIntro,
 } from "../../../data/content/awful-mockups.ts";
 import type { EntityPageContent } from "../../contracts/page-content.ts";
@@ -13,7 +14,10 @@ export const awfulMockupsPageContent = {
     {
       type: "content",
       id: "awful-mockups-showcase",
-      blocks: [{ type: "mockup-deck", data: awfulMockupsMockupDeck }],
+      blocks: [
+        { type: "mockup-deck", data: awfulMockupsMockupDeck },
+        { type: "media-group", data: awfulMockupsPreviewGroup },
+      ],
     },
     {
       type: "content",

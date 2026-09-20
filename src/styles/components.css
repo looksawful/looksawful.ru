@@ -910,6 +910,28 @@
    Moves Awful — prototype canvas + tabs
    ================================================== */
 
+/* ==================================================
+   Reusable Moves canvas profile
+   ================================================== */
+
+[data-animated-canvas-gallery][data-gallery-profile="moves"] {
+  position: relative;
+  inline-size: 100%;
+  block-size: 100%;
+  min-inline-size: 0;
+  min-block-size: 0;
+  overflow: hidden;
+  background: var(--moves-gallery-bg, #07090c);
+}
+
+[data-animated-canvas-gallery][data-gallery-profile="moves"] > canvas {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  pointer-events: none;
+  user-select: none;
+}
+
 .moves-awful-interactive {
   --browser-border: #2b3440;
   --browser-muted: #98a2b0;

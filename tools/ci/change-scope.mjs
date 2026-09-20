@@ -11,7 +11,7 @@ const rules = [
   ["media-tooling", /^(tools\/(build-responsive-media|build-video-media|media-dev-state|sync-media-catalog)\.mjs$|test\/(media-|responsive-|video-delivery))/],
   ["media", /^(public\/media\/|media\/|src\/content\/(media-catalog\/|projects\.json$)|src\/data\/media\/|src\/types\/media\.ts$)/],
   ["dependencies", /^package(-lock)?\.json$/],
-  ["project-pages", /^(work\/(awful-cases|moves-awful|berry-social-content-2020)\/|src\/(content|data\/content)\/(awful-cases|moves-awful|berry)[^/]*|test\/(awful-cases|moves-awful|berry)|tools\/smoke-project-pages\.mjs$)/],
+  ["project-pages", /^(work\/(awful-cases|awful-mockups|moves-awful|berry-social-content-2020)\/|src\/content\/pages\/projects\/awful-mockups\.ts$|src\/data\/content\/awful-mockups\.ts$|src\/(content|data\/content)\/(awful-cases|moves-awful|berry)[^/]*|test\/(awful-cases|awful-mockups|moves-awful|berry)|tools\/smoke-project-pages\.mjs$)/],
   ["shared-runtime", /^(src\/(main\.|interactive\.|motion\/|components\/|templates\/|types\/|site\/|styles\/(index|base|tokens|layout|reset|components)\.)|tools\/(e2e\/|ci\/change-scope\.mjs$|smoke-site\.mjs$|smoke-mpa\.mjs$|capture-caption-qa\.mjs$))/],
   ["build-config", /^(vite\.config\.|tsconfig[^/]*|\.pages\.yml$|index\.html$|404\.html$|tools\/(generate-sitemap|check-site-meta|check-local-links|site-html-utils)\.mjs$)/],
   ["styles", /^src\/styles\//],
