@@ -41,14 +41,14 @@ export const awfulMockupsPreviewGroup = {
   columns: 2,
   mobileColumns: 1,
   items: [
-    { entryId: "awful-mockups-03-phone-fashion-use-01", role: "wide" },
-    { entryId: "awful-mockups-02-monitor-use-01" },
-    { entryId: "awful-mockups-17-dual-phone-use-01" },
-    { entryId: "awful-mockups-28-phone-camera-use-01" },
-    { entryId: "awful-mockups-16-landscape-use-01", role: "wide" },
-    { entryId: "awful-mockups-11-square-use-01" },
-    { entryId: "awful-mockups-18-phone-use-01" },
-    { entryId: "awful-mockups-39-print-case-use-01" },
+    { entryId: "awful-mockups-03-phone-fashion-use-01", role: "wide", captionFields: ["index", "title"] },
+    { entryId: "awful-mockups-02-monitor-use-01", captionFields: ["index", "title"] },
+    { entryId: "awful-mockups-17-dual-phone-use-01", captionFields: ["index", "title"] },
+    { entryId: "awful-mockups-28-phone-camera-use-01", captionFields: ["index", "title"] },
+    { entryId: "awful-mockups-16-landscape-use-01", role: "wide", captionFields: ["index", "title"] },
+    { entryId: "awful-mockups-11-square-use-01", captionFields: ["index", "title"] },
+    { entryId: "awful-mockups-18-phone-use-01", captionFields: ["index", "title"] },
+    { entryId: "awful-mockups-39-print-case-use-01", captionFields: ["index", "title"] },
   ],
 } as const satisfies MediaGroupData<MediaEntryId>;
 
@@ -99,7 +99,7 @@ export const awfulMockupsPhotoshopGroup = {
   columns: 2,
   mobileColumns: 1,
   items: [
-    { entryId: "awful-mockups-photoshop-layers-full-use-01", loading: "lazy" },
-    { entryId: "awful-mockups-photoshop-layers-detail-use-01", loading: "lazy" },
+    { entryId: "awful-mockups-photoshop-layers-full-use-01", loading: "lazy", captionFields: ["index", "title"] },
+    { entryId: "awful-mockups-photoshop-layers-detail-use-01", loading: "lazy", captionFields: ["index", "title"] },
   ],
 } as const satisfies MediaGroupData<MediaEntryId>;
