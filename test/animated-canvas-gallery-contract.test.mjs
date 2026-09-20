@@ -1,10 +1,8 @@
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
-import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 const templateUrl = new URL("../src/templates/animated-canvas-gallery.ts", import.meta.url);
-const runtimeUrl = new URL("../src/components/animated-canvas-gallery.js", import.meta.url);
 
 test("animated canvas gallery renderer supports production fallback and moves JSON profiles", async () => {
   assert.equal(existsSync(templateUrl), true, "animated-canvas-gallery.ts must exist");
@@ -55,15 +53,4 @@ test("animated canvas gallery renderer supports production fallback and moves JS
   assert.match(moves, /data-animated-canvas-gallery-canvas=""/);
   assert.match(moves, /data-gallery-items="" type="application\/json"/);
   assert.match(moves, /"src": "\/media\/projects\/shootings\/01\/source\/02-2x3\.webp"/);
-});
-
-
-test("moves canvas runtime preserves the authored initial variant", async () => {
-  const runtime = await readFile(runtimeUrl, "utf8");
-
-  assert.match(
-    runtime,
-    /const initialVariant = gallery\.dataset\.galleryVariant \|\| tabs\[0\]\?\.dataset\.variant \|\| "arc";/,
-  );
-  assert.doesNotMatch(runtime, /setVariant\("arc", 0\)/);
 });

@@ -18,6 +18,17 @@ test("navigation and standalone projects select their actual browser suites", ()
   assert.deepEqual(classifyChangedFiles(["src/content/navigation.json"]).suites, ["smoke", "navigation"]);
   assert.deepEqual(classifyChangedFiles(["src/content/berry.json"]).suites, ["smoke", "project-pages"]);
 });
+test("Awful Mockups owner files select the project-page browser suite", () => {
+  for (const file of [
+    "src/data/content/awful-mockups.ts",
+    "src/content/pages/projects/awful-mockups.ts",
+  ]) {
+    const scope = classifyChangedFiles([file]);
+    assert.deepEqual(scope.groups, ["project-pages"], file);
+    assert.deepEqual(scope.suites, ["smoke", "project-pages"], file);
+  }
+});
+
 test("known project-navigation CSS uses focused navigation verification while unknown CSS keeps broad fallback", () => {
   const known = classifyChangedFiles(["src/styles/project-navigation.css"]);
   assert.equal(known.scope, "affected");
