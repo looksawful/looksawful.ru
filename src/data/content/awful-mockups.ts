@@ -8,11 +8,12 @@ import type { LogoUsageId } from "../logos/index.ts";
 export const awfulMockupsIntro = {
   head: { type: "text", text: "Awful Mockups" },
   title: { type: "text", text: "Awful Mockups" },
-  role: "Дизайн и ретушь",
+  role: "PSD-мокапы, ретушь и презентационные сцены",
   period: "2026",
-  summary: "Набор редактируемых PSD-мокапов для презентации интерфейсов и графики.",
+  summary: "Редактируемая библиотека device- и print-мокапов для быстрой презентации интерфейсов, графики и кейсов.",
   lead:
-    "Экран, объект, фон, цвет и обработка собраны отдельно. Мокап можно быстро подстроить под проект, не пересобирая сцену с нуля.",
+    "Экран, объект, фон, маски, цвет и постобработка разделены по слоям. Поэтому сцену можно адаптировать под новый проект без повторной съёмки, рендера или сборки мокапа с нуля.",
+  linksLabel: "Исходники",
   links: [
     {
       label: "Скачать PSD",
@@ -24,22 +25,31 @@ export const awfulMockupsIntro = {
 } as const satisfies ProjectIntroData<LogoUsageId>;
 
 export const awfulMockupsMedia = [
-  { entryId: "awful-mockups-02-monitor-use-01", captionView: "summary" },
   { entryId: "awful-mockups-03-phone-fashion-use-01", captionView: "summary" },
-  { entryId: "awful-mockups-11-square-use-01", captionView: "summary" },
-  { entryId: "awful-mockups-16-landscape-use-01", captionView: "summary" },
+  { entryId: "awful-mockups-02-monitor-use-01", captionView: "summary" },
   { entryId: "awful-mockups-17-dual-phone-use-01", captionView: "summary" },
-  { entryId: "awful-mockups-18-phone-use-01", captionView: "summary" },
   { entryId: "awful-mockups-28-phone-camera-use-01", captionView: "summary" },
+  { entryId: "awful-mockups-16-landscape-use-01", captionView: "summary" },
+  { entryId: "awful-mockups-11-square-use-01", captionView: "summary" },
+  { entryId: "awful-mockups-18-phone-use-01", captionView: "summary" },
   { entryId: "awful-mockups-39-print-case-use-01", captionView: "summary" },
 ] as const satisfies readonly MediaFigureData<MediaEntryId>[];
 
 export const awfulMockupsPreviewGroup = {
   layout: "grid",
-  captionView: "lightbox-only",
+  captionView: "summary",
   columns: 2,
   mobileColumns: 1,
-  items: awfulMockupsMedia.map(({ entryId }) => ({ entryId })),
+  items: [
+    { entryId: "awful-mockups-03-phone-fashion-use-01", role: "wide" },
+    { entryId: "awful-mockups-02-monitor-use-01" },
+    { entryId: "awful-mockups-17-dual-phone-use-01" },
+    { entryId: "awful-mockups-28-phone-camera-use-01" },
+    { entryId: "awful-mockups-16-landscape-use-01", role: "wide" },
+    { entryId: "awful-mockups-11-square-use-01" },
+    { entryId: "awful-mockups-18-phone-use-01" },
+    { entryId: "awful-mockups-39-print-case-use-01" },
+  ],
 } as const satisfies MediaGroupData<MediaEntryId>;
 
 export const awfulMockupsCanvasGallery = {
@@ -67,17 +77,25 @@ export const awfulMockupsMockupDeck = {
   ],
 } as const satisfies MockupDeckData<MediaEntryId>;
 
-export const awfulMockupsStructureIntro = {
-  title: "Внутри PSD",
+export const awfulMockupsShowcaseIntro = {
+  title: "Готовые сцены для интерфейсов",
   paragraphs: [
-    "Мокапы остаются рабочими файлами: экран меняется через Smart Object, а фон, маски, цвет и постобработка лежат отдельно.",
-    "Ниже один из файлов открыт в Photoshop. По структуре слоёв видно, как устроен мокап и что в нём можно менять.",
+    "Верхний блок показывает набор как витрину, а ниже те же мокапы раскрываются как отдельные рабочие сцены: телефон, монитор, парные устройства, горизонтальные и печатные композиции.",
+    "Подборка собрана так, чтобы страница читалась с телефона: сначала сильная постановочная сцена, затем device-сцены, потом вариативность форматов и доказательство редактируемой PSD-структуры.",
+  ],
+} as const satisfies SectionIntroData;
+
+export const awfulMockupsStructureIntro = {
+  title: "Файл остаётся редактируемым",
+  paragraphs: [
+    "Каждый мокап устроен как рабочий PSD, а не как плоская картинка: экран меняется через Smart Object, фон и объект отделены масками, цвет и фактура лежат в постобработке.",
+    "Скриншоты Photoshop показывают реальную структуру слоёв. Это не декорация для страницы, а проверка того, что архив можно открыть, заменить контент и быстро собрать новый кадр.",
   ],
 } as const satisfies SectionIntroData;
 
 export const awfulMockupsPhotoshopGroup = {
   layout: "grid",
-  captionView: "overlay",
+  captionView: "summary",
   columns: 2,
   mobileColumns: 1,
   items: [
