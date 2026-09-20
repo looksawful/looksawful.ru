@@ -256,6 +256,21 @@ async function verifyCanvas(page) {
   assert.notEqual(await page.locator("[data-animated-canvas-gallery]").first().getAttribute("data-gallery-state"), "error");
 }
 
+async function verifyAwfulMockups(page) {
+  await verifyCanvas(page);
+  const gallery = page.locator("[data-animated-canvas-gallery]").first();
+  assert.equal(
+    await gallery.getAttribute("data-gallery-variant"),
+    "showcase-diagonal",
+    "Awful Mockups must preserve its authored showcase variant",
+  );
+  assert.equal(
+    await page.locator("#awful-mockups-showcase .media-group img").count(),
+    8,
+    "Awful Mockups must render all curated previews as real media",
+  );
+}
+
 export async function runQuickSmoke({ browser, baseUrl, cvMode = "authored" }) {
   const runtime = { browser, baseUrl };
   // These are the only parallel contexts; callers run quick smoke before deep suites.
@@ -267,6 +282,7 @@ export async function runQuickSmoke({ browser, baseUrl, cvMode = "authored" }) {
   await mapWithConcurrency([
     ["/work/jestei-pool/", verifyCase],
     ["/work/moves-awful/", verifyCanvas],
+    ["/work/awful-mockups/", verifyAwfulMockups],
   ], 2, ([route, verify]) => audit(runtime, route, VIEWPORTS[1], verify));
   await mapWithConcurrency(CAPTION_TOUCH_VIEWPORTS, 2, (viewport) => audit(
     runtime,
