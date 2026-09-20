@@ -15,7 +15,7 @@ const ROUTES = [
     pageId: "project:awful-mockups",
     entityId: "awful-mockups",
     articleId: "project-awful-mockups",
-    requiredSelector: "[data-animated-canvas-gallery]",
+    requiredSelector: "#awful-mockups-showcase .media-group img",
   },
   {
     path: "/work/moves-awful/",
@@ -99,7 +99,18 @@ async function verifyProjectPage(page, route, label) {
 }
 
 async function verifyProjectRuntime(page, route, label) {
-  if (!["moves-awful", "awful-mockups"].includes(route.entityId)) return;
+  if (route.entityId === "awful-mockups") {
+    const staticPreviewCount = await page.locator("#awful-mockups-showcase .media-group img").count();
+    const structureCount = await page.locator("#awful-mockups-structure .media-group img").count();
+    const presentationCount = await page.locator("#awful-mockups-showcase [data-animated-canvas-gallery], #awful-mockups-showcase .mockup-deck").count();
+
+    assert(staticPreviewCount === 8, `${label}: expected exactly 8 Awful Mockups previews, got ${staticPreviewCount}`);
+    assert(structureCount === 1, `${label}: expected one Photoshop structure screenshot, got ${structureCount}`);
+    assert(presentationCount === 0, `${label}: presentation-only surfaces must stay off the Awful Mockups page`);
+    return;
+  }
+
+  if (route.entityId !== "moves-awful") return;
 
   const gallery = page.locator("[data-animated-canvas-gallery]").first();
   assert(await gallery.count(), `${label}: Moves canvas gallery is missing`);
@@ -115,7 +126,6 @@ async function verifyProjectRuntime(page, route, label) {
     const rect = canvas?.getBoundingClientRect();
     return {
       galleryState: node.getAttribute("data-gallery-state") || "",
-      galleryVariant: node.getAttribute("data-gallery-variant") || "",
       cssWidth: rect?.width ?? 0,
       cssHeight: rect?.height ?? 0,
       bitmapWidth: canvas instanceof HTMLCanvasElement ? canvas.width : 0,
@@ -126,18 +136,6 @@ async function verifyProjectRuntime(page, route, label) {
   assert(state.galleryState !== "error", `${label}: Moves canvas gallery entered error state`);
   assert(state.cssWidth > 2 && state.cssHeight > 2, `${label}: Moves canvas has zero CSS size\n${JSON.stringify(state)}`);
   assert(state.bitmapWidth > 2 && state.bitmapHeight > 2, `${label}: Moves canvas has zero bitmap size\n${JSON.stringify(state)}`);
-
-  if (route.entityId === "awful-mockups") {
-    assert(
-      state.galleryVariant === "showcase-diagonal",
-      `${label}: Awful Mockups did not preserve showcase-diagonal (${state.galleryVariant})`,
-    );
-    const staticPreviewCount = await page.locator("#awful-mockups-showcase .media-group img").count();
-    assert(
-      staticPreviewCount >= 6 && staticPreviewCount <= 10,
-      `${label}: expected 6-10 curated static Awful Mockups previews, got ${staticPreviewCount}`,
-    );
-  }
 }
 
 async function audit(browser, route, viewport) {

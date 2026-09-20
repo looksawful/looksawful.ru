@@ -1,6 +1,5 @@
 import {
   awfulMockupsIntro,
-  awfulMockupsMockupDeck,
   awfulMockupsPhotoshopGroup,
   awfulMockupsPreviewGroup,
   awfulMockupsShowcaseIntro,
@@ -16,10 +15,7 @@ export const awfulMockupsPageContent = {
       type: "content",
       id: "awful-mockups-showcase",
       intro: awfulMockupsShowcaseIntro,
-      blocks: [
-        { type: "mockup-deck", data: awfulMockupsMockupDeck },
-        { type: "media-group", data: awfulMockupsPreviewGroup },
-      ],
+      blocks: [{ type: "media-group", data: awfulMockupsPreviewGroup }],
     },
     {
       type: "content",
