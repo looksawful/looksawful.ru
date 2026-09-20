@@ -413,7 +413,7 @@ jobs:
           changed="$(git diff --name-only "$PR_BASE_SHA" "$PR_HEAD_SHA")"
           mkdir -p visual-review
 
-          if grep -Eq '(^|/)awful-mockups|awful-mockups\\.ts        shell: bash
+          if printf '%s\n' "$changed" | grep -Eq '(^|/)awful-mockups|awful-mockups\\.ts        shell: bash
         run: |
           {
             echo "### Verified browser preview"
@@ -466,7 +466,7 @@ jobs:
                 body,
               });
             }
- <<<"$changed"; then
+; then
             node tools/e2e/capture-awful-mockups-review.mjs
           else
             printf '%s\n' '{"captured":false,"reason":"Awful Mockups not affected"}' > visual-review/manifest.json
