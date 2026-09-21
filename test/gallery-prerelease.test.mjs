@@ -252,7 +252,21 @@ test("Gallery viewer history pushes once, replaces slides, and closes without ej
   assert.deepEqual(
     state.galleryViewerHistoryTransition({
       currentItemId: "media-a",
+      currentSlide: 1,
       nextItemId: "media-a",
+      nextSlide: 2,
+      ownsViewerEntry: true,
+      cause: "viewer-change",
+    }),
+    { action: "replace", ownsViewerEntry: true },
+  );
+
+  assert.deepEqual(
+    state.galleryViewerHistoryTransition({
+      currentItemId: "media-a",
+      currentSlide: 2,
+      nextItemId: "media-a",
+      nextSlide: 2,
       ownsViewerEntry: true,
       cause: "viewer-change",
     }),
