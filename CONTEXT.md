@@ -26,8 +26,8 @@ The curated showcase of the strongest standalone works. It is intentionally sele
 **Flagship Case**:
 One of the small set of primary Cases that most strongly establishes the portfolio author's desired professional positioning.
 
-**Featured Case**:
-A strong secondary Case presented with less prominence than a Flagship Case while remaining part of the main portfolio selection.
+**Featured**:
+A curated priority status that can be assigned to a Case, Project or Collection. Featured entities remain part of the main portfolio selection while receiving less prominence than Flagship Cases.
 
 **Project index**:
 A compact navigational overview of the main portfolio selection. It can include both Cases and Collections. Its purpose is orientation, not ranking by visual prominence.
