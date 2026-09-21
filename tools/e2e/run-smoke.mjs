@@ -97,6 +97,49 @@ export async function assertBasicAccessibility(page, route) {
   assert.deepEqual(violations, [], `${route}: basic accessibility violations`);
 }
 
+async function verifyDeferredVideoLoadOwnership({ browser, baseUrl }) {
+  const context = await browser.newContext({
+    viewport: VIEWPORTS[1],
+    deviceScaleFactor: 1,
+  });
+  await context.addInitScript(() => {
+    const originalLoad = HTMLMediaElement.prototype.load;
+    window.__deferredVideoLoadViolations = [];
+    HTMLMediaElement.prototype.load = function patchedLoad(...args) {
+      if (
+        this instanceof HTMLVideoElement
+        && this.hasAttribute("data-autoplay-deferred")
+      ) {
+        window.__deferredVideoLoadViolations.push(
+          this.dataset.autoplaySrc
+            || this.querySelector("source[data-autoplay-src]")?.dataset.autoplaySrc
+            || "<deferred-video>",
+        );
+      }
+      return originalLoad.apply(this, args);
+    };
+  });
+
+  const page = await context.newPage();
+  try {
+    const response = await page.goto(baseUrl, { waitUntil: "domcontentloaded" });
+    assert.ok(response?.ok(), `/: HTTP ${response?.status()}`);
+    await waitForDocumentReady(page);
+    await page.evaluate(() => new Promise((resolve) => {
+      requestAnimationFrame(() => requestAnimationFrame(resolve));
+    }));
+
+    const violations = await page.evaluate(() => window.__deferredVideoLoadViolations ?? []);
+    assert.deepEqual(
+      violations,
+      [],
+      "Deferred Homepage videos must only be loaded after source hydration",
+    );
+  } finally {
+    await context.close();
+  }
+}
+
 async function audit({ browser, baseUrl }, route, viewport, verify, contextOptions = {}) {
   const defaultTouch = viewport.width === 390;
   const context = await browser.newContext({
@@ -318,6 +361,7 @@ async function verifyCanvas(page) {
 
 export async function runQuickSmoke({ browser, baseUrl, cvMode = "authored" }) {
   const runtime = { browser, baseUrl };
+  await verifyDeferredVideoLoadOwnership(runtime);
   // These are the only parallel contexts; callers run quick smoke before deep suites.
   await mapWithConcurrency(VIEWPORTS, 2, (viewport) => audit(runtime, "/", viewport, async (page) => {
     await verifyBuiltAssets(page);
