@@ -8,20 +8,21 @@ import {
 import {
   getBreadcrumbItems,
   getPrimaryNavigationItems,
+  getWorkNavigationItems,
 } from "../src/site/navigation/model.ts";
-import { PRIMARY_NAVIGATION_PAGE_IDS } from "../src/site/navigation/primary.ts";
+import {
+  NAVIGATION_LABEL_PAGE_IDS,
+  PRIMARY_NAVIGATION_PAGE_IDS,
+} from "../src/site/navigation/primary.ts";
 import { sitePages } from "../src/site/pages/manifest.ts";
 
 const navigationDataUrl = new URL("../src/data/navigation.ts", import.meta.url);
 
 const fixture = [
   { id: "home", label: "Старт" },
-  { id: "gallery", label: "Галерея" },
-  { id: "case:jestei-pool", label: "Музыка" },
-  { id: "case:styx", label: "Украшения" },
-  { id: "case:sensetique", label: "Студия" },
-  { id: "collection:music-photography", label: "Съёмки" },
-  { id: "cv", label: "Опыт" },
+  { id: "work", label: "work" },
+  { id: "gallery", label: "gallery" },
+  { id: "cv", label: "cv" },
 ];
 
 const page = (id) => {
@@ -30,17 +31,16 @@ const page = (id) => {
   return found;
 };
 
-test("navigation label adapter derives fixed identity and order from primary SitePage IDs", async () => {
+test("navigation label adapter keeps Home copy while primary navigation stays Work / Gallery / CV", async () => {
   const parsed = parseNavigationLabels([...fixture].reverse());
   const source = await readFile(navigationDataUrl, "utf8");
 
-  assert.deepEqual(parsed.map(({ id }) => id), PRIMARY_NAVIGATION_PAGE_IDS);
+  assert.deepEqual(parsed.map(({ id }) => id), NAVIGATION_LABEL_PAGE_IDS);
   assert.deepEqual(
     parsed.map(({ label }) => label),
-    ["Старт", "Галерея", "Музыка", "Украшения", "Студия", "Съёмки", "Опыт"],
+    ["Старт", "work", "gallery", "cv"],
   );
-  assert.match(source, /PRIMARY_NAVIGATION_PAGE_IDS/);
-  assert.doesNotMatch(source, /export const NAVIGATION_LABEL_IDS\s*=\s*\[/);
+  assert.match(source, /NAVIGATION_LABEL_PAGE_IDS/);
 });
 
 test("navigation label adapter rejects missing, duplicate, unknown and empty content", () => {
@@ -79,13 +79,9 @@ test("edited CMS labels feed menu and breadcrumbs while href and preview stay co
   assert.deepEqual(
     menu.map(({ id, label, href }) => ({ id, label, href })),
     [
-      { id: "home", label: "Старт", href: "/" },
-      { id: "gallery", label: "Галерея", href: "/gallery/" },
-      { id: "case:jestei-pool", label: "Музыка", href: "/work/jestei-pool/" },
-      { id: "case:styx", label: "Украшения", href: "/work/styx/" },
-      { id: "case:sensetique", label: "Студия", href: "/work/sensetique/" },
-      { id: "collection:music-photography", label: "Съёмки", href: "/shootings/" },
-      { id: "cv", label: "Опыт", href: "/cv/" },
+      { id: "work", label: "work", href: "/work/" },
+      { id: "gallery", label: "gallery", href: "/gallery/" },
+      { id: "cv", label: "cv", href: "/cv/" },
     ],
   );
   assert.ok(
@@ -94,16 +90,26 @@ test("edited CMS labels feed menu and breadcrumbs while href and preview stay co
 
   assert.deepEqual(getBreadcrumbItems(page("case:jestei-pool"), labels), [
     { id: "home", label: "Старт", href: "/" },
-    { id: "case:jestei-pool", label: "Музыка", current: true },
+    { id: "case:jestei-pool", label: "Jestei Pool", current: true },
   ]);
+
+  assert.deepEqual(
+    getWorkNavigationItems().map(({ id, href }) => ({ id, href })),
+    [
+      { id: "case:jestei-pool", href: "/work/jestei-pool/" },
+      { id: "case:styx", href: "/work/styx/" },
+      { id: "case:sensetique", href: "/work/sensetique/" },
+      { id: "collection:music-photography", href: "/shootings/" },
+    ],
+  );
 });
 
-test("live navigation content keeps seven stable IDs with editable non-empty labels", async () => {
+test("live navigation content keeps stable Home + primary labels with editable non-empty text", async () => {
   const content = JSON.parse(
     await readFile(new URL("../src/content/navigation.json", import.meta.url), "utf8"),
   );
 
-  assert.deepEqual(content.map(({ id }) => id), PRIMARY_NAVIGATION_PAGE_IDS);
+  assert.deepEqual(content.map(({ id }) => id), NAVIGATION_LABEL_PAGE_IDS);
   assert.ok(content.every(({ label }) => typeof label === "string" && label.trim().length > 0));
 });
 
