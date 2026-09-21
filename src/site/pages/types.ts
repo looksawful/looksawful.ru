@@ -11,7 +11,7 @@ export interface PageDiscovery {
 export type EntityPageId = CanonicalEntityPageId;
 
 export type StaticPageId = "cv" | "privacy";
-export type SitePageId = "home" | "gallery" | StaticPageId | "not-found" | EntityPageId;
+export type SitePageId = "home" | "work" | "gallery" | StaticPageId | "not-found" | EntityPageId;
 
 export interface VitePageBuild {
   kind: "vite";
@@ -23,7 +23,7 @@ export interface PublicStaticPageBuild {
 }
 
 export type SitePageBuild = VitePageBuild | PublicStaticPageBuild;
-export type SitePageRenderer = "home" | "gallery" | "entity" | "static-project" | "cv" | "privacy" | "not-found";
+export type SitePageRenderer = "home" | "work" | "gallery" | "entity" | "static-project" | "cv" | "privacy" | "not-found";
 
 interface BasePageDefinition {
   id: SitePageId;
@@ -38,6 +38,13 @@ export interface HomePageDefinition extends BasePageDefinition {
   type: "home";
   id: "home";
   renderer: "home";
+  build: VitePageBuild;
+}
+
+export interface WorkPageDefinition extends BasePageDefinition {
+  type: "work";
+  id: "work";
+  renderer: "work";
   build: VitePageBuild;
 }
 
@@ -115,6 +122,7 @@ export type EntityPageDefinition =
 
 export type SitePageDefinition =
   | HomePageDefinition
+  | WorkPageDefinition
   | GalleryPageDefinition
   | CasePageDefinition
   | ProjectPageDefinition
