@@ -76,3 +76,6 @@ An explicit human confirmation that the rendered review output for a specific Ca
 
 **Baseline approval**:
 The explicit act, performed only after Visual approval, of promoting that exact reviewed Case and source SHA to the canonical Visual baseline.
+
+**Review surface**:
+A user-facing way to inspect the rendered output of a Visual review, ranging from a quick derived preview to the exact immutable rendered Case.
