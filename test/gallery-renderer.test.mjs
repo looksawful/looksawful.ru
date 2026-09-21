@@ -97,7 +97,7 @@ test("Gallery photo controls expose item-specific accessible names", () => {
     const label = card.match(/\baria-label="([^"]*)"/)?.[1] ?? "";
     const title = card.match(/\bdata-gallery-title="([^"]*)"/)?.[1] ?? "";
     const alt = card.match(/\bdata-gallery-alt="([^"]*)"/)?.[1] ?? "";
-    const identity = title.trim() || alt.trim();
+    const identity = alt.trim() || title.trim();
 
     assert.ok(identity, "Gallery photo control must expose authored identity");
     assert.equal(label, `Открыть: ${identity}`);
