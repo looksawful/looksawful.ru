@@ -13,8 +13,17 @@ const OWNER_SESSION = { repository: "looksawful/looksawful.ru" };
 class MemoryR2 {
   #objects = new Map();
   #version = 0;
+  #failPutKey = null;
+
+  failNextPutFor(key) {
+    this.#failPutKey = key;
+  }
 
   async put(key, value, options = {}) {
+    if (this.#failPutKey === key) {
+      this.#failPutKey = null;
+      throw new Error("synthetic R2 put failure");
+    }
     const bytes =
       typeof value === "string"
         ? new TextEncoder().encode(value)
@@ -251,4 +260,31 @@ test("Review Hub approval UI binds the displayed review and handles stale approv
   assert.match(client, /sourceSha:\s*manifest\.sourceSha/);
   assert.match(client, /reviewDepth:\s*manifest\.reviewDepth/);
   assert.match(client, /response\.status === 409/);
+});
+
+
+test("failed final baseline promotion rolls back durable copies and approval record", async () => {
+  const bucket = new MemoryR2();
+  await createReview(bucket);
+  bucket.failNextPutFor(`review-hub/v1/baselines/${CASE_ID}.json`);
+
+  const response = await handleReviewRequest({
+    request: approvalRequest(),
+    env: { REVIEW_EVIDENCE: bucket },
+    session: OWNER_SESSION,
+    now: () => NOW,
+  });
+
+  assert.equal(response.status, 503);
+  assert.equal(bucket.object(`review-hub/v1/baselines/${CASE_ID}.json`), null);
+  assert.equal(
+    bucket.object(`review-hub/v1/approvals/${CASE_ID}/${SOURCE_SHA}/quick.json`),
+    null,
+  );
+  assert.equal(
+    bucket.object(
+      `review-hub/v1/baselines/${CASE_ID}/${SOURCE_SHA}/evidence/desktop`,
+    ),
+    null,
+  );
 });
