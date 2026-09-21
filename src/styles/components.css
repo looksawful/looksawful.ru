@@ -203,6 +203,14 @@
   }
 }
 
+.work-index > h1 {
+  margin-block-end: var(--size-400);
+  font-size: var(--fs-500);
+  font-weight: var(--fw-600);
+  line-height: var(--lh-tight);
+  text-transform: lowercase;
+}
+
 .projects-grid__list {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
