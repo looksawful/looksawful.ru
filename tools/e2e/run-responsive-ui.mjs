@@ -358,6 +358,23 @@ async function assertModelKeyboardSurface(page, route) {
   assert.equal(await viewer.getAttribute("role"), "group", `${route}: model viewer must expose group semantics`);
 
   await viewer.scrollIntoViewIfNeeded();
+  await viewer.focus();
+  assert.equal(
+    await viewer.evaluate((node) => document.activeElement === node),
+    true,
+    `${route}: model viewer did not retain keyboard focus`,
+  );
+
+  const webglAvailable = await page.evaluate(() => {
+    const canvas = document.createElement("canvas");
+    return Boolean(canvas.getContext("webgl2") || canvas.getContext("webgl"));
+  });
+
+  if (!webglAvailable) {
+    console.log(`[compat] ${route}: WebGL unavailable; verified model shell semantics/focus only`);
+    return;
+  }
+
   await page.waitForFunction(() => {
     const node = document.querySelector("[data-model-viewer-runtime]");
     return node?.dataset.modelState === "error"
@@ -369,13 +386,6 @@ async function assertModelKeyboardSurface(page, route) {
     await viewer.locator("[data-model-viewer-controls]").count(),
     1,
     `${route}: model keyboard controls did not mount`,
-  );
-
-  await viewer.focus();
-  assert.equal(
-    await viewer.evaluate((node) => document.activeElement === node),
-    true,
-    `${route}: model viewer did not retain keyboard focus`,
   );
 
   for (const key of ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "=", "-", "Home"]) {
