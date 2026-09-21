@@ -346,3 +346,74 @@ test("release preflight still rejects conflicts inside approved product files", 
     rmSync(cwd, { recursive: true, force: true });
   }
 });
+
+
+test("release preflight promotes only the approved-base to approved-head delta", () => {
+  const cwd = createRepo();
+  try {
+    writeFileSync(path.join(cwd, "src/index.ts"), [
+      "export const feature = 1;",
+      "export const shared = true;",
+      "",
+    ].join("\n"));
+    git(cwd, "add", "src/index.ts");
+    git(cwd, "commit", "-qm", "shared release ancestor");
+    const shared = git(cwd, "rev-parse", "HEAD");
+
+    git(cwd, "switch", "-qc", "dev-base");
+    writeFileSync(path.join(cwd, "src/index.ts"), [
+      "export const feature = 1;",
+      "export const shared = true;",
+      "export const devOnly = true;",
+      "",
+    ].join("\n"));
+    git(cwd, "add", "src/index.ts");
+    git(cwd, "commit", "-qm", "preexisting dev drift");
+    const approvedBase = git(cwd, "rev-parse", "HEAD");
+
+    writeFileSync(path.join(cwd, "src/index.ts"), [
+      "export const feature = 2;",
+      "export const shared = true;",
+      "export const devOnly = true;",
+      "",
+    ].join("\n"));
+    git(cwd, "add", "src/index.ts");
+    git(cwd, "commit", "-qm", "approved feature");
+    const approvedHead = git(cwd, "rev-parse", "HEAD");
+
+    git(cwd, "switch", "-qc", "prod", shared);
+    writeFileSync(path.join(cwd, "src/index.ts"), [
+      "export const feature = 1;",
+      "export const shared = true;",
+      "export const prodOnly = true;",
+      "",
+    ].join("\n"));
+    git(cwd, "add", "src/index.ts");
+    git(cwd, "commit", "-qm", "independent prod drift");
+    const prod = git(cwd, "rev-parse", "HEAD");
+
+    writeFileSync(path.join(cwd, "src/index.ts"), [
+      "export const feature = 2;",
+      "export const shared = true;",
+      "export const prodOnly = true;",
+      "",
+    ].join("\n"));
+    git(cwd, "add", "src/index.ts");
+    git(cwd, "commit", "-qm", "candidate applies only approved delta");
+    const candidate = git(cwd, "rev-parse", "HEAD");
+
+    const result = spawnSync(process.execPath, [
+      preflightPath,
+      "--repo", cwd,
+      "--prod-base", prod,
+      "--candidate", candidate,
+      "--approved-base", approvedBase,
+      "--approved-head", approvedHead,
+    ], { encoding: "utf8" });
+
+    assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`);
+    assert.match(result.stdout, /RELEASE_PREFLIGHT_OK/);
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
