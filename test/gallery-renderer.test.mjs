@@ -21,6 +21,10 @@ const lightboxSource = await readFile(
   new URL("../src/components/gallery/gallery-lightbox.ts", import.meta.url),
   "utf8",
 );
+const modelViewerSource = await readFile(
+  new URL("../src/components/model-viewer.ts", import.meta.url),
+  "utf8",
+);
 
 const galleryPage = sitePages.find((page) => page.id === "gallery");
 assert.ok(galleryPage && galleryPage.type === "gallery");
@@ -70,6 +74,8 @@ test("Gallery renders exactly five approved Jestei symbols as interactive model 
   for (const card of modelCards) {
     assert.match(card, /data-model-autorotate="false"/);
     assert.match(card, /data-model-viewer-runtime/);
+    assert.match(card, /data-model-viewer-runtime[^>]*tabindex="0"/);
+    assert.match(card, /data-model-viewer-runtime[^>]*role="group"/);
     assert.match(card, /data-model-viewer-canvas/);
     assert.doesNotMatch(card, /\bdata-gallery-card\b/, "3D models must not enter the PhotoSwipe stream");
   }
@@ -88,6 +94,17 @@ test("Gallery photo controls expose item-specific accessible names", () => {
     assert.ok(identity, "Gallery photo control must have canonical title or alt identity");
     assert.equal(label, `Открыть изображение: ${identity}`);
   }
+});
+
+test("Production model viewer exposes a keyboard rotate, zoom and reset path with cleanup", () => {
+  assert.match(modelViewerSource, /addEventListener\("keydown"/);
+  assert.match(modelViewerSource, /"ArrowLeft"/);
+  assert.match(modelViewerSource, /"ArrowRight"/);
+  assert.match(modelViewerSource, /"ArrowUp"/);
+  assert.match(modelViewerSource, /"ArrowDown"/);
+  assert.match(modelViewerSource, /"Home"/);
+  assert.match(modelViewerSource, /data-model-viewer-action/);
+  assert.match(modelViewerSource, /removeEventListener\("keydown"/);
 });
 
 test("Gallery cards never expose an empty accessible image label when canonical title exists", () => {
