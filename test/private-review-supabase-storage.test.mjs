@@ -1,7 +1,10 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 import { createSupabaseReviewStorage } from "../lab/functions/review-storage-supabase.js";
+
+const reviewHubSqlUrl = new URL("../tools/supabase/review-hub.sql", import.meta.url);
 
 const ENV = {
   SUPABASE_URL: "https://example.supabase.co",
@@ -332,3 +335,49 @@ test("Supabase review storage authenticates with a publishable key and runtime i
   );
   assert.equal(JSON.stringify(calls).includes("SUPABASE_SECRET_KEY"), false);
 });
+
+test("Supabase SQL keeps Review Hub writes under RLS and runtime signup bootstrap private", async () => {
+  const sql = await readFile(reviewHubSqlUrl, "utf8");
+
+  for (const functionName of [
+    "review_hub_put_object",
+    "review_hub_delete_object_rows",
+    "review_hub_expired_objects",
+  ]) {
+    assert.match(
+      sql,
+      new RegExp(`create or replace function public\\.${functionName}\\([\\s\\S]*?security invoker`, "u"),
+      `${functionName} must run as the authenticated runtime identity so RLS remains authoritative`,
+    );
+  }
+
+  assert.match(
+    sql,
+    /grant select, insert, update, delete on table public\.review_hub_objects\s+to authenticated, service_role;/u,
+  );
+  for (const policyName of [
+    "review_hub_runtime_insert",
+    "review_hub_runtime_update",
+    "review_hub_runtime_delete",
+  ]) {
+    assert.match(sql, new RegExp(`create policy "${policyName}"`, "u"));
+  }
+
+  assert.match(
+    sql,
+    /create or replace function public\.review_hub_confirm_runtime_signup\(\)[\s\S]*?security definer/u,
+  );
+  assert.match(
+    sql,
+    /revoke all on function public\.review_hub_confirm_runtime_signup\(\)\s+from public, anon, authenticated;/u,
+  );
+  assert.match(
+    sql,
+    /grant execute on function public\.review_hub_confirm_runtime_signup\(\)\s+to supabase_auth_admin;/u,
+  );
+  assert.match(
+    sql,
+    /create trigger review_hub_runtime_autoconfirm[\s\S]*?on auth\.users[\s\S]*?execute function public\.review_hub_confirm_runtime_signup\(\);/u,
+  );
+});
+
