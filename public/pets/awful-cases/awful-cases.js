@@ -19,6 +19,8 @@ export function enhanceAwfulCases(root, { locale = "en" } = {}) {
   let active = false;
   let destroyed = false;
   const abortController = new AbortController();
+  const reducedMotionQuery = window.matchMedia?.("(prefers-reduced-motion: reduce)") ?? null;
+  let reducedMotion = Boolean(reducedMotionQuery?.matches);
   const ATLAS_SRC = "/media/interactive/awful-cases-atlas.png";
   const GROUND_SRC = "/pets/awful-cases/assets/ground.png";
   const PIT_SRC = "/pets/awful-cases/assets/pit.png";
@@ -164,7 +166,6 @@ export function enhanceAwfulCases(root, { locale = "en" } = {}) {
       if (key) key.textContent = ACTIONS[type].label;
       if (label) label.textContent = actionTitle(type);
       button.dataset.active = "false";
-      button.setAttribute("aria-pressed", "false");
       button.setAttribute("aria-label", `${actionTitle(type)}: ${ACTIONS[type].label}, ${appShortcut(type)}`);
     }
   }
@@ -183,7 +184,6 @@ export function enhanceAwfulCases(root, { locale = "en" } = {}) {
     for (const button of actionButtons) {
       const activeButton = Boolean(tutorial && task && button.dataset.awfulCasesAction === task.type);
       button.dataset.active = String(activeButton);
-      button.setAttribute("aria-pressed", String(activeButton));
     }
 
     if (!runnerPrompt) return;
@@ -433,6 +433,7 @@ export function enhanceAwfulCases(root, { locale = "en" } = {}) {
     spawnNext(view.playerX + 300 * view.scale);
     fillQueue();
     syncGuidance();
+    syncAnimation();
     focusCanvas();
   }
 
@@ -1035,9 +1036,36 @@ export function enhanceAwfulCases(root, { locale = "en" } = {}) {
     ctx.restore();
   }
 
-  function loop(now) {
+  function shouldAnimate() {
+    return active && !destroyed && (!reducedMotion || game.mode !== "demo");
+  }
+
+  function syncAnimation() {
     if (!active || destroyed) {
+      if (game.raf) cancelAnimationFrame(game.raf);
       game.raf = 0;
+      return;
+    }
+
+    if (reducedMotion && game.mode === "demo") {
+      if (game.raf) cancelAnimationFrame(game.raf);
+      game.raf = 0;
+      resize();
+      draw();
+      return;
+    }
+
+    game.last = performance.now();
+    if (!game.raf) game.raf = requestAnimationFrame(loop);
+  }
+
+  function loop(now) {
+    if (!shouldAnimate()) {
+      game.raf = 0;
+      if (active && !destroyed) {
+        updateView();
+        draw();
+      }
       return;
     }
     const dt = Math.max(0, Math.min(0.034, (now - game.last) / 1000 || 0));
@@ -1185,6 +1213,14 @@ export function enhanceAwfulCases(root, { locale = "en" } = {}) {
   const resizeObserver = "ResizeObserver" in window ? new ResizeObserver(resize) : null;
   resizeObserver?.observe(root);
   window.addEventListener("resize", resize, { passive: true, signal: abortController.signal });
+  reducedMotionQuery?.addEventListener?.(
+    "change",
+    (event) => {
+      reducedMotion = Boolean(event.matches);
+      syncAnimation();
+    },
+    { signal: abortController.signal },
+  );
   populateTrainerUi();
   resize();
   startDemo();
@@ -1199,8 +1235,7 @@ export function enhanceAwfulCases(root, { locale = "en" } = {}) {
         return;
       }
       resize();
-      game.last = performance.now();
-      if (!game.raf) game.raf = requestAnimationFrame(loop);
+      syncAnimation();
     },
     destroy() {
       if (destroyed) return;
