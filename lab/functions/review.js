@@ -92,8 +92,8 @@ function baselineKey(caseId) {
   return `review-hub/v1/baselines/${caseId}.json`;
 }
 
-function baselineEvidenceKey(caseId, sourceSha, evidenceId) {
-  return `review-hub/v1/baselines/${caseId}/${sourceSha}/evidence/${evidenceId}`;
+function baselineEvidenceKey(caseId, promotionId, evidenceId) {
+  return `review-hub/v1/baselines/${caseId}/objects/${promotionId}/evidence/${evidenceId}`;
 }
 
 function baselineEvidenceUrl(caseId, evidenceId) {
@@ -298,6 +298,21 @@ async function deleteKeys(bucket, keys) {
   if (typeof bucket.delete === "function" && keys.length > 0) await bucket.delete(keys);
 }
 
+function newPromotionId() {
+  return crypto.randomUUID();
+}
+
+function publicBaseline(baseline) {
+  return {
+    version: baseline.version,
+    caseId: baseline.caseId,
+    sourceSha: baseline.sourceSha,
+    reviewDepth: baseline.reviewDepth,
+    approvedAt: baseline.approvedAt,
+    approvedBy: baseline.approvedBy,
+  };
+}
+
 async function approveReview(request, bucket, session, nowMs) {
   if (session?.repository !== ADMIN_REPOSITORY) return text("Approval requires the repository owner.", 403);
 
@@ -319,14 +334,15 @@ async function approveReview(request, bucket, session, nowMs) {
     copies.push({ item, source });
   }
 
+  const promotionId = newPromotionId();
   const durableEvidenceKeys = copies.map(({ item }) =>
-    baselineEvidenceKey(manifest.caseId, manifest.sourceSha, item.id),
+    baselineEvidenceKey(manifest.caseId, promotionId, item.id),
   );
   try {
     await Promise.all(
       copies.map(({ item, source }) =>
         bucket.put(
-          baselineEvidenceKey(manifest.caseId, manifest.sourceSha, item.id),
+          baselineEvidenceKey(manifest.caseId, promotionId, item.id),
           source.body,
           { httpMetadata: { contentType: item.contentType } },
         ),
@@ -353,6 +369,7 @@ async function approveReview(request, bucket, session, nowMs) {
   };
   const baseline = {
     ...approval,
+    promotionId,
     evidence: manifest.evidence.map((item) => ({
       ...item,
       url: baselineEvidenceUrl(manifest.caseId, item.id),
@@ -382,10 +399,15 @@ async function getBaseline(request, bucket) {
   const object = await bucket.get(baselineKey(caseId));
   if (!object) return text("Case baseline not found.", 404);
   const baseline = await readJsonObject(object);
-  if (!baseline || baseline.caseId !== caseId || typeof baseline.sourceSha !== "string") {
+  if (
+    !baseline ||
+    baseline.caseId !== caseId ||
+    typeof baseline.sourceSha !== "string" ||
+    typeof baseline.promotionId !== "string"
+  ) {
     return text("Case baseline not found.", 404);
   }
-  return json(baseline);
+  return json(publicBaseline(baseline));
 }
 
 async function getBaselineEvidence(pathname, bucket) {
@@ -401,13 +423,20 @@ async function getBaselineEvidence(pathname, bucket) {
   const baselineObject = await bucket.get(baselineKey(caseId));
   if (!baselineObject) return text("Baseline evidence not found.", 404);
   const baseline = await readJsonObject(baselineObject);
-  if (!baseline || !SHA.test(baseline.sourceSha ?? "")) return text("Baseline evidence not found.", 404);
+  if (
+    !baseline ||
+    !SHA.test(baseline.sourceSha ?? "") ||
+    typeof baseline.promotionId !== "string" ||
+    !/^[0-9a-f-]{36}$/u.test(baseline.promotionId)
+  ) {
+    return text("Baseline evidence not found.", 404);
+  }
   const descriptor = Array.isArray(baseline.evidence)
     ? baseline.evidence.find((item) => item?.id === evidenceId && validEvidence(item))
     : null;
   if (!descriptor) return text("Baseline evidence not found.", 404);
 
-  const object = await bucket.get(baselineEvidenceKey(caseId, baseline.sourceSha, evidenceId));
+  const object = await bucket.get(baselineEvidenceKey(caseId, baseline.promotionId, evidenceId));
   if (!object) return text("Baseline evidence not found.", 404);
   return new Response(object.body, {
     status: 200,
