@@ -389,7 +389,7 @@ async function approveReview(request, bucket, session, nowMs) {
     return text("Baseline promotion failed.", 503);
   }
 
-  return json(baseline, 201);
+  return json(publicBaseline(baseline), 201);
 }
 
 async function getBaseline(request, bucket) {
