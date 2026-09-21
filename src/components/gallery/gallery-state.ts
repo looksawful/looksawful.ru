@@ -1,5 +1,6 @@
 export interface GalleryState {
   itemId: string | null;
+  slide: number | null;
 }
 
 export type GalleryViewerHistoryAction = "none" | "push" | "replace" | "back";
@@ -22,18 +23,33 @@ function normalizeItemId(value: string | null): string | null {
   return itemId ? itemId : null;
 }
 
+function normalizeSlide(value: string | number | null | undefined): number | null {
+  const slide = typeof value === "number"
+    ? value
+    : typeof value === "string" && value.trim()
+      ? Number(value)
+      : Number.NaN;
+  return Number.isInteger(slide) && slide >= 1 ? slide : null;
+}
+
 export function parseGallerySearch(search: string): GalleryState {
   const params = new URLSearchParams(search.startsWith("?") ? search.slice(1) : search);
 
+  const itemId = normalizeItemId(params.get("item"));
   return {
-    itemId: normalizeItemId(params.get("item")),
+    itemId,
+    slide: itemId ? normalizeSlide(params.get("slide")) : null,
   };
 }
 
 export function serializeGalleryState(state: GalleryState): string {
   const params = new URLSearchParams();
   const itemId = normalizeItemId(state.itemId);
-  if (itemId) params.set("item", itemId);
+  if (itemId) {
+    params.set("item", itemId);
+    const slide = normalizeSlide(state.slide);
+    if (slide) params.set("slide", String(slide));
+  }
 
   const value = params.toString();
   return value ? `?${value}` : "";
