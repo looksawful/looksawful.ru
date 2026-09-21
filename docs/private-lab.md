@@ -24,9 +24,9 @@ Runtime bindings required by the candidate:
 ADMIN_GITHUB_CLIENT_ID
 ADMIN_GITHUB_CLIENT_SECRET
 ADMIN_SESSION_SECRET
-SUPABASE_URL             # backend-only Supabase project URL
-SUPABASE_SECRET_KEY      # backend-only secret key; never browser/public source
-REVIEW_EVIDENCE_BUCKET  # dedicated private Storage bucket id
+SUPABASE_URL             # public project URL; fixed in Worker config
+SUPABASE_PUBLISHABLE_KEY # public publishable key; fixed in Worker config
+REVIEW_RUNTIME_PASSWORD  # backend-only random password stored as a Cloudflare secret
 ```
 
 Accepted application origins are deliberately narrow:
@@ -114,7 +114,7 @@ The Lab shell links to `/lab/system/` and `/lab/system/inventory.html`. Storyboo
 
 The first Review Hub slice lives at `/lab/review/` behind the existing GitHub OAuth boundary.
 
-Private review data uses a server-only Supabase adapter: JSON control/state records live behind RLS in Postgres and image evidence lives in a private Storage bucket. The repository does not contain captured review screenshots, runtime Review manifests, private object identifiers, private review URLs or Supabase secret keys. Missing backend configuration fails closed with `503`. The control table intentionally has RLS enabled with no `anon` or `authenticated` policies; only backend service-role RPCs may mutate Review Hub state. The reproducible Postgres schema/RPC contract lives in `tools/supabase/review-hub.sql`; the private Storage bucket id, Vault values and scheduled maintenance credentials remain deployment-specific and stay outside the public repository.
+Private review data uses a server-side Supabase adapter: JSON control/state records live behind RLS in Postgres and image evidence lives in the private `review-hub-evidence` Storage bucket. The repository does not contain captured review screenshots, runtime Review manifests, private object identifiers, private review URLs or Supabase secret keys. Missing runtime authentication fails closed with `503`. The Admin Worker signs in as the dedicated Supabase Auth identity `review-hub-runtime@looksawful.invalid` using a random password stored only as a Cloudflare Worker secret. The project URL and publishable key are intentionally non-secret; RLS and Storage policies authorize only that authenticated runtime identity. The reproducible Postgres/RPC/RLS contract lives in `tools/supabase/review-hub.sql`. Scheduled maintenance remains inside Supabase and uses service-role authority only there.
 
 The authenticated runtime exposes:
 
@@ -134,6 +134,6 @@ Visual approval is an explicit owner-only mutation at `POST /lab/review/approval
 
 Approved evidence is staged into a unique durable bundle under `review-hub/v1/baselines/`. The Case-scoped state record at `review-hub/v1/state/<case>.json` carries both the current review identity and the active baseline pointer; approval updates that record through a service-role-only Postgres RPC with an exact opaque-etag compare-and-swap, so a superseding review makes promotion fail closed instead of publishing a stale baseline. Compact approval records persist separately under `review-hub/v1/approvals/<case>/<sha>/<review-depth>/<promotion-id>.json`; the promotion id remains private and is never returned to the browser.
 
-Temporary capture objects under `review-hub/v1/cases/` receive an application `expiresAt` exactly four days after ingestion. The Review Hub stops serving them at that deadline. The production Supabase project runs an hourly `pg_cron` → `pg_net` maintenance call whose authentication token lives only in Vault; the maintenance Edge Function deletes expired binary objects through the Storage API before removing their metadata rows. The adapter also performs the same bounded cleanup opportunistically during Review Hub requests. The cleanup RPC is hard-scoped to `review-hub/v1/cases/`, so durable `baselines/`, `approvals/` and Case state are excluded.
+Temporary capture objects under `review-hub/v1/cases/` receive an application `expiresAt` exactly four days after ingestion. The Review Hub stops serving them at that deadline. The production Supabase project runs an hourly `pg_cron` → `pg_net` maintenance call whose authentication token lives only in Vault; the maintenance Edge Function uses Supabase-internal service-role authority to delete expired binary objects through the Storage API before removing their metadata rows. The adapter also performs the same bounded cleanup opportunistically during Review Hub requests. The cleanup RPC is hard-scoped to `review-hub/v1/cases/`, so durable `baselines/`, `approvals/` and Case state are excluded.
 
-The repository verifies the adapter and application contracts. Deployment still must provide the backend-only Supabase URL, secret key and private bucket id; none of those values belongs in browser code or the public repository.
+The repository verifies the adapter and application contracts. Deployment provides only one new backend secret, `REVIEW_RUNTIME_PASSWORD`; GitHub Actions generates it, registers the dedicated Supabase runtime identity, verifies RLS/Storage access, and writes the value directly to the Cloudflare Worker secret store without exposing it to the browser or repository.
