@@ -16,6 +16,10 @@ import {
   normalizePagePath,
   validateSitePages,
 } from "../src/site/pages/validation.ts";
+import {
+  portfolioPresentation,
+  validatePortfolioPresentation,
+} from "../src/site/pages/portfolio-presentation.ts";
 
 const pluginSource = await readFile(
   new URL("../src/site/build/site-pages-plugin.ts", import.meta.url),
@@ -228,4 +232,41 @@ test("central site-pages plugin is orchestration-only", () => {
 
 test("Homepage support is derived from executable architecture, not a duplicate allowlist", () => {
   assert.doesNotMatch(homepageSource, /implementedFullRenderers/);
+});
+
+
+test("portfolio presentation keeps exactly three Case-only Flagships", () => {
+  assert.doesNotThrow(() => validatePortfolioPresentation(portfolioPresentation, sitePages));
+  assert.equal(portfolioPresentation.flagship.length, 3);
+
+  for (const id of portfolioPresentation.flagship) {
+    const page = sitePages.find((candidate) => candidate.id === id);
+    assert.equal(page?.type, "case", `Flagship must resolve to a Case page: ${id}`);
+  }
+
+  assert.throws(
+    () => validatePortfolioPresentation(
+      { ...portfolioPresentation, flagship: portfolioPresentation.flagship.slice(0, 2) },
+      sitePages,
+    ),
+    /exactly 3 Flagship/i,
+  );
+});
+
+test("portfolio presentation rejects unknown and duplicate main-tier page ids", () => {
+  assert.throws(
+    () => validatePortfolioPresentation(
+      { ...portfolioPresentation, featured: ["gallery"] },
+      sitePages,
+    ),
+    /entity page/i,
+  );
+
+  assert.throws(
+    () => validatePortfolioPresentation(
+      { ...portfolioPresentation, featured: [portfolioPresentation.flagship[0]] },
+      sitePages,
+    ),
+    /duplicate/i,
+  );
 });
