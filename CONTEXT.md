@@ -79,3 +79,9 @@ The explicit act, performed only after Visual approval, of promoting that exact 
 
 **Review surface**:
 A user-facing way to inspect the rendered output of a Visual review, ranging from a quick derived preview to the exact immutable rendered Case.
+
+**Review Hub**:
+A persistent private Review surface that provides the fastest path to the current visual-review evidence for a Case.
+
+**Review depth**:
+The amount of evidence required for a Visual review, ranging from a quick derived preview to exact interactive and full cross-profile inspection.
