@@ -36,6 +36,18 @@ async function proxyPublicMedia(request) {
   });
 }
 
+function fetchLabAsset(request, env) {
+  const assetUrl = new URL(request.url);
+
+  if (assetUrl.pathname === "/lab") {
+    assetUrl.pathname = "/";
+  } else if (assetUrl.pathname.startsWith("/lab/")) {
+    assetUrl.pathname = assetUrl.pathname.slice(4) || "/";
+  }
+
+  return env.ASSETS.fetch(new Request(assetUrl, request));
+}
+
 export default {
   async fetch(request, env) {
     return onRequest({
@@ -46,7 +58,7 @@ export default {
         if (pathname.startsWith("/media/")) {
           return proxyPublicMedia(request);
         }
-        return env.ASSETS.fetch(request);
+        return fetchLabAsset(request, env);
       },
     });
   },
