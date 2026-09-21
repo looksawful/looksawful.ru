@@ -131,6 +131,7 @@ test("approval is owner-only and promotes an exact Case+SHA baseline", async () 
   });
   assert.equal(approved.status, 201);
   const payload = await approved.json();
+  assert.equal(payload.promotionId, undefined, "private promotion identifiers must not leak");
   assert.deepEqual(
     {
       caseId: payload.caseId,
