@@ -27,12 +27,12 @@ assert.ok(galleryPage && galleryPage.type === "gallery");
 
 const html = renderGalleryPage(galleryPage);
 
-test("Gallery renderer emits semantic build-time content inside the shared page shell without a page-level heading", () => {
+test("Gallery renderer emits semantic build-time content with a non-visual page heading", () => {
   assert.match(html, /<body[^>]*data-page-type="gallery"[^>]*>/);
   assert.match(html, /data-site-navigation/);
-  assert.match(html, /<main>/);
+  assert.match(html, /<main\b/);
   assert.match(html, /<section[^>]*data-gallery/);
-  assert.doesNotMatch(html, /<h1\b/i);
+  assert.match(html, /<h1 class="visually-hidden">Галерея<\/h1>/);
   assert.doesNotMatch(html, /gallery__header|gallery__title/);
 });
 
@@ -85,6 +85,22 @@ test("Gallery cards never expose an empty accessible image label when canonical 
     if (title.trim()) {
       assert.ok(alt.trim(), `Gallery card with title ${title} must have a non-empty image alt`);
     }
+  }
+});
+
+test("Gallery photo controls expose item-specific accessible names", () => {
+  const cards = [...html.matchAll(/<figure class="gallery-card"[\s\S]*?<\/figure>/g)]
+    .map((match) => match[0]);
+  assert.ok(cards.length > 0, "Gallery must render photo controls");
+
+  for (const card of cards) {
+    const label = card.match(/\baria-label="([^"]*)"/)?.[1] ?? "";
+    const title = card.match(/\bdata-gallery-title="([^"]*)"/)?.[1] ?? "";
+    const alt = card.match(/\bdata-gallery-alt="([^"]*)"/)?.[1] ?? "";
+    const identity = alt.trim() || title.trim();
+
+    assert.ok(identity, "Gallery photo control must expose authored identity");
+    assert.equal(label, `Открыть: ${identity}`);
   }
 });
 

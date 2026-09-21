@@ -39,8 +39,9 @@ export function renderPageShell({
     <script src="/src/main.js" type="module"></script>
   </head>
   <body ${renderBodyAttributes(page)}>
+    <a class="skip-link" href="#main-content">Перейти к содержимому</a>
     ${renderSiteNavigation(page)}
-    <main>
+    <main id="main-content" tabindex="-1">
       ${content}
     </main>
   </body>
