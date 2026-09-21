@@ -270,7 +270,7 @@ returns trigger
 language plpgsql
 security definer
 set search_path = auth, public, pg_temp
-as $
+as $$
 begin
   if new.email = 'review-hub-runtime@looksawful.invalid' then
     new.email_confirmed_at := coalesce(new.email_confirmed_at, now());
@@ -278,7 +278,7 @@ begin
   end if;
   return new;
 end;
-$;
+$$;
 
 revoke all on function public.review_hub_confirm_runtime_signup()
   from public, anon, authenticated, service_role;
