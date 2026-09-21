@@ -44,8 +44,24 @@ const initialize = (context, itemId = null) => {
   };
 };
 
+let activeCleanup = () => {};
+
+const registerCleanup = (cleanup) => {
+  activeCleanup();
+  activeCleanup = cleanup;
+};
+
+const resetCleanup = () => {
+  activeCleanup();
+  activeCleanup = () => {};
+};
+
 export default {
   title: "03 Organisms/Gallery Controller",
+  beforeEach: () => {
+    resetCleanup();
+    return () => resetCleanup();
+  },
   tags: ["autodocs", "stable", "a11y-reviewed"],
   render: () => galleryMarkup,
   parameters: {
@@ -70,16 +86,17 @@ export default {
 };
 
 export const Closed = {
-  play: (context) => initialize(context),
+  play: (context) => {
+    registerCleanup(initialize(context));
+  },
 };
 
 export const OpenKeyboard = {
   play: (context) => {
-    const cleanup = initialize(context);
+    registerCleanup(initialize(context));
     const card = firstCard(context.canvasElement);
     card.focus();
     card.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
-    return cleanup;
   },
   parameters: {
     looksawful: {
@@ -91,9 +108,8 @@ export const OpenKeyboard = {
 
 export const OpenPointer = {
   play: (context) => {
-    const cleanup = initialize(context);
+    registerCleanup(initialize(context));
     firstCard(context.canvasElement).click();
-    return cleanup;
   },
   parameters: {
     looksawful: {
@@ -108,7 +124,7 @@ export const DeepLinked = {
     const card = firstCard(context.canvasElement);
     const itemId = card.dataset.galleryItemId;
     if (!itemId) throw new Error("Gallery story card has no stable item id");
-    return initialize(context, itemId);
+    registerCleanup(initialize(context, itemId));
   },
   parameters: {
     looksawful: {
