@@ -188,22 +188,10 @@ revoke all on function public.review_hub_expired_objects(integer)
 grant execute on function public.review_hub_expired_objects(integer)
   to service_role;
 
-insert into storage.buckets (
-  id,
-  name,
-  public,
-  file_size_limit,
-  allowed_mime_types
-)
-values (
-  'review-hub-private',
-  'review-hub-private',
-  false,
-  20971520,
-  array['image/png', 'image/jpeg', 'image/webp']::text[]
-)
-on conflict (id) do update
-set
-  public = false,
-  file_size_limit = excluded.file_size_limit,
-  allowed_mime_types = excluded.allowed_mime_types;
+-- The private Storage bucket is intentionally not named in this public file.
+-- Provision its deployment-specific id outside the public repository, then pass
+-- that id to the Admin runtime through REVIEW_EVIDENCE_BUCKET.
+-- Required bucket properties:
+--   public = false
+--   file_size_limit = 20 MiB
+--   allowed_mime_types = image/png, image/jpeg, image/webp
