@@ -155,6 +155,8 @@ function conditionDefinitelyFalseForEvent(expression, eventName) {
     return andParts.some((part) => conditionDefinitelyFalseForEvent(part, eventName));
   }
 
+  if (/^github\.event\.schedule\s*==\s*['"][^'"]+['"]$/u.test(source)) return true;
+
   const match = /^github\.event_name\s*(==|!=)\s*['"]([^'"]+)['"]$/u.exec(source);
   if (!match) return false;
   const [, operator, expected] = match;
@@ -235,6 +237,13 @@ test("job condition analysis only excludes pull requests when the whole conditio
       new Set(["pull_request_target"]),
     ),
     true,
+  );
+  assert.equal(
+    jobCanRunOnPullRequest(
+      "    if: github.event.schedule == '37 1 * * *' || (github.event_name == 'workflow_dispatch' && inputs.suite == 'all')",
+      pullRequest,
+    ),
+    false,
   );
 });
 
