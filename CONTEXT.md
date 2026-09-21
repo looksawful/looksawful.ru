@@ -64,3 +64,9 @@ A visual-review context corresponding to the user's motion preference, such as n
 
 **Motion-sensitive component**:
 A component whose rendered appearance materially differs between motion profiles and therefore requires distinct visual-review states.
+
+**Case review profile**:
+The set of viewport, motion and review-state contexts required to review a Case without redundant duplicate states.
+
+**Component review profile**:
+The component-level visual-review contexts required only when a component has materially distinct visual states that cannot be represented by the Case's default state.
