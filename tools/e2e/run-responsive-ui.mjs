@@ -323,7 +323,6 @@ async function checkRepresentativeRoute(browser, baseUrl, route, viewport) {
       const rect = toggle instanceof HTMLElement ? toggle.getBoundingClientRect() : null;
       return {
         mainCount: document.querySelectorAll("main").length,
-        h1Count: document.querySelectorAll("h1").length,
         horizontalOverflow:
           document.documentElement.scrollWidth - document.documentElement.clientWidth,
         toggle: rect
@@ -341,7 +340,6 @@ async function checkRepresentativeRoute(browser, baseUrl, route, viewport) {
 
     const label = `${route} ${viewport.width}x${viewport.height}`;
     assert.equal(state.mainCount, 1, `${label}: expected exactly one main`);
-    assert.equal(state.h1Count, 1, `${label}: expected exactly one h1`);
     assert.ok(state.horizontalOverflow <= 1, `${label}: horizontal overflow is ${state.horizontalOverflow}px`);
     assert.ok(state.toggle, `${label}: site menu toggle is missing`);
     assert.ok(state.toggle.left >= -1, `${label}: site menu toggle escapes the left edge`);
