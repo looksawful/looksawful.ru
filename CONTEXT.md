@@ -32,6 +32,9 @@ A compact navigational overview of the main portfolio selection. It can include 
 **Work Archive**:
 The deeper, intentionally de-emphasized portfolio layer outside the main Flagship and Featured selection. It may contain Cases, Collections and smaller standalone public project surfaces, but not raw Media Catalog inventory. It remains accessible without competing with the primary portfolio narrative.
 
+**Work index**:
+The canonical public portfolio index that exposes the complete authored work structure: Flagship Cases, Featured Cases, Collections and the Work Archive. It is an index, not a duplicate of the homepage narrative.
+
 **Project card**:
 A homepage/navigation presentation that points to a Case or another project surface; it is not the canonical identity of the destination.
 
