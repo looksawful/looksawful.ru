@@ -9,9 +9,16 @@ test("Pet Projects stays a horizontal focus carousel at every width", async () =
 
   assert.match(source, /grid-auto-flow:\s*column;/, "layout must remain a horizontal carousel");
   assert.match(source, /grid-template-columns:\s*none;/, "legacy responsive grid columns must be neutralized");
-  assert.match(source, /overflow-x:\s*auto;/, "carousel must remain horizontally scrollable");
-  assert.match(source, /scroll-snap-type:\s*inline mandatory;/, "carousel must keep centered snap behavior");
-  assert.match(source, /scroll-snap-align:\s*center;/, "cards must keep centered snap alignment");
+  assert.match(
+    source,
+    /(?:scroll-snap-type|--reel-snap-type):\s*inline mandatory;/,
+    "carousel must keep centered snap behavior",
+  );
+  assert.match(
+    source,
+    /(?:scroll-snap-align|--reel-snap-align):\s*center;/,
+    "cards must keep centered snap alignment",
+  );
   assert.match(source, /animation-timeline:\s*view\(inline\);/, "focus animation must track inline scroll position");
   assert.match(
     source,
@@ -20,7 +27,8 @@ test("Pet Projects stays a horizontal focus carousel at every width", async () =
   );
 
   assert.doesNotMatch(source, /grid-auto-flow:\s*row;/);
-  assert.doesNotMatch(source, /scroll-snap-type:\s*none;/);
+  assert.doesNotMatch(source, /(?:scroll-snap-type|--reel-snap-type):\s*none;/);
+  assert.doesNotMatch(source, /--reel-overflow-x:\s*visible;/);
   assert.doesNotMatch(source, /@container pet-projects \(width > 42rem\)/);
   assert.doesNotMatch(source, /@container pet-projects \(width > 68rem\)/);
 });
