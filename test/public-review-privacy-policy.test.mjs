@@ -120,8 +120,8 @@ test("pull-request workflows cannot publish visual-review evidence", async () =>
   const forbiddenInPrJobs = [
     ["public artifact upload", /actions\/upload-artifact@/iu],
     ["issue comment mutation", /github\.rest\.issues\.(?:create|update)Comment/iu],
-    ["public Pages deployment", /(?:wrangler[^\n]*\bdeploy\b|\bpages\s+deploy\b|actions\/deploy-pages@)/iu],
-    ["public report mutation permission", /^    (?:issues|pull-requests):\s*write\s*$/mu],
+    ["public Pages deployment", /(?:wrangler[^\n]*\bdeploy\b|\bpages\s+deploy\b|actions\/deploy-pages@|cloudflare\/wrangler-action@)/iu],
+    ["public report mutation permission", /^    (?:contents|issues|pull-requests|pages|deployments):\s*write\s*$/mu],\n    ["broad write permission", /^    permissions:\s*write-all\s*$/mu],
     ["GitHub comment CLI", /\bgh\s+(?:pr|issue)\s+comment\b/iu],
   ];
 
@@ -131,8 +131,13 @@ test("pull-request workflows cannot publish visual-review evidence", async () =>
 
     assert.doesNotMatch(
       topLevelBlock(source, "permissions"),
-      /^  (?:issues|pull-requests):\s*write\s*$/mu,
-      `${name} grants public-report mutation permission on a pull-request workflow`,
+      /^  (?:contents|issues|pull-requests|pages|deployments):\s*write\s*$/mu,
+      `${name} grants publication-capable permission on a pull-request workflow`,
+    );
+    assert.doesNotMatch(
+      source,
+      /^permissions:\s*write-all\s*$/mu,
+      `${name} grants write-all on a pull-request workflow`,
     );
 
     for (const job of jobsFromWorkflow(source)) {
