@@ -70,3 +70,9 @@ The set of viewport, motion and review-state contexts required to review a Case 
 
 **Component review profile**:
 The component-level visual-review contexts required only when a component has materially distinct visual states that cannot be represented by the Case's default state.
+
+**Visual approval**:
+An explicit human confirmation that the rendered review output for a specific Case and source SHA is acceptable.
+
+**Baseline approval**:
+The explicit act, performed only after Visual approval, of promoting that exact reviewed Case and source SHA to the canonical Visual baseline.
