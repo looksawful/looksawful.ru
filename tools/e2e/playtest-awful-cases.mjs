@@ -190,6 +190,34 @@ async function exerciseVictoryRestart(page) {
       document.querySelector("[data-awful-cases]").awfulCasesCaseTrainer.game.mode === "running",
   );
 }
+
+async function exerciseReducedMotion(browser, baseUrl) {
+  const context = await browser.newContext({
+    viewport: { width: 1280, height: 900 },
+    reducedMotion: "reduce",
+  });
+  const page = await context.newPage();
+  const errors = await openTrainer(page, `${baseUrl}/work/awful-cases/`);
+  const before = await page.evaluate(() =>
+    document.querySelector("[data-awful-cases]").awfulCasesCaseTrainer.game.time,
+  );
+  await page.waitForTimeout(250);
+  const after = await page.evaluate(() =>
+    document.querySelector("[data-awful-cases]").awfulCasesCaseTrainer.game.time,
+  );
+  assert.equal(after, before, "reduced-motion demo must remain static until the user starts");
+
+  await startSession(page);
+  await page.waitForTimeout(250);
+  const runningTime = await page.evaluate(() =>
+    document.querySelector("[data-awful-cases]").awfulCasesCaseTrainer.game.time,
+  );
+  assert.ok(runningTime > after, "user-started training must remain playable under reduced motion");
+  assert.equal(await page.locator("[data-awful-cases-controls] [aria-pressed]").count(), 0);
+  assert.deepEqual(errors, []);
+  await context.close();
+}
+
 async function exerciseMobileTouch(browser, baseUrl) {
   const context = await browser.newContext({
     viewport: { width: 390, height: 844 },
@@ -242,6 +270,7 @@ await withE2ERuntime(async ({ browser, baseUrl }) => {
   assert.deepEqual(embeddedErrors, []);
   await page.close();
 
+  await exerciseReducedMotion(browser, baseUrl);
   await exerciseMobileTouch(browser, baseUrl);
   console.log(`Awful Cases playtest passed. Screenshots: ${outputDir}`);
 });
