@@ -30,5 +30,8 @@ test("live pet-project carousel stays horizontal and keeps focus scaling at ever
   assert.doesNotMatch(homeSlots, /--reel-overflow-x:\s*visible;/);
   assert.doesNotMatch(homeSlots, /--reel-snap-type:\s*none;/);
   assert.doesNotMatch(homeSlots, /grid-auto-flow:\s*row;/);
-  assert.doesNotMatch(homeSlots, /\.pet-projects \.subproject-card__figure \{ animation:\s*none; scale:\s*1; \}/);
+  assert.doesNotMatch(
+    homeSlots,
+    /@container pet-projects[\s\S]*?\.subproject-card__figure\s*\{\s*animation:\s*none;\s*scale:\s*1;/,
+  );
 });
