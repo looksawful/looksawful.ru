@@ -294,6 +294,10 @@ async function readApprovalInput(request) {
   return { value };
 }
 
+async function deleteKeys(bucket, keys) {
+  if (typeof bucket.delete === "function" && keys.length > 0) await bucket.delete(keys);
+}
+
 async function approveReview(request, bucket, session, nowMs) {
   if (session?.repository !== ADMIN_REPOSITORY) return text("Approval requires the repository owner.", 403);
 
@@ -315,18 +319,27 @@ async function approveReview(request, bucket, session, nowMs) {
     copies.push({ item, source });
   }
 
-  await Promise.all(
-    copies.map(({ item, source }) =>
-      bucket.put(
-        baselineEvidenceKey(manifest.caseId, manifest.sourceSha, item.id),
-        source.body,
-        { httpMetadata: { contentType: item.contentType } },
-      ),
-    ),
+  const durableEvidenceKeys = copies.map(({ item }) =>
+    baselineEvidenceKey(manifest.caseId, manifest.sourceSha, item.id),
   );
+  try {
+    await Promise.all(
+      copies.map(({ item, source }) =>
+        bucket.put(
+          baselineEvidenceKey(manifest.caseId, manifest.sourceSha, item.id),
+          source.body,
+          { httpMetadata: { contentType: item.contentType } },
+        ),
+      ),
+    );
+  } catch {
+    await deleteKeys(bucket, durableEvidenceKeys);
+    return text("Baseline evidence promotion failed.", 503);
+  }
 
   const stillCurrent = await loadCurrentManifest(bucket, nowMs);
   if (!stillCurrent || !sameReview(input.value, stillCurrent)) {
+    await deleteKeys(bucket, durableEvidenceKeys);
     return text("Review changed before approval could complete.", 409);
   }
 
@@ -346,16 +359,18 @@ async function approveReview(request, bucket, session, nowMs) {
     })),
   };
 
-  await bucket.put(
-    approvalKey(manifest.caseId, manifest.sourceSha, manifest.reviewDepth),
-    JSON.stringify(approval),
-    {
+  const recordKey = approvalKey(manifest.caseId, manifest.sourceSha, manifest.reviewDepth);
+  try {
+    await bucket.put(recordKey, JSON.stringify(approval), {
       httpMetadata: { contentType: "application/json; charset=utf-8" },
-    },
-  );
-  await bucket.put(baselineKey(manifest.caseId), JSON.stringify(baseline), {
-    httpMetadata: { contentType: "application/json; charset=utf-8" },
-  });
+    });
+    await bucket.put(baselineKey(manifest.caseId), JSON.stringify(baseline), {
+      httpMetadata: { contentType: "application/json; charset=utf-8" },
+    });
+  } catch {
+    await deleteKeys(bucket, [...durableEvidenceKeys, recordKey]);
+    return text("Baseline promotion failed.", 503);
+  }
 
   return json(baseline, 201);
 }
