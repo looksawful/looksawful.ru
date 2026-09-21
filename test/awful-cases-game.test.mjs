@@ -134,7 +134,7 @@ test("browser playtest uses the real default keys and is wired as a package scri
   const pkg = JSON.parse(pkgSource);
   assert.equal(
     pkg.scripts["awful-cases:playtest"],
-    "node tools/e2e/playtest-awful-cases.mjs",
+    "npm run build:vite && node tools/e2e/playtest-awful-cases.mjs",
   );
   for (const [action, code] of [
     ["upper", "ArrowUp"],
