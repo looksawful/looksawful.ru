@@ -6,7 +6,7 @@ import { handleReviewRequest } from "../lab/functions/review.js";
 
 const SOURCE_SHA = "0123456789abcdef0123456789abcdef01234567";
 
-class MemoryR2 {
+class MemoryReviewStorage {
   #objects = new Map();
 
   async put(key, value, options = {}) {
@@ -63,17 +63,17 @@ function uploadRequest() {
 }
 
 test("private review stores one Case evidence and returns only sanitized manifest data", async () => {
-  const bucket = new MemoryR2();
+  const bucket = new MemoryReviewStorage();
 
   const created = await handleReviewRequest({
     request: uploadRequest(),
-    env: { REVIEW_EVIDENCE: bucket },
+    env: { REVIEW_STORAGE: bucket },
   });
   assert.equal(created.status, 201);
 
   const response = await handleReviewRequest({
     request: new Request("https://admin.looksawful.ru/lab/review/api"),
-    env: { REVIEW_EVIDENCE: bucket },
+    env: { REVIEW_STORAGE: bucket },
   });
   assert.equal(response.status, 200);
   assert.equal(response.headers.get("Cache-Control"), "private, no-store");
@@ -94,16 +94,16 @@ test("private review stores one Case evidence and returns only sanitized manifes
   assert.equal(JSON.stringify(payload).includes("objectKey"), false);
 });
 
-test("private review evidence is served from R2 and storage fails closed without its binding", async () => {
-  const bucket = new MemoryR2();
+test("private review evidence is served from private storage and fails closed without backend configuration", async () => {
+  const bucket = new MemoryReviewStorage();
   await handleReviewRequest({
     request: uploadRequest(),
-    env: { REVIEW_EVIDENCE: bucket },
+    env: { REVIEW_STORAGE: bucket },
   });
 
   const evidence = await handleReviewRequest({
     request: new Request("https://admin.looksawful.ru/lab/review/evidence/desktop"),
-    env: { REVIEW_EVIDENCE: bucket },
+    env: { REVIEW_STORAGE: bucket },
   });
   assert.equal(evidence.status, 200);
   assert.equal(evidence.headers.get("Content-Type"), "image/png");
