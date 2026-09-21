@@ -107,3 +107,19 @@ test("project preview CTA uses compact desktop sizing and full-width mobile sizi
     /@container project \(width > 50rem\)[\s\S]*?\.project-preview-entry__link\s*\{[\s\S]*?inline-size:\s*fit-content;/,
   );
 });
+
+
+test("homepage major portfolio layers follow Hero → Project index → Flagships → Featured", () => {
+  const homepage = renderHomepagePage(indexSource);
+  const positions = [
+    homepage.indexOf('class="hero"'),
+    homepage.indexOf('class="projects-grid"'),
+    homepage.indexOf('id="project-jestei"'),
+    homepage.indexOf('id="project-styx"'),
+    homepage.indexOf('id="project-sensetique"'),
+    homepage.indexOf('class="pet-projects"'),
+  ];
+
+  assert.ok(positions.every((position) => position >= 0), `missing homepage layer: ${positions.join(", ")}`);
+  assert.deepEqual([...positions].sort((a, b) => a - b), positions);
+});
