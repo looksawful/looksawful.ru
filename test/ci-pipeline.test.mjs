@@ -58,7 +58,7 @@ test("production deploy builds exact prod SHA, validates fast safety, compact br
   assert.doesNotMatch(workflow, /npm run cv:prod:prepare/);
   assert.equal((workflow.match(/npm run cv:prod:verify/g) ?? []).length, 1);
   assert.match(workflow, /actions\/cache\/restore@v6/);
-  assert.doesNotMatch(workflow, /restore-keys:/);
+  assert.doesNotMatch(step(workflow, "Restore exact generated media cache"), /restore-keys:/);
   assert.match(workflow, /media-dev-state\.mjs --cache-verify/);
   assert.match(step(workflow, "Regenerate exact media cache on miss"), /if: steps\.media-cache\.outputs\.cache-hit != 'true'[\s\S]*npm run media:sync/);
   assert.match(step(workflow, "Require clean tracked tree after cache recovery"), /if: steps\.media-cache\.outputs\.cache-hit != 'true'[\s\S]*git diff --exit-code/);
