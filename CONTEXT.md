@@ -11,6 +11,9 @@ _Avoid_: Project, when referring specifically to a Case entity.
 **Project**:
 A smaller standalone portfolio work that does not require a full Case narrative. A Project can still be promoted within the curated portfolio selection without being reclassified as a Case.
 
+**Project intro**:
+The concise introduction for a Project: what it is, the author's role, and its result or intended purpose.
+
 **Case summary**:
 The concise case introduction that states the role, task, contribution and result before the case's authored body.
 
@@ -19,6 +22,9 @@ A curated set of related works presented as a grouped portfolio surface rather t
 
 **Collection entry**:
 A work presented within a Collection. It may have its own title, date and credits, but it is not a Case.
+
+**Collection intro**:
+The concise introduction for a Collection: the author's role, the relevant period, and what the Collection contains.
 
 **Gallery**:
 The curated showcase of the strongest standalone works. It is intentionally selective and is not the complete archive of available media.
