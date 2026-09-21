@@ -146,8 +146,7 @@ export function initSiteNavigation(
       Math.min(win.innerHeight - height - 20, top),
     );
 
-    preview.style.left = `${left}px`;
-    preview.style.top = `${top}px`;
+    preview.style.transform = `translate3d(${left}px, ${top}px, 0)`;
   };
 
   const stopPreviewFollower = (): void => {
