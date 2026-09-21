@@ -19,14 +19,16 @@ test("typographic flow uses prose instead of the retired generic flow primitive"
 });
 
 
-test("live pet-project carousel delegates horizontal mechanics to reel", () => {
+test("live pet-project carousel stays horizontal and keeps focus scaling at every width", () => {
   assert.match(homeSlots, /class="pet-projects__grid reel"/);
   assert.match(homeSlots, /--reel-display:\s*grid;/);
   assert.match(homeSlots, /--reel-snap-type:\s*inline mandatory;/);
   assert.match(homeSlots, /--reel-snap-align:\s*center;/);
-  assert.match(homeSlots, /--reel-overflow-x:\s*visible;/);
-  assert.match(homeSlots, /--reel-overscroll-inline:\s*auto;/);
-  assert.doesNotMatch(homeSlots, /\.pet-projects__grid\s*\{[\s\S]*?overflow-x:\s*auto;/);
-  assert.doesNotMatch(homeSlots, /\.pet-projects__grid\s*\{[\s\S]*?scrollbar-width:\s*none;/);
-  assert.doesNotMatch(homeSlots, /\.pet-projects\s+\.subproject-card\s*\{[^}]*scroll-snap-align:/);
+  assert.match(homeSlots, /grid-auto-flow:\s*column;/);
+  assert.match(homeSlots, /animation-timeline:\s*view\(inline\);/);
+  assert.match(homeSlots, /@keyframes pet-project-card-focus[\s\S]*?from, to \{ scale:\s*0\.9; \}[\s\S]*?50% \{ scale:\s*1; \}/);
+  assert.doesNotMatch(homeSlots, /--reel-overflow-x:\s*visible;/);
+  assert.doesNotMatch(homeSlots, /--reel-snap-type:\s*none;/);
+  assert.doesNotMatch(homeSlots, /grid-auto-flow:\s*row;/);
+  assert.doesNotMatch(homeSlots, /\.pet-projects \.subproject-card__figure \{ animation:\s*none; scale:\s*1; \}/);
 });
