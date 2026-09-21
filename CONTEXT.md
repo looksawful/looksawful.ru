@@ -106,3 +106,9 @@ A change to user-visible copy that is always treated as Visual-impacting because
 
 **Private review boundary**:
 The authenticated boundary inside which all pre-production Visual review surfaces, previews and evidence must remain unavailable to the public internet.
+
+**Historical sanitization**:
+Removal or neutralization of private review evidence from mutable publication surfaces such as pull-request text, issue text, comments, artifacts and deployments without rewriting Git commit history.
+
+**History rewrite**:
+Replacement of existing Git commits to remove material embedded in committed history; reserved for material whose continued presence in Git history is itself unacceptable.
