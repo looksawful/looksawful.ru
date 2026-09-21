@@ -142,6 +142,29 @@ async function verifyBuiltAssets(page) {
 }
 
 async function verifyHomepageVideos(page) {
+  await page.evaluate(() => new Promise((resolve) => {
+    requestAnimationFrame(() => requestAnimationFrame(resolve));
+  }));
+
+  const prematureDeferredErrors = await page.evaluate(() =>
+    [...document.querySelectorAll("video[data-autoplay-deferred]")].flatMap((video) =>
+      video.error
+        ? [{
+            src: video.dataset.autoplaySrc
+              || video.querySelector("source[data-autoplay-src]")?.dataset.autoplaySrc
+              || "<deferred-video>",
+            code: video.error.code,
+            message: video.error.message,
+          }]
+        : [],
+    ),
+  );
+  assert.deepEqual(
+    prematureDeferredErrors,
+    [],
+    "Deferred Homepage videos must not enter MediaError before source hydration",
+  );
+
   const videos = page.locator("video:visible");
   const count = await videos.count();
   assert.ok(count > 0, "Homepage must expose at least one visible video for runtime smoke");
