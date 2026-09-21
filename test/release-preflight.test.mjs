@@ -278,12 +278,6 @@ test("release preflight ignores unrelated merge conflicts when approved overlap 
 test("release preflight uses the approved base when approved work intentionally removes prior state", () => {
   const cwd = createRepo();
   try {
-    writeFileSync(path.join(cwd, "src/index.ts"), [
-      "export const value = 1;",
-      "",
-    ].join("\n"));
-    git(cwd, "add", "src/index.ts");
-    git(cwd, "commit", "-qm", "shared ancestor");
     const shared = git(cwd, "rev-parse", "HEAD");
 
     git(cwd, "switch", "-qc", "approved-base");
