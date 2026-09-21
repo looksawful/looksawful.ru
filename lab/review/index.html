@@ -19,7 +19,10 @@
 
       <section class="lab-panel" aria-labelledby="review-subject-title">
         <h2 id="review-subject-title">current review</h2>
-        <p id="review-status" role="status">Loading private review evidence.</p>
+        <div class="review-status-row">
+          <p id="review-status" role="status" aria-live="polite" aria-atomic="true" data-state="loading">Loading private review evidence.</p>
+          <button id="review-reload" class="review-action" type="button" hidden>Reload</button>
+        </div>
         <dl class="lab-provenance">
           <div><dt>Case</dt><dd id="review-case">loading</dd></div>
           <div><dt>source SHA</dt><dd id="review-sha">loading</dd></div>
@@ -29,9 +32,12 @@
 
       <section class="lab-panel" aria-labelledby="review-evidence-title">
         <h2 id="review-evidence-title">evidence</h2>
-        <div id="review-evidence" class="review-evidence"></div>
+        <div id="review-evidence" class="review-evidence" aria-busy="true"></div>
       </section>
     </main>
+    <noscript>
+      <p class="lab-warning" role="note">JavaScript is required to load private review evidence.</p>
+    </noscript>
     <script type="module" src="/src/lab/review.ts"></script>
   </body>
 </html>
