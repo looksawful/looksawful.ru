@@ -8,6 +8,7 @@ import { runQuickSmoke } from "./run-smoke.mjs";
 import { isDirectExecution, withE2ERuntime } from "./runtime.mjs";
 import { runSmokeMpa } from "./smoke-mpa.mjs";
 import { runSmokeProjectPages } from "./smoke-project-pages.mjs";
+import { runHomepageMediaAffected } from "./affected-home-media.mjs";
 
 export async function runAffected(runtime, suites) {
   const selected = [...new Set(suites)];
@@ -15,6 +16,7 @@ export async function runAffected(runtime, suites) {
   for (const suite of selected) if (!["full", "smoke", "media", ...Object.keys(handlers)].includes(suite)) throw new Error(`unknown affected suite: ${suite}`);
   if (!selected.length || selected.includes("full")) return runAllSmokeSuites(runtime);
   await runQuickSmoke(runtime);
+  if (selected.includes("media")) await runHomepageMediaAffected(runtime);
   const focused = new Set(selected.filter((suite) => handlers[suite]));
   // Media changes exercise the existing deep real-media checks, not a stub audit.
   if (selected.includes("media")) for (const suite of ["site", "mpa", "project-pages"]) focused.add(suite);
