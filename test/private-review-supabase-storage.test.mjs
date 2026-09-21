@@ -265,3 +265,57 @@ test("Supabase review storage fails closed when backend configuration is incompl
     null,
   );
 });
+
+
+test("Supabase review storage authenticates with a publishable key and runtime identity", async () => {
+  const calls = [];
+  const env = {
+    SUPABASE_URL: "https://example.supabase.co",
+    SUPABASE_PUBLISHABLE_KEY: "sb_publishable_test",
+    REVIEW_RUNTIME_PASSWORD: "runtime-password",
+  };
+
+  const fetchImpl = async (url, init = {}) => {
+    const href = String(url);
+    calls.push({ url: href, init });
+
+    if (href.includes("/auth/v1/token?grant_type=password")) {
+      return jsonResponse({
+        access_token: "runtime-access-token",
+        token_type: "bearer",
+        expires_in: 3600,
+      });
+    }
+
+    if (href.includes("/rest/v1/review_hub_objects?")) {
+      return jsonResponse([]);
+    }
+
+    throw new Error(`Unexpected request: ${url}`);
+  };
+
+  const storage = createSupabaseReviewStorage(env, fetchImpl);
+  assert.ok(storage);
+  assert.equal(await storage.get("review-hub/v1/state/case-a.json"), null);
+
+  const authCall = calls.find(({ url }) =>
+    url.includes("/auth/v1/token?grant_type=password"),
+  );
+  assert.ok(authCall);
+  assert.equal(authCall.init.headers.apikey, env.SUPABASE_PUBLISHABLE_KEY);
+  assert.equal(
+    JSON.parse(authCall.init.body).email,
+    "review-hub-runtime@looksawful.invalid",
+  );
+
+  const metadataCall = calls.find(({ url }) =>
+    url.includes("/rest/v1/review_hub_objects?"),
+  );
+  assert.ok(metadataCall);
+  assert.equal(metadataCall.init.headers.apikey, env.SUPABASE_PUBLISHABLE_KEY);
+  assert.equal(
+    metadataCall.init.headers.Authorization,
+    "Bearer runtime-access-token",
+  );
+  assert.equal(JSON.stringify(calls).includes("SUPABASE_SECRET_KEY"), false);
+});
