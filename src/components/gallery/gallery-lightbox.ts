@@ -1,5 +1,6 @@
 import PhotoSwipeLightbox from "photoswipe/lightbox";
 import type { SlideData } from "photoswipe";
+import { labelPhotoSwipeDialog } from "../photoswipe-lightbox.ts";
 import "photoswipe/style.css";
 
 type GallerySlide = SlideData & {
@@ -140,7 +141,10 @@ export function createGalleryLightbox({
         },
       });
     });
-    lightbox.on("afterInit", syncItem);
+    lightbox.on("afterInit", () => {
+      labelPhotoSwipeDialog(lightbox.pswp, "Галерея");
+      syncItem();
+    });
     lightbox.on("change", syncItem);
     lightbox.on("close", () => onClose?.());
     lightbox.on("destroy", () => {

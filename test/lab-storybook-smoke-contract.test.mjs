@@ -9,3 +9,10 @@ test("Storybook smoke fails only on visible error surfaces", () => {
   assert.match(smoke, /filter\(\{ visible: true \}\)|isVisible\(/);
   assert.doesNotMatch(smoke, /locator\("#error-message, \.sb-errordisplay"\)\.count\(\)/);
 });
+
+
+test("Storybook smoke includes body-level PhotoSwipe overlays in axe scope", () => {
+  assert.doesNotMatch(smoke, /axe\.run\("#storybook-root"/);
+  assert.match(smoke, /querySelector\("\.pswp"\)/);
+  assert.match(smoke, /include:[\s\S]*#storybook-root[\s\S]*\.pswp/s);
+});
