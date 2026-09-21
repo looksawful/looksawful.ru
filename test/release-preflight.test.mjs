@@ -209,6 +209,72 @@ test("release preflight rejects a touched file that drops clean prod-only change
   }
 });
 
+test("release preflight ignores unrelated merge conflicts when approved overlap reconciles cleanly", () => {
+  const cwd = createRepo();
+  try {
+    writeFileSync(path.join(cwd, "src/index.ts"), [
+      "export const value = 1;",
+      "export const stable = true;",
+      "",
+    ].join("\n"));
+    writeFileSync(path.join(cwd, "notes.txt"), "shared\n");
+    git(cwd, "add", ".");
+    git(cwd, "commit", "-qm", "shared ancestor");
+    const shared = git(cwd, "rev-parse", "HEAD");
+
+    git(cwd, "switch", "-qc", "approved-base");
+    writeFileSync(path.join(cwd, "notes.txt"), "dev-base\n");
+    git(cwd, "add", "notes.txt");
+    git(cwd, "commit", "-qm", "dev base diverges in unrelated file");
+    const approvedBase = git(cwd, "rev-parse", "HEAD");
+
+    writeFileSync(path.join(cwd, "src/index.ts"), [
+      "export const value = 2;",
+      "export const stable = true;",
+      "",
+    ].join("\n"));
+    git(cwd, "add", "src/index.ts");
+    git(cwd, "commit", "-qm", "approved product change");
+    const approvedHead = git(cwd, "rev-parse", "HEAD");
+
+    git(cwd, "switch", "-qc", "prod", shared);
+    writeFileSync(path.join(cwd, "notes.txt"), "prod\n");
+    writeFileSync(path.join(cwd, "src/index.ts"), [
+      "export const value = 1;",
+      "export const stable = true;",
+      "export const prodOnly = true;",
+      "",
+    ].join("\n"));
+    git(cwd, "add", ".");
+    git(cwd, "commit", "-qm", "prod diverges independently");
+    const prod = git(cwd, "rev-parse", "HEAD");
+
+    writeFileSync(path.join(cwd, "src/index.ts"), [
+      "export const value = 2;",
+      "export const stable = true;",
+      "export const prodOnly = true;",
+      "",
+    ].join("\n"));
+    git(cwd, "add", "src/index.ts");
+    git(cwd, "commit", "-qm", "candidate reconciles approved product change");
+    const candidate = git(cwd, "rev-parse", "HEAD");
+
+    const result = spawnSync(process.execPath, [
+      preflightPath,
+      "--repo", cwd,
+      "--prod-base", prod,
+      "--candidate", candidate,
+      "--approved-base", approvedBase,
+      "--approved-head", approvedHead,
+    ], { encoding: "utf8" });
+
+    assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`);
+    assert.match(result.stdout, /RELEASE_PREFLIGHT_OK/);
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
 test("release preflight rejects a Lab-only file renamed into a product path", () => {
   const cwd = createRepo();
   try {
