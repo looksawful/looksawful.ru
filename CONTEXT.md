@@ -12,7 +12,10 @@ _Avoid_: Project, when referring specifically to a Case entity.
 The concise case introduction that states the role, task, contribution and result before the case's authored body.
 
 **Collection**:
-A curated set of related works presented as a grouped portfolio surface rather than one Case.
+A curated set of related works presented as a grouped portfolio surface rather than one Case. A Collection remains a distinct portfolio entity; its constituent works do not become Cases.
+
+**Collection entry**:
+A work presented within a Collection. It may have its own title, date and credits, but it is not a Case.
 
 **Gallery**:
 The curated showcase of the strongest standalone works. It is intentionally selective and is not the complete archive of available media.
