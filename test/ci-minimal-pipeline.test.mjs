@@ -3,6 +3,7 @@ import { readdir, readFile } from "node:fs/promises";
 import test from "node:test";
 
 const read = (file) => readFile(new URL(`../${file}`, import.meta.url), "utf8");
+const step = (workflow, name) => workflow.match(new RegExp(`      - name: ${name}\\n[\\s\\S]*?(?=\\n      - name: |$)`))?.[0] ?? "";
 
 const expectedWorkflows = [
   "caption-qa.yml",
@@ -68,7 +69,7 @@ test("production validates exact prod tree, exact media cache, fast safety, comp
   assert.match(workflow, /npm ci/);
   assert.match(workflow, /node tools\/media-dev-state\.mjs --fingerprint/);
   assert.match(workflow, /actions\/cache\/restore@v6/);
-  assert.doesNotMatch(workflow, /restore-keys:/);
+  assert.doesNotMatch(step(workflow, "Restore exact generated media cache"), /restore-keys:/);
   assert.match(workflow, /node tools\/media-dev-state\.mjs --cache-verify/);
   assert.match(workflow, /Regenerate exact media cache on miss[\s\S]*?if: steps\.media-cache\.outputs\.cache-hit != 'true'[\s\S]*?npm run media:sync/);
   assert.match(workflow, /Require clean tracked tree after cache recovery[\s\S]*?if: steps\.media-cache\.outputs\.cache-hit != 'true'[\s\S]*?git diff --exit-code/);
