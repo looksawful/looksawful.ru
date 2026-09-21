@@ -101,8 +101,8 @@ export const sitePages = [
     renderer: "entity",
     build: VITE_BUILD,
     discovery: {
-      listed: false,
-      indexable: false,
+      listed: true,
+      indexable: true,
     },
   },
   {
@@ -143,8 +143,8 @@ export const sitePages = [
     renderer: "entity",
     build: VITE_BUILD,
     discovery: {
-      listed: false,
-      indexable: false,
+      listed: true,
+      indexable: true,
     },
   },
   {
@@ -156,8 +156,8 @@ export const sitePages = [
     renderer: "entity",
     build: VITE_BUILD,
     discovery: {
-      listed: false,
-      indexable: false,
+      listed: true,
+      indexable: true,
     },
   },
   {
@@ -195,8 +195,8 @@ export const sitePages = [
     renderer: "entity",
     build: VITE_BUILD,
     discovery: {
-      listed: false,
-      indexable: false,
+      listed: true,
+      indexable: true,
     },
   },
   {
@@ -208,8 +208,8 @@ export const sitePages = [
     renderer: "entity",
     build: VITE_BUILD,
     discovery: {
-      listed: false,
-      indexable: false,
+      listed: true,
+      indexable: true,
     },
   },
   {
