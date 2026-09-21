@@ -84,8 +84,8 @@ function evidenceKey(caseId, sourceSha, evidenceId) {
   return `review-hub/v1/cases/${caseId}/${sourceSha}/evidence/${evidenceId}`;
 }
 
-function approvalKey(caseId, sourceSha) {
-  return `review-hub/v1/approvals/${caseId}/${sourceSha}.json`;
+function approvalKey(caseId, sourceSha, reviewDepth) {
+  return `review-hub/v1/approvals/${caseId}/${sourceSha}/${reviewDepth}.json`;
 }
 
 function baselineKey(caseId) {
@@ -346,9 +346,13 @@ async function approveReview(request, bucket, session, nowMs) {
     })),
   };
 
-  await bucket.put(approvalKey(manifest.caseId, manifest.sourceSha), JSON.stringify(approval), {
-    httpMetadata: { contentType: "application/json; charset=utf-8" },
-  });
+  await bucket.put(
+    approvalKey(manifest.caseId, manifest.sourceSha, manifest.reviewDepth),
+    JSON.stringify(approval),
+    {
+      httpMetadata: { contentType: "application/json; charset=utf-8" },
+    },
+  );
   await bucket.put(baselineKey(manifest.caseId), JSON.stringify(baseline), {
     httpMetadata: { contentType: "application/json; charset=utf-8" },
   });
