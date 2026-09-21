@@ -8,6 +8,9 @@ Canonical glossary for project-specific domain language. This is a glossary, not
 A portfolio case that presents one substantial body of work with its own identity, narrative and media.
 _Avoid_: Project, when referring specifically to a Case entity.
 
+**Project**:
+A smaller standalone portfolio work that does not require a full Case narrative. A Project can still be promoted within the curated portfolio selection without being reclassified as a Case.
+
 **Case summary**:
 The concise case introduction that states the role, task, contribution and result before the case's authored body.
 
