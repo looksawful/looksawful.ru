@@ -1,0 +1,23 @@
+{
+  "$schema": "https://raw.githubusercontent.com/cloudflare/workers-sdk/main/packages/wrangler/config-schema.json",
+  "name": "looksawful-private-lab",
+  "main": "./worker.mjs",
+  "compatibility_date": "2026-09-22",
+  "workers_dev": false,
+  "routes": [
+    {
+      "pattern": "admin.looksawful.ru",
+      "custom_domain": true
+    }
+  ],
+  "vars": {
+    "SUPABASE_URL": "https://japsjwgnoeaeetlhshje.supabase.co",
+    "SUPABASE_PUBLISHABLE_KEY": "sb_publishable_XjqncIsro_2zJR3mIgtNaw_uS39k0Yy"
+  },
+  "assets": {
+    "directory": "../../../dist-lab",
+    "binding": "ASSETS",
+    "run_worker_first": true,
+    "html_handling": "auto-trailing-slash"
+  }
+}
