@@ -76,7 +76,7 @@ test("Gallery renders exactly five approved Jestei symbols as interactive model 
 });
 
 test("Gallery photo controls expose item-specific accessible names", () => {
-  const cards = [...html.matchAll(/<figure class="gallery-card"[\\s\\S]*?<\\/figure>/g)].map((match) => match[0]);
+  const cards = [...html.matchAll(/<figure class="gallery-card"[\s\S]*?<\/figure>/g)].map((match) => match[0]);
   assert.ok(cards.length > 0, "Gallery must render photo controls");
 
   for (const card of cards) {
