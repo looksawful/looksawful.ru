@@ -203,6 +203,56 @@ test("Supabase review storage deletes physical binaries before metadata rows", a
   });
 });
 
+
+test("Supabase review storage cleans expired temporary evidence without touching durable prefixes", async () => {
+  const calls = [];
+
+  const fetchImpl = async (url, init = {}) => {
+    const href = String(url);
+    calls.push({ url: href, init });
+
+    if (href.includes("/rest/v1/rpc/review_hub_expired_objects")) {
+      return jsonResponse([
+        {
+          key: "review-hub/v1/cases/case-a/abc/evidence/desktop",
+          kind: "binary",
+          storage_path: "review-hub/v1/cases/case-a/abc/evidence/desktop",
+          content_type: "image/png",
+          etag: "etag-expired",
+        },
+        {
+          key: "review-hub/v1/cases/case-a/abc/manifest.json",
+          kind: "json",
+          storage_path: null,
+          content_type: "application/json; charset=utf-8",
+          etag: "etag-manifest",
+        },
+      ]);
+    }
+
+    if (href.endsWith("/storage/v1/object/private-review-evidence") && init.method === "DELETE") {
+      return jsonResponse([]);
+    }
+
+    if (href.includes("/rest/v1/rpc/review_hub_delete_object_rows")) {
+      return jsonResponse({ deleted: 2 });
+    }
+
+    throw new Error(`Unexpected request: ${url}`);
+  };
+
+  const storage = createSupabaseReviewStorage(ENV, fetchImpl);
+  const result = await storage.cleanupExpired(100);
+
+  assert.deepEqual(result, { deleted: 2 });
+  const rpc = calls.find(({ url }) => url.includes("/rest/v1/rpc/review_hub_expired_objects"));
+  assert.deepEqual(JSON.parse(rpc.init.body), { p_limit: 100 });
+  const deletion = calls.find(({ url }) => url.endsWith("/storage/v1/object/private-review-evidence"));
+  assert.deepEqual(JSON.parse(deletion.init.body), {
+    prefixes: ["review-hub/v1/cases/case-a/abc/evidence/desktop"],
+  });
+});
+
 test("Supabase review storage fails closed when backend configuration is incomplete", () => {
   assert.equal(createSupabaseReviewStorage({}, async () => new Response()), null);
   assert.equal(
