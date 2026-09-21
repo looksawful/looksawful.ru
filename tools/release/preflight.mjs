@@ -1,4 +1,4 @@
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -42,9 +42,26 @@ function changedFiles(repo, base, head) {
 }
 
 function mergeTree(repo, left, right) {
-  return git(repo, "merge-tree", "--write-tree", left, right)
-    .split(/\r?\n/)[0]
-    .trim();
+  const result = spawnSync("git", ["merge-tree", "--write-tree", left, right], {
+    cwd: repo,
+    encoding: "utf8",
+  });
+  const stdout = result.stdout ?? "";
+  const stderr = result.stderr ?? "";
+  const tree = stdout.split(/\r?\n/)[0]?.trim() ?? "";
+
+  if (!/^[0-9a-f]{40,64}$/u.test(tree)) {
+    const detail = `${stdout}\n${stderr}`.trim();
+    throw new Error(detail || `git merge-tree failed with status ${result.status ?? "unknown"}`);
+  }
+
+  const conflicts = new Set();
+  for (const line of `${stdout}\n${stderr}`.split(/\r?\n/u)) {
+    const match = line.match(/^\d{6}\s+[0-9a-f]{40,64}\s+[123]\t(.+)$/u);
+    if (match) conflicts.add(match[1]);
+  }
+
+  return { tree, conflicts: [...conflicts] };
 }
 
 function differingFiles(repo, left, right, files) {
@@ -99,14 +116,22 @@ export function runPreflight(argv = process.argv.slice(2)) {
   const prodFileSet = new Set(prodFiles);
   const overlap = approvedProductFiles.filter((file) => prodFileSet.has(file));
   if (overlap.length) {
-    let expectedTree;
+    let merge;
     try {
-      expectedTree = mergeTree(repo, prodBase, approvedHead);
+      merge = mergeTree(repo, prodBase, approvedHead);
     } catch {
       for (const file of overlap) console.error(`PROD_OVERLAP_REQUIRES_RECONCILIATION ${file}`);
       return 1;
     }
-    const dropped = differingFiles(repo, candidate, expectedTree, overlap);
+
+    const overlapSet = new Set(overlap);
+    const unresolved = merge.conflicts.filter((file) => overlapSet.has(file));
+    if (unresolved.length) {
+      for (const file of unresolved) console.error(`PROD_OVERLAP_REQUIRES_RECONCILIATION ${file}`);
+      return 1;
+    }
+
+    const dropped = differingFiles(repo, candidate, merge.tree, overlap);
     if (dropped.length) {
       for (const file of dropped) console.error(`PROD_ONLY_CHANGE_DROPPED ${file}`);
       return 1;

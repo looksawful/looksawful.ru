@@ -239,3 +239,201 @@ test("release preflight rejects a Lab-only file renamed into a product path", ()
     rmSync(cwd, { recursive: true, force: true });
   }
 });
+
+
+test("release preflight ignores unrelated merge conflicts outside approved product files", () => {
+  const cwd = createRepo();
+  try {
+    mkdirSync(path.join(cwd, "docs"), { recursive: true });
+    writeFileSync(path.join(cwd, "src/index.ts"), [
+      "export const value = 1;",
+      "export const sharedA = true;",
+      "export const sharedB = true;",
+      "export const prodOnly = false;",
+      "",
+    ].join("\n"));
+    writeFileSync(path.join(cwd, "docs/context.md"), "shared\n");
+    git(cwd, "add", ".");
+    git(cwd, "commit", "-qm", "shared ancestor");
+    const shared = git(cwd, "rev-parse", "HEAD");
+
+    git(cwd, "switch", "-qc", "approved");
+    writeFileSync(path.join(cwd, "docs/context.md"), "approved docs\n");
+    git(cwd, "add", "docs/context.md");
+    git(cwd, "commit", "-qm", "preexisting dev docs drift");
+    const approvedBase = git(cwd, "rev-parse", "HEAD");
+
+    writeFileSync(path.join(cwd, "src/index.ts"), [
+      "export const value = 2;",
+      "export const sharedA = true;",
+      "export const sharedB = true;",
+      "export const prodOnly = false;",
+      "",
+    ].join("\n"));
+    git(cwd, "add", "src/index.ts");
+    git(cwd, "commit", "-qm", "approved product change");
+    const approvedHead = git(cwd, "rev-parse", "HEAD");
+
+    git(cwd, "switch", "-qc", "prod", shared);
+    writeFileSync(path.join(cwd, "src/index.ts"), [
+      "export const value = 1;",
+      "export const sharedA = true;",
+      "export const sharedB = true;",
+      "export const prodOnly = true;",
+      "",
+    ].join("\n"));
+    writeFileSync(path.join(cwd, "docs/context.md"), "prod docs\n");
+    git(cwd, "add", ".");
+    git(cwd, "commit", "-qm", "prod product plus conflicting docs");
+    const prod = git(cwd, "rev-parse", "HEAD");
+
+    writeFileSync(path.join(cwd, "src/index.ts"), [
+      "export const value = 2;",
+      "export const sharedA = true;",
+      "export const sharedB = true;",
+      "export const prodOnly = true;",
+      "",
+    ].join("\n"));
+    git(cwd, "add", "src/index.ts");
+    git(cwd, "commit", "-qm", "candidate preserves prod-only product change");
+    const candidate = git(cwd, "rev-parse", "HEAD");
+
+    const result = spawnSync(process.execPath, [
+      preflightPath,
+      "--repo", cwd,
+      "--prod-base", prod,
+      "--candidate", candidate,
+      "--approved-base", approvedBase,
+      "--approved-head", approvedHead,
+    ], { encoding: "utf8" });
+
+    assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`);
+    assert.match(result.stdout, /RELEASE_PREFLIGHT_OK/);
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+
+test("release preflight still rejects conflicts inside approved product files", () => {
+  const cwd = createRepo();
+  try {
+    const base = git(cwd, "rev-parse", "HEAD");
+
+    git(cwd, "switch", "-qc", "approved");
+    writeFileSync(path.join(cwd, "src/index.ts"), "export const value = 2;\n");
+    git(cwd, "add", "src/index.ts");
+    git(cwd, "commit", "-qm", "approved conflicting change");
+    const approved = git(cwd, "rev-parse", "HEAD");
+
+    git(cwd, "switch", "-qc", "prod", base);
+    writeFileSync(path.join(cwd, "src/index.ts"), "export const value = 3;\n");
+    git(cwd, "add", "src/index.ts");
+    git(cwd, "commit", "-qm", "prod conflicting change");
+    const prod = git(cwd, "rev-parse", "HEAD");
+
+    writeFileSync(path.join(cwd, "src/index.ts"), "export const value = 2;\n");
+    git(cwd, "add", "src/index.ts");
+    git(cwd, "commit", "-qm", "unreconciled candidate");
+    const candidate = git(cwd, "rev-parse", "HEAD");
+
+    const result = spawnSync(process.execPath, [
+      preflightPath,
+      "--repo", cwd,
+      "--prod-base", prod,
+      "--candidate", candidate,
+      "--approved-base", base,
+      "--approved-head", approved,
+    ], { encoding: "utf8" });
+
+    assert.equal(result.status, 1);
+    assert.match(
+      `${result.stdout}\n${result.stderr}`,
+      /PROD_OVERLAP_REQUIRES_RECONCILIATION src\/index\.ts/,
+    );
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+
+test("release preflight promotes only the approved-base to approved-head delta", () => {
+  const cwd = createRepo();
+  try {
+    writeFileSync(path.join(cwd, "src/index.ts"), [
+      "export const feature = 1;",
+      "export const sharedA = true;",
+      "export const devSlot = false;",
+      "export const sharedB = true;",
+      "export const prodSlot = false;",
+      "",
+    ].join("\n"));
+    git(cwd, "add", "src/index.ts");
+    git(cwd, "commit", "-qm", "shared release ancestor");
+    const shared = git(cwd, "rev-parse", "HEAD");
+
+    git(cwd, "switch", "-qc", "dev-base");
+    writeFileSync(path.join(cwd, "src/index.ts"), [
+      "export const feature = 1;",
+      "export const sharedA = true;",
+      "export const devSlot = true;",
+      "export const sharedB = true;",
+      "export const prodSlot = false;",
+      "",
+    ].join("\n"));
+    git(cwd, "add", "src/index.ts");
+    git(cwd, "commit", "-qm", "preexisting dev drift");
+    const approvedBase = git(cwd, "rev-parse", "HEAD");
+
+    writeFileSync(path.join(cwd, "src/index.ts"), [
+      "export const feature = 2;",
+      "export const sharedA = true;",
+      "export const devSlot = true;",
+      "export const sharedB = true;",
+      "export const prodSlot = false;",
+      "",
+    ].join("\n"));
+    git(cwd, "add", "src/index.ts");
+    git(cwd, "commit", "-qm", "approved feature");
+    const approvedHead = git(cwd, "rev-parse", "HEAD");
+
+    git(cwd, "switch", "-qc", "prod", shared);
+    writeFileSync(path.join(cwd, "src/index.ts"), [
+      "export const feature = 1;",
+      "export const sharedA = true;",
+      "export const devSlot = false;",
+      "export const sharedB = true;",
+      "export const prodSlot = true;",
+      "",
+    ].join("\n"));
+    git(cwd, "add", "src/index.ts");
+    git(cwd, "commit", "-qm", "independent prod drift");
+    const prod = git(cwd, "rev-parse", "HEAD");
+
+    writeFileSync(path.join(cwd, "src/index.ts"), [
+      "export const feature = 2;",
+      "export const sharedA = true;",
+      "export const devSlot = false;",
+      "export const sharedB = true;",
+      "export const prodSlot = true;",
+      "",
+    ].join("\n"));
+    git(cwd, "add", "src/index.ts");
+    git(cwd, "commit", "-qm", "candidate applies only approved delta");
+    const candidate = git(cwd, "rev-parse", "HEAD");
+
+    const result = spawnSync(process.execPath, [
+      preflightPath,
+      "--repo", cwd,
+      "--prod-base", prod,
+      "--candidate", candidate,
+      "--approved-base", approvedBase,
+      "--approved-head", approvedHead,
+    ], { encoding: "utf8" });
+
+    assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`);
+    assert.match(result.stdout, /RELEASE_PREFLIGHT_OK/);
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
