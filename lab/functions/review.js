@@ -1,9 +1,11 @@
 const CURRENT_POINTER_KEY = "review-hub/v1/current.json";
 const ADMIN_REPOSITORY = "looksawful/looksawful.ru";
 const TEMP_RETENTION_MS = 4 * 24 * 60 * 60 * 1000;
+const MAX_STATE_UPDATE_ATTEMPTS = 5;
 const CASE_ID = /^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$/u;
 const EVIDENCE_ID = /^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$/u;
 const SHA = /^[0-9a-f]{40}$/u;
+const PROMOTION_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/u;
 const REVIEW_DEPTHS = new Set(["quick", "interactive", "full"]);
 const EVIDENCE_KINDS = new Set(["viewport", "full-page", "component", "diff"]);
 const IMAGE_TYPES = new Set(["image/png", "image/jpeg", "image/webp"]);
@@ -84,12 +86,12 @@ function evidenceKey(caseId, sourceSha, evidenceId) {
   return `review-hub/v1/cases/${caseId}/${sourceSha}/evidence/${evidenceId}`;
 }
 
-function approvalKey(caseId, sourceSha, reviewDepth) {
-  return `review-hub/v1/approvals/${caseId}/${sourceSha}/${reviewDepth}.json`;
+function caseStateKey(caseId) {
+  return `review-hub/v1/state/${caseId}.json`;
 }
 
-function baselineKey(caseId) {
-  return `review-hub/v1/baselines/${caseId}.json`;
+function approvalKey(caseId, sourceSha, reviewDepth, promotionId) {
+  return `review-hub/v1/approvals/${caseId}/${sourceSha}/${reviewDepth}/${promotionId}.json`;
 }
 
 function baselineEvidenceKey(caseId, promotionId, evidenceId) {
@@ -113,14 +115,183 @@ function objectExpired(object, nowMs) {
   return typeof expiresAt === "string" && Number.isFinite(Date.parse(expiresAt)) && Date.parse(expiresAt) <= nowMs;
 }
 
+function reviewRef(manifest) {
+  return {
+    sourceSha: manifest.sourceSha,
+    reviewDepth: manifest.reviewDepth,
+    capturedAt: manifest.capturedAt,
+  };
+}
+
+function validReviewRef(value) {
+  return (
+    value &&
+    typeof value === "object" &&
+    typeof value.sourceSha === "string" &&
+    SHA.test(value.sourceSha) &&
+    typeof value.reviewDepth === "string" &&
+    REVIEW_DEPTHS.has(value.reviewDepth) &&
+    validDate(value.capturedAt)
+  );
+}
+
+function sameReview(input, review) {
+  return (
+    input &&
+    review &&
+    input.sourceSha === review.sourceSha &&
+    input.reviewDepth === review.reviewDepth &&
+    (!("caseId" in input) || input.caseId === review.caseId || review.caseId === undefined)
+  );
+}
+
+function validBaseline(value, caseId) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  if (value.version !== 1 || value.caseId !== caseId) return null;
+  if (typeof value.sourceSha !== "string" || !SHA.test(value.sourceSha)) return null;
+  if (typeof value.reviewDepth !== "string" || !REVIEW_DEPTHS.has(value.reviewDepth)) return null;
+  if (!validDate(value.approvedAt)) return null;
+  if (typeof value.approvedBy !== "string" || value.approvedBy.length === 0) return null;
+  if (typeof value.promotionId !== "string" || !PROMOTION_ID.test(value.promotionId)) return null;
+  if (!Array.isArray(value.evidence) || value.evidence.length === 0 || value.evidence.length > 32) {
+    return null;
+  }
+
+  const evidence = [];
+  for (const item of value.evidence) {
+    if (!validEvidence(item)) return null;
+    if (item.url !== baselineEvidenceUrl(caseId, item.id)) return null;
+    evidence.push({
+      id: item.id,
+      kind: item.kind,
+      contentType: item.contentType,
+      url: item.url,
+    });
+  }
+
+  return {
+    version: 1,
+    caseId,
+    sourceSha: value.sourceSha,
+    reviewDepth: value.reviewDepth,
+    approvedAt: value.approvedAt,
+    approvedBy: value.approvedBy,
+    promotionId: value.promotionId,
+    evidence,
+  };
+}
+
+function emptyCaseState(caseId) {
+  return {
+    version: 1,
+    caseId,
+    current: null,
+    baseline: null,
+  };
+}
+
+function validateCaseState(value, caseId) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  if (value.version !== 1 || value.caseId !== caseId) return null;
+
+  let current = null;
+  if (value.current !== null) {
+    if (!validReviewRef(value.current)) return null;
+    current = reviewRef(value.current);
+  }
+
+  let baseline = null;
+  if (value.baseline !== null) {
+    baseline = validBaseline(value.baseline, caseId);
+    if (!baseline) return null;
+  }
+
+  return {
+    version: 1,
+    caseId,
+    current,
+    baseline,
+  };
+}
+
+async function loadCaseState(bucket, caseId) {
+  const object = await bucket.get(caseStateKey(caseId));
+  if (!object) return { object: null, state: emptyCaseState(caseId), invalid: false };
+
+  const state = validateCaseState(await readJsonObject(object), caseId);
+  if (!state) return { object, state: null, invalid: true };
+  return { object, state, invalid: false };
+}
+
+async function putCaseState(bucket, caseId, state, object) {
+  if (object && typeof object.etag !== "string") return false;
+
+  const options = {
+    httpMetadata: { contentType: "application/json; charset=utf-8" },
+  };
+  if (object) options.onlyIf = { etagMatches: object.etag };
+
+  const stored = await bucket.put(caseStateKey(caseId), JSON.stringify(state), options);
+  return stored !== null;
+}
+
+async function setCaseCurrent(bucket, manifest) {
+  for (let attempt = 0; attempt < MAX_STATE_UPDATE_ATTEMPTS; attempt += 1) {
+    const loaded = await loadCaseState(bucket, manifest.caseId);
+    if (loaded.invalid) return "invalid";
+
+    const nextState = {
+      ...loaded.state,
+      current: reviewRef(manifest),
+    };
+
+    try {
+      if (await putCaseState(bucket, manifest.caseId, nextState, loaded.object)) return "ok";
+    } catch {
+      return "failed";
+    }
+  }
+  return "conflict";
+}
+
+async function clearCaseCurrentIfMatches(bucket, manifest) {
+  for (let attempt = 0; attempt < MAX_STATE_UPDATE_ATTEMPTS; attempt += 1) {
+    const loaded = await loadCaseState(bucket, manifest.caseId);
+    if (loaded.invalid || !loaded.object || !loaded.state.current) return;
+    if (!sameReview(manifest, loaded.state.current)) return;
+
+    const nextState = {
+      ...loaded.state,
+      current: null,
+    };
+
+    try {
+      if (await putCaseState(bucket, manifest.caseId, nextState, loaded.object)) return;
+    } catch {
+      return;
+    }
+  }
+}
+
+async function deleteKeys(bucket, keys) {
+  if (typeof bucket.delete === "function" && keys.length > 0) await bucket.delete(keys);
+}
+
+async function bestEffortDeleteKeys(bucket, keys) {
+  try {
+    await deleteKeys(bucket, keys);
+  } catch {
+    // Unreachable staged objects are safer than deleting a visible baseline.
+  }
+}
+
 async function deleteTemporaryReview(bucket, manifest) {
-  if (typeof bucket.delete !== "function") return;
   const keys = [
     ...manifest.evidence.map((item) => evidenceKey(manifest.caseId, manifest.sourceSha, item.id)),
     manifestKey(manifest.caseId, manifest.sourceSha),
-    CURRENT_POINTER_KEY,
   ];
-  await bucket.delete(keys);
+  await bestEffortDeleteKeys(bucket, keys);
+  await clearCaseCurrentIfMatches(bucket, manifest);
 }
 
 async function loadCurrentManifest(bucket, nowMs) {
@@ -207,24 +378,50 @@ async function createReview(request, bucket, nowMs) {
 
   const expiresAt = new Date(nowMs + TEMP_RETENTION_MS).toISOString();
   const temporaryMetadata = { expiresAt };
+  const temporaryKeys = [
+    ...manifest.evidence.map((item) => evidenceKey(manifest.caseId, manifest.sourceSha, item.id)),
+    manifestKey(manifest.caseId, manifest.sourceSha),
+  ];
 
-  await Promise.all(
-    uploads.map(({ item, bytes }) =>
-      bucket.put(evidenceKey(manifest.caseId, manifest.sourceSha, item.id), bytes, {
-        httpMetadata: { contentType: item.contentType },
-        customMetadata: temporaryMetadata,
-      }),
-    ),
-  );
-  await bucket.put(manifestKey(manifest.caseId, manifest.sourceSha), JSON.stringify(manifest), {
-    httpMetadata: { contentType: "application/json; charset=utf-8" },
-    customMetadata: temporaryMetadata,
-  });
-  await bucket.put(
-    CURRENT_POINTER_KEY,
-    JSON.stringify({ caseId: manifest.caseId, sourceSha: manifest.sourceSha }),
-    { httpMetadata: { contentType: "application/json; charset=utf-8" } },
-  );
+  try {
+    await Promise.all(
+      uploads.map(({ item, bytes }) =>
+        bucket.put(evidenceKey(manifest.caseId, manifest.sourceSha, item.id), bytes, {
+          httpMetadata: { contentType: item.contentType },
+          customMetadata: temporaryMetadata,
+        }),
+      ),
+    );
+    await bucket.put(manifestKey(manifest.caseId, manifest.sourceSha), JSON.stringify(manifest), {
+      httpMetadata: { contentType: "application/json; charset=utf-8" },
+      customMetadata: temporaryMetadata,
+    });
+  } catch {
+    await bestEffortDeleteKeys(bucket, temporaryKeys);
+    return text("Private review evidence could not be stored.", 503);
+  }
+
+  const stateResult = await setCaseCurrent(bucket, manifest);
+  if (stateResult !== "ok") {
+    await bestEffortDeleteKeys(bucket, temporaryKeys);
+    return text(
+      stateResult === "conflict"
+        ? "Case review state changed during capture."
+        : "Case review state is unavailable.",
+      stateResult === "conflict" ? 409 : 503,
+    );
+  }
+
+  try {
+    await bucket.put(
+      CURRENT_POINTER_KEY,
+      JSON.stringify({ caseId: manifest.caseId, sourceSha: manifest.sourceSha }),
+      { httpMetadata: { contentType: "application/json; charset=utf-8" } },
+    );
+  } catch {
+    await deleteTemporaryReview(bucket, manifest);
+    return text("Private review pointer could not be stored.", 503);
+  }
 
   return json(clientManifest(manifest), 201);
 }
@@ -272,14 +469,6 @@ function validApprovalInput(value) {
   );
 }
 
-function sameReview(input, manifest) {
-  return (
-    input.caseId === manifest.caseId &&
-    input.sourceSha === manifest.sourceSha &&
-    input.reviewDepth === manifest.reviewDepth
-  );
-}
-
 async function readApprovalInput(request) {
   const contentType = request.headers.get("Content-Type") ?? "";
   if (!contentType.toLowerCase().startsWith("application/json")) return { error: 415 };
@@ -292,10 +481,6 @@ async function readApprovalInput(request) {
   }
   if (!validApprovalInput(value)) return { error: 400 };
   return { value };
-}
-
-async function deleteKeys(bucket, keys) {
-  if (typeof bucket.delete === "function" && keys.length > 0) await bucket.delete(keys);
 }
 
 function newPromotionId() {
@@ -313,15 +498,35 @@ function publicBaseline(baseline) {
   };
 }
 
+function baselineEvidenceKeys(baseline) {
+  if (!baseline) return [];
+  return baseline.evidence.map((item) =>
+    baselineEvidenceKey(baseline.caseId, baseline.promotionId, item.id),
+  );
+}
+
 async function approveReview(request, bucket, session, nowMs) {
-  if (session?.repository !== ADMIN_REPOSITORY) return text("Approval requires the repository owner.", 403);
+  if (session?.repository !== ADMIN_REPOSITORY) {
+    return text("Approval requires the repository owner.", 403);
+  }
 
   const input = await readApprovalInput(request);
   if (input.error === 415) return text("Expected JSON approval request.", 415);
   if (input.error) return text("Approval request is invalid.", 400);
 
   const manifest = await loadCurrentManifest(bucket, nowMs);
-  if (!manifest || !sameReview(input.value, manifest)) {
+  if (!manifest || !sameReview(input.value, manifest) || input.value.caseId !== manifest.caseId) {
+    return text("Review is stale or no longer current.", 409);
+  }
+
+  const loadedState = await loadCaseState(bucket, manifest.caseId);
+  if (loadedState.invalid) return text("Case review state is invalid.", 503);
+  if (
+    !loadedState.object ||
+    typeof loadedState.object.etag !== "string" ||
+    !loadedState.state.current ||
+    !sameReview(input.value, loadedState.state.current)
+  ) {
     return text("Review is stale or no longer current.", 409);
   }
 
@@ -338,27 +543,6 @@ async function approveReview(request, bucket, session, nowMs) {
   const durableEvidenceKeys = copies.map(({ item }) =>
     baselineEvidenceKey(manifest.caseId, promotionId, item.id),
   );
-  try {
-    await Promise.all(
-      copies.map(({ item, source }) =>
-        bucket.put(
-          baselineEvidenceKey(manifest.caseId, promotionId, item.id),
-          source.body,
-          { httpMetadata: { contentType: item.contentType } },
-        ),
-      ),
-    );
-  } catch {
-    await deleteKeys(bucket, durableEvidenceKeys);
-    return text("Baseline evidence promotion failed.", 503);
-  }
-
-  const stillCurrent = await loadCurrentManifest(bucket, nowMs);
-  if (!stillCurrent || !sameReview(input.value, stillCurrent)) {
-    await deleteKeys(bucket, durableEvidenceKeys);
-    return text("Review changed before approval could complete.", 409);
-  }
-
   const approval = {
     version: 1,
     caseId: manifest.caseId,
@@ -375,18 +559,57 @@ async function approveReview(request, bucket, session, nowMs) {
       url: baselineEvidenceUrl(manifest.caseId, item.id),
     })),
   };
+  const recordKey = approvalKey(
+    manifest.caseId,
+    manifest.sourceSha,
+    manifest.reviewDepth,
+    promotionId,
+  );
 
-  const recordKey = approvalKey(manifest.caseId, manifest.sourceSha, manifest.reviewDepth);
   try {
+    await Promise.all(
+      copies.map(({ item, source }) =>
+        bucket.put(
+          baselineEvidenceKey(manifest.caseId, promotionId, item.id),
+          source.body,
+          { httpMetadata: { contentType: item.contentType } },
+        ),
+      ),
+    );
     await bucket.put(recordKey, JSON.stringify(approval), {
       httpMetadata: { contentType: "application/json; charset=utf-8" },
     });
-    await bucket.put(baselineKey(manifest.caseId), JSON.stringify(baseline), {
-      httpMetadata: { contentType: "application/json; charset=utf-8" },
-    });
   } catch {
-    await deleteKeys(bucket, [...durableEvidenceKeys, recordKey]);
-    return text("Baseline promotion failed.", 503);
+    await bestEffortDeleteKeys(bucket, [...durableEvidenceKeys, recordKey]);
+    return text("Baseline evidence promotion failed.", 503);
+  }
+
+  const nextState = {
+    ...loadedState.state,
+    baseline,
+  };
+
+  let promoted;
+  try {
+    promoted = await putCaseState(bucket, manifest.caseId, nextState, loadedState.object);
+  } catch {
+    const observed = await loadCaseState(bucket, manifest.caseId);
+    if (!observed.invalid && observed.state?.baseline?.promotionId === promotionId) {
+      promoted = true;
+    } else {
+      await bestEffortDeleteKeys(bucket, [...durableEvidenceKeys, recordKey]);
+      return text("Baseline promotion failed.", 503);
+    }
+  }
+
+  if (!promoted) {
+    await bestEffortDeleteKeys(bucket, [...durableEvidenceKeys, recordKey]);
+    return text("Review changed before approval could complete.", 409);
+  }
+
+  const previousBaselineKeys = baselineEvidenceKeys(loadedState.state.baseline);
+  if (previousBaselineKeys.length > 0) {
+    await bestEffortDeleteKeys(bucket, previousBaselineKeys);
   }
 
   return json(publicBaseline(baseline), 201);
@@ -396,48 +619,39 @@ async function getBaseline(request, bucket) {
   const url = new URL(request.url);
   const caseId = url.searchParams.get("caseId") ?? "";
   if (!CASE_ID.test(caseId)) return text("Case baseline not found.", 404);
-  const object = await bucket.get(baselineKey(caseId));
-  if (!object) return text("Case baseline not found.", 404);
-  const baseline = await readJsonObject(object);
-  if (
-    !baseline ||
-    baseline.caseId !== caseId ||
-    typeof baseline.sourceSha !== "string" ||
-    typeof baseline.promotionId !== "string"
-  ) {
-    return text("Case baseline not found.", 404);
-  }
-  return json(publicBaseline(baseline));
+
+  const loaded = await loadCaseState(bucket, caseId);
+  if (loaded.invalid) return text("Case baseline state is invalid.", 503);
+  if (!loaded.state.baseline) return text("Case baseline not found.", 404);
+  return json(publicBaseline(loaded.state.baseline));
 }
 
 async function getBaselineEvidence(pathname, bucket) {
   const prefix = "/lab/review/baseline/";
   const suffix = pathname.slice(prefix.length);
   const parts = suffix.split("/");
-  if (parts.length !== 3 || parts[1] !== "evidence") return text("Baseline evidence not found.", 404);
+  if (parts.length !== 3 || parts[1] !== "evidence") {
+    return text("Baseline evidence not found.", 404);
+  }
+
   const [caseId, , evidenceId] = parts;
   if (!CASE_ID.test(caseId) || !EVIDENCE_ID.test(evidenceId)) {
     return text("Baseline evidence not found.", 404);
   }
 
-  const baselineObject = await bucket.get(baselineKey(caseId));
-  if (!baselineObject) return text("Baseline evidence not found.", 404);
-  const baseline = await readJsonObject(baselineObject);
-  if (
-    !baseline ||
-    !SHA.test(baseline.sourceSha ?? "") ||
-    typeof baseline.promotionId !== "string" ||
-    !/^[0-9a-f-]{36}$/u.test(baseline.promotionId)
-  ) {
-    return text("Baseline evidence not found.", 404);
-  }
-  const descriptor = Array.isArray(baseline.evidence)
-    ? baseline.evidence.find((item) => item?.id === evidenceId && validEvidence(item))
-    : null;
+  const loaded = await loadCaseState(bucket, caseId);
+  if (loaded.invalid) return text("Baseline evidence state is invalid.", 503);
+  const baseline = loaded.state.baseline;
+  if (!baseline) return text("Baseline evidence not found.", 404);
+
+  const descriptor = baseline.evidence.find((item) => item.id === evidenceId);
   if (!descriptor) return text("Baseline evidence not found.", 404);
 
-  const object = await bucket.get(baselineEvidenceKey(caseId, baseline.promotionId, evidenceId));
+  const object = await bucket.get(
+    baselineEvidenceKey(caseId, baseline.promotionId, evidenceId),
+  );
   if (!object) return text("Baseline evidence not found.", 404);
+
   return new Response(object.body, {
     status: 200,
     headers: {
@@ -467,7 +681,9 @@ export async function handleReviewRequest({ request, env, session = null, now = 
   if (isEvidence && request.method === "GET") return getEvidence(url.pathname, bucket, nowMs);
   if (isApproval && request.method === "POST") return approveReview(request, bucket, session, nowMs);
   if (isBaseline && request.method === "GET") return getBaseline(request, bucket);
-  if (isBaselineEvidence && request.method === "GET") return getBaselineEvidence(url.pathname, bucket);
+  if (isBaselineEvidence && request.method === "GET") {
+    return getBaselineEvidence(url.pathname, bucket);
+  }
 
   const allow = isApi ? "GET, POST" : isApproval ? "POST" : "GET";
   return text("Method not allowed.", 405, { Allow: allow });
