@@ -211,6 +211,37 @@
   text-transform: lowercase;
 }
 
+[data-page-id="work"] main {
+  display: grid;
+  gap: var(--space-section);
+  padding-block-end: var(--space-section);
+}
+
+[data-work-archive] {
+  padding-inline: var(--page-padding-inline);
+  border-block-start: var(--border-width-100) solid var(--clr-border);
+}
+
+[data-work-archive] > summary {
+  padding-block: var(--size-400);
+  cursor: pointer;
+  font-size: var(--fs-300);
+  font-weight: var(--fw-600);
+  list-style-position: inside;
+}
+
+[data-work-archive] > .projects-grid__list {
+  padding-block-end: var(--size-700);
+}
+
+[data-work-card="archive"] .project-card__media {
+  max-block-size: 22rem;
+}
+
+[data-work-card="archive"] .project-card__caption {
+  min-block-size: 0;
+}
+
 .projects-grid__list {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
