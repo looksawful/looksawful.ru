@@ -247,6 +247,8 @@ test("release preflight ignores unrelated merge conflicts outside approved produ
     mkdirSync(path.join(cwd, "docs"), { recursive: true });
     writeFileSync(path.join(cwd, "src/index.ts"), [
       "export const value = 1;",
+      "export const sharedA = true;",
+      "export const sharedB = true;",
       "export const prodOnly = false;",
       "",
     ].join("\n"));
@@ -263,6 +265,8 @@ test("release preflight ignores unrelated merge conflicts outside approved produ
 
     writeFileSync(path.join(cwd, "src/index.ts"), [
       "export const value = 2;",
+      "export const sharedA = true;",
+      "export const sharedB = true;",
       "export const prodOnly = false;",
       "",
     ].join("\n"));
@@ -273,6 +277,8 @@ test("release preflight ignores unrelated merge conflicts outside approved produ
     git(cwd, "switch", "-qc", "prod", shared);
     writeFileSync(path.join(cwd, "src/index.ts"), [
       "export const value = 1;",
+      "export const sharedA = true;",
+      "export const sharedB = true;",
       "export const prodOnly = true;",
       "",
     ].join("\n"));
@@ -283,6 +289,8 @@ test("release preflight ignores unrelated merge conflicts outside approved produ
 
     writeFileSync(path.join(cwd, "src/index.ts"), [
       "export const value = 2;",
+      "export const sharedA = true;",
+      "export const sharedB = true;",
       "export const prodOnly = true;",
       "",
     ].join("\n"));
@@ -354,7 +362,10 @@ test("release preflight promotes only the approved-base to approved-head delta",
   try {
     writeFileSync(path.join(cwd, "src/index.ts"), [
       "export const feature = 1;",
-      "export const shared = true;",
+      "export const sharedA = true;",
+      "export const devSlot = false;",
+      "export const sharedB = true;",
+      "export const prodSlot = false;",
       "",
     ].join("\n"));
     git(cwd, "add", "src/index.ts");
@@ -364,8 +375,10 @@ test("release preflight promotes only the approved-base to approved-head delta",
     git(cwd, "switch", "-qc", "dev-base");
     writeFileSync(path.join(cwd, "src/index.ts"), [
       "export const feature = 1;",
-      "export const shared = true;",
-      "export const devOnly = true;",
+      "export const sharedA = true;",
+      "export const devSlot = true;",
+      "export const sharedB = true;",
+      "export const prodSlot = false;",
       "",
     ].join("\n"));
     git(cwd, "add", "src/index.ts");
@@ -374,8 +387,10 @@ test("release preflight promotes only the approved-base to approved-head delta",
 
     writeFileSync(path.join(cwd, "src/index.ts"), [
       "export const feature = 2;",
-      "export const shared = true;",
-      "export const devOnly = true;",
+      "export const sharedA = true;",
+      "export const devSlot = true;",
+      "export const sharedB = true;",
+      "export const prodSlot = false;",
       "",
     ].join("\n"));
     git(cwd, "add", "src/index.ts");
@@ -385,8 +400,10 @@ test("release preflight promotes only the approved-base to approved-head delta",
     git(cwd, "switch", "-qc", "prod", shared);
     writeFileSync(path.join(cwd, "src/index.ts"), [
       "export const feature = 1;",
-      "export const shared = true;",
-      "export const prodOnly = true;",
+      "export const sharedA = true;",
+      "export const devSlot = false;",
+      "export const sharedB = true;",
+      "export const prodSlot = true;",
       "",
     ].join("\n"));
     git(cwd, "add", "src/index.ts");
@@ -395,8 +412,10 @@ test("release preflight promotes only the approved-base to approved-head delta",
 
     writeFileSync(path.join(cwd, "src/index.ts"), [
       "export const feature = 2;",
-      "export const shared = true;",
-      "export const prodOnly = true;",
+      "export const sharedA = true;",
+      "export const devSlot = false;",
+      "export const sharedB = true;",
+      "export const prodSlot = true;",
       "",
     ].join("\n"));
     git(cwd, "add", "src/index.ts");
