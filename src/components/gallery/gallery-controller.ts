@@ -44,7 +44,7 @@ export function createGalleryController(root: HTMLElement): Destroy {
       return;
     }
 
-    state = { itemId: nextItemId };
+    state = { itemId: nextItemId, slide: null };
     writeHistory(state, transition.action);
   };
 
@@ -52,7 +52,7 @@ export function createGalleryController(root: HTMLElement): Destroy {
     root,
     onChange: (itemId) => {
       if (syncingHistory) {
-        state = { itemId };
+        state = { itemId, slide: null };
         return;
       }
       applyViewerTransition(itemId, "viewer-change");
@@ -69,7 +69,7 @@ export function createGalleryController(root: HTMLElement): Destroy {
       return;
     }
     if (!lightbox.openItem(itemId)) {
-      state = { itemId: null };
+      state = { itemId: null, slide: null };
       if (!syncingHistory) writeHistory(state, "replace");
     }
   };
