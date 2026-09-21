@@ -109,8 +109,7 @@ function isEvidence(value: unknown): value is ReviewEvidence {
     typeof candidate.contentType === "string" &&
     IMAGE_TYPES.has(candidate.contentType) &&
     typeof candidate.url === "string" &&
-    (candidate.url === `/lab/review/evidence/${candidate.id}` ||
-      candidate.url.endsWith(`/evidence/${candidate.id}`))
+    candidate.url === `/lab/review/evidence/${candidate.id}`
   );
 }
 
