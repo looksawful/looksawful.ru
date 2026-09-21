@@ -297,6 +297,39 @@ async function checkMobileViewport(browser, baseUrl, viewport) {
   }
 }
 
+async function checkMenuPreviewCompositing(browser, baseUrl) {
+  const { context, page } = await openHomepage(browser, baseUrl, WIDE_VIEWPORT);
+
+  try {
+    await page.locator("[data-site-menu-toggle]").click();
+    const link = page.locator(".site-nav__menu-link[data-preview]").first();
+    await link.hover();
+    const box = await link.boundingBox();
+    assert.ok(box, "menu preview trigger must have geometry");
+
+    await page.mouse.move(box.x + box.width * 0.7, box.y + box.height * 0.5);
+    await settle(page);
+
+    const state = await page.evaluate(() => {
+      const preview = document.querySelector("[data-menu-preview]");
+      if (!(preview instanceof HTMLElement)) throw new Error("missing menu preview");
+      return {
+        visible: preview.dataset.visible,
+        transform: preview.style.transform,
+        left: preview.style.left,
+        top: preview.style.top,
+      };
+    });
+
+    assert.equal(state.visible, "true", "wide menu preview must become visible");
+    assert.match(state.transform, /^translate3d\(/, "menu preview movement must stay on the compositor");
+    assert.equal(state.left, "", "menu preview follower must not mutate inline left");
+    assert.equal(state.top, "", "menu preview follower must not mutate inline top");
+  } finally {
+    await context.close();
+  }
+}
+
 async function checkWideViewport(browser, baseUrl) {
   const { context, page } = await openHomepage(browser, baseUrl, WIDE_VIEWPORT);
 
@@ -328,6 +361,7 @@ export async function runResponsiveUI({ browser, baseUrl }) {
   }
 
   await checkWideViewport(browser, baseUrl);
+  await checkMenuPreviewCompositing(browser, baseUrl);
   console.log("Responsive UI checks passed");
 }
 
