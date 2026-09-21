@@ -104,3 +104,5 @@ A Visual review of unreleased or in-progress material that must remain behind th
 **Text change**:
 A change to user-visible copy that is always treated as Visual-impacting because line breaks, density, hierarchy and layout can change even when component code does not.
 
+**Private review boundary**:
+The authenticated boundary inside which all pre-production Visual review surfaces, previews and evidence must remain unavailable to the public internet.
