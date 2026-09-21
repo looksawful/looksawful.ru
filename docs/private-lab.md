@@ -108,12 +108,11 @@ The Lab shell links to `/lab/system/` and `/lab/system/inventory.html`. Storyboo
 
 `.github/workflows/private-lab-verify.yml` builds the isolated Lab first, then Storybook and the generated inventory into the same `dist-lab/` artifact. The workflow verifies those files while still rejecting any accidental `dist/lab/index.html` public-build entry.
 
-
 ## Private Review Hub
 
 The first Review Hub slice lives at `/lab/review/` behind the existing GitHub OAuth boundary.
 
-Private review data uses the `REVIEW_EVIDENCE` R2 binding. The repository does not contain review screenshots, Review manifests, private object identifiers or private review URLs. Missing storage configuration fails closed with `503`.
+Private review data uses the `REVIEW_EVIDENCE` R2 binding. The repository does not contain captured review screenshots, runtime Review manifests, private object identifiers or private review URLs. Missing storage configuration fails closed with `503`.
 
 The authenticated runtime exposes:
 
