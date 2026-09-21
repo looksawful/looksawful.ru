@@ -284,6 +284,9 @@ test("release preflight uses the approved base when approved work intentionally 
     writeFileSync(path.join(cwd, "src/index.ts"), [
       "export const value = 1;",
       "export const legacy = true;",
+      "export const stableA = true;",
+      "export const stableB = true;",
+      "export const stableC = true;",
       "",
     ].join("\n"));
     git(cwd, "add", "src/index.ts");
@@ -292,6 +295,9 @@ test("release preflight uses the approved base when approved work intentionally 
 
     writeFileSync(path.join(cwd, "src/index.ts"), [
       "export const value = 2;",
+      "export const stableA = true;",
+      "export const stableB = true;",
+      "export const stableC = true;",
       "",
     ].join("\n"));
     git(cwd, "add", "src/index.ts");
@@ -302,6 +308,9 @@ test("release preflight uses the approved base when approved work intentionally 
     writeFileSync(path.join(cwd, "src/index.ts"), [
       "export const value = 1;",
       "export const legacy = true;",
+      "export const stableA = true;",
+      "export const stableB = true;",
+      "export const stableC = true;",
       "export const prodOnly = true;",
       "",
     ].join("\n"));
@@ -311,6 +320,9 @@ test("release preflight uses the approved base when approved work intentionally 
 
     writeFileSync(path.join(cwd, "src/index.ts"), [
       "export const value = 2;",
+      "export const stableA = true;",
+      "export const stableB = true;",
+      "export const stableC = true;",
       "export const prodOnly = true;",
       "",
     ].join("\n"));
