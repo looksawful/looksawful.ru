@@ -29,7 +29,7 @@ export function renderWorkPage(page: WorkPageDefinition): string {
     page,
     title: "work — Иван Крушинский",
     description: "Selected portfolio work by Ivan Krushinsky.",
-    content: `<section class="projects-grid work-index" aria-labelledby="work-index-title">
+    content: `<section class="projects-grid" aria-labelledby="work-index-title">
   <h1 id="work-index-title">work</h1>
   <ol class="projects-grid__list" data-reveal-group>
     ${renderProjectIndex()}
