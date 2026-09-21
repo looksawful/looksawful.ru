@@ -84,7 +84,7 @@ export const OpenKeyboard = {
   parameters: {
     looksawful: {
       state: "gallery-open-keyboard",
-      interaction: ["open", "keyboard", "focus-visible", "selected"],
+      interaction: ["open", "focus-visible", "selected"],
     },
   },
 };
@@ -98,7 +98,7 @@ export const OpenPointer = {
   parameters: {
     looksawful: {
       state: "gallery-open-pointer",
-      interaction: ["open", "pointer", "selected"],
+      interaction: ["open", "active-or-pressed", "selected"],
     },
   },
 };
@@ -113,7 +113,7 @@ export const DeepLinked = {
   parameters: {
     looksawful: {
       state: "gallery-deep-linked",
-      interaction: ["open", "selected", "history"],
+      interaction: ["open", "selected"],
     },
   },
 };
