@@ -156,6 +156,13 @@ test("Gallery production markup renders typed image, video, model and multi-slid
   assert.match(markup, /data-gallery-item-id="model-a"[\s\S]*?src="\/media\/model-a-poster\.webp"/);
 });
 
+test("Gallery production page uses typed placement markup for its canonical photo stream", () => {
+  assert.match(html, /class="gallery-series__marker">[^<]+<\/p>/);
+  assert.match(html, /\bdata-gallery-media\b/);
+  assert.match(html, /data-gallery-slide="1"/);
+  assert.match(html, /data-gallery-kind="image"/);
+});
+
 test("Gallery renders exactly five approved Jestei symbols as interactive model cards", () => {
   const modelCards = [...html.matchAll(/<figure class="gallery-card gallery-card--model"[\s\S]*?<\/figure>/g)]
     .map((match) => match[0]);
