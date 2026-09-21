@@ -24,7 +24,9 @@ Runtime bindings required by the candidate:
 ADMIN_GITHUB_CLIENT_ID
 ADMIN_GITHUB_CLIENT_SECRET
 ADMIN_SESSION_SECRET
-SUPABASE_URL             # backend-only Supabase project URL\nSUPABASE_SECRET_KEY      # backend-only secret key; never browser/public source\nREVIEW_EVIDENCE_BUCKET  # dedicated private Storage bucket id
+SUPABASE_URL             # backend-only Supabase project URL
+SUPABASE_SECRET_KEY      # backend-only secret key; never browser/public source
+REVIEW_EVIDENCE_BUCKET  # dedicated private Storage bucket id
 ```
 
 Accepted application origins are deliberately narrow:
