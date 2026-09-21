@@ -78,12 +78,6 @@ export function validatePortfolioPresentation(
     requireEntityPage(id, pages);
   }
 
-  if (presentation.featured.length !== 0 && (
-    presentation.featured.length < 3 || presentation.featured.length > 5
-  )) {
-    throw new Error("Featured portfolio selection must be empty while unapproved or contain 3–5 entities");
-  }
-
   assertUnique("Flagship", presentation.flagship);
   assertUnique("Featured", presentation.featured);
   assertUnique("Archive", presentation.archive);
@@ -98,5 +92,11 @@ export function validatePortfolioPresentation(
   }
   for (const id of presentation.archive) {
     if (mainTier.has(id)) throw new Error(`Duplicate portfolio tier page id: ${id}`);
+  }
+
+  if (presentation.featured.length !== 0 && (
+    presentation.featured.length < 3 || presentation.featured.length > 5
+  )) {
+    throw new Error("Featured portfolio selection must be empty while unapproved or contain 3–5 entities");
   }
 }
