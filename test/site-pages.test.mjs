@@ -231,7 +231,12 @@ test("only enabled pages are returned for build ownership decisions", () => {
   assert.ok(enabled.every((page) => page.enabled));
 });
 
-test("public Case, Collection, CV and privacy pages are listed and indexable while selected Project pages stay unlisted", () => {
+test("public discovery matches the approved portfolio selection", () => {
+  const approvedPublicProjects = new Set([
+    ...portfolioPresentation.featured,
+    ...portfolioPresentation.archive,
+  ]);
+
   for (const page of sitePages) {
     if (page.type === "case" || page.type === "collection" || page.type === "gallery" || page.type === "work" || page.id === "cv" || page.id === "privacy") {
       assert.equal(page.discovery.listed, true);
@@ -239,8 +244,9 @@ test("public Case, Collection, CV and privacy pages are listed and indexable whi
     }
 
     if (page.type === "project") {
-      assert.equal(page.discovery.listed, false);
-      assert.equal(page.discovery.indexable, false);
+      const expectedPublic = approvedPublicProjects.has(page.id);
+      assert.equal(page.discovery.listed, expectedPublic, page.id);
+      assert.equal(page.discovery.indexable, expectedPublic, page.id);
     }
   }
 
