@@ -85,3 +85,12 @@ A persistent private Review surface that provides the fastest path to the curren
 
 **Review depth**:
 The amount of evidence required for a Visual review, ranging from a quick derived preview to exact interactive and full cross-profile inspection.
+
+**Visual-impacting change**:
+A change that can alter rendered appearance, responsive composition, interactive visual state or motion behavior and therefore requires Visual review for its Affected Cases.
+
+**Non-visual change**:
+A change with no expected effect on rendered appearance or interactive visual behavior and therefore no Visual review requirement unless automated impact detection finds otherwise.
+
+**Private preview**:
+An exact rendered preview of unreleased material that is accessible only through the project's authenticated review boundary.
