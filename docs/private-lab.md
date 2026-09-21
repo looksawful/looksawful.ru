@@ -114,7 +114,7 @@ The Lab shell links to `/lab/system/` and `/lab/system/inventory.html`. Storyboo
 
 The first Review Hub slice lives at `/lab/review/` behind the existing GitHub OAuth boundary.
 
-Private review data uses a server-only Supabase adapter: JSON control/state records live behind RLS in Postgres and image evidence lives in a private Storage bucket. The repository does not contain captured review screenshots, runtime Review manifests, private object identifiers, private review URLs or Supabase secret keys. Missing backend configuration fails closed with `503`. The control table intentionally has RLS enabled with no `anon` or `authenticated` policies; only backend service-role RPCs may mutate Review Hub state.
+Private review data uses a server-only Supabase adapter: JSON control/state records live behind RLS in Postgres and image evidence lives in a private Storage bucket. The repository does not contain captured review screenshots, runtime Review manifests, private object identifiers, private review URLs or Supabase secret keys. Missing backend configuration fails closed with `503`. The control table intentionally has RLS enabled with no `anon` or `authenticated` policies; only backend service-role RPCs may mutate Review Hub state. The reproducible schema/RPC/bucket contract lives in `infra/supabase/review-hub.sql`; deployment-specific Vault values and scheduled maintenance credentials stay outside the public repository.
 
 The authenticated runtime exposes:
 
