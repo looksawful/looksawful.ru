@@ -94,3 +94,13 @@ A change with no expected effect on rendered appearance or interactive visual be
 
 **Private preview**:
 An exact rendered preview of unreleased material that is accessible only through the project's authenticated review boundary.
+
+**Public release**:
+The production-published state of the portfolio that is intentionally exposed to the public internet.
+
+**Private visual review**:
+A Visual review of unreleased or in-progress material that must remain behind the project's authenticated review boundary.
+
+**Text change**:
+A change to user-visible copy that is always treated as Visual-impacting because line breaks, density, hierarchy and layout can change even when component code does not.
+
