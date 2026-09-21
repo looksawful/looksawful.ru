@@ -20,7 +20,9 @@ type ReviewManifest = {
 
 const CASE_ID = /^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$/u;
 const SOURCE_SHA = /^[0-9a-f]{40}$/u;
-const EVIDENCE_URL = /^\/lab\/review\/evidence\/[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$/u;
+const EVIDENCE_ID = /^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$/u;
+const EVIDENCE_KINDS = new Set(["viewport", "full-page", "component", "diff"]);
+const IMAGE_TYPES = new Set(["image/png", "image/jpeg", "image/webp"]);
 const PLACEHOLDER = "—";
 
 function setText(id: string, value: string): void {
@@ -67,11 +69,13 @@ function isEvidence(value: unknown): value is ReviewEvidence {
   const candidate = value as Record<string, unknown>;
   return (
     typeof candidate.id === "string" &&
+    EVIDENCE_ID.test(candidate.id) &&
     typeof candidate.kind === "string" &&
+    EVIDENCE_KINDS.has(candidate.kind) &&
     typeof candidate.contentType === "string" &&
-    candidate.contentType.startsWith("image/") &&
+    IMAGE_TYPES.has(candidate.contentType) &&
     typeof candidate.url === "string" &&
-    EVIDENCE_URL.test(candidate.url)
+    candidate.url === `/lab/review/evidence/${candidate.id}`
   );
 }
 
