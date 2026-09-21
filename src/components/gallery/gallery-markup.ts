@@ -28,7 +28,8 @@ function renderMediaDescriptor(
 }
 
 function renderCardMedia(media: GalleryResolvedMedia): string {
-  return `<img class="gallery-card__image" src="${escapeHtml(media.posterSrc)}"${dimensionAttributes(media)} alt="${escapeHtml(media.alt)}" loading="lazy" decoding="async">`;
+  const srcset = media.srcset ? ` srcset="${escapeHtml(media.srcset)}"` : "";
+  return `<img class="gallery-card__image" src="${escapeHtml(media.posterSrc)}"${srcset} sizes="(max-width: 720px) 50vw, (max-width: 1100px) 33vw, (max-width: 1500px) 25vw, 20vw"${dimensionAttributes(media)} alt="${escapeHtml(media.alt)}" loading="lazy" decoding="async">`;
 }
 
 export function renderGalleryResolvedPlacement(
@@ -40,12 +41,15 @@ export function renderGalleryResolvedPlacement(
   }
 
   const featuredAttribute = placement.featured ? " data-gallery-featured" : "";
+  const kindClass = primary.kind === "image" ? "" : ` gallery-card--${primary.kind}`;
   const label = primary.alt.trim() || primary.title.trim() || placement.itemId;
+  const primaryCredits = creditsAttribute(primary.credits);
+  const primaryDimensions = `${primary.width ? ` data-gallery-width="${primary.width}"` : ""}${primary.height ? ` data-gallery-height="${primary.height}"` : ""}`;
   const descriptors = placement.media
     .map((media, index) => renderMediaDescriptor(media, index + 1))
     .join("\n  ");
 
-  return `<figure class="gallery-card gallery-card--${primary.kind}" data-gallery-card data-gallery-item-id="${escapeHtml(placement.itemId)}" data-gallery-kind="${primary.kind}"${featuredAttribute} tabindex="0" role="button" aria-haspopup="dialog" aria-label="Открыть: ${escapeHtml(label)}">
+  return `<figure class="gallery-card${kindClass}" data-gallery-card data-gallery-item-id="${escapeHtml(placement.itemId)}" data-gallery-kind="${primary.kind}" data-gallery-src="${escapeHtml(primary.src)}"${primaryDimensions} data-gallery-alt="${escapeHtml(primary.alt)}" data-gallery-title="${escapeHtml(primary.title)}" data-gallery-credits="${primaryCredits}"${featuredAttribute} tabindex="0" role="button" aria-haspopup="dialog" aria-label="Открыть: ${escapeHtml(label)}">
   ${renderCardMedia(primary)}
   ${descriptors}
 </figure>`;
