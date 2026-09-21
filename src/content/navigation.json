@@ -4,27 +4,15 @@
     "label": "Иван Крушинский"
   },
   {
+    "id": "work",
+    "label": "work"
+  },
+  {
     "id": "gallery",
-    "label": "Галерея"
-  },
-  {
-    "id": "case:jestei-pool",
-    "label": "Jestei Pool"
-  },
-  {
-    "id": "case:styx",
-    "label": "Styx Jewel"
-  },
-  {
-    "id": "case:sensetique",
-    "label": "Sensetique"
-  },
-  {
-    "id": "collection:music-photography",
-    "label": "Съёмки"
+    "label": "gallery"
   },
   {
     "id": "cv",
-    "label": "Резюме"
+    "label": "cv"
   }
 ]
