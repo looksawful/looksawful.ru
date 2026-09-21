@@ -106,6 +106,11 @@ test("trainer styling keeps mobile geometry, guidance and reduced-motion support
     standaloneStyles,
     /@media \(prefers-reduced-motion: reduce\)[\s\S]*?animation:\s*none/,
   );
+  assert.ok(
+    standaloneStyles.lastIndexOf("@media (hover:hover) and (pointer:fine)") >
+      standaloneStyles.lastIndexOf(".runner-controls:not([hidden])"),
+    "standalone fine-pointer hiding must win the cascade after the visible-controls rule",
+  );
 });
 
 test("Awful Cases sync tool owns public runtime mirrors", async () => {
