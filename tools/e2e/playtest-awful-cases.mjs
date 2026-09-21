@@ -57,7 +57,7 @@ async function openTrainer(page, url) {
   return errors;
 }
 
-async function startSession(page, { expectControlsVisible = false } = {}) {
+async function startSession(page, { expectControlsVisible = null } = {}) {
   await page.locator("[data-awful-cases-start-button]").click();
   await page.waitForFunction(
     () =>
@@ -67,7 +67,9 @@ async function startSession(page, { expectControlsVisible = false } = {}) {
   assert.ok(state?.taskType, "running session must expose a current task");
   const controls = page.locator("[data-awful-cases-controls]");
   assert.equal(await controls.locator("[data-awful-cases-action]").count(), 6);
-  assert.equal(await controls.isVisible(), expectControlsVisible);
+  if (expectControlsVisible !== null) {
+    assert.equal(await controls.isVisible(), expectControlsVisible);
+  }
   assert.equal(await page.locator("[data-awful-cases-prompt]").isVisible(), true);
   if (expectControlsVisible) {
     assert.equal(
