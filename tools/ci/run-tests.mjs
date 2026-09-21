@@ -39,6 +39,8 @@ export const fastTests = new Set([
   "test/editorial-content-boundary.test.mjs",
   "test/gallery-renderer.test.mjs",
   "test/gallery-prerelease.test.mjs",
+  // CONTRACT: Gallery phase 2 canonical placement/series invariants stay typed and deterministic.
+  "test/gallery-curation-contract.test.mjs",
   "test/gallery-navigation-visibility.test.mjs",
   "test/editorial-copy-optional.test.mjs",
   "test/homepage-compact-curation.test.mjs",
