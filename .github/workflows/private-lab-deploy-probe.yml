@@ -1,0 +1,37 @@
+name: Private Lab Deploy Probe
+
+on:
+  push:
+    branches:
+      - feature/case-sha-visual-approval
+    paths:
+      - ".github/workflows/private-lab-deploy-probe.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      ADMIN_GITHUB_CLIENT_ID: ${{ secrets.ADMIN_GITHUB_CLIENT_ID }}
+      ADMIN_GITHUB_CLIENT_SECRET: ${{ secrets.ADMIN_GITHUB_CLIENT_SECRET }}
+      ADMIN_SESSION_SECRET: ${{ secrets.ADMIN_SESSION_SECRET }}
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+      REVIEW_EVIDENCE_BUCKET: ${{ secrets.REVIEW_EVIDENCE_BUCKET }}
+    steps:
+      - name: Report secret presence only
+        shell: bash
+        run: |
+          set -euo pipefail
+          for name in             CLOUDFLARE_API_TOKEN             CLOUDFLARE_ACCOUNT_ID             ADMIN_GITHUB_CLIENT_ID             ADMIN_GITHUB_CLIENT_SECRET             ADMIN_SESSION_SECRET             SUPABASE_URL             SUPABASE_SECRET_KEY             REVIEW_EVIDENCE_BUCKET
+          do
+            if [ -n "${!name:-}" ]; then
+              printf '%s=set\n' "$name"
+            else
+              printf '%s=missing\n' "$name"
+            fi
+          done
