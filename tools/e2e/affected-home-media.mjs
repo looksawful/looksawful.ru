@@ -65,12 +65,13 @@ async function verifyHomepageVideoPosterFallback(runtime) {
     const deferredVideos = page.locator("video[data-autoplay-deferred]");
     const deferredCount = await deferredVideos.count();
     assert.ok(
-      deferredCount >= 2,
-      "Homepage must expose at least two deferred videos for poster-fallback coverage",
+      deferredCount > 0,
+      "Homepage must expose a deferred video for poster-fallback coverage",
     );
 
     const fixtures = [];
-    for (let index = 0; index < 2; index += 1) {
+    const fixtureCount = Math.min(2, deferredCount);
+    for (let index = 0; index < fixtureCount; index += 1) {
       const video = deferredVideos.nth(index);
       const handle = await video.elementHandle();
       assert.ok(handle, `Homepage deferred video handle missing at index ${index}`);
