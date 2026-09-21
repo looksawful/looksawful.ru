@@ -1,4 +1,4 @@
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -42,9 +42,34 @@ function changedFiles(repo, base, head) {
 }
 
 function mergeTree(repo, left, right) {
-  return git(repo, "merge-tree", "--write-tree", left, right)
-    .split(/\r?\n/)[0]
-    .trim();
+  const result = spawnSync(
+    "git",
+    ["-c", "core.quotePath=false", "merge-tree", "--write-tree", left, right],
+    { cwd: repo, encoding: "utf8" },
+  );
+  if (result.error) throw result.error;
+
+  const stdout = result.stdout ?? "";
+  const stderr = result.stderr ?? "";
+  const lines = stdout.split(/\r?\n/).filter(Boolean);
+  const tree = lines[0]?.trim();
+  if (!tree || !/^[0-9a-f]{40,64}$/.test(tree)) {
+    throw new Error(stderr.trim() || stdout.trim() || "git merge-tree did not return a tree");
+  }
+  if (result.status !== 0 && result.status !== 1) {
+    throw new Error(stderr.trim() || stdout.trim() || `git merge-tree failed with status ${result.status}`);
+  }
+
+  const conflicts = new Set();
+  for (const line of lines.slice(1)) {
+    const stageEntry = line.match(/^\d{6} [0-9a-f]+ [123]\t(.+)$/);
+    if (stageEntry) conflicts.add(stageEntry[1]);
+  }
+  if (result.status === 1 && conflicts.size === 0) {
+    throw new Error(stderr.trim() || stdout.trim() || "git merge-tree reported an unclassified conflict");
+  }
+
+  return { tree, conflicts };
 }
 
 function differingFiles(repo, left, right, files) {
@@ -99,14 +124,21 @@ export function runPreflight(argv = process.argv.slice(2)) {
   const prodFileSet = new Set(prodFiles);
   const overlap = approvedProductFiles.filter((file) => prodFileSet.has(file));
   if (overlap.length) {
-    let expectedTree;
+    let expected;
     try {
-      expectedTree = mergeTree(repo, prodBase, approvedHead);
+      expected = mergeTree(repo, prodBase, approvedHead);
     } catch {
       for (const file of overlap) console.error(`PROD_OVERLAP_REQUIRES_RECONCILIATION ${file}`);
       return 1;
     }
-    const dropped = differingFiles(repo, candidate, expectedTree, overlap);
+
+    const overlapConflicts = overlap.filter((file) => expected.conflicts.has(file));
+    if (overlapConflicts.length) {
+      for (const file of overlapConflicts) console.error(`PROD_OVERLAP_REQUIRES_RECONCILIATION ${file}`);
+      return 1;
+    }
+
+    const dropped = differingFiles(repo, candidate, expected.tree, overlap);
     if (dropped.length) {
       for (const file of dropped) console.error(`PROD_ONLY_CHANGE_DROPPED ${file}`);
       return 1;
