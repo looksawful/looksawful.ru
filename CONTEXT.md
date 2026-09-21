@@ -23,6 +23,12 @@ One of the small set of primary Cases that most strongly establishes the portfol
 **Featured Case**:
 A strong secondary Case presented with less prominence than a Flagship Case while remaining part of the main portfolio selection.
 
+**Project index**:
+A compact navigational overview of the main portfolio selection. Its purpose is orientation, not ranking by visual prominence.
+
+**Work Archive**:
+The deeper, intentionally de-emphasized set of Cases outside the main Flagship and Featured selection. It remains accessible without competing with the primary portfolio narrative.
+
 **Project card**:
 A homepage/navigation presentation that points to a Case or another project surface; it is not the canonical identity of the destination.
 
