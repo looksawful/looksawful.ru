@@ -52,7 +52,9 @@ test("standalone page shell exposes page identity and one main landmark", () => 
   assert.match(html, /data-page-id="case:jestei-pool"/);
   assert.match(html, /data-entity-id="jestei-pool"/);
   assert.equal((html.match(/<main\b/g) ?? []).length, 1);
-  assert.match(html, /<a class="site-nav__brand" href="\/">looksawful<\/a>/);
+  assert.match(html, /<a class="skip-link" href="#main-content">Перейти к содержимому<\/a>/);
+  assert.match(html, /<main id="main-content" tabindex="-1">/);
+  assert.match(html, /<a class="site-nav__breadcrumb-link" href="\/">Иван Крушинский<\/a>/);
   assert.match(html, /<link href="\/src\/styles\/index\.css" rel="stylesheet">/);
   assert.match(html, /<script src="\/src\/main\.js" type="module"><\/script>/);
 });
