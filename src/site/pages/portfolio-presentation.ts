@@ -19,13 +19,24 @@ export const portfolioPresentation = {
     "case:styx",
     "case:sensetique",
   ],
-  featured: [],
-  archive: [],
+  featured: [
+    "project:awful-cases",
+    "project:moves-awful",
+    "project:awful-studio",
+    "project:awful-3d-mockups",
+  ],
+  archive: [
+    "project:berry-social-content-2020",
+  ],
   projectIndex: [
     "case:jestei-pool",
     "case:styx",
     "case:sensetique",
     "collection:music-photography",
+    "project:awful-cases",
+    "project:moves-awful",
+    "project:awful-studio",
+    "project:awful-3d-mockups",
   ],
   workShortcuts: [
     "case:jestei-pool",
