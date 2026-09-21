@@ -9,6 +9,13 @@ const MOBILE_VIEWPORTS = [
 ];
 
 const WIDE_VIEWPORT = { width: 1728, height: 1000 };
+const REPRESENTATIVE_ROUTE_VIEWPORTS = [
+  { width: 320, height: 568, mobile: true },
+  { width: 360, height: 800, mobile: true },
+  { width: 768, height: 1024, mobile: true },
+  { width: 1024, height: 768, mobile: true },
+];
+const REPRESENTATIVE_ROUTES = ["/gallery/", "/work/jestei-pool/"];
 const ALIGNMENT_TOLERANCE = 2;
 
 async function settle(page) {
@@ -297,6 +304,86 @@ async function checkMobileViewport(browser, baseUrl, viewport) {
   }
 }
 
+async function checkRepresentativeRoute(browser, baseUrl, route, viewport) {
+  const context = await browser.newContext({
+    viewport: { width: viewport.width, height: viewport.height },
+    isMobile: viewport.mobile,
+    hasTouch: viewport.mobile,
+    deviceScaleFactor: 1,
+  });
+  const page = await context.newPage();
+
+  try {
+    const response = await page.goto(`${baseUrl}${route}`, { waitUntil: "domcontentloaded" });
+    assert.ok(response?.ok(), `${route} ${viewport.width}x${viewport.height}: HTTP ${response?.status()}`);
+    await settle(page);
+
+    const state = await page.evaluate(() => {
+      const toggle = document.querySelector("[data-site-menu-toggle]");
+      const rect = toggle instanceof HTMLElement ? toggle.getBoundingClientRect() : null;
+      return {
+        mainCount: document.querySelectorAll("main").length,
+        horizontalOverflow:
+          document.documentElement.scrollWidth - document.documentElement.clientWidth,
+        toggle: rect
+          ? {
+              left: rect.left,
+              right: rect.right,
+              top: rect.top,
+              bottom: rect.bottom,
+            }
+          : null,
+        viewportWidth: window.innerWidth,
+        viewportHeight: window.innerHeight,
+      };
+    });
+
+    const label = `${route} ${viewport.width}x${viewport.height}`;
+    assert.equal(state.mainCount, 1, `${label}: expected exactly one main`);
+    assert.ok(state.horizontalOverflow <= 1, `${label}: horizontal overflow is ${state.horizontalOverflow}px`);
+    assert.ok(state.toggle, `${label}: site menu toggle is missing`);
+    assert.ok(state.toggle.left >= -1, `${label}: site menu toggle escapes the left edge`);
+    assert.ok(state.toggle.right <= state.viewportWidth + 1, `${label}: site menu toggle escapes the right edge`);
+    assert.ok(state.toggle.top >= -1, `${label}: site menu toggle escapes the top edge`);
+    assert.ok(state.toggle.bottom <= state.viewportHeight + 1, `${label}: site menu toggle escapes the bottom edge`);
+  } finally {
+    await context.close();
+  }
+}
+
+async function checkMenuPreviewCompositing(browser, baseUrl) {
+  const { context, page } = await openHomepage(browser, baseUrl, WIDE_VIEWPORT);
+
+  try {
+    await page.locator("[data-site-menu-toggle]").click();
+    const link = page.locator(".site-nav__menu-link[data-preview]").first();
+    await link.hover();
+    const box = await link.boundingBox();
+    assert.ok(box, "menu preview trigger must have geometry");
+
+    await page.mouse.move(box.x + box.width * 0.7, box.y + box.height * 0.5);
+    await settle(page);
+
+    const state = await page.evaluate(() => {
+      const preview = document.querySelector("[data-menu-preview]");
+      if (!(preview instanceof HTMLElement)) throw new Error("missing menu preview");
+      return {
+        visible: preview.dataset.visible,
+        transform: preview.style.transform,
+        left: preview.style.left,
+        top: preview.style.top,
+      };
+    });
+
+    assert.equal(state.visible, "true", "wide menu preview must become visible");
+    assert.match(state.transform, /^translate3d\(/, "menu preview movement must stay on the compositor");
+    assert.equal(state.left, "", "menu preview follower must not mutate inline left");
+    assert.equal(state.top, "", "menu preview follower must not mutate inline top");
+  } finally {
+    await context.close();
+  }
+}
+
 async function checkWideViewport(browser, baseUrl) {
   const { context, page } = await openHomepage(browser, baseUrl, WIDE_VIEWPORT);
 
@@ -328,6 +415,14 @@ export async function runResponsiveUI({ browser, baseUrl }) {
   }
 
   await checkWideViewport(browser, baseUrl);
+  await checkMenuPreviewCompositing(browser, baseUrl);
+
+  for (const route of REPRESENTATIVE_ROUTES) {
+    for (const viewport of REPRESENTATIVE_ROUTE_VIEWPORTS) {
+      await checkRepresentativeRoute(browser, baseUrl, route, viewport);
+    }
+  }
+
   console.log("Responsive UI checks passed");
 }
 
