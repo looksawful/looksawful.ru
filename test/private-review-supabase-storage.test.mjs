@@ -5,8 +5,8 @@ import { createSupabaseReviewStorage } from "../lab/functions/review-storage-sup
 
 const ENV = {
   SUPABASE_URL: "https://example.supabase.co",
-  SUPABASE_SECRET_KEY: "sb_secret_test",
-  REVIEW_EVIDENCE_BUCKET: "private-review-evidence",
+  SUPABASE_PUBLISHABLE_KEY: "sb_publishable_test",
+  REVIEW_RUNTIME_PASSWORD: "runtime-password",
 };
 
 function jsonResponse(value, status = 200) {
@@ -14,6 +14,19 @@ function jsonResponse(value, status = 200) {
     status,
     headers: { "Content-Type": "application/json" },
   });
+}
+
+function withRuntimeAuth(fetchImpl) {
+  return async (url, init = {}) => {
+    if (String(url).includes("/auth/v1/token?grant_type=password")) {
+      return jsonResponse({
+        access_token: "runtime-access-token",
+        token_type: "bearer",
+        expires_in: 3600,
+      });
+    }
+    return fetchImpl(url, init);
+  };
 }
 
 test("Supabase review storage keeps JSON control objects in Postgres with CAS semantics", async () => {
@@ -46,7 +59,7 @@ test("Supabase review storage keeps JSON control objects in Postgres with CAS se
     throw new Error(`Unexpected request: ${url}`);
   };
 
-  const storage = createSupabaseReviewStorage(ENV, fetchImpl);
+  const storage = createSupabaseReviewStorage(ENV, withRuntimeAuth(fetchImpl));
   assert.ok(storage);
 
   const object = await storage.get("review-hub/v1/state/case-a.json");
@@ -109,7 +122,7 @@ test("Supabase review storage keeps binary evidence in a private bucket", async 
       ]);
     }
 
-    if (href.includes("/storage/v1/object/private-review-evidence/")) {
+    if (href.includes("/storage/v1/object/review-hub-evidence/")) {
       if (init.method === "POST") return jsonResponse({ Key: "stored" });
       return new Response(new Uint8Array([1, 2, 3]), {
         status: 200,
@@ -120,7 +133,7 @@ test("Supabase review storage keeps binary evidence in a private bucket", async 
     throw new Error(`Unexpected request: ${url}`);
   };
 
-  const storage = createSupabaseReviewStorage(ENV, fetchImpl);
+  const storage = createSupabaseReviewStorage(ENV, withRuntimeAuth(fetchImpl));
   const key = "review-hub/v1/cases/case-a/abc/evidence/desktop";
 
   await storage.put(key, new Uint8Array([1, 2, 3]).buffer, {
@@ -135,13 +148,13 @@ test("Supabase review storage keeps binary evidence in a private bucket", async 
   assert.deepEqual(new Uint8Array(await new Response(object.body).arrayBuffer()), new Uint8Array([1, 2, 3]));
 
   const upload = calls.find(({ url, init }) =>
-    url.includes("/storage/v1/object/private-review-evidence/") && init.method === "POST"
+    url.includes("/storage/v1/object/review-hub-evidence/") && init.method === "POST"
   );
   assert.ok(upload);
   assert.equal(upload.init.headers["x-upsert"], "true");
   assert.equal(upload.init.headers["Content-Type"], "image/png");
-  assert.equal(upload.init.headers.apikey, ENV.SUPABASE_SECRET_KEY);
-  assert.equal(upload.init.headers.Authorization, `Bearer ${ENV.SUPABASE_SECRET_KEY}`);
+  assert.equal(upload.init.headers.apikey, ENV.SUPABASE_PUBLISHABLE_KEY);
+  assert.equal(upload.init.headers.Authorization, "Bearer runtime-access-token");
 });
 
 test("Supabase review storage deletes physical binaries before metadata rows", async () => {
@@ -174,7 +187,7 @@ test("Supabase review storage deletes physical binaries before metadata rows", a
       ]);
     }
 
-    if (href.endsWith("/storage/v1/object/private-review-evidence") && init.method === "DELETE") {
+    if (href.endsWith("/storage/v1/object/review-hub-evidence") && init.method === "DELETE") {
       return jsonResponse([]);
     }
 
@@ -185,14 +198,14 @@ test("Supabase review storage deletes physical binaries before metadata rows", a
     throw new Error(`Unexpected request: ${url}`);
   };
 
-  const storage = createSupabaseReviewStorage(ENV, fetchImpl);
+  const storage = createSupabaseReviewStorage(ENV, withRuntimeAuth(fetchImpl));
   await storage.delete([
     "review-hub/v1/cases/case-a/abc/evidence/desktop",
     "review-hub/v1/cases/case-a/abc/manifest.json",
   ]);
 
   const deleteStorageIndex = calls.findIndex(({ url }) =>
-    url.endsWith("/storage/v1/object/private-review-evidence")
+    url.endsWith("/storage/v1/object/review-hub-evidence")
   );
   const deleteRowsIndex = calls.findIndex(({ url }) =>
     url.includes("/rest/v1/rpc/review_hub_delete_object_rows")
@@ -232,7 +245,7 @@ test("Supabase review storage cleans expired temporary evidence without touching
       ]);
     }
 
-    if (href.endsWith("/storage/v1/object/private-review-evidence") && init.method === "DELETE") {
+    if (href.endsWith("/storage/v1/object/review-hub-evidence") && init.method === "DELETE") {
       return jsonResponse([]);
     }
 
@@ -243,13 +256,13 @@ test("Supabase review storage cleans expired temporary evidence without touching
     throw new Error(`Unexpected request: ${url}`);
   };
 
-  const storage = createSupabaseReviewStorage(ENV, fetchImpl);
+  const storage = createSupabaseReviewStorage(ENV, withRuntimeAuth(fetchImpl));
   const result = await storage.cleanupExpired(100);
 
   assert.deepEqual(result, { deleted: 2 });
   const rpc = calls.find(({ url }) => url.includes("/rest/v1/rpc/review_hub_expired_objects"));
   assert.deepEqual(JSON.parse(rpc.init.body), { p_limit: 100 });
-  const deletion = calls.find(({ url }) => url.endsWith("/storage/v1/object/private-review-evidence"));
+  const deletion = calls.find(({ url }) => url.endsWith("/storage/v1/object/review-hub-evidence"));
   assert.deepEqual(JSON.parse(deletion.init.body), {
     prefixes: ["review-hub/v1/cases/case-a/abc/evidence/desktop"],
   });
@@ -259,7 +272,7 @@ test("Supabase review storage fails closed when backend configuration is incompl
   assert.equal(createSupabaseReviewStorage({}, async () => new Response()), null);
   assert.equal(
     createSupabaseReviewStorage(
-      { SUPABASE_URL: ENV.SUPABASE_URL, REVIEW_EVIDENCE_BUCKET: ENV.REVIEW_EVIDENCE_BUCKET },
+      { SUPABASE_URL: ENV.SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY: ENV.SUPABASE_PUBLISHABLE_KEY },
       async () => new Response(),
     ),
     null,
