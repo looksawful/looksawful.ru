@@ -148,3 +148,36 @@ test("browser playtest uses the real default keys and is wired as a package scri
   }
   assert.doesNotMatch(playtest, /upper:\s*"w"|lower:\s*"s"|title:\s*"a"|toggle:\s*"d"/i);
 });
+
+test("trainer hardening respects motion preference and exposes command-button semantics", async () => {
+  const runtime = await readSource("../src/components/awful-cases-runtime.js");
+  assert.ok(runtime);
+  assert.match(runtime, /matchMedia\("\(prefers-reduced-motion: reduce\)"\)/);
+  assert.match(runtime, /reducedMotion/);
+  assert.doesNotMatch(runtime, /aria-pressed/);
+});
+
+test("embedded trainer keeps one game focus target with visible focus states", async () => {
+  const [component, styles] = await Promise.all([
+    readSource("../src/components/specialized/awful-cases-game.ts"),
+    readSource("../src/styles/components.css"),
+  ]);
+  assert.ok(component);
+  assert.ok(styles);
+  assert.doesNotMatch(component, /data-awful-cases[^>]*tabindex="0"[^>]*><canvas/);
+  assert.match(component, /data-awful-cases-canvas[^>]*tabindex="0"/);
+  assert.match(styles, /\.awful-cases-game \.restart__button:focus-visible/);
+  assert.match(styles, /\.awful-cases-game \.runner-controls button:focus-visible/);
+});
+
+test("touch control labels remain readable on both trainer surfaces", async () => {
+  const [componentStyles, standaloneStyles] = await Promise.all([
+    readSource("../src/styles/components.css"),
+    readSource("../public/pets/awful-cases/awful-cases.css"),
+  ]);
+  assert.ok(componentStyles);
+  assert.ok(standaloneStyles);
+  assert.doesNotMatch(componentStyles, /\.awful-cases-game \.runner-controls span\{font-size:6px/);
+  assert.doesNotMatch(standaloneStyles, /\.awful-cases \.runner-controls span\{font-size:6px/);
+});
+
