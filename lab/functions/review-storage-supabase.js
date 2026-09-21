@@ -39,6 +39,7 @@ function storageConfig(env) {
 function apiHeaders(secretKey, json = false) {
   return {
     apikey: secretKey,
+    Authorization: `Bearer ${secretKey}`,
     ...(json ? { "Content-Type": "application/json" } : {}),
   };
 }
