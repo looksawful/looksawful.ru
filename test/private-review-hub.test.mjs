@@ -127,6 +127,24 @@ test("Review Hub is inside the authenticated Lab boundary and renders Case revie
 
   assert.match(middleware, /review\.js/);
   assert.match(middleware, /verifyAdminSession/);
+
+  const { onRequest } = await import("../lab/functions/_middleware.js");
+  let nextCalled = false;
+  const unauthorized = await onRequest({
+    request: new Request("https://admin.looksawful.ru/lab/review/evidence/desktop"),
+    env: {
+      ADMIN_GITHUB_CLIENT_ID: "test-client-id",
+      ADMIN_GITHUB_CLIENT_SECRET: "test-client-secret",
+      ADMIN_SESSION_SECRET: "test-session-secret-that-is-long-enough",
+    },
+    next: async () => {
+      nextCalled = true;
+      return new Response("leaked");
+    },
+  });
+  assert.equal(unauthorized.status, 302);
+  assert.equal(nextCalled, false);
+
   assert.match(config, /lab\/review\/index\.html/);
   assert.match(html, /noindex,nofollow,noarchive/);
   assert.match(html, /id="review-case"/);
