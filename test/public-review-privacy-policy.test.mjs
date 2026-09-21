@@ -121,7 +121,8 @@ test("pull-request workflows cannot publish visual-review evidence", async () =>
     ["public artifact upload", /actions\/upload-artifact@/iu],
     ["issue comment mutation", /github\.rest\.issues\.(?:create|update)Comment/iu],
     ["public Pages deployment", /(?:wrangler[^\n]*\bdeploy\b|\bpages\s+deploy\b|actions\/deploy-pages@|cloudflare\/wrangler-action@)/iu],
-    ["public report mutation permission", /^    (?:contents|issues|pull-requests|pages|deployments):\s*write\s*$/mu],\n    ["broad write permission", /^    permissions:\s*write-all\s*$/mu],
+    ["public report mutation permission", /^    (?:contents|issues|pull-requests|pages|deployments):\s*write\s*$/mu],
+    ["broad write permission", /^    permissions:\s*write-all\s*$/mu],
     ["GitHub comment CLI", /\bgh\s+(?:pr|issue)\s+comment\b/iu],
   ];
 
