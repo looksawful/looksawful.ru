@@ -8,7 +8,9 @@ export type GalleryViewerHistoryCause = "viewer-change" | "viewer-close";
 
 export interface GalleryViewerHistoryTransitionInput {
   currentItemId: string | null;
+  currentSlide?: number | null;
   nextItemId: string | null;
+  nextSlide?: number | null;
   ownsViewerEntry: boolean;
   cause: GalleryViewerHistoryCause;
 }
@@ -57,14 +59,18 @@ export function serializeGalleryState(state: GalleryState): string {
 
 export function galleryViewerHistoryTransition({
   currentItemId,
+  currentSlide,
   nextItemId,
+  nextSlide,
   ownsViewerEntry,
   cause,
 }: GalleryViewerHistoryTransitionInput): GalleryViewerHistoryTransition {
   const current = normalizeItemId(currentItemId);
   const next = normalizeItemId(nextItemId);
+  const normalizedCurrentSlide = current ? normalizeSlide(currentSlide) : null;
+  const normalizedNextSlide = next ? normalizeSlide(nextSlide) : null;
 
-  if (current === next) {
+  if (current === next && normalizedCurrentSlide === normalizedNextSlide) {
     return { action: "none", ownsViewerEntry };
   }
 
