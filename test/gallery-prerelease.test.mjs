@@ -184,25 +184,44 @@ test("Gallery projection keeps intrinsic dimensions and stable series", async ()
   }
 });
 
-test("Gallery URL state owns only the open photo id and ignores retired layer parameters", async () => {
+test("Gallery URL state owns canonical item id plus optional 1-based slide", async () => {
   const state = await import("../src/components/gallery/gallery-state.ts");
 
   assert.deepEqual(state.parseGallerySearch(""), {
     itemId: null,
+    slide: null,
   });
-  assert.deepEqual(state.parseGallerySearch("?layer=production&item=media-42"), {
+  assert.deepEqual(state.parseGallerySearch("?layer=production&item=media-42&slide=4"), {
     itemId: "media-42",
+    slide: 4,
+  });
+  assert.deepEqual(state.parseGallerySearch("?item=media-42&slide=0"), {
+    itemId: "media-42",
+    slide: null,
+  });
+  assert.deepEqual(state.parseGallerySearch("?item=media-42&slide=wat"), {
+    itemId: "media-42",
+    slide: null,
+  });
+  assert.deepEqual(state.parseGallerySearch("?slide=2"), {
+    itemId: null,
+    slide: null,
   });
   assert.deepEqual(state.parseGallerySearch("?layer=unknown"), {
     itemId: null,
+    slide: null,
   });
   assert.equal(
-    state.serializeGalleryState({ itemId: null }),
+    state.serializeGalleryState({ itemId: null, slide: 3 }),
     "",
   );
   assert.equal(
-    state.serializeGalleryState({ itemId: "media-42" }),
+    state.serializeGalleryState({ itemId: "media-42", slide: null }),
     "?item=media-42",
+  );
+  assert.equal(
+    state.serializeGalleryState({ itemId: "media-42", slide: 4 }),
+    "?item=media-42&slide=4",
   );
 });
 
