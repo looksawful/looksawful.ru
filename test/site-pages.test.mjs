@@ -16,6 +16,7 @@ import {
   normalizePagePath,
   validateSitePages,
 } from "../src/site/pages/validation.ts";
+import { renderWorkPage } from "../src/site/renderers/work-page.ts";
 import {
   portfolioPresentation,
   validatePortfolioPresentation,
@@ -315,4 +316,22 @@ test("portfolio presentation uses the approved current main selection without un
   ]);
   assert.equal(portfolioPresentation.featured.includes("project:berserk-timer"), false);
   assert.equal(portfolioPresentation.featured.includes("project:awful-mockups"), false);
+});
+
+
+test("Work page renders main selection and a closed semantic Archive", () => {
+  const page = sitePages.find((candidate) => candidate.id === "work");
+  assert.ok(page && page.type === "work");
+  const html = renderWorkPage(page);
+
+  for (const id of portfolioPresentation.projectIndex) {
+    const target = sitePages.find((candidate) => candidate.id === id);
+    assert.ok(target);
+    assert.match(html, new RegExp(`href="${target.path.replace(/[.*+?^{}()|[\\]\\]/g, "\\$&")}"`));
+  }
+
+  assert.match(html, /<details[^>]*data-work-archive/);
+  assert.doesNotMatch(html, /<details[^>]*data-work-archive[^>]*\sopen(?:\s|>)/);
+  assert.match(html, />Archive<\/summary>/);
+  assert.match(html, /Berry Agency/);
 });
