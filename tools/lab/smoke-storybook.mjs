@@ -81,7 +81,11 @@ try {
       }
       await page.addScriptTag({ content: axe.source });
       const a11y = await page.evaluate(async () => {
-        const result = await globalThis.axe.run("#storybook-root", {
+        const result = await globalThis.axe.run({
+          include: document.querySelector(".pswp")
+            ? [["#storybook-root"], [".pswp"]]
+            : [["#storybook-root"]],
+        }, {
           rules: { region: { enabled: false } },
           resultTypes: ["violations"],
         });
