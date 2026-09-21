@@ -3,6 +3,7 @@ import { getExpectedCvCardCount, getExpectedCvHiddenCards } from "./smoke-cv.mjs
 import { mapWithConcurrency } from "./concurrency.mjs";
 import { waitForDocumentReady, waitForLightboxClosed } from "./readiness.mjs";
 import { isDirectExecution, withE2ERuntime } from "./runtime.mjs";
+import { runHomepageMediaAffected } from "./affected-home-media.mjs";
 
 const VIEWPORTS = [{ width: 390, height: 844 }, { width: 1440, height: 900 }];
 const CAPTION_TOUCH_VIEWPORTS = [{ width: 390, height: 844 }, { width: 770, height: 900 }];
@@ -97,109 +98,6 @@ export async function assertBasicAccessibility(page, route) {
   assert.deepEqual(violations, [], `${route}: basic accessibility violations`);
 }
 
-async function verifyDeferredVideoLoadOwnership({ browser, baseUrl }) {
-  const context = await browser.newContext({
-    viewport: VIEWPORTS[1],
-    deviceScaleFactor: 1,
-  });
-  await context.addInitScript(() => {
-    const originalLoad = HTMLMediaElement.prototype.load;
-    window.__deferredVideoLoadViolations = [];
-    HTMLMediaElement.prototype.load = function patchedLoad(...args) {
-      if (
-        this instanceof HTMLVideoElement
-        && this.hasAttribute("data-autoplay-deferred")
-      ) {
-        window.__deferredVideoLoadViolations.push(
-          this.dataset.autoplaySrc
-            || this.querySelector("source[data-autoplay-src]")?.dataset.autoplaySrc
-            || "<deferred-video>",
-        );
-      }
-      return originalLoad.apply(this, args);
-    };
-  });
-
-  const page = await context.newPage();
-  try {
-    const response = await page.goto(baseUrl, { waitUntil: "domcontentloaded" });
-    assert.ok(response?.ok(), `/: HTTP ${response?.status()}`);
-    await waitForDocumentReady(page);
-    await page.evaluate(() => new Promise((resolve) => {
-      requestAnimationFrame(() => requestAnimationFrame(resolve));
-    }));
-
-    const violations = await page.evaluate(() => window.__deferredVideoLoadViolations ?? []);
-    assert.deepEqual(
-      violations,
-      [],
-      "Deferred Homepage videos must only be loaded after source hydration",
-    );
-  } finally {
-    await context.close();
-  }
-}
-
-async function verifyHomepageVideoPosterFallback({ browser, baseUrl }) {
-  const context = await browser.newContext({
-    viewport: VIEWPORTS[1],
-    deviceScaleFactor: 1,
-  });
-  const page = await context.newPage();
-  const targets = [
-    "/media/projects/jestei/landings/moves-awful/source/01-2044x1112.mp4",
-    "/media/projects/styx/01/source/04-9x16.mp4",
-  ];
-
-  try {
-    for (const target of targets) {
-      await page.route(`**${target}`, (route) =>
-        route.fulfill({
-          status: 500,
-          contentType: "text/plain",
-          body: "forced media failure",
-        }),
-      );
-    }
-
-    const response = await page.goto(baseUrl, { waitUntil: "domcontentloaded" });
-    assert.ok(response?.ok(), `/: HTTP ${response?.status()}`);
-    await waitForDocumentReady(page);
-
-    for (const target of targets) {
-      const video = page.locator([
-        `video[data-autoplay-src*="${target}"]`,
-        `video:has(source[data-autoplay-src*="${target}"])`,
-        `video[src*="${target}"]`,
-        `video:has(source[src*="${target}"])`,
-      ].join(", ")).first();
-
-      assert.equal(await video.count(), 1, `Homepage video fixture missing: ${target}`);
-      const handle = await video.elementHandle();
-      assert.ok(handle, `Homepage video handle missing: ${target}`);
-
-      await video.scrollIntoViewIfNeeded();
-      await page.waitForFunction(
-        (node) => node.hasAttribute("data-media-video-fallback") || Boolean(node.error),
-        handle,
-        { timeout: 8_000 },
-      );
-
-      const state = await handle.evaluate((node) => ({
-        fallback: node.hasAttribute("data-media-video-fallback"),
-        poster: node.poster,
-        error: node.error?.message ?? null,
-      }));
-
-      assert.equal(state.fallback, true, `Homepage video did not enter poster fallback: ${target}`);
-      assert.ok(state.poster, `Homepage video fallback has no poster: ${target}`);
-      assert.equal(state.error, null, `Homepage video leaked native MediaError after fallback: ${target}`);
-    }
-  } finally {
-    await context.close();
-  }
-}
-
 async function audit({ browser, baseUrl }, route, viewport, verify, contextOptions = {}) {
   const defaultTouch = viewport.width === 390;
   const context = await browser.newContext({
@@ -241,66 +139,6 @@ async function verifyBuiltAssets(page) {
     const response = await page.request.get(new URL(src, page.url()).href);
     assert.ok(response.ok(), `built asset unavailable: ${src}`);
     assert.ok((await response.body()).length > 0, `empty built asset: ${src}`);
-  }
-}
-
-async function verifyHomepageVideos(page) {
-  await page.evaluate(() => new Promise((resolve) => {
-    requestAnimationFrame(() => requestAnimationFrame(resolve));
-  }));
-
-  const prematureDeferredErrors = await page.evaluate(() =>
-    [...document.querySelectorAll("video[data-autoplay-deferred]")].flatMap((video) =>
-      video.error
-        ? [{
-            src: video.dataset.autoplaySrc
-              || video.querySelector("source[data-autoplay-src]")?.dataset.autoplaySrc
-              || "<deferred-video>",
-            code: video.error.code,
-            message: video.error.message,
-          }]
-        : [],
-    ),
-  );
-  assert.deepEqual(
-    prematureDeferredErrors,
-    [],
-    "Deferred Homepage videos must not enter MediaError before source hydration",
-  );
-
-  const videos = page.locator("video:visible");
-  const count = await videos.count();
-  assert.ok(count > 0, "Homepage must expose at least one visible video for runtime smoke");
-
-  for (let index = 0; index < count; index += 1) {
-    const video = videos.nth(index);
-    await video.scrollIntoViewIfNeeded();
-    await page.waitForFunction((targetIndex) => {
-      const visibleVideos = [...document.querySelectorAll("video")].filter((node) => {
-        const style = getComputedStyle(node);
-        const rect = node.getBoundingClientRect();
-        return style.display !== "none"
-          && style.visibility !== "hidden"
-          && rect.width > 0
-          && rect.height > 0;
-      });
-      const node = visibleVideos[targetIndex];
-      return Boolean(
-        node?.error
-        || (node?.readyState >= HTMLMediaElement.HAVE_METADATA && node.videoWidth > 0 && node.videoHeight > 0),
-      );
-    }, index, { timeout: 8_000 });
-
-    const state = await video.evaluate((node) => ({
-      src: node.currentSrc || node.src || node.querySelector("source")?.src || "<missing-src>",
-      error: node.error?.message ?? null,
-      readyState: node.readyState,
-      width: node.videoWidth,
-      height: node.videoHeight,
-    }));
-
-    assert.equal(state.error, null, `Homepage video failed: ${state.src}`);
-    assert.ok(state.readyState >= 1 && state.width > 0 && state.height > 0, `Homepage video metadata unavailable: ${state.src}`);
   }
 }
 
@@ -421,14 +259,12 @@ async function verifyCanvas(page) {
 
 export async function runQuickSmoke({ browser, baseUrl, cvMode = "authored" }) {
   const runtime = { browser, baseUrl };
-  await verifyDeferredVideoLoadOwnership(runtime);
-  await verifyHomepageVideoPosterFallback(runtime);
+  await runHomepageMediaAffected(runtime);
   // These are the only parallel contexts; callers run quick smoke before deep suites.
   await mapWithConcurrency(VIEWPORTS, 2, (viewport) => audit(runtime, "/", viewport, async (page) => {
     await verifyBuiltAssets(page);
     await verifyNavigation(page);
     await verifyImage(page);
-    if (viewport.width >= 1000) await verifyHomepageVideos(page);
   }));
   await mapWithConcurrency([
     ["/work/jestei-pool/", verifyCase],
