@@ -128,7 +128,7 @@ The initial Review Hub slice intentionally left approval, stale-SHA rejection, r
 
 ## Visual approval and retention
 
-Visual approval is an explicit owner-only mutation at `POST /lab/review/approval`. The request carries the exact displayed `caseId`, 40-character `sourceSha` and `reviewDepth`; the server rejects a mismatch with `409 Conflict`.
+Visual approval is an explicit owner-only mutation at `POST /lab/review/approval`. The request carries the exact displayed `caseId`, 40-character `sourceSha` and `reviewDepth`; the server rejects a mismatch with `409 Conflict`. Browser-facing approval and baseline responses expose approval facts only; private promotion/storage identifiers remain server-side.
 
 Approved evidence is copied into the durable `review-hub/v1/baselines/` namespace before the single Case baseline object is replaced. That final Case-scoped object is the atomic visibility point for baseline promotion. A compact approval record is also stored under `review-hub/v1/approvals/<case>/<sha>/<review-depth>.json`.
 
