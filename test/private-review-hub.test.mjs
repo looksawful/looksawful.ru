@@ -118,11 +118,12 @@ test("private review evidence is served from R2 and storage fails closed without
 });
 
 test("Review Hub is inside the authenticated Lab boundary and renders Case review fields", async () => {
-  const [middleware, config, html, client] = await Promise.all([
+  const [middleware, config, html, client, styles] = await Promise.all([
     readFile(new URL("../lab/functions/_middleware.js", import.meta.url), "utf8"),
     readFile(new URL("../vite.lab.config.ts", import.meta.url), "utf8"),
     readFile(new URL("../lab/review/index.html", import.meta.url), "utf8"),
     readFile(new URL("../src/lab/review.ts", import.meta.url), "utf8"),
+    readFile(new URL("../src/lab/lab.css", import.meta.url), "utf8"),
   ]);
 
   assert.match(middleware, /review\.js/);
@@ -151,6 +152,14 @@ test("Review Hub is inside the authenticated Lab boundary and renders Case revie
   assert.match(html, /id="review-sha"/);
   assert.match(html, /id="review-depth"/);
   assert.match(html, /id="review-evidence"/);
+  assert.match(html, /aria-live="polite"/);
+  assert.match(html, /id="review-reload"/);
+  assert.match(html, /aria-busy="true"/);
   assert.match(client, /\/lab\/review\/api/);
+  assert.match(client, /Number\.isFinite\(Date\.parse/);
+  assert.match(client, /Evidence image unavailable/);
+  assert.match(client, /window\.location\.reload/);
+  assert.match(styles, /focus-visible/);
+  assert.match(styles, /overflow-wrap:\s*anywhere/);
   assert.doesNotMatch(client, /localStorage|sessionStorage/);
 });
