@@ -59,19 +59,35 @@ async function verifyDeferredVideoLoadOwnership(runtime) {
 }
 
 async function verifyHomepageVideoPosterFallback(runtime) {
-  const context = await runtime.browser.newContext({
-    viewport: DESKTOP_VIEWPORT,
-    deviceScaleFactor: 1,
-  });
-  const page = await context.newPage();
-  const targets = [
-    "/media/projects/jestei/landings/moves-awful/source/01-2044x1112.mp4",
-    "/media/projects/styx/01/source/04-9x16.mp4",
-  ];
+  const { context, page } = await openHomepage(runtime);
 
   try {
-    for (const target of targets) {
-      await page.route(`**${target}`, (route) =>
+    const deferredVideos = page.locator("video[data-autoplay-deferred]");
+    const deferredCount = await deferredVideos.count();
+    assert.ok(
+      deferredCount >= 2,
+      "Homepage must expose at least two deferred videos for poster-fallback coverage",
+    );
+
+    const fixtures = [];
+    for (let index = 0; index < 2; index += 1) {
+      const video = deferredVideos.nth(index);
+      const handle = await video.elementHandle();
+      assert.ok(handle, `Homepage deferred video handle missing at index ${index}`);
+
+      const src = await handle.evaluate((node) =>
+        node.dataset.autoplaySrc
+        || node.querySelector("source[data-autoplay-src]")?.dataset.autoplaySrc
+        || "",
+      );
+      assert.ok(src, `Homepage deferred video source missing at index ${index}`);
+
+      fixtures.push({ handle, src });
+    }
+
+    for (const { src } of fixtures) {
+      const target = new URL(src, runtime.baseUrl);
+      await page.route(`**${target.pathname}`, (route) =>
         route.fulfill({
           status: 500,
           contentType: "text/plain",
@@ -80,23 +96,8 @@ async function verifyHomepageVideoPosterFallback(runtime) {
       );
     }
 
-    const response = await page.goto(runtime.baseUrl, { waitUntil: "domcontentloaded" });
-    assert.ok(response?.ok(), `/: HTTP ${response?.status()}`);
-    await waitForDocumentReady(page);
-
-    for (const target of targets) {
-      const video = page.locator([
-        `video[data-autoplay-src*="${target}"]`,
-        `video:has(source[data-autoplay-src*="${target}"])`,
-        `video[src*="${target}"]`,
-        `video:has(source[src*="${target}"])`,
-      ].join(", ")).first();
-
-      assert.equal(await video.count(), 1, `Homepage video fixture missing: ${target}`);
-      const handle = await video.elementHandle();
-      assert.ok(handle, `Homepage video handle missing: ${target}`);
-
-      await video.scrollIntoViewIfNeeded();
+    for (const { handle, src } of fixtures) {
+      await handle.scrollIntoViewIfNeeded();
       await page.waitForFunction(
         (node) => node.hasAttribute("data-media-video-fallback") || Boolean(node.error),
         handle,
@@ -109,9 +110,9 @@ async function verifyHomepageVideoPosterFallback(runtime) {
         error: node.error?.message ?? null,
       }));
 
-      assert.equal(state.fallback, true, `Homepage video did not enter poster fallback: ${target}`);
-      assert.ok(state.poster, `Homepage video fallback has no poster: ${target}`);
-      assert.equal(state.error, null, `Homepage video leaked native MediaError after fallback: ${target}`);
+      assert.equal(state.fallback, true, `Homepage video did not enter poster fallback: ${src}`);
+      assert.ok(state.poster, `Homepage video fallback has no poster: ${src}`);
+      assert.equal(state.error, null, `Homepage video leaked native MediaError after fallback: ${src}`);
     }
   } finally {
     await context.close();
