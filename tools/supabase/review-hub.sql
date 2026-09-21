@@ -35,9 +35,9 @@ security invoker
 set search_path = public, pg_temp
 as $$
   select
-    coalesce((select auth.role()) = 'service_role', false)
+    coalesce((select auth.jwt() ->> 'role') = 'service_role', false)
     or (
-      (select auth.role()) = 'authenticated'
+      (select auth.jwt() ->> 'role') = 'authenticated'
       and (select auth.jwt() ->> 'email') = 'review-hub-runtime@looksawful.invalid'
       and not coalesce((select (auth.jwt() ->> 'is_anonymous')::boolean), false)
     );
@@ -49,7 +49,8 @@ grant execute on function public.review_hub_runtime_authorized()
   to authenticated, service_role;
 
 revoke all on table public.review_hub_objects from anon, authenticated;
-grant select on table public.review_hub_objects to authenticated, service_role;
+grant select, insert, update, delete on table public.review_hub_objects
+  to authenticated, service_role;
 
 drop policy if exists "review_hub_runtime_select" on public.review_hub_objects;
 create policy "review_hub_runtime_select"
@@ -57,6 +58,40 @@ on public.review_hub_objects
 for select
 to authenticated
 using ((select public.review_hub_runtime_authorized()));
+
+drop policy if exists "review_hub_runtime_insert" on public.review_hub_objects;
+create policy "review_hub_runtime_insert"
+on public.review_hub_objects
+for insert
+to authenticated
+with check (
+  key like 'review-hub/v1/%'
+  and (select public.review_hub_runtime_authorized())
+);
+
+drop policy if exists "review_hub_runtime_update" on public.review_hub_objects;
+create policy "review_hub_runtime_update"
+on public.review_hub_objects
+for update
+to authenticated
+using (
+  key like 'review-hub/v1/%'
+  and (select public.review_hub_runtime_authorized())
+)
+with check (
+  key like 'review-hub/v1/%'
+  and (select public.review_hub_runtime_authorized())
+);
+
+drop policy if exists "review_hub_runtime_delete" on public.review_hub_objects;
+create policy "review_hub_runtime_delete"
+on public.review_hub_objects
+for delete
+to authenticated
+using (
+  key like 'review-hub/v1/%'
+  and (select public.review_hub_runtime_authorized())
+);
 
 create index if not exists review_hub_objects_expires_at_idx
   on public.review_hub_objects (expires_at)
@@ -73,7 +108,7 @@ create or replace function public.review_hub_put_object(
 )
 returns jsonb
 language plpgsql
-security definer
+security invoker
 set search_path = public, pg_temp
 as $$
 declare
@@ -168,7 +203,7 @@ grant execute on function public.review_hub_put_object(
 create or replace function public.review_hub_delete_object_rows(p_keys text[])
 returns jsonb
 language plpgsql
-security definer
+security invoker
 set search_path = public, pg_temp
 as $$
 declare
@@ -201,7 +236,7 @@ returns table (
   etag text
 )
 language plpgsql
-security definer
+security invoker
 set search_path = public, pg_temp
 as $$
 begin
@@ -229,6 +264,33 @@ revoke all on function public.review_hub_expired_objects(integer)
   from public, anon, authenticated;
 grant execute on function public.review_hub_expired_objects(integer)
   to authenticated, service_role;
+
+create or replace function public.review_hub_confirm_runtime_signup()
+returns trigger
+language plpgsql
+security definer
+set search_path = auth, public, pg_temp
+as $
+begin
+  if new.email = 'review-hub-runtime@looksawful.invalid' then
+    new.email_confirmed_at := coalesce(new.email_confirmed_at, now());
+    new.confirmation_token := '';
+  end if;
+  return new;
+end;
+$;
+
+revoke all on function public.review_hub_confirm_runtime_signup()
+  from public, anon, authenticated, service_role;
+grant execute on function public.review_hub_confirm_runtime_signup()
+  to supabase_auth_admin;
+
+drop trigger if exists review_hub_runtime_autoconfirm on auth.users;
+create trigger review_hub_runtime_autoconfirm
+before insert on auth.users
+for each row
+when (new.email = 'review-hub-runtime@looksawful.invalid')
+execute function public.review_hub_confirm_runtime_signup();
 
 insert into storage.buckets (
   id,
