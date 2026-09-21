@@ -33,6 +33,7 @@ const homepageSource = await readFile(
 const expectedRoutes = new Map([
   ["home", "/"],
   ["gallery", "/gallery/"],
+  ["work", "/work/"],
   ["case:jestei-pool", "/work/jestei-pool/"],
   ["case:styx", "/work/styx/"],
   ["case:sensetique", "/work/sensetique/"],
@@ -67,6 +68,31 @@ test("managed SitePage routes are stable and unique", () => {
     assert.ok(page, `missing page ${id}`);
     assert.equal(page.path, path);
   }
+});
+
+test("Work is a canonical listed/indexable Vite SitePage", () => {
+  const work = sitePages.find((page) => page.id === "work");
+  assert.ok(work, "missing page work");
+  assert.deepEqual(
+    {
+      type: work.type,
+      path: work.path,
+      enabled: work.enabled,
+      listed: work.discovery.listed,
+      indexable: work.discovery.indexable,
+      renderer: work.renderer,
+      build: work.build,
+    },
+    {
+      type: "work",
+      path: "/work/",
+      enabled: true,
+      listed: true,
+      indexable: true,
+      renderer: "work",
+      build: { kind: "vite" },
+    },
+  );
 });
 
 test("CV and privacy are canonical static SitePages with explicit build ownership", () => {
@@ -206,7 +232,7 @@ test("only enabled pages are returned for build ownership decisions", () => {
 
 test("public Case, Collection, CV and privacy pages are listed and indexable while selected Project pages stay unlisted", () => {
   for (const page of sitePages) {
-    if (page.type === "case" || page.type === "collection" || page.type === "gallery" || page.id === "cv" || page.id === "privacy") {
+    if (page.type === "case" || page.type === "collection" || page.type === "gallery" || page.type === "work" || page.id === "cv" || page.id === "privacy") {
       assert.equal(page.discovery.listed, true);
       assert.equal(page.discovery.indexable, true);
     }
