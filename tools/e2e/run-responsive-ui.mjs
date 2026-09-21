@@ -9,6 +9,16 @@ const MOBILE_VIEWPORTS = [
 ];
 
 const WIDE_VIEWPORT = { width: 1728, height: 1000 };
+const REPRESENTATIVE_ROUTE_VIEWPORTS = [
+  { width: 390, height: 844, mobile: true },
+  { width: 768, height: 900, mobile: false },
+  { width: 1440, height: 900, mobile: false },
+];
+const REPRESENTATIVE_ROUTES = [
+  { route: "/gallery/", selector: "[data-gallery]" },
+  { route: "/work/awful-3d-mockups/", selector: "[data-model-viewer-runtime]" },
+];
+const COMPAT_VIEWPORT = { width: 1440, height: 900 };
 const ALIGNMENT_TOLERANCE = 2;
 
 async function settle(page) {
@@ -322,15 +332,142 @@ async function checkWideViewport(browser, baseUrl) {
   }
 }
 
+async function openRoute(browser, baseUrl, route, viewport, { mobile = false } = {}) {
+  const contextOptions = {
+    viewport,
+    hasTouch: mobile,
+    deviceScaleFactor: 1,
+  };
+  if (mobile) contextOptions.isMobile = true;
+
+  const context = await browser.newContext(contextOptions);
+  const page = await context.newPage();
+  const errors = [];
+  page.on("pageerror", (error) => errors.push(error.message));
+
+  const response = await page.goto(`${baseUrl}${route}`, { waitUntil: "domcontentloaded" });
+  assert.ok(response?.ok(), `${route}: request failed: ${response?.status() ?? "no response"}`);
+  await settle(page);
+  return { context, page, errors };
+}
+
+async function assertModelKeyboardSurface(page, route) {
+  const viewer = page.locator("[data-model-viewer-runtime]").first();
+  assert.equal(await viewer.count(), 1, `${route}: expected a model viewer`);
+  assert.equal(await viewer.getAttribute("tabindex"), "0", `${route}: model viewer must be focusable`);
+  assert.equal(await viewer.getAttribute("role"), "group", `${route}: model viewer must expose group semantics`);
+
+  await viewer.scrollIntoViewIfNeeded();
+  await page.waitForFunction(() => {
+    const node = document.querySelector("[data-model-viewer-runtime]");
+    return node?.dataset.modelState === "error"
+      || Boolean(node?.querySelector("[data-model-viewer-controls]"));
+  }, undefined, { timeout: 12_000 });
+
+  assert.notEqual(await viewer.getAttribute("data-model-state"), "error", `${route}: model viewer runtime failed`);
+  assert.equal(
+    await viewer.locator("[data-model-viewer-controls]").count(),
+    1,
+    `${route}: model keyboard controls did not mount`,
+  );
+
+  await viewer.focus();
+  assert.equal(
+    await viewer.evaluate((node) => document.activeElement === node),
+    true,
+    `${route}: model viewer did not retain keyboard focus`,
+  );
+
+  for (const key of ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "=", "-", "Home"]) {
+    await page.keyboard.press(key);
+  }
+  assert.equal(await viewer.getAttribute("data-model-state"), "ready", `${route}: keyboard input destabilized model viewer`);
+}
+
+async function checkRepresentativeRoute(browser, baseUrl, definition, viewport) {
+  const { route, selector } = definition;
+  const { context, page, errors } = await openRoute(
+    browser,
+    baseUrl,
+    route,
+    viewport,
+    { mobile: viewport.mobile },
+  );
+
+  try {
+    assert.equal(await page.locator("main").count(), 1, `${route}: expected exactly one main`);
+    assert.ok(await page.locator(selector).count() > 0, `${route}: missing representative surface`);
+    assert.ok(
+      await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth <= 1),
+      `${route} ${viewport.width}x${viewport.height}: horizontal overflow`,
+    );
+
+    if (route === "/gallery/") {
+      assert.ok(
+        await page.locator("[data-gallery-series-grid]").count() > 0,
+        `${route}: Gallery grids did not render`,
+      );
+    }
+
+    if (viewport.width >= 1000) {
+      await assertModelKeyboardSurface(page, route);
+    }
+
+    assert.deepEqual(errors, [], `${route}: page errors`);
+  } finally {
+    await context.close();
+  }
+}
+
+async function checkNavigationCompatibility(browser, baseUrl) {
+  const { context, page, errors } = await openRoute(browser, baseUrl, "/", COMPAT_VIEWPORT);
+
+  try {
+    const toggle = page.locator("[data-site-menu-toggle]");
+    const menu = page.locator("[data-site-menu]");
+    await toggle.click();
+    assert.equal(await toggle.getAttribute("aria-expanded"), "true", "navigation must open");
+    assert.equal(await menu.getAttribute("hidden"), null, "open navigation must be visible");
+
+    await page.keyboard.press("Escape");
+    assert.equal(await toggle.getAttribute("aria-expanded"), "false", "Escape must close navigation");
+    assert.notEqual(await menu.getAttribute("hidden"), null, "closed navigation must be hidden");
+    assert.deepEqual(errors, [], "navigation compatibility smoke: page errors");
+  } finally {
+    await context.close();
+  }
+}
+
+export async function runFocusedBrowserCompatibility({ browser, baseUrl }) {
+  await checkNavigationCompatibility(browser, baseUrl);
+  for (const definition of REPRESENTATIVE_ROUTES) {
+    await checkRepresentativeRoute(browser, baseUrl, definition, {
+      ...COMPAT_VIEWPORT,
+      mobile: false,
+    });
+  }
+  console.log("Focused browser compatibility checks passed");
+}
+
 export async function runResponsiveUI({ browser, baseUrl }) {
   for (const viewport of MOBILE_VIEWPORTS) {
     await checkMobileViewport(browser, baseUrl, viewport);
   }
 
   await checkWideViewport(browser, baseUrl);
+
+  for (const definition of REPRESENTATIVE_ROUTES) {
+    for (const viewport of REPRESENTATIVE_ROUTE_VIEWPORTS) {
+      await checkRepresentativeRoute(browser, baseUrl, definition, viewport);
+    }
+  }
+
   console.log("Responsive UI checks passed");
 }
 
 if (isDirectExecution(import.meta.url)) {
-  await withE2ERuntime(runResponsiveUI);
+  const run = process.env.E2E_COMPAT_ONLY === "1"
+    ? runFocusedBrowserCompatibility
+    : runResponsiveUI;
+  await withE2ERuntime(run);
 }
