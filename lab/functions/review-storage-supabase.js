@@ -8,15 +8,18 @@ const OBJECT_COLUMNS = [
   "etag",
 ].join(",");
 
+const REVIEW_BUCKET = "review-hub-evidence";
+const RUNTIME_EMAIL = "review-hub-runtime@looksawful.invalid";
+
 function stringValue(value) {
   return typeof value === "string" && value.length > 0 ? value : null;
 }
 
 function storageConfig(env) {
   const url = stringValue(env?.SUPABASE_URL);
-  const secretKey = stringValue(env?.SUPABASE_SECRET_KEY);
-  const bucket = stringValue(env?.REVIEW_EVIDENCE_BUCKET);
-  if (!url || !secretKey || !bucket) return null;
+  const publishableKey = stringValue(env?.SUPABASE_PUBLISHABLE_KEY);
+  const runtimePassword = stringValue(env?.REVIEW_RUNTIME_PASSWORD);
+  if (!url || !publishableKey || !runtimePassword) return null;
 
   let baseUrl;
   try {
@@ -25,21 +28,26 @@ function storageConfig(env) {
     return null;
   }
 
-  if (baseUrl.protocol !== "https:" && baseUrl.hostname !== "127.0.0.1" && baseUrl.hostname !== "localhost") {
+  if (
+    baseUrl.protocol !== "https:" &&
+    baseUrl.hostname !== "127.0.0.1" &&
+    baseUrl.hostname !== "localhost"
+  ) {
     return null;
   }
 
   return {
     baseUrl: baseUrl.toString().replace(/\/$/u, ""),
-    secretKey,
-    bucket,
+    publishableKey,
+    runtimePassword,
+    bucket: REVIEW_BUCKET,
   };
 }
 
-function apiHeaders(secretKey, json = false) {
+function apiHeaders(config, accessToken, json = false) {
   return {
-    apikey: secretKey,
-    Authorization: `Bearer ${secretKey}`,
+    apikey: config.publishableKey,
+    Authorization: `Bearer ${accessToken}`,
     ...(json ? { "Content-Type": "application/json" } : {}),
   };
 }
@@ -70,41 +78,64 @@ async function responseJson(response, label) {
   return response.json();
 }
 
-async function rpc(config, fetchImpl, name, body) {
+async function runtimeAccessToken(config, fetchImpl) {
+  const response = await fetchImpl(
+    `${config.baseUrl}/auth/v1/token?grant_type=password`,
+    {
+      method: "POST",
+      headers: {
+        apikey: config.publishableKey,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: RUNTIME_EMAIL,
+        password: config.runtimePassword,
+      }),
+    },
+  );
+  const payload = await responseJson(response, "Supabase Review Hub runtime sign-in");
+  const token = stringValue(payload?.access_token);
+  if (!token) throw new Error("Supabase Review Hub runtime sign-in returned no access token.");
+  return token;
+}
+
+async function rpc(config, fetchImpl, accessToken, name, body) {
   const response = await fetchImpl(`${config.baseUrl}/rest/v1/rpc/${name}`, {
     method: "POST",
-    headers: apiHeaders(config.secretKey, true),
+    headers: apiHeaders(config, accessToken, true),
     body: JSON.stringify(body),
   });
   return responseJson(response, `Supabase RPC ${name}`);
 }
 
-async function readMetadata(config, fetchImpl, keys) {
+async function readMetadata(config, fetchImpl, accessToken, keys) {
   if (keys.length === 0) return [];
   const response = await fetchImpl(metadataUrl(config, keys), {
-    headers: apiHeaders(config.secretKey),
+    headers: apiHeaders(config, accessToken),
   });
   const rows = await responseJson(response, "Supabase review metadata read");
   return Array.isArray(rows) ? rows : [];
 }
 
-async function deleteStoragePaths(config, fetchImpl, paths) {
+async function deleteStoragePaths(config, fetchImpl, accessToken, paths) {
   if (paths.length === 0) return;
 
   const response = await fetchImpl(
     `${config.baseUrl}/storage/v1/object/${encodeURIComponent(config.bucket)}`,
     {
       method: "DELETE",
-      headers: apiHeaders(config.secretKey, true),
+      headers: apiHeaders(config, accessToken, true),
       body: JSON.stringify({ prefixes: paths }),
     },
   );
   await responseJson(response, "Supabase review evidence delete");
 }
 
-async function deleteRows(config, fetchImpl, keys) {
+async function deleteRows(config, fetchImpl, accessToken, keys) {
   if (keys.length === 0) return { deleted: 0 };
-  return rpc(config, fetchImpl, "review_hub_delete_object_rows", { p_keys: keys });
+  return rpc(config, fetchImpl, accessToken, "review_hub_delete_object_rows", {
+    p_keys: keys,
+  });
 }
 
 function jsonObject(row) {
@@ -118,12 +149,12 @@ function jsonObject(row) {
   };
 }
 
-async function binaryObject(config, fetchImpl, row) {
+async function binaryObject(config, fetchImpl, accessToken, row) {
   const response = await fetchImpl(
     `${config.baseUrl}/storage/v1/object/${encodeURIComponent(config.bucket)}/${encodeStoragePath(row.storage_path)}`,
     {
       method: "GET",
-      headers: apiHeaders(config.secretKey),
+      headers: apiHeaders(config, accessToken),
       cache: "no-store",
     },
   );
@@ -148,19 +179,27 @@ export function createSupabaseReviewStorage(env, fetchImpl = fetch) {
   const config = storageConfig(env);
   if (!config || typeof fetchImpl !== "function") return null;
 
+  let accessTokenPromise;
+  const accessToken = () => {
+    accessTokenPromise ??= runtimeAccessToken(config, fetchImpl);
+    return accessTokenPromise;
+  };
+
   return {
     async get(key) {
-      const rows = await readMetadata(config, fetchImpl, [key]);
+      const token = await accessToken();
+      const rows = await readMetadata(config, fetchImpl, token, [key]);
       const row = rows.find((item) => item?.key === key) ?? rows[0] ?? null;
       if (!row) return null;
       if (row.kind === "json" && typeof row.body_text === "string") return jsonObject(row);
       if (row.kind === "binary" && typeof row.storage_path === "string") {
-        return binaryObject(config, fetchImpl, row);
+        return binaryObject(config, fetchImpl, token, row);
       }
       throw new Error("Supabase review metadata is invalid.");
     },
 
     async put(key, value, options = {}) {
+      const token = await accessToken();
       const contentType =
         stringValue(options?.httpMetadata?.contentType) ?? "application/octet-stream";
       const customMetadata =
@@ -189,7 +228,7 @@ export function createSupabaseReviewStorage(env, fetchImpl = fetch) {
           {
             method: "POST",
             headers: {
-              ...apiHeaders(config.secretKey),
+              ...apiHeaders(config, token),
               "Content-Type": contentType,
               "cache-control": "max-age=0",
               "x-upsert": "true",
@@ -202,7 +241,7 @@ export function createSupabaseReviewStorage(env, fetchImpl = fetch) {
 
       let result;
       try {
-        result = await rpc(config, fetchImpl, "review_hub_put_object", {
+        result = await rpc(config, fetchImpl, token, "review_hub_put_object", {
           p_key: key,
           p_kind: kind,
           p_body_text: bodyText,
@@ -214,7 +253,7 @@ export function createSupabaseReviewStorage(env, fetchImpl = fetch) {
       } catch (error) {
         if (storagePath) {
           try {
-            await deleteStoragePaths(config, fetchImpl, [storagePath]);
+            await deleteStoragePaths(config, fetchImpl, token, [storagePath]);
           } catch {
             // A leaked staged object is safer than hiding the original storage error.
           }
@@ -227,10 +266,11 @@ export function createSupabaseReviewStorage(env, fetchImpl = fetch) {
     },
 
     async delete(keys) {
+      const token = await accessToken();
       const uniqueKeys = [...new Set(Array.isArray(keys) ? keys : [keys])].filter(Boolean);
       if (uniqueKeys.length === 0) return;
 
-      const rows = await readMetadata(config, fetchImpl, uniqueKeys);
+      const rows = await readMetadata(config, fetchImpl, token, uniqueKeys);
       const storagePaths = [
         ...new Set(
           rows
@@ -239,13 +279,14 @@ export function createSupabaseReviewStorage(env, fetchImpl = fetch) {
         ),
       ];
 
-      await deleteStoragePaths(config, fetchImpl, storagePaths);
-      await deleteRows(config, fetchImpl, uniqueKeys);
+      await deleteStoragePaths(config, fetchImpl, token, storagePaths);
+      await deleteRows(config, fetchImpl, token, uniqueKeys);
     },
 
     async cleanupExpired(limit = 200) {
+      const token = await accessToken();
       const safeLimit = Math.max(1, Math.min(Number.isInteger(limit) ? limit : 200, 1000));
-      const rows = await rpc(config, fetchImpl, "review_hub_expired_objects", {
+      const rows = await rpc(config, fetchImpl, token, "review_hub_expired_objects", {
         p_limit: safeLimit,
       });
       const expired = Array.isArray(rows) ? rows : [];
@@ -259,10 +300,11 @@ export function createSupabaseReviewStorage(env, fetchImpl = fetch) {
         ),
       ];
 
-      await deleteStoragePaths(config, fetchImpl, storagePaths);
+      await deleteStoragePaths(config, fetchImpl, token, storagePaths);
       await deleteRows(
         config,
         fetchImpl,
+        token,
         expired.map((row) => row.key),
       );
       return { deleted: expired.length };
