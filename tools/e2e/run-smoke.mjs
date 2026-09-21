@@ -3,6 +3,7 @@ import { getExpectedCvCardCount, getExpectedCvHiddenCards } from "./smoke-cv.mjs
 import { mapWithConcurrency } from "./concurrency.mjs";
 import { waitForDocumentReady, waitForLightboxClosed } from "./readiness.mjs";
 import { isDirectExecution, withE2ERuntime } from "./runtime.mjs";
+import { runHomepageMediaAffected } from "./affected-home-media.mjs";
 
 const VIEWPORTS = [{ width: 390, height: 844 }, { width: 1440, height: 900 }];
 const CAPTION_TOUCH_VIEWPORTS = [{ width: 390, height: 844 }, { width: 770, height: 900 }];
@@ -258,6 +259,7 @@ async function verifyCanvas(page) {
 
 export async function runQuickSmoke({ browser, baseUrl, cvMode = "authored" }) {
   const runtime = { browser, baseUrl };
+  await runHomepageMediaAffected(runtime);
   // These are the only parallel contexts; callers run quick smoke before deep suites.
   await mapWithConcurrency(VIEWPORTS, 2, (viewport) => audit(runtime, "/", viewport, async (page) => {
     await verifyBuiltAssets(page);
