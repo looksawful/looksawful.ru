@@ -17,6 +17,12 @@ A curated set of related works presented as a grouped portfolio surface rather t
 **Gallery**:
 The curated showcase of the strongest standalone works. It is intentionally selective and is not the complete archive of available media.
 
+**Flagship Case**:
+One of the small set of primary Cases that most strongly establishes the portfolio author's desired professional positioning.
+
+**Featured Case**:
+A strong secondary Case presented with less prominence than a Flagship Case while remaining part of the main portfolio selection.
+
 **Project card**:
 A homepage/navigation presentation that points to a Case or another project surface; it is not the canonical identity of the destination.
 
