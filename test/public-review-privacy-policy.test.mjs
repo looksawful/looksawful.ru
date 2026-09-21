@@ -5,11 +5,12 @@ import { fileURLToPath } from "node:url";
 import test from "node:test";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
-const legacyWorkflow = path.join(root, ".github/workflows/pr-preview.yml");
-const legacyCaptionWorkflow = path.join(root, ".github/workflows/caption-qa.yml");
+const workflowsDir = path.join(root, ".github/workflows");
+const legacyWorkflow = path.join(workflowsDir, "pr-preview.yml");
+const legacyCaptionWorkflow = path.join(workflowsDir, "caption-qa.yml");
 const policyPath = path.join(root, "docs/agents/public-reporting.md");
 const scanRoots = [
-  path.join(root, ".github/workflows"),
+  workflowsDir,
   path.join(root, "tools"),
   path.join(root, "src/lab"),
 ];
@@ -34,6 +35,69 @@ async function textFiles(directory) {
   return files;
 }
 
+function topLevelBlock(source, key) {
+  const lines = source.split(/\r?\n/u);
+  const start = lines.findIndex((line) => new RegExp(`^${key}:\\s*$`, "u").test(line));
+  if (start < 0) return "";
+  let end = lines.length;
+  for (let index = start + 1; index < lines.length; index += 1) {
+    const line = lines[index];
+    if (line && !/^\s/u.test(line) && !/^#/u.test(line)) {
+      end = index;
+      break;
+    }
+  }
+  return lines.slice(start + 1, end).join("\n");
+}
+
+function jobsFromWorkflow(source) {
+  const block = topLevelBlock(source, "jobs");
+  const lines = block.split(/\r?\n/u);
+  const jobs = [];
+  let current = null;
+
+  for (const line of lines) {
+    const match = /^  ([A-Za-z0-9_-]+):\s*$/u.exec(line);
+    if (match) {
+      if (current) jobs.push(current);
+      current = { name: match[1], lines: [] };
+      continue;
+    }
+    if (current) current.lines.push(line);
+  }
+  if (current) jobs.push(current);
+  return jobs.map(({ name, lines: jobLines }) => ({ name, source: jobLines.join("\n") }));
+}
+
+function jobIfExpression(jobSource) {
+  const lines = jobSource.split(/\r?\n/u);
+  const start = lines.findIndex((line) => /^    if:\s*/u.test(line));
+  if (start < 0) return "";
+  const expression = [lines[start].replace(/^    if:\s*/u, "")];
+  for (let index = start + 1; index < lines.length; index += 1) {
+    const line = lines[index];
+    if (/^    [A-Za-z0-9_-]+:\s*/u.test(line)) break;
+    expression.push(line.trim());
+  }
+  return expression.join(" ").replace(/^[>|+-]+\s*/u, "").trim();
+}
+
+function jobCanRunOnPullRequest(jobSource) {
+  const expression = jobIfExpression(jobSource);
+  if (!expression) return true;
+  if (/github\.event_name\s*!=\s*['"]pull_request['"]/u.test(expression)) return false;
+
+  const positiveEvents = [...expression.matchAll(/github\.event_name\s*==\s*['"]([^'"]+)['"]/gu)]
+    .map((match) => match[1]);
+  if (positiveEvents.length > 0 && !positiveEvents.includes("pull_request")) return false;
+
+  return true;
+}
+
+function workflowHasPullRequestTrigger(source) {
+  return /^  pull_request:\s*$/mu.test(topLevelBlock(source, "on"));
+}
+
 test("public automation has no pre-production review publication path", async () => {
   await assert.rejects(access(legacyWorkflow), (error) => error?.code === "ENOENT");
   await assert.rejects(access(legacyCaptionWorkflow), (error) => error?.code === "ENOENT");
@@ -44,6 +108,36 @@ test("public automation has no pre-production review publication path", async ()
     const relative = path.relative(root, file).replaceAll(path.sep, "/");
     for (const [label, pattern] of forbidden) {
       assert.doesNotMatch(source, pattern, `${relative} reintroduces ${label}`);
+    }
+  }
+});
+
+test("pull-request workflows cannot publish visual-review evidence", async () => {
+  const workflowFiles = (await readdir(workflowsDir))
+    .filter((name) => /\.ya?ml$/u.test(name))
+    .sort();
+
+  const forbiddenInPrJobs = [
+    ["public artifact upload", /actions\/upload-artifact@/iu],
+    ["issue comment mutation", /github\.rest\.issues\.(?:create|update)Comment/iu],
+    ["public Pages deployment", /(?:wrangler[^\n]*\bdeploy\b|\bpages\s+deploy\b|actions\/deploy-pages@)/iu],
+  ];
+
+  for (const name of workflowFiles) {
+    const source = await readFile(path.join(workflowsDir, name), "utf8");
+    if (!workflowHasPullRequestTrigger(source)) continue;
+
+    assert.doesNotMatch(
+      topLevelBlock(source, "permissions"),
+      /^  (?:issues|pull-requests):\s*write\s*$/mu,
+      `${name} grants public-report mutation permission on a pull-request workflow`,
+    );
+
+    for (const job of jobsFromWorkflow(source)) {
+      if (!jobCanRunOnPullRequest(job.source)) continue;
+      for (const [label, pattern] of forbiddenInPrJobs) {
+        assert.doesNotMatch(job.source, pattern, `${name}:${job.name} permits ${label} on pull requests`);
+      }
     }
   }
 });
