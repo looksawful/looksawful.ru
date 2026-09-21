@@ -334,6 +334,78 @@ test("release preflight uses the approved base when approved work intentionally 
   }
 });
 
+test("release preflight requires an explicit path for manually reconciled overlap conflicts", () => {
+  const cwd = createRepo();
+  try {
+    const base = git(cwd, "rev-parse", "HEAD");
+
+    git(cwd, "switch", "-qc", "approved");
+    writeFileSync(path.join(cwd, "src/index.ts"), [
+      "export const value = 2;",
+      "",
+    ].join("\n"));
+    git(cwd, "add", "src/index.ts");
+    git(cwd, "commit", "-qm", "approved changes conflicting value");
+    const approved = git(cwd, "rev-parse", "HEAD");
+
+    git(cwd, "switch", "-qc", "prod", base);
+    writeFileSync(path.join(cwd, "src/index.ts"), [
+      "export const value = 3;",
+      "export const prodOnly = true;",
+      "",
+    ].join("\n"));
+    git(cwd, "add", "src/index.ts");
+    git(cwd, "commit", "-qm", "prod changes same value and adds independent state");
+    const prod = git(cwd, "rev-parse", "HEAD");
+
+    writeFileSync(path.join(cwd, "src/index.ts"), [
+      "export const value = 2;",
+      "export const prodOnly = true;",
+      "",
+    ].join("\n"));
+    git(cwd, "add", "src/index.ts");
+    git(cwd, "commit", "-qm", "candidate manually reconciles conflict");
+    const candidate = git(cwd, "rev-parse", "HEAD");
+
+    const blocked = spawnSync(process.execPath, [
+      preflightPath,
+      "--repo", cwd,
+      "--prod-base", prod,
+      "--candidate", candidate,
+      "--approved-base", base,
+      "--approved-head", approved,
+    ], { encoding: "utf8" });
+    assert.equal(blocked.status, 1);
+    assert.match(`${blocked.stdout}\n${blocked.stderr}`, /PROD_OVERLAP_REQUIRES_RECONCILIATION src\/index\.ts/);
+
+    const invalid = spawnSync(process.execPath, [
+      preflightPath,
+      "--repo", cwd,
+      "--prod-base", prod,
+      "--candidate", candidate,
+      "--approved-base", base,
+      "--approved-head", approved,
+      "--reconcile", "notes.txt",
+    ], { encoding: "utf8" });
+    assert.equal(invalid.status, 1);
+    assert.match(`${invalid.stdout}\n${invalid.stderr}`, /INVALID_RECONCILIATION_PATH notes\.txt/);
+
+    const reconciled = spawnSync(process.execPath, [
+      preflightPath,
+      "--repo", cwd,
+      "--prod-base", prod,
+      "--candidate", candidate,
+      "--approved-base", base,
+      "--approved-head", approved,
+      "--reconcile", "src/index.ts",
+    ], { encoding: "utf8" });
+    assert.equal(reconciled.status, 0, `${reconciled.stdout}\n${reconciled.stderr}`);
+    assert.match(reconciled.stdout, /RELEASE_PREFLIGHT_OK/);
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
 test("release preflight rejects a Lab-only file renamed into a product path", () => {
   const cwd = createRepo();
   try {
