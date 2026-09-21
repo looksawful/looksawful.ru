@@ -70,13 +70,17 @@ test("both game surfaces expose onboarding, guidance and all six actions", async
     for (const action of ["upper", "lower", "title", "toggle", "lint", "sentence"]) {
       assert.match(source, new RegExp(`data-awful-cases-action="${action}"`));
     }
-    assert.doesNotMatch(source, />[WSAD]<\/b>/);
+    assert.doesNotMatch(source, />[WSAD]<\/b>/);\n    assert.doesNotMatch(source, /WASD/);
   }
 
   assert.match(component, /data-awful-cases-action="upper"[\s\S]*?<b>↑<\/b>/);
   assert.match(component, /data-awful-cases-action="lower"[\s\S]*?<b>↓<\/b>/);
   assert.match(component, /data-awful-cases-action="title"[\s\S]*?<b>←<\/b>/);
   assert.match(component, /data-awful-cases-action="toggle"[\s\S]*?<b>→<\/b>/);
+  assert.match(standalone, /data-awful-cases-action="upper"[\s\S]*?<b>↑<\/b>/);
+  assert.match(standalone, /data-awful-cases-action="lower"[\s\S]*?<b>↓<\/b>/);
+  assert.match(standalone, /data-awful-cases-action="title"[\s\S]*?<b>←<\/b>/);
+  assert.match(standalone, /data-awful-cases-action="toggle"[\s\S]*?<b>→<\/b>/);
 });
 
 test("trainer styling keeps mobile geometry, guidance and reduced-motion support", async () => {
