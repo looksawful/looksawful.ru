@@ -179,9 +179,11 @@ async function verifyHomepageVideoPosterFallback({ browser, baseUrl }) {
       assert.ok(handle, `Homepage video handle missing: ${target}`);
 
       await video.scrollIntoViewIfNeeded();
-      await page.waitForFunction((node) =>
-        node.hasAttribute("data-media-video-fallback") || Boolean(node.error),
-      , handle, { timeout: 8_000 });
+      await page.waitForFunction(
+        (node) => node.hasAttribute("data-media-video-fallback") || Boolean(node.error),
+        handle,
+        { timeout: 8_000 },
+      );
 
       const state = await handle.evaluate((node) => ({
         fallback: node.hasAttribute("data-media-video-fallback"),
