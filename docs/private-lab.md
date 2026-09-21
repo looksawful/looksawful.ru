@@ -125,3 +125,14 @@ GET  /lab/review/evidence/<evidence-id>
 `POST /lab/review/api` accepts multipart form data containing a JSON `manifest` field and one image part per evidence id. The v1 manifest binds one Case to an exact 40-character source SHA, a review depth (`quick`, `interactive` or `full`), capture time and image evidence descriptors. R2 object keys are derived server-side and are never returned to the browser.
 
 This slice intentionally does not implement approval, stale-SHA rejection, retention, affected-Case routing, viewport matrices or baseline promotion; those remain follow-up work.
+
+
+## Visual approval and retention
+
+Visual approval is an explicit owner-only mutation at `POST /lab/review/approval`. The request carries the exact displayed `caseId`, 40-character `sourceSha` and `reviewDepth`; the server rejects a mismatch with `409 Conflict`.
+
+Approved evidence is copied into the durable `review-hub/v1/baselines/` namespace before the single Case baseline object is replaced. That final Case-scoped object is the atomic visibility point for baseline promotion. A compact immutable approval record is also stored under `review-hub/v1/approvals/<case>/<sha>.json`.
+
+Temporary capture objects under `review-hub/v1/cases/` receive an application `expiresAt` exactly four days after ingestion. The Review Hub stops serving them at that deadline and deletes them on access when the binding supports deletion. The production R2 bucket must additionally have a four-day object lifecycle rule scoped to the `review-hub/v1/cases/` prefix so inactive temporary captures are physically removed. The `baselines/` and `approvals/` namespaces must not inherit that temporary lifecycle rule.
+
+The repository can verify the application contract, but not the deployed bucket lifecycle configuration.
