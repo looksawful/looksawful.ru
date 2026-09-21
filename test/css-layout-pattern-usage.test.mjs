@@ -25,8 +25,9 @@ test("live pet-project carousel stays horizontal and keeps focus scaling at ever
   assert.match(homeSlots, /--reel-snap-type:\s*inline mandatory;/);
   assert.match(homeSlots, /--reel-snap-align:\s*center;/);
   assert.match(homeSlots, /grid-auto-flow:\s*column;/);
+  assert.match(homeSlots, /grid-template-columns:\s*none;/);
   assert.match(homeSlots, /animation-timeline:\s*view\(inline\);/);
-  assert.match(homeSlots, /@keyframes pet-project-card-focus[\s\S]*?from, to \{ scale:\s*0\.9; \}[\s\S]*?50% \{ scale:\s*1; \}/);
+  assert.match(homeSlots, /@keyframes pet-project-card-focus[\s\S]*?from, to \{ scale:\s*0\.94; \}[\s\S]*?50% \{ scale:\s*1; \}[\s\S]*?translate:\s*calc\(var\(--pet-card-gap\) \* 0\.35\)/);
   assert.doesNotMatch(homeSlots, /--reel-overflow-x:\s*visible;/);
   assert.doesNotMatch(homeSlots, /--reel-snap-type:\s*none;/);
   assert.doesNotMatch(homeSlots, /grid-auto-flow:\s*row;/);
