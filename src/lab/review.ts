@@ -165,6 +165,7 @@ async function loadReview(): Promise<void> {
   if (response.status === 404) {
     clearReview();
     setBusy(false);
+    setReloadVisible(true);
     setStatus("No current private review.", "empty");
     return;
   }
