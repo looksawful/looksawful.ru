@@ -2,7 +2,7 @@
 
 Status: OAUTH SECURITY CANDIDATE / non-production internal tooling foundation.
 
-Private Lab is a read-only internal tooling surface. It is not a CMS branch, not a source of truth, not a deployment authority and not a shortcut around Media/Content Desk write policy.
+Private Lab is read-only with respect to site/CMS state. The Private Review Hub may write isolated visual-review evidence to its private R2 binding; it is not a CMS branch, not a source of truth, not a deployment authority and not a shortcut around Media/Content Desk write policy.
 
 ## Build
 
@@ -24,6 +24,7 @@ Runtime bindings required by the candidate:
 ADMIN_GITHUB_CLIENT_ID
 ADMIN_GITHUB_CLIENT_SECRET
 ADMIN_SESSION_SECRET
+REVIEW_EVIDENCE          # private R2 bucket binding for Review Hub evidence/manifests
 ```
 
 Accepted application origins are deliberately narrow:
@@ -106,3 +107,22 @@ npm run lab:inventory
 The Lab shell links to `/lab/system/` and `/lab/system/inventory.html`. Storybook stories use production renderers, production data and the shared `parameters.looksawful` state schema. Public assets are mounted read-only from `public/` for production-backed media fixtures.
 
 `.github/workflows/private-lab-verify.yml` builds the isolated Lab first, then Storybook and the generated inventory into the same `dist-lab/` artifact. The workflow verifies those files while still rejecting any accidental `dist/lab/index.html` public-build entry.
+
+
+## Private Review Hub
+
+The first Review Hub slice lives at `/lab/review/` behind the existing GitHub OAuth boundary.
+
+Private review data uses the `REVIEW_EVIDENCE` R2 binding. The repository does not contain review screenshots, Review manifests, private object identifiers or private review URLs. Missing storage configuration fails closed with `503`.
+
+The authenticated runtime exposes:
+
+```text
+GET  /lab/review/api
+POST /lab/review/api
+GET  /lab/review/evidence/<evidence-id>
+```
+
+`POST /lab/review/api` accepts multipart form data containing a JSON `manifest` field and one image part per evidence id. The v1 manifest binds one Case to an exact 40-character source SHA, a review depth (`quick`, `interactive` or `full`), capture time and image evidence descriptors. R2 object keys are derived server-side and are never returned to the browser.
+
+This slice intentionally does not implement approval, stale-SHA rejection, retention, affected-Case routing, viewport matrices or baseline promotion; those remain follow-up work.
