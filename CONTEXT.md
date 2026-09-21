@@ -8,8 +8,14 @@ Canonical glossary for project-specific domain language. This is a glossary, not
 A portfolio case that presents one substantial body of work with its own identity, narrative and media.
 _Avoid_: Project, when referring specifically to a Case entity.
 
+**Case summary**:
+The concise case introduction that states the role, task, contribution and result before the case's authored body.
+
 **Collection**:
 A curated set of related works presented as a grouped portfolio surface rather than one Case.
+
+**Gallery**:
+The curated showcase of the strongest standalone works. It is intentionally selective and is not the complete archive of available media.
 
 **Project card**:
 A homepage/navigation presentation that points to a Case or another project surface; it is not the canonical identity of the destination.
