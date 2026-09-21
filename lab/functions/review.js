@@ -1,4 +1,6 @@
 const CURRENT_POINTER_KEY = "review-hub/v1/current.json";
+const ADMIN_REPOSITORY = "looksawful/looksawful.ru";
+const TEMP_RETENTION_MS = 4 * 24 * 60 * 60 * 1000;
 const CASE_ID = /^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$/u;
 const EVIDENCE_ID = /^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$/u;
 const SHA = /^[0-9a-f]{40}$/u;
@@ -82,6 +84,22 @@ function evidenceKey(caseId, sourceSha, evidenceId) {
   return `review-hub/v1/cases/${caseId}/${sourceSha}/evidence/${evidenceId}`;
 }
 
+function approvalKey(caseId, sourceSha) {
+  return `review-hub/v1/approvals/${caseId}/${sourceSha}.json`;
+}
+
+function baselineKey(caseId) {
+  return `review-hub/v1/baselines/${caseId}.json`;
+}
+
+function baselineEvidenceKey(caseId, sourceSha, evidenceId) {
+  return `review-hub/v1/baselines/${caseId}/${sourceSha}/evidence/${evidenceId}`;
+}
+
+function baselineEvidenceUrl(caseId, evidenceId) {
+  return `/lab/review/baseline/${encodeURIComponent(caseId)}/evidence/${encodeURIComponent(evidenceId)}`;
+}
+
 async function readJsonObject(object) {
   try {
     return JSON.parse(await object.text());
@@ -90,7 +108,22 @@ async function readJsonObject(object) {
   }
 }
 
-async function loadCurrentManifest(bucket) {
+function objectExpired(object, nowMs) {
+  const expiresAt = object?.customMetadata?.expiresAt;
+  return typeof expiresAt === "string" && Number.isFinite(Date.parse(expiresAt)) && Date.parse(expiresAt) <= nowMs;
+}
+
+async function deleteTemporaryReview(bucket, manifest) {
+  if (typeof bucket.delete !== "function") return;
+  const keys = [
+    ...manifest.evidence.map((item) => evidenceKey(manifest.caseId, manifest.sourceSha, item.id)),
+    manifestKey(manifest.caseId, manifest.sourceSha),
+    CURRENT_POINTER_KEY,
+  ];
+  await bucket.delete(keys);
+}
+
+async function loadCurrentManifest(bucket, nowMs) {
   const pointerObject = await bucket.get(CURRENT_POINTER_KEY);
   if (!pointerObject) return null;
   const pointer = await readJsonObject(pointerObject);
@@ -109,6 +142,10 @@ async function loadCurrentManifest(bucket) {
   const manifest = validateReviewManifest(await readJsonObject(manifestObject));
   if (!manifest) return null;
   if (manifest.caseId !== pointer.caseId || manifest.sourceSha !== pointer.sourceSha) return null;
+  if (objectExpired(manifestObject, nowMs)) {
+    await deleteTemporaryReview(bucket, manifest);
+    return null;
+  }
   return manifest;
 }
 
@@ -132,7 +169,7 @@ function isFileLike(value) {
   );
 }
 
-async function createReview(request, bucket) {
+async function createReview(request, bucket, nowMs) {
   const contentType = request.headers.get("Content-Type") ?? "";
   if (!contentType.toLowerCase().startsWith("multipart/form-data")) {
     return text("Expected multipart review evidence.", 415);
@@ -165,18 +202,23 @@ async function createReview(request, bucket) {
     if (file.size <= 0 || file.size > MAX_EVIDENCE_BYTES) {
       return text(`Evidence ${item.id} size is invalid.`, 400);
     }
-    uploads.push({ item, file, bytes: await file.arrayBuffer() });
+    uploads.push({ item, bytes: await file.arrayBuffer() });
   }
+
+  const expiresAt = new Date(nowMs + TEMP_RETENTION_MS).toISOString();
+  const temporaryMetadata = { expiresAt };
 
   await Promise.all(
     uploads.map(({ item, bytes }) =>
       bucket.put(evidenceKey(manifest.caseId, manifest.sourceSha, item.id), bytes, {
         httpMetadata: { contentType: item.contentType },
+        customMetadata: temporaryMetadata,
       }),
     ),
   );
   await bucket.put(manifestKey(manifest.caseId, manifest.sourceSha), JSON.stringify(manifest), {
     httpMetadata: { contentType: "application/json; charset=utf-8" },
+    customMetadata: temporaryMetadata,
   });
   await bucket.put(
     CURRENT_POINTER_KEY,
@@ -187,24 +229,24 @@ async function createReview(request, bucket) {
   return json(clientManifest(manifest), 201);
 }
 
-async function getCurrentReview(bucket) {
-  const manifest = await loadCurrentManifest(bucket);
+async function getCurrentReview(bucket, nowMs) {
+  const manifest = await loadCurrentManifest(bucket, nowMs);
   if (!manifest) return text("No current private review.", 404);
   return json(clientManifest(manifest));
 }
 
-async function getEvidence(pathname, bucket) {
+async function getEvidence(pathname, bucket, nowMs) {
   const prefix = "/lab/review/evidence/";
   const evidenceId = pathname.slice(prefix.length);
   if (!EVIDENCE_ID.test(evidenceId)) return text("Review evidence not found.", 404);
 
-  const manifest = await loadCurrentManifest(bucket);
+  const manifest = await loadCurrentManifest(bucket, nowMs);
   if (!manifest) return text("Review evidence not found.", 404);
   const descriptor = manifest.evidence.find((item) => item.id === evidenceId);
   if (!descriptor) return text("Review evidence not found.", 404);
 
   const object = await bucket.get(evidenceKey(manifest.caseId, manifest.sourceSha, evidenceId));
-  if (!object) return text("Review evidence not found.", 404);
+  if (!object || objectExpired(object, nowMs)) return text("Review evidence not found.", 404);
 
   return new Response(object.body, {
     status: 200,
@@ -216,18 +258,169 @@ async function getEvidence(pathname, bucket) {
   });
 }
 
-export async function handleReviewRequest({ request, env }) {
+function validApprovalInput(value) {
+  return (
+    value &&
+    typeof value === "object" &&
+    !Array.isArray(value) &&
+    typeof value.caseId === "string" &&
+    CASE_ID.test(value.caseId) &&
+    typeof value.sourceSha === "string" &&
+    SHA.test(value.sourceSha) &&
+    typeof value.reviewDepth === "string" &&
+    REVIEW_DEPTHS.has(value.reviewDepth)
+  );
+}
+
+function sameReview(input, manifest) {
+  return (
+    input.caseId === manifest.caseId &&
+    input.sourceSha === manifest.sourceSha &&
+    input.reviewDepth === manifest.reviewDepth
+  );
+}
+
+async function readApprovalInput(request) {
+  const contentType = request.headers.get("Content-Type") ?? "";
+  if (!contentType.toLowerCase().startsWith("application/json")) return { error: 415 };
+
+  let value;
+  try {
+    value = await request.json();
+  } catch {
+    return { error: 400 };
+  }
+  if (!validApprovalInput(value)) return { error: 400 };
+  return { value };
+}
+
+async function approveReview(request, bucket, session, nowMs) {
+  if (session?.repository !== ADMIN_REPOSITORY) return text("Approval requires the repository owner.", 403);
+
+  const input = await readApprovalInput(request);
+  if (input.error === 415) return text("Expected JSON approval request.", 415);
+  if (input.error) return text("Approval request is invalid.", 400);
+
+  const manifest = await loadCurrentManifest(bucket, nowMs);
+  if (!manifest || !sameReview(input.value, manifest)) {
+    return text("Review is stale or no longer current.", 409);
+  }
+
+  const copies = [];
+  for (const item of manifest.evidence) {
+    const source = await bucket.get(evidenceKey(manifest.caseId, manifest.sourceSha, item.id));
+    if (!source || objectExpired(source, nowMs)) {
+      return text("Review evidence is incomplete or expired.", 409);
+    }
+    copies.push({ item, source });
+  }
+
+  await Promise.all(
+    copies.map(({ item, source }) =>
+      bucket.put(
+        baselineEvidenceKey(manifest.caseId, manifest.sourceSha, item.id),
+        source.body,
+        { httpMetadata: { contentType: item.contentType } },
+      ),
+    ),
+  );
+
+  const stillCurrent = await loadCurrentManifest(bucket, nowMs);
+  if (!stillCurrent || !sameReview(input.value, stillCurrent)) {
+    return text("Review changed before approval could complete.", 409);
+  }
+
+  const approval = {
+    version: 1,
+    caseId: manifest.caseId,
+    sourceSha: manifest.sourceSha,
+    reviewDepth: manifest.reviewDepth,
+    approvedAt: new Date(nowMs).toISOString(),
+    approvedBy: "repository-owner",
+  };
+  const baseline = {
+    ...approval,
+    evidence: manifest.evidence.map((item) => ({
+      ...item,
+      url: baselineEvidenceUrl(manifest.caseId, item.id),
+    })),
+  };
+
+  await bucket.put(approvalKey(manifest.caseId, manifest.sourceSha), JSON.stringify(approval), {
+    httpMetadata: { contentType: "application/json; charset=utf-8" },
+  });
+  await bucket.put(baselineKey(manifest.caseId), JSON.stringify(baseline), {
+    httpMetadata: { contentType: "application/json; charset=utf-8" },
+  });
+
+  return json(baseline, 201);
+}
+
+async function getBaseline(request, bucket) {
+  const url = new URL(request.url);
+  const caseId = url.searchParams.get("caseId") ?? "";
+  if (!CASE_ID.test(caseId)) return text("Case baseline not found.", 404);
+  const object = await bucket.get(baselineKey(caseId));
+  if (!object) return text("Case baseline not found.", 404);
+  const baseline = await readJsonObject(object);
+  if (!baseline || baseline.caseId !== caseId || typeof baseline.sourceSha !== "string") {
+    return text("Case baseline not found.", 404);
+  }
+  return json(baseline);
+}
+
+async function getBaselineEvidence(pathname, bucket) {
+  const prefix = "/lab/review/baseline/";
+  const suffix = pathname.slice(prefix.length);
+  const parts = suffix.split("/");
+  if (parts.length !== 3 || parts[1] !== "evidence") return text("Baseline evidence not found.", 404);
+  const [caseId, , evidenceId] = parts;
+  if (!CASE_ID.test(caseId) || !EVIDENCE_ID.test(evidenceId)) {
+    return text("Baseline evidence not found.", 404);
+  }
+
+  const baselineObject = await bucket.get(baselineKey(caseId));
+  if (!baselineObject) return text("Baseline evidence not found.", 404);
+  const baseline = await readJsonObject(baselineObject);
+  if (!baseline || !SHA.test(baseline.sourceSha ?? "")) return text("Baseline evidence not found.", 404);
+  const descriptor = Array.isArray(baseline.evidence)
+    ? baseline.evidence.find((item) => item?.id === evidenceId && validEvidence(item))
+    : null;
+  if (!descriptor) return text("Baseline evidence not found.", 404);
+
+  const object = await bucket.get(baselineEvidenceKey(caseId, baseline.sourceSha, evidenceId));
+  if (!object) return text("Baseline evidence not found.", 404);
+  return new Response(object.body, {
+    status: 200,
+    headers: {
+      "Content-Type": descriptor.contentType,
+      "Cache-Control": "private, no-store",
+      "X-Content-Type-Options": "nosniff",
+    },
+  });
+}
+
+export async function handleReviewRequest({ request, env, session = null, now = Date.now }) {
   const url = new URL(request.url);
   const isApi = url.pathname === "/lab/review/api";
   const isEvidence = url.pathname.startsWith("/lab/review/evidence/");
-  if (!isApi && !isEvidence) return null;
+  const isApproval = url.pathname === "/lab/review/approval";
+  const isBaseline = url.pathname === "/lab/review/baseline";
+  const isBaselineEvidence = url.pathname.startsWith("/lab/review/baseline/");
+
+  if (!isApi && !isEvidence && !isApproval && !isBaseline && !isBaselineEvidence) return null;
 
   const bucket = reviewBucket(env);
   if (!bucket) return text("Private review storage is not configured.", 503);
+  const nowMs = typeof now === "function" ? now() : Date.now();
 
-  if (isApi && request.method === "GET") return getCurrentReview(bucket);
-  if (isApi && request.method === "POST") return createReview(request, bucket);
-  if (isEvidence && request.method === "GET") return getEvidence(url.pathname, bucket);
+  if (isApi && request.method === "GET") return getCurrentReview(bucket, nowMs);
+  if (isApi && request.method === "POST") return createReview(request, bucket, nowMs);
+  if (isEvidence && request.method === "GET") return getEvidence(url.pathname, bucket, nowMs);
+  if (isApproval && request.method === "POST") return approveReview(request, bucket, session, nowMs);
+  if (isBaseline && request.method === "GET") return getBaseline(request, bucket);
+  if (isBaselineEvidence && request.method === "GET") return getBaselineEvidence(url.pathname, bucket);
 
-  return text("Method not allowed.", 405, { Allow: isApi ? "GET, POST" : "GET" });
+  const allow = isApi ? "GET, POST" : isApproval ? "POST" : "GET";
+  return text("Method not allowed.", 405, { Allow: allow });
 }
