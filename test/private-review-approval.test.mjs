@@ -153,6 +153,27 @@ test("approval is owner-only and promotes an exact Case+SHA baseline", async () 
     `review-hub/v1/approvals/${CASE_ID}/${SOURCE_SHA}.json`,
   );
   assert.ok(approval, "compact approval record must persist separately");
+
+  const baselineResponse = await handleReviewRequest({
+    request: new Request(
+      `https://admin.looksawful.ru/lab/review/baseline?caseId=${CASE_ID}`,
+    ),
+    env: { REVIEW_EVIDENCE: bucket },
+    session: OWNER_SESSION,
+    now: () => NOW,
+  });
+  assert.equal(baselineResponse.status, 200);
+
+  const baselineEvidence = await handleReviewRequest({
+    request: new Request(
+      `https://admin.looksawful.ru/lab/review/baseline/${CASE_ID}/evidence/desktop`,
+    ),
+    env: { REVIEW_EVIDENCE: bucket },
+    session: OWNER_SESSION,
+    now: () => NOW,
+  });
+  assert.equal(baselineEvidence.status, 200);
+  assert.equal(await baselineEvidence.text(), "private-image");
 });
 
 test("stale SHA approval fails closed and cannot replace the Case baseline", async () => {
@@ -193,4 +214,41 @@ test("temporary review evidence carries four-day retention while approved copies
     `review-hub/v1/baselines/${CASE_ID}/${SOURCE_SHA}/evidence/desktop`,
   );
   assert.deepEqual(durableEvidence?.customMetadata ?? {}, {});
+
+  const expiredReview = await handleReviewRequest({
+    request: new Request("https://admin.looksawful.ru/lab/review/api"),
+    env: { REVIEW_EVIDENCE: bucket },
+    session: OWNER_SESSION,
+    now: () => NOW + 4 * 24 * 60 * 60 * 1000,
+  });
+  assert.equal(expiredReview.status, 404);
+  assert.equal(
+    bucket.object(`review-hub/v1/cases/${CASE_ID}/${SOURCE_SHA}/evidence/desktop`),
+    null,
+  );
+  assert.ok(
+    bucket.object(`review-hub/v1/approvals/${CASE_ID}/${SOURCE_SHA}.json`),
+    "compact approval record must outlive temporary evidence",
+  );
+  assert.ok(
+    bucket.object(`review-hub/v1/baselines/${CASE_ID}/${SOURCE_SHA}/evidence/desktop`),
+    "approved baseline evidence must outlive temporary evidence",
+  );
+});
+
+
+test("Review Hub approval UI binds the displayed review and handles stale approval explicitly", async () => {
+  const { readFile } = await import("node:fs/promises");
+  const [html, client] = await Promise.all([
+    readFile(new URL("../lab/review/index.html", import.meta.url), "utf8"),
+    readFile(new URL("../src/lab/review.ts", import.meta.url), "utf8"),
+  ]);
+
+  assert.match(html, /id="review-approve"/);
+  assert.match(html, /id="review-approval-status"/);
+  assert.match(client, /\/lab\/review\/approval/);
+  assert.match(client, /caseId:\s*manifest\.caseId/);
+  assert.match(client, /sourceSha:\s*manifest\.sourceSha/);
+  assert.match(client, /reviewDepth:\s*manifest\.reviewDepth/);
+  assert.match(client, /response\.status === 409/);
 });
