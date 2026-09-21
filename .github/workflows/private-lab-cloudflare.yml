@@ -1,0 +1,218 @@
+name: Private Lab Cloudflare
+
+on:
+  push:
+    branches:
+      - feature/case-sha-visual-approval
+    paths:
+      - ".github/workflows/private-lab-cloudflare.yml"
+      - "tools/cloudflare/private-lab/**"
+      - "lab/**"
+      - "src/lab/**"
+      - "vite.lab.config.ts"
+  workflow_dispatch:
+
+concurrency:
+  group: private-lab-cloudflare-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      ADMIN_GITHUB_CLIENT_ID: ${{ secrets.ADMIN_GITHUB_CLIENT_ID }}
+      ADMIN_GITHUB_CLIENT_SECRET: ${{ secrets.ADMIN_GITHUB_CLIENT_SECRET }}
+      ADMIN_SESSION_SECRET: ${{ secrets.ADMIN_SESSION_SECRET }}
+      SUPABASE_URL: "https://japsjwgnoeaeetlhshje.supabase.co"
+      SUPABASE_PUBLISHABLE_KEY: "sb_publishable_XjqncIsro_2zJR3mIgtNaw_uS39k0Yy"
+      REVIEW_EVIDENCE_BUCKET: "review-hub-evidence"
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+      - run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - run: npm run media:ensure
+      - run: npm run lab:build
+      - run: npx --yes wrangler@4 deploy --dry-run --config tools/cloudflare/private-lab/wrangler.jsonc
+
+      - name: Validate trusted deployment credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          for name in \
+            CLOUDFLARE_API_TOKEN \
+            CLOUDFLARE_ACCOUNT_ID \
+            ADMIN_GITHUB_CLIENT_ID \
+            ADMIN_GITHUB_CLIENT_SECRET \
+            ADMIN_SESSION_SECRET
+          do
+            if [ -z "${!name:-}" ]; then
+              echo "$name is not configured."
+              exit 1
+            fi
+          done
+
+      - name: Create fail-closed Worker shell
+        run: npx --yes wrangler@4 deploy --config tools/cloudflare/private-lab/wrangler.jsonc
+
+      - name: Bootstrap Supabase runtime identity and verify RLS
+        shell: bash
+        run: |
+          set -euo pipefail
+          REVIEW_RUNTIME_PASSWORD="$(openssl rand -base64 48 | tr -d '\n')"
+          export REVIEW_RUNTIME_PASSWORD
+          echo "::add-mask::$REVIEW_RUNTIME_PASSWORD"
+
+          node <<'NODE'
+          const email = "review-hub-runtime@looksawful.invalid";
+          const password = process.env.REVIEW_RUNTIME_PASSWORD;
+          const base = process.env.SUPABASE_URL;
+          const apikey = process.env.SUPABASE_PUBLISHABLE_KEY;
+
+          async function jsonRequest(url, init) {
+            const response = await fetch(url, init);
+            const text = await response.text();
+            let body = {};
+            try {
+              body = text ? JSON.parse(text) : {};
+            } catch {
+              body = {};
+            }
+            if (!response.ok) {
+              throw new Error(`HTTP ${response.status} for ${new URL(url).pathname}`);
+            }
+            return body;
+          }
+
+          await jsonRequest(`${base}/auth/v1/signup`, {
+            method: "POST",
+            headers: { apikey, "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password }),
+          });
+
+          const session = await jsonRequest(
+            `${base}/auth/v1/token?grant_type=password`,
+            {
+              method: "POST",
+              headers: { apikey, "Content-Type": "application/json" },
+              body: JSON.stringify({ email, password }),
+            },
+          );
+          if (!session.access_token) throw new Error("Runtime sign-in returned no access token.");
+
+          const headers = {
+            apikey,
+            Authorization: `Bearer ${session.access_token}`,
+          };
+          const jsonHeaders = { ...headers, "Content-Type": "application/json" };
+
+          await jsonRequest(
+            `${base}/rest/v1/rpc/review_hub_put_object`,
+            {
+              method: "POST",
+              headers: jsonHeaders,
+              body: JSON.stringify({
+                p_key: "review-hub/v1/state/deploy-smoke.json",
+                p_kind: "json",
+                p_body_text: '{"version":1}',
+                p_storage_path: null,
+                p_content_type: "application/json; charset=utf-8",
+                p_custom_metadata: {},
+                p_expected_etag: null,
+              }),
+            },
+          );
+
+          const rows = await jsonRequest(
+            `${base}/rest/v1/review_hub_objects?select=key&key=eq.review-hub%2Fv1%2Fstate%2Fdeploy-smoke.json`,
+            { headers },
+          );
+          if (!Array.isArray(rows) || rows.length !== 1) {
+            throw new Error("Runtime RLS metadata read smoke failed.");
+          }
+
+          const path = "review-hub/v1/cases/deploy-smoke/runtime/evidence/smoke";
+          const upload = await fetch(
+            `${base}/storage/v1/object/${process.env.REVIEW_EVIDENCE_BUCKET}/${path}`,
+            {
+              method: "POST",
+              headers: {
+                ...headers,
+                "Content-Type": "image/png",
+                "x-upsert": "true",
+              },
+              body: Uint8Array.from([137, 80, 78, 71, 13, 10, 26, 10]),
+            },
+          );
+          if (!upload.ok) throw new Error(`Storage upload smoke failed: ${upload.status}`);
+
+          const download = await fetch(
+            `${base}/storage/v1/object/${process.env.REVIEW_EVIDENCE_BUCKET}/${path}`,
+            { headers },
+          );
+          if (!download.ok) throw new Error(`Storage read smoke failed: ${download.status}`);
+
+          const storageDelete = await fetch(
+            `${base}/storage/v1/object/${process.env.REVIEW_EVIDENCE_BUCKET}`,
+            {
+              method: "DELETE",
+              headers: jsonHeaders,
+              body: JSON.stringify({ prefixes: [path] }),
+            },
+          );
+          if (!storageDelete.ok) {
+            throw new Error(`Storage delete smoke failed: ${storageDelete.status}`);
+          }
+
+          await jsonRequest(
+            `${base}/rest/v1/rpc/review_hub_delete_object_rows`,
+            {
+              method: "POST",
+              headers: jsonHeaders,
+              body: JSON.stringify({
+                p_keys: ["review-hub/v1/state/deploy-smoke.json"],
+              }),
+            },
+          );
+          NODE
+
+          printf '%s' "$REVIEW_RUNTIME_PASSWORD" |
+            npx --yes wrangler@4 secret put REVIEW_RUNTIME_PASSWORD               --config tools/cloudflare/private-lab/wrangler.jsonc
+
+      - name: Configure Admin secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+          printf '%s' "$ADMIN_GITHUB_CLIENT_ID" |
+            npx --yes wrangler@4 secret put ADMIN_GITHUB_CLIENT_ID               --config tools/cloudflare/private-lab/wrangler.jsonc
+          printf '%s' "$ADMIN_GITHUB_CLIENT_SECRET" |
+            npx --yes wrangler@4 secret put ADMIN_GITHUB_CLIENT_SECRET               --config tools/cloudflare/private-lab/wrangler.jsonc
+          printf '%s' "$ADMIN_SESSION_SECRET" |
+            npx --yes wrangler@4 secret put ADMIN_SESSION_SECRET               --config tools/cloudflare/private-lab/wrangler.jsonc
+
+      - name: Deploy configured Private Lab
+        run: npx --yes wrangler@4 deploy --config tools/cloudflare/private-lab/wrangler.jsonc
+
+      - name: Verify remote OAuth boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          headers="$(mktemp)"
+          status="$(
+            curl --silent --show-error               --output /dev/null               --dump-header "$headers"               --write-out '%{http_code}'               https://admin.looksawful.ru/lab/review/
+          )"
+          test "$status" = "302"
+          grep -qi '^location: https://github.com/login/oauth/authorize?' "$headers"
+          ! grep -qi 'supabase' "$headers"
