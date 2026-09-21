@@ -3,7 +3,7 @@ export function renderAwfulCasesGame(): string {
   return String.raw`<figure class="media mockup awful-cases-game" data-device="browser">
               <div class="mockup__frame">
                 <div class="mockup__viewport">
-                  <div class="runner-game-shell" data-awful-cases id="runnerGameShell" tabindex="0"><canvas aria-label="awful cases trainer" data-awful-cases-canvas id="game" tabindex="0"></canvas>
+                  <div class="runner-game-shell" data-awful-cases id="runnerGameShell"><canvas aria-label="awful cases trainer" data-awful-cases-canvas id="game" tabindex="0"></canvas>
                     <div class="game-title">Awful Cases - обучающая игра</div>
                     <div class="start" data-awful-cases-start data-awful-cases-onboarding id="startPanel">
                       <div class="start__eyebrow" data-awful-cases-onboarding-kicker></div>
