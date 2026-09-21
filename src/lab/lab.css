@@ -39,3 +39,8 @@ dt { color: #999; font-size: .75rem; } dd { margin: .25rem 0 0; overflow-wrap: a
 [data-story-viewport="mobile"] .lab-story__canvas { width: 24rem; max-width: none; }
 @media (max-width: 70rem) { .lab-tools { grid-template-columns: repeat(2, minmax(0, 1fr)); } .lab-story__viewports { grid-template-columns: 1fr; } }
 @media (max-width: 42rem) { .lab-shell { width: min(100% - 1rem, 112rem); } .lab-header { grid-template-columns: 1fr; } .lab-provenance, .lab-tools { grid-template-columns: 1fr; } .lab-panel { padding: .75rem; } }
+
+.review-evidence { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr)); }
+.review-evidence__item { margin: 0; overflow: hidden; border: 1px solid #303030; border-radius: .75rem; background: #080808; }
+.review-evidence__item img { display: block; width: 100%; height: auto; background: #111; }
+.review-evidence__item figcaption { padding: .75rem 1rem; color: #aaa; font-size: .8rem; overflow-wrap: anywhere; }
