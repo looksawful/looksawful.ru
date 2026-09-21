@@ -288,3 +288,37 @@ test("failed final baseline promotion rolls back durable copies and approval rec
     null,
   );
 });
+
+
+test("failed re-approval never destroys the previously visible Case baseline", async () => {
+  const bucket = new MemoryR2();
+  await createReview(bucket);
+
+  const first = await handleReviewRequest({
+    request: approvalRequest(),
+    env: { REVIEW_EVIDENCE: bucket },
+    session: OWNER_SESSION,
+    now: () => NOW,
+  });
+  assert.equal(first.status, 201);
+
+  bucket.failNextPutFor(`review-hub/v1/baselines/${CASE_ID}.json`);
+  const second = await handleReviewRequest({
+    request: approvalRequest(),
+    env: { REVIEW_EVIDENCE: bucket },
+    session: OWNER_SESSION,
+    now: () => NOW + 1_000,
+  });
+  assert.equal(second.status, 503);
+
+  const baselineEvidence = await handleReviewRequest({
+    request: new Request(
+      `https://admin.looksawful.ru/lab/review/baseline/${CASE_ID}/evidence/desktop`,
+    ),
+    env: { REVIEW_EVIDENCE: bucket },
+    session: OWNER_SESSION,
+    now: () => NOW + 1_000,
+  });
+  assert.equal(baselineEvidence.status, 200);
+  assert.equal(await baselineEvidence.text(), "private-image");
+});
