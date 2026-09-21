@@ -55,3 +55,12 @@ _Avoid_: Affected project, when referring specifically to Case-level visual revi
 
 **Viewport profile**:
 A named viewing context representing a target device or display class for visual review.
+
+**Review state**:
+A deterministic visual state used to render a component or Case reproducibly during visual review.
+
+**Motion profile**:
+A visual-review context corresponding to the user's motion preference, such as normal motion or reduced motion.
+
+**Motion-sensitive component**:
+A component whose rendered appearance materially differs between motion profiles and therefore requires distinct visual-review states.
