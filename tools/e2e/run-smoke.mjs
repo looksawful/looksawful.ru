@@ -140,6 +140,64 @@ async function verifyDeferredVideoLoadOwnership({ browser, baseUrl }) {
   }
 }
 
+async function verifyHomepageVideoPosterFallback({ browser, baseUrl }) {
+  const context = await browser.newContext({
+    viewport: VIEWPORTS[1],
+    deviceScaleFactor: 1,
+  });
+  const page = await context.newPage();
+  const targets = [
+    "/media/projects/jestei/landings/moves-awful/source/01-2044x1112.mp4",
+    "/media/projects/styx/01/source/04-9x16.mp4",
+  ];
+
+  try {
+    for (const target of targets) {
+      await page.route(`**${target}`, (route) =>
+        route.fulfill({
+          status: 500,
+          contentType: "text/plain",
+          body: "forced media failure",
+        }),
+      );
+    }
+
+    const response = await page.goto(baseUrl, { waitUntil: "domcontentloaded" });
+    assert.ok(response?.ok(), `/: HTTP ${response?.status()}`);
+    await waitForDocumentReady(page);
+
+    for (const target of targets) {
+      const video = page.locator([
+        `video[data-autoplay-src*="${target}"]`,
+        `video:has(source[data-autoplay-src*="${target}"])`,
+        `video[src*="${target}"]`,
+        `video:has(source[src*="${target}"])`,
+      ].join(", ")).first();
+
+      assert.equal(await video.count(), 1, `Homepage video fixture missing: ${target}`);
+      const handle = await video.elementHandle();
+      assert.ok(handle, `Homepage video handle missing: ${target}`);
+
+      await video.scrollIntoViewIfNeeded();
+      await page.waitForFunction((node) =>
+        node.hasAttribute("data-media-video-fallback") || Boolean(node.error),
+      , handle, { timeout: 8_000 });
+
+      const state = await handle.evaluate((node) => ({
+        fallback: node.hasAttribute("data-media-video-fallback"),
+        poster: node.poster,
+        error: node.error?.message ?? null,
+      }));
+
+      assert.equal(state.fallback, true, `Homepage video did not enter poster fallback: ${target}`);
+      assert.ok(state.poster, `Homepage video fallback has no poster: ${target}`);
+      assert.equal(state.error, null, `Homepage video leaked native MediaError after fallback: ${target}`);
+    }
+  } finally {
+    await context.close();
+  }
+}
+
 async function audit({ browser, baseUrl }, route, viewport, verify, contextOptions = {}) {
   const defaultTouch = viewport.width === 390;
   const context = await browser.newContext({
@@ -362,6 +420,7 @@ async function verifyCanvas(page) {
 export async function runQuickSmoke({ browser, baseUrl, cvMode = "authored" }) {
   const runtime = { browser, baseUrl };
   await verifyDeferredVideoLoadOwnership(runtime);
+  await verifyHomepageVideoPosterFallback(runtime);
   // These are the only parallel contexts; callers run quick smoke before deep suites.
   await mapWithConcurrency(VIEWPORTS, 2, (viewport) => audit(runtime, "/", viewport, async (page) => {
     await verifyBuiltAssets(page);
