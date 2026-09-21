@@ -141,6 +141,66 @@ async function verifyBuiltAssets(page) {
   }
 }
 
+async function captureNavPreviewTimeline(page, durationMs = 700) {
+  const context = page.context();
+  const client = await context.newCDPSession(page);
+  const complete = new Promise((resolve) => client.once("Tracing.tracingComplete", resolve));
+
+  await client.send("Tracing.start", {
+    categories: "devtools.timeline",
+    transferMode: "ReturnAsStream",
+  });
+  await page.waitForTimeout(durationMs);
+  await client.send("Tracing.end");
+
+  const { stream } = await complete;
+  let payload = "";
+  for (;;) {
+    const chunk = await client.send("IO.read", { handle: stream });
+    payload += chunk.data;
+    if (chunk.eof) break;
+  }
+  await client.send("IO.close", { handle: stream });
+  await client.detach();
+
+  const trace = JSON.parse(payload);
+  const names = new Set(["UpdateLayoutTree", "Layout", "PrePaint", "Paint", "CompositeLayers"]);
+  const events = trace.traceEvents.filter((event) =>
+    event.ph === "X" && names.has(event.name) && typeof event.dur === "number"
+  );
+
+  return events.reduce((summary, event) => {
+    const item = summary[event.name] ?? { count: 0, durationMs: 0 };
+    item.count += 1;
+    item.durationMs += event.dur / 1000;
+    summary[event.name] = item;
+    return summary;
+  }, {});
+}
+
+async function diagnoseNavigationPreviewCost(page) {
+  const toggle = page.locator("[data-site-menu-toggle]");
+  await toggle.click();
+  await page.waitForFunction(() =>
+    document.querySelector("[data-site-menu-toggle]")?.getAttribute("aria-expanded") === "true"
+  );
+  await page.waitForTimeout(800);
+
+  const hidden = await captureNavPreviewTimeline(page);
+
+  const link = page.locator(".site-nav__menu-link[data-preview]").first();
+  await link.hover();
+  await page.waitForFunction(() =>
+    document.querySelector("[data-menu-preview]")?.getAttribute("data-visible") === "true"
+  );
+  await page.waitForTimeout(220);
+
+  const visible = await captureNavPreviewTimeline(page);
+  console.log(`[nav-preview-trace] ${JSON.stringify({ hidden, visible })}`);
+
+  await page.keyboard.press("Escape");
+}
+
 async function verifyNavigation(page) {
   const toggle = page.locator("[data-site-menu-toggle]");
   await toggle.click();
@@ -261,6 +321,7 @@ export async function runQuickSmoke({ browser, baseUrl, cvMode = "authored" }) {
   // These are the only parallel contexts; callers run quick smoke before deep suites.
   await mapWithConcurrency(VIEWPORTS, 2, (viewport) => audit(runtime, "/", viewport, async (page) => {
     await verifyBuiltAssets(page);
+    if (viewport.width >= 1000) await diagnoseNavigationPreviewCost(page);
     await verifyNavigation(page);
     await verifyImage(page);
   }));
