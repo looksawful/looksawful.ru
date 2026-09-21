@@ -13,8 +13,6 @@ test("project navigation reuses production Home markup and runtime", async () =>
   assert.match(story, /"offscreen-or-virtualized"/);
   assert.match(story, /"selected"/);
   assert.match(story, /review:\s*\["desktop",\s*"tablet",\s*"mobile"\]/);
-  assert.match(story, /beforeEach:\s*\(\)\s*=>\s*\{[\s\S]*return \(\) =>/s);
-  assert.doesNotMatch(story, /return cleanup;/);
 });
 
 test("media deck uses production renderer/runtime/data and records motion states", async () => {
@@ -73,4 +71,6 @@ test("Gallery controller Storybook fixture uses production renderer/runtime and 
   assert.match(story, /state:\s*"gallery-open-pointer"/);
   assert.match(story, /state:\s*"gallery-deep-linked"/);
   assert.match(story, /review:\s*\["desktop",\s*"tablet",\s*"mobile"\]/);
+  assert.match(story, /beforeEach:\s*\(\)\s*=>\s*\{[\s\S]*return \(\) =>/s);
+  assert.doesNotMatch(story, /return cleanup;/);
 });
