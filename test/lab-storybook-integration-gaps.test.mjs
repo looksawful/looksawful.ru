@@ -56,3 +56,21 @@ test("media lightbox uses production renderer and PhotoSwipe lifecycle", async (
   assert.match(story, /interaction:\s*\[[^\]]*"closed"[^\]]*"focus-visible"/s);
   assert.match(story, /state:\s*"lightbox-open"/);
 });
+
+
+test("Gallery controller Storybook fixture uses production renderer/runtime and records interaction states", async () => {
+  const story = await read("src/lab/stories/gallery-controller.stories.mjs");
+  assert.match(story, /renderGalleryPage/);
+  assert.match(story, /createGalleryController/);
+  assert.match(story, /extractElementContainingMarker/);
+  assert.match(story, /data-gallery-card/);
+  assert.match(story, /KeyboardEvent\("keydown",\s*\{\s*key:\s*"Enter"/s);
+  assert.match(story, /\.click\(\)/);
+  assert.match(story, /state:\s*"gallery-closed"/);
+  assert.match(story, /state:\s*"gallery-open-keyboard"/);
+  assert.match(story, /state:\s*"gallery-open-pointer"/);
+  assert.match(story, /state:\s*"gallery-deep-linked"/);
+  assert.match(story, /review:\s*\["desktop",\s*"tablet",\s*"mobile"\]/);
+  assert.match(story, /beforeEach:\s*\(\)\s*=>\s*\{[\s\S]*return \(\) =>/s);
+  assert.doesNotMatch(story, /return cleanup;/);
+});

@@ -20,6 +20,9 @@ const cases = [
   ["project-navigation-docked", "03-organisms-project-navigation--docked", "[data-projects-navigation][data-project-nav-docked]"],
   ["media-deck-next", "03-organisms-media-deck--next-selected", "[data-slide][data-active]"],
   ["media-lightbox-open", "03-organisms-media-lightbox--open", ".pswp"],
+  ["gallery-runtime-keyboard", "03-organisms-gallery-controller--open-keyboard", ".pswp"],
+  ["gallery-runtime-pointer", "03-organisms-gallery-controller--open-pointer", ".pswp"],
+  ["gallery-runtime-deep-link", "03-organisms-gallery-controller--deep-linked", ".pswp"],
   ["gallery-loading", "03-organisms-animated-canvas-gallery--loading", "[data-gallery-state=\"loading\"]"],
   ["gallery-error", "03-organisms-animated-canvas-gallery--error", "[data-gallery-state=\"error\"]"],
 ];
@@ -72,6 +75,10 @@ try {
       if (name === "media-lightbox-open") {
         assert.equal(await page.locator("[data-lightbox-source]").getAttribute("aria-haspopup"), "dialog");
       }
+      if (name.startsWith("gallery-runtime-")) {
+        assert.match(page.url(), /\/gallery\/\?item=[^#&]+/);
+        assert.equal(await page.locator("[data-gallery-card]").first().getAttribute("aria-haspopup"), "dialog");
+      }
       await page.addScriptTag({ content: axe.source });
       const a11y = await page.evaluate(async () => {
         const result = await globalThis.axe.run("#storybook-root", {
@@ -85,6 +92,16 @@ try {
         }));
       });
       assert.deepEqual(a11y, [], `${viewportName}/${name}: axe violations ${JSON.stringify(a11y)}`);
+      if (name === "gallery-runtime-keyboard") {
+        await page.keyboard.press("Escape");
+        await page.locator(".pswp").waitFor({ state: "detached", timeout: 10000 });
+        await page.waitForFunction(() => !new URL(window.location.href).searchParams.has("item"));
+        assert.equal(
+          await page.locator("[data-gallery-card]").first().evaluate((element) => document.activeElement === element),
+          true,
+          `${viewportName}/${name}: focus was not restored to the opening card`,
+        );
+      }
       results.push({ viewport: viewportName, story: name, status: "passed" });
     }
     await context.close();
