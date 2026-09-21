@@ -19,6 +19,7 @@ function createModelViewerControls(): HTMLDivElement {
   const toolbar = document.createElement("div");
   toolbar.className = "model-viewer__controls";
   toolbar.setAttribute("data-model-viewer-controls", "");
+  toolbar.setAttribute("role", "toolbar");
   toolbar.setAttribute("aria-label", "Управление 3D-моделью");
 
   MODEL_VIEWER_ACTIONS.forEach(({ action, label, text }) => {
