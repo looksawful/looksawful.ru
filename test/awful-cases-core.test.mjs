@@ -1,20 +1,18 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import {
-  ACTION_ORDER,
-  ACTIONS,
-  SESSION_PLAN,
-  actionFromCode,
-  createSessionStats,
-  missIsLethal,
-  phaseForIndex,
-  recordCorrect,
-  recordMistake,
-  sessionAccuracy,
-} from "../src/components/awful-cases-core.js";
+let core = null;
+try {
+  core = await import("../src/components/awful-cases-core.js");
+} catch {}
+
+const requireCore = () => {
+  assert.ok(core, "canonical Awful Cases core module must exist");
+  return core;
+};
 
 test("Awful Cases exposes the six real default training actions", () => {
+  const { ACTION_ORDER, ACTIONS } = requireCore();
   assert.deepEqual(ACTION_ORDER, ["upper", "lower", "toggle", "title", "lint", "sentence"]);
   assert.deepEqual(ACTIONS.upper, { code: "ArrowUp", label: "↑", appKey: "Up" });
   assert.deepEqual(ACTIONS.lower, { code: "ArrowDown", label: "↓", appKey: "Down" });
@@ -25,6 +23,7 @@ test("Awful Cases exposes the six real default training actions", () => {
 });
 
 test("Awful Cases action mapping stays unique", () => {
+  const { ACTION_ORDER, ACTIONS } = requireCore();
   const codes = ACTION_ORDER.map((type) => ACTIONS[type].code);
   const appKeys = ACTION_ORDER.map((type) => ACTIONS[type].appKey);
   assert.equal(new Set(codes).size, ACTION_ORDER.length);
@@ -32,12 +31,14 @@ test("Awful Cases action mapping stays unique", () => {
 });
 
 test("sessionAccuracy reports useful percentages", () => {
+  const { sessionAccuracy } = requireCore();
   assert.equal(sessionAccuracy({ correct: 0, mistakes: 0 }), 100);
   assert.equal(sessionAccuracy({ correct: 3, mistakes: 1 }), 75);
   assert.equal(sessionAccuracy({ correct: 1, mistakes: 2 }), 33);
 });
 
 test("Awful Cases session has tutorial, practice and exam phases", () => {
+  const { ACTION_ORDER, SESSION_PLAN, phaseForIndex } = requireCore();
   assert.equal(SESSION_PLAN.length, 18);
   assert.deepEqual(SESSION_PLAN.slice(0, 6).map(({ type }) => type), ACTION_ORDER);
   assert.equal(SESSION_PLAN.filter(({ phase }) => phase === "tutorial").length, 6);
@@ -50,6 +51,7 @@ test("Awful Cases session has tutorial, practice and exam phases", () => {
 });
 
 test("physical default keys resolve to semantic actions", () => {
+  const { actionFromCode } = requireCore();
   assert.equal(actionFromCode("ArrowUp"), "upper");
   assert.equal(actionFromCode("ArrowDown"), "lower");
   assert.equal(actionFromCode("ArrowRight"), "toggle");
@@ -60,6 +62,7 @@ test("physical default keys resolve to semantic actions", () => {
 });
 
 test("session stats reward correctness and bounded streaks", () => {
+  const { createSessionStats, recordCorrect } = requireCore();
   let stats = createSessionStats();
   assert.deepEqual(stats, {
     resolved: 0,
@@ -87,6 +90,7 @@ test("session stats reward correctness and bounded streaks", () => {
 });
 
 test("mistakes reset streak and recovered misses resolve without credit", () => {
+  const { createSessionStats, recordCorrect, recordMistake } = requireCore();
   let stats = recordCorrect(createSessionStats());
   stats = recordMistake(stats);
   assert.equal(stats.resolved, 1);
@@ -103,6 +107,7 @@ test("mistakes reset streak and recovered misses resolve without credit", () => 
 });
 
 test("only exam misses are lethal", () => {
+  const { missIsLethal } = requireCore();
   assert.equal(missIsLethal("tutorial"), false);
   assert.equal(missIsLethal("practice"), false);
   assert.equal(missIsLethal("exam"), true);
