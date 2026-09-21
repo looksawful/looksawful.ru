@@ -16,6 +16,13 @@
     min-inline-size: 0;
   }
 
+  .gallery-series__marker {
+    margin: 0 0 var(--size-200);
+    color: var(--clr-text-muted);
+    font-size: var(--fs-200);
+    line-height: var(--lh-caption);
+  }
+
   .gallery-series__grid {
     display: grid;
     grid-template-columns: repeat(5, minmax(0, 1fr));
