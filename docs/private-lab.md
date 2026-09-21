@@ -124,8 +124,7 @@ GET  /lab/review/evidence/<evidence-id>
 
 `POST /lab/review/api` accepts multipart form data containing a JSON `manifest` field and one image part per evidence id. The v1 manifest binds one Case to an exact 40-character source SHA, a review depth (`quick`, `interactive` or `full`), capture time and image evidence descriptors. R2 object keys are derived server-side and are never returned to the browser.
 
-This slice intentionally does not implement approval, stale-SHA rejection, retention, affected-Case routing, viewport matrices or baseline promotion; those remain follow-up work.
-
+The initial Review Hub slice intentionally left approval, stale-SHA rejection, retention, affected-Case routing and viewport matrices to follow-up work.
 
 ## Visual approval and retention
 
