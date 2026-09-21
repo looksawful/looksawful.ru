@@ -12,6 +12,11 @@ jobs:
     if: github.event.pull_request.head.ref == 'test/browser-matrix-v2-20260922'
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [firefox, webkit]
+
     steps:
       - name: Checkout PR head
         uses: actions/checkout@v7
@@ -56,11 +61,33 @@ jobs:
       - name: Build browser target
         run: npm run build:vite
 
-      - name: Install Firefox and WebKit
-        run: npx playwright install --with-deps firefox webkit
+      - name: Install browser
+        run: npx playwright install --with-deps ${{ matrix.browser }}
 
-      - name: Firefox focused compatibility
-        run: E2E_COMPAT_ONLY=1 E2E_BROWSER=firefox node tools/e2e/run-responsive-ui.mjs
+      - name: Probe headless WebGL
+        env:
+          E2E_BROWSER: ${{ matrix.browser }}
+        run: |
+          node --input-type=module <<'NODE'
+          import { firefox, webkit } from "playwright";
+          const browserType = { firefox, webkit }[process.env.E2E_BROWSER];
+          const browser = await browserType.launch({ headless: true });
+          const page = await browser.newPage();
+          const result = await page.evaluate(() => {
+            const canvas = document.createElement("canvas");
+            const gl = canvas.getContext("webgl2") || canvas.getContext("webgl");
+            return {
+              userAgent: navigator.userAgent,
+              webgl: Boolean(gl),
+              renderer: gl ? gl.getParameter(gl.RENDERER) : null,
+            };
+          });
+          console.log("[webgl-probe]", JSON.stringify(result));
+          await browser.close();
+          NODE
 
-      - name: WebKit focused compatibility
-        run: E2E_COMPAT_ONLY=1 E2E_BROWSER=webkit node tools/e2e/run-responsive-ui.mjs
+      - name: Focused compatibility
+        env:
+          E2E_BROWSER: ${{ matrix.browser }}
+          E2E_COMPAT_ONLY: "1"
+        run: node tools/e2e/run-responsive-ui.mjs
