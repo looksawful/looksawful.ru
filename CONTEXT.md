@@ -42,3 +42,16 @@ A browser-facing optimized media file used for site delivery while the source ma
 
 **Editorial copy**:
 Authored human-facing text that can be edited where an explicit editorial/CMS model exposes it.
+
+**Visual review**:
+A review of a rendered Case against its intended appearance across defined viewing contexts.
+
+**Visual baseline**:
+An explicitly approved reference rendering of a Case used to identify unintended visual changes.
+
+**Affected Case**:
+A Case whose rendered output may be changed by a change set, either directly or through shared site behavior.
+_Avoid_: Affected project, when referring specifically to Case-level visual review.
+
+**Viewport profile**:
+A named viewing context representing a target device or display class for visual review.
