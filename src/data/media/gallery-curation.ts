@@ -20,6 +20,7 @@ export interface GalleryResolvedMedia {
   kind: GalleryResolvedMediaKind;
   src: string;
   posterSrc: string;
+  srcset?: string;
   width?: number;
   height?: number;
   title: string;
