@@ -30,7 +30,7 @@ const html = renderGalleryPage(galleryPage);
 test("Gallery renderer emits semantic build-time content with a non-visual page heading", () => {
   assert.match(html, /<body[^>]*data-page-type="gallery"[^>]*>/);
   assert.match(html, /data-site-navigation/);
-  assert.match(html, /<main>/);
+  assert.match(html, /<main\b/);
   assert.match(html, /<section[^>]*data-gallery/);
   assert.match(html, /<h1 class="visually-hidden">Галерея<\/h1>/);
   assert.doesNotMatch(html, /gallery__header|gallery__title/);
