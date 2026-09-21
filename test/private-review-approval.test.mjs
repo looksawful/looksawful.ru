@@ -1,0 +1,196 @@
+import assert from "node:assert/strict";
+import test from "node:test";
+
+import { handleReviewRequest } from "../lab/functions/review.js";
+
+const CASE_ID = "awful-mockups";
+const SOURCE_SHA = "0123456789abcdef0123456789abcdef01234567";
+const STALE_SHA = "1111111111111111111111111111111111111111";
+const NOW = Date.parse("2026-09-21T15:00:00.000Z");
+const FOUR_DAYS_LATER = "2026-09-25T15:00:00.000Z";
+const OWNER_SESSION = { repository: "looksawful/looksawful.ru" };
+
+class MemoryR2 {
+  #objects = new Map();
+  #version = 0;
+
+  async put(key, value, options = {}) {
+    const bytes =
+      typeof value === "string"
+        ? new TextEncoder().encode(value)
+        : value instanceof ArrayBuffer
+          ? new Uint8Array(value)
+          : value instanceof Uint8Array
+            ? value
+            : new Uint8Array(await new Response(value).arrayBuffer());
+    const etag = `etag-${++this.#version}`;
+    const object = {
+      key,
+      bytes,
+      etag,
+      httpMetadata: options.httpMetadata ?? {},
+      customMetadata: options.customMetadata ?? {},
+    };
+    this.#objects.set(key, object);
+    return object;
+  }
+
+  async get(key) {
+    const object = this.#objects.get(key);
+    if (!object) return null;
+    return {
+      key: object.key,
+      body: object.bytes,
+      etag: object.etag,
+      httpMetadata: object.httpMetadata,
+      customMetadata: object.customMetadata,
+      text: async () => new TextDecoder().decode(object.bytes),
+    };
+  }
+
+  async delete(keys) {
+    for (const key of Array.isArray(keys) ? keys : [keys]) this.#objects.delete(key);
+  }
+
+  object(key) {
+    return this.#objects.get(key) ?? null;
+  }
+}
+
+function reviewManifest() {
+  return {
+    version: 1,
+    caseId: CASE_ID,
+    sourceSha: SOURCE_SHA,
+    reviewDepth: "quick",
+    capturedAt: "2026-09-21T14:59:00.000Z",
+    evidence: [{ id: "desktop", kind: "viewport", contentType: "image/png" }],
+  };
+}
+
+function uploadRequest() {
+  const form = new FormData();
+  form.set("manifest", JSON.stringify(reviewManifest()));
+  form.set("desktop", new File(["private-image"], "desktop.png", { type: "image/png" }));
+  return new Request("https://admin.looksawful.ru/lab/review/api", {
+    method: "POST",
+    body: form,
+  });
+}
+
+function approvalRequest(sourceSha = SOURCE_SHA) {
+  return new Request("https://admin.looksawful.ru/lab/review/approval", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      caseId: CASE_ID,
+      sourceSha,
+      reviewDepth: "quick",
+    }),
+  });
+}
+
+async function createReview(bucket) {
+  const response = await handleReviewRequest({
+    request: uploadRequest(),
+    env: { REVIEW_EVIDENCE: bucket },
+    now: () => NOW,
+  });
+  assert.equal(response.status, 201);
+}
+
+test("approval is owner-only and promotes an exact Case+SHA baseline", async () => {
+  const bucket = new MemoryR2();
+  await createReview(bucket);
+
+  const forbidden = await handleReviewRequest({
+    request: approvalRequest(),
+    env: { REVIEW_EVIDENCE: bucket },
+    now: () => NOW,
+  });
+  assert.equal(forbidden.status, 403);
+
+  const approved = await handleReviewRequest({
+    request: approvalRequest(),
+    env: { REVIEW_EVIDENCE: bucket },
+    session: OWNER_SESSION,
+    now: () => NOW,
+  });
+  assert.equal(approved.status, 201);
+  const payload = await approved.json();
+  assert.deepEqual(
+    {
+      caseId: payload.caseId,
+      sourceSha: payload.sourceSha,
+      reviewDepth: payload.reviewDepth,
+      approvedAt: payload.approvedAt,
+    },
+    {
+      caseId: CASE_ID,
+      sourceSha: SOURCE_SHA,
+      reviewDepth: "quick",
+      approvedAt: "2026-09-21T15:00:00.000Z",
+    },
+  );
+
+  const baseline = bucket.object(`review-hub/v1/baselines/${CASE_ID}.json`);
+  assert.ok(baseline, "Case baseline pointer must be promoted");
+  const baselinePayload = JSON.parse(new TextDecoder().decode(baseline.bytes));
+  assert.equal(baselinePayload.sourceSha, SOURCE_SHA);
+  assert.equal(baselinePayload.reviewDepth, "quick");
+  assert.equal(
+    baselinePayload.evidence[0].url,
+    `/lab/review/baseline/${CASE_ID}/evidence/desktop`,
+  );
+
+  const durableEvidence = bucket.object(
+    `review-hub/v1/baselines/${CASE_ID}/${SOURCE_SHA}/evidence/desktop`,
+  );
+  assert.ok(durableEvidence, "approved baseline evidence must be durable");
+  assert.equal(new TextDecoder().decode(durableEvidence.bytes), "private-image");
+
+  const approval = bucket.object(
+    `review-hub/v1/approvals/${CASE_ID}/${SOURCE_SHA}.json`,
+  );
+  assert.ok(approval, "compact approval record must persist separately");
+});
+
+test("stale SHA approval fails closed and cannot replace the Case baseline", async () => {
+  const bucket = new MemoryR2();
+  await createReview(bucket);
+
+  const stale = await handleReviewRequest({
+    request: approvalRequest(STALE_SHA),
+    env: { REVIEW_EVIDENCE: bucket },
+    session: OWNER_SESSION,
+    now: () => NOW,
+  });
+  assert.equal(stale.status, 409);
+  assert.equal(bucket.object(`review-hub/v1/baselines/${CASE_ID}.json`), null);
+  assert.equal(
+    bucket.object(`review-hub/v1/approvals/${CASE_ID}/${STALE_SHA}.json`),
+    null,
+  );
+});
+
+test("temporary review evidence carries four-day retention while approved copies do not", async () => {
+  const bucket = new MemoryR2();
+  await createReview(bucket);
+
+  const temporaryEvidence = bucket.object(
+    `review-hub/v1/cases/${CASE_ID}/${SOURCE_SHA}/evidence/desktop`,
+  );
+  assert.equal(temporaryEvidence?.customMetadata?.expiresAt, FOUR_DAYS_LATER);
+
+  await handleReviewRequest({
+    request: approvalRequest(),
+    env: { REVIEW_EVIDENCE: bucket },
+    session: OWNER_SESSION,
+    now: () => NOW,
+  });
+
+  const durableEvidence = bucket.object(
+    `review-hub/v1/baselines/${CASE_ID}/${SOURCE_SHA}/evidence/desktop`,
+  );
+  assert.deepEqual(durableEvidence?.customMetadata ?? {}, {});
+});
