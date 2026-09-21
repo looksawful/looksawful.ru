@@ -121,6 +121,8 @@ test("pull-request workflows cannot publish visual-review evidence", async () =>
     ["public artifact upload", /actions\/upload-artifact@/iu],
     ["issue comment mutation", /github\.rest\.issues\.(?:create|update)Comment/iu],
     ["public Pages deployment", /(?:wrangler[^\n]*\bdeploy\b|\bpages\s+deploy\b|actions\/deploy-pages@)/iu],
+    ["public report mutation permission", /^    (?:issues|pull-requests):\s*write\s*$/mu],
+    ["GitHub comment CLI", /\bgh\s+(?:pr|issue)\s+comment\b/iu],
   ];
 
   for (const name of workflowFiles) {
