@@ -176,7 +176,8 @@ test("registered model media renders through the production model viewer shell",
     surface: { ratio: "4 / 5" },
   });
 
-  assert.match(html, /data-model-viewer-runtime=""/);
+  assert.match(html, /data-model-viewer-runtime=""[^>]*tabindex="0"/);
+  assert.match(html, /data-model-viewer-runtime=""[^>]*role="group"/);
   assert.match(html, /data-model-src="\/media\/models\/devices\/iphone-17-v30\.meshopt\.glb"/);
   assert.match(html, /<canvas[^>]*data-model-viewer-canvas=""/);
   assert.doesNotMatch(html, /<(?:img|video)\b/);
