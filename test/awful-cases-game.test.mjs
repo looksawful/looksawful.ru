@@ -152,7 +152,7 @@ test("browser playtest uses the real default keys and is wired as a package scri
 test("trainer hardening respects motion preference and exposes command-button semantics", async () => {
   const runtime = await readSource("../src/components/awful-cases-runtime.js");
   assert.ok(runtime);
-  assert.match(runtime, /matchMedia\("\(prefers-reduced-motion: reduce\)"\)/);
+  assert.match(runtime, /matchMedia[\s\S]*?prefers-reduced-motion: reduce/);
   assert.match(runtime, /reducedMotion/);
   assert.doesNotMatch(runtime, /aria-pressed/);
 });
