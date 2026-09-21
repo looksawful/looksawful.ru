@@ -125,3 +125,26 @@ test("Awful Cases sync tool owns public runtime mirrors", async () => {
   assert.match(generator, /awful-cases-content\.js/);
   assert.match(generator, /awful-cases-runtime\.js/);
 });
+
+test("browser playtest uses the real default keys and is wired as a package script", async () => {
+  const playtest = await readSource("../tools/e2e/playtest-awful-cases.mjs");
+  const pkgSource = await readSource("../package.json");
+  assert.ok(playtest, "Awful Cases browser playtest must exist");
+  assert.ok(pkgSource);
+  const pkg = JSON.parse(pkgSource);
+  assert.equal(
+    pkg.scripts["awful-cases:playtest"],
+    "node tools/e2e/playtest-awful-cases.mjs",
+  );
+  for (const [action, code] of [
+    ["upper", "ArrowUp"],
+    ["lower", "ArrowDown"],
+    ["title", "ArrowLeft"],
+    ["toggle", "ArrowRight"],
+    ["lint", "PageDown"],
+    ["sentence", "Delete"],
+  ]) {
+    assert.match(playtest, new RegExp(action + ':\\s*"' + code + '"'));
+  }
+  assert.doesNotMatch(playtest, /upper:\s*"w"|lower:\s*"s"|title:\s*"a"|toggle:\s*"d"/i);
+});
