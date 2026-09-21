@@ -1,0 +1,66 @@
+name: Temp Browser Compat PR1140
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  compat:
+    if: github.event.pull_request.head.ref == 'test/browser-matrix-v2-20260922'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout PR head
+        uses: actions/checkout@v7
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Calculate media fingerprint
+        id: media
+        shell: bash
+        run: echo "fingerprint=$(node tools/media-dev-state.mjs --fingerprint)" >> "$GITHUB_OUTPUT"
+
+      - name: Restore generated media cache
+        id: media-cache
+        uses: actions/cache/restore@v6
+        with:
+          path: |
+            public/media/generated/responsive
+            public/media/generated/video
+            public/media/generated/video-inventory.json
+            .cache/media/generated-cache.json
+          key: agent-verify-generated-media-v1-${{ runner.os }}-${{ steps.media.outputs.fingerprint }}
+
+      - name: Verify restored generated media
+        if: steps.media-cache.outputs.cache-hit == 'true'
+        run: node tools/media-dev-state.mjs --cache-verify
+
+      - name: Install media tooling on cache miss
+        if: steps.media-cache.outputs.cache-hit != 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes ffmpeg
+          npm run media:sync
+          node tools/media-dev-state.mjs --cache-verify
+
+      - name: Build browser target
+        run: npm run build:vite
+
+      - name: Install Firefox and WebKit
+        run: npx playwright install --with-deps firefox webkit
+
+      - name: Firefox focused compatibility
+        run: E2E_COMPAT_ONLY=1 E2E_BROWSER=firefox node tools/e2e/run-responsive-ui.mjs
+
+      - name: WebKit focused compatibility
+        run: E2E_COMPAT_ONLY=1 E2E_BROWSER=webkit node tools/e2e/run-responsive-ui.mjs
