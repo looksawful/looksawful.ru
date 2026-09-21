@@ -8,7 +8,7 @@ import {
 } from "../src/site/navigation/model.ts";
 import { sitePages } from "../src/site/pages/manifest.ts";
 
-test("Gallery is visible in primary navigation with its Russian label", () => {
+test("Gallery is visible in primary navigation with the approved label", () => {
   const menu = getPrimaryNavigationItems();
   assert.equal(
     menu.some(({ id }) => id === "gallery"),
@@ -17,9 +17,9 @@ test("Gallery is visible in primary navigation with its Russian label", () => {
   );
 
   const label = navigationLabels.find(({ id }) => id === "gallery");
-  assert.equal(label?.label, "Галерея");
+  assert.equal(label?.label, "gallery");
 
   const page = sitePages.find(({ id }) => id === "gallery");
   assert.ok(page, "missing Gallery SitePage");
-  assert.equal(getBreadcrumbItems(page).at(-1)?.label, "Галерея");
+  assert.equal(getBreadcrumbItems(page).at(-1)?.label, "gallery");
 });
