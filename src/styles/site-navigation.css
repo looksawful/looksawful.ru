@@ -1,3 +1,19 @@
+.skip-link {
+  position: fixed;
+  z-index: 1000;
+  inset-block-start: max(var(--size-200), env(safe-area-inset-top));
+  inset-inline-start: max(var(--page-padding-inline), env(safe-area-inset-left));
+  padding: var(--size-200) var(--size-300);
+  border-radius: var(--radius-editorial);
+  background: var(--clr-surface);
+  color: var(--clr-text);
+  transform: translateY(calc(-100% - var(--size-400)));
+}
+
+.skip-link:focus-visible {
+  transform: translateY(0);
+}
+
 /* ==================================================
    Site navigation
    ================================================== */
