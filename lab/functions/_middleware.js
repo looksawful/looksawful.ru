@@ -55,6 +55,7 @@ export async function onRequest(context) {
   const reviewResponse = await handleReviewRequest({
     request: context.request,
     env: context.env,
+    session,
   });
   if (reviewResponse) return withSecurityHeaders(reviewResponse);
 
