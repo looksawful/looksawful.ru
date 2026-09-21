@@ -41,6 +41,8 @@ Publication remains an explicit Gallery placement decision. A `ready-to-curate` 
 
 ## Metadata / integrity findings
 
+- Duplicate status: no class-specific duplicate canonical IDs were found among the representative candidates in this pass. Canonical catalog normalization already rejects duplicate asset IDs and duplicate source paths; Gallery curation must continue to reference those canonical IDs rather than copy assets.
+- Technical-property status: representative image candidates resolve through registered assets with intrinsic dimensions; canonical video candidates use the existing poster/delivery pipeline; canonical device models declare GLB MIME type and byte length in the asset registry. The hard-coded Jestei symbol GLBs are the notable exception because they are outside Media Catalog, so their technical metadata is not catalog-owned until #935/#1110 canonicalize them.
 - Several Awful Mockups assets are canonical and have contextual project ownership but their catalog classification arrays are empty. They must be corrected through the existing Media Desk / catalog source before being selected by class.
 - Sensetique logo lockups are canonical, but the current contextual usages shown in the inventory have empty `projectIds`; do not silently assign ownership during Gallery work.
 - `showInCatalog` remains an existing coarse publication flag, but phase 2 placement metadata (series/order/featured/crop) belongs to the Gallery curation contract from #1108. It must not mutate canonical Media Catalog identity.
