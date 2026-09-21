@@ -123,6 +123,13 @@ export function runPreflight(argv = process.argv.slice(2)) {
   const prodFiles = changedFiles(repo, approvedBase, prodBase);
   const prodFileSet = new Set(prodFiles);
   const overlap = approvedProductFiles.filter((file) => prodFileSet.has(file));
+  const reconcilePaths = new Set(args.get("reconcile") ?? []);
+  const invalidReconcileOutsideOverlap = [...reconcilePaths].filter((file) => !overlap.includes(file));
+  if (invalidReconcileOutsideOverlap.length) {
+    for (const file of invalidReconcileOutsideOverlap) console.error(`INVALID_RECONCILIATION_PATH ${file}`);
+    return 1;
+  }
+
   if (overlap.length) {
     let expected;
     try {
@@ -133,12 +140,20 @@ export function runPreflight(argv = process.argv.slice(2)) {
     }
 
     const overlapConflicts = overlap.filter((file) => expected.conflicts.has(file));
-    if (overlapConflicts.length) {
-      for (const file of overlapConflicts) console.error(`PROD_OVERLAP_REQUIRES_RECONCILIATION ${file}`);
+    const invalidReconcileNonConflicts = [...reconcilePaths].filter((file) => !overlapConflicts.includes(file));
+    if (invalidReconcileNonConflicts.length) {
+      for (const file of invalidReconcileNonConflicts) console.error(`INVALID_RECONCILIATION_PATH ${file}`);
       return 1;
     }
 
-    const dropped = differingFiles(repo, candidate, expected.tree, overlap);
+    const unresolvedConflicts = overlapConflicts.filter((file) => !reconcilePaths.has(file));
+    if (unresolvedConflicts.length) {
+      for (const file of unresolvedConflicts) console.error(`PROD_OVERLAP_REQUIRES_RECONCILIATION ${file}`);
+      return 1;
+    }
+
+    const autoReconciled = overlap.filter((file) => !reconcilePaths.has(file));
+    const dropped = differingFiles(repo, candidate, expected.tree, autoReconciled);
     if (dropped.length) {
       for (const file of dropped) console.error(`PROD_ONLY_CHANGE_DROPPED ${file}`);
       return 1;
