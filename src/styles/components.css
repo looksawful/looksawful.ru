@@ -1464,7 +1464,10 @@
   transform-origin: top center;
 }
 
-.awful-cases-game .start__button:focus-visible {
+.awful-cases-game .start__button:focus-visible,
+.awful-cases-game .restart__button:focus-visible,
+.awful-cases-game .runner-controls button:focus-visible,
+.awful-cases-game [data-awful-cases-canvas]:focus-visible {
   outline: 3px solid #000;
   outline-offset: 4px;
 }
@@ -1745,7 +1748,7 @@
 .awful-cases-game .runner-controls button[data-awful-cases-action="sentence"]{grid-area:3/4/4/7}
 .awful-cases-game .runner-controls button[data-active="true"]{background:#000;color:#fff;translate:1px 1px;box-shadow:none}
 .awful-cases-game .runner-controls b{font-size:16px}
-.awful-cases-game .runner-controls span{font-size:6px;line-height:1.25}
+.awful-cases-game .runner-controls span{font-size:clamp(9px,1.1cqi,11px);line-height:1.25;overflow-wrap:anywhere}
 @container awful-cases (width <= 32.5rem){
   .awful-cases-game[data-device="browser"] .mockup__viewport{aspect-ratio:1 / 1}
   .awful-cases-game .start{inline-size:calc(100% - 16px);max-block-size:calc(100% - 20px);padding:12px;gap:8px}
