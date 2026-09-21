@@ -119,3 +119,9 @@ A repository-wide inspection that classifies potentially private material across
 **Sensitive committed material**:
 Committed content whose continued presence in Git history is itself unacceptable, such as credentials, private correspondence, personal data, private screenshots/files or access-bearing private URLs.
 
+**Public GitHub surface**:
+Any repository, pull-request, issue, comment, review, artifact or workflow output visible through the public GitHub repository and therefore restricted to sanitized publication-safe information.
+
+**Review evidence**:
+The private screenshots, manifests, diffs and exact rendered outputs used to make a Visual approval decision.
+
