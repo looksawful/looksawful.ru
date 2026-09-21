@@ -6,6 +6,7 @@ import { handleReviewRequest } from "../lab/functions/review.js";
 const CASE_ID = "awful-mockups";
 const SOURCE_SHA = "0123456789abcdef0123456789abcdef01234567";
 const STALE_SHA = "1111111111111111111111111111111111111111";
+const SUPERSEDED_SHA = "2222222222222222222222222222222222222222";
 const NOW = Date.parse("2026-09-21T15:00:00.000Z");
 const FOUR_DAYS_LATER = "2026-09-25T15:00:00.000Z";
 const OWNER_SESSION = { repository: "looksawful/looksawful.ru" };
@@ -14,15 +15,35 @@ class MemoryR2 {
   #objects = new Map();
   #version = 0;
   #failPutKey = null;
+  #beforePutKey = null;
+  #beforePut = null;
 
   failNextPutFor(key) {
     this.#failPutKey = key;
   }
 
+  beforeNextPutFor(key, callback) {
+    this.#beforePutKey = key;
+    this.#beforePut = callback;
+  }
+
   async put(key, value, options = {}) {
+    if (this.#beforePutKey === key && this.#beforePut !== null) {
+      const callback = this.#beforePut;
+      this.#beforePutKey = null;
+      this.#beforePut = null;
+      await callback();
+    }
     if (this.#failPutKey === key) {
       this.#failPutKey = null;
       throw new Error("synthetic R2 put failure");
+    }
+    const existing = this.#objects.get(key);
+    if (
+      typeof options.onlyIf?.etagMatches === "string" &&
+      existing?.etag !== options.onlyIf.etagMatches
+    ) {
+      return null;
     }
     const bytes =
       typeof value === "string"
@@ -70,20 +91,20 @@ class MemoryR2 {
   }
 }
 
-function reviewManifest() {
+function reviewManifest(sourceSha = SOURCE_SHA) {
   return {
     version: 1,
     caseId: CASE_ID,
-    sourceSha: SOURCE_SHA,
+    sourceSha,
     reviewDepth: "quick",
     capturedAt: "2026-09-21T14:59:00.000Z",
     evidence: [{ id: "desktop", kind: "viewport", contentType: "image/png" }],
   };
 }
 
-function uploadRequest() {
+function uploadRequest(sourceSha = SOURCE_SHA) {
   const form = new FormData();
-  form.set("manifest", JSON.stringify(reviewManifest()));
+  form.set("manifest", JSON.stringify(reviewManifest(sourceSha)));
   form.set("desktop", new File(["private-image"], "desktop.png", { type: "image/png" }));
   return new Request("https://admin.looksawful.ru/lab/review/api", {
     method: "POST",
@@ -103,11 +124,11 @@ function approvalRequest(sourceSha = SOURCE_SHA) {
   });
 }
 
-async function createReview(bucket) {
+async function createReview(bucket, sourceSha = SOURCE_SHA, now = NOW) {
   const response = await handleReviewRequest({
-    request: uploadRequest(),
+    request: uploadRequest(sourceSha),
     env: { REVIEW_EVIDENCE: bucket },
-    now: () => NOW,
+    now: () => now,
   });
   assert.equal(response.status, 201);
 }
@@ -147,13 +168,14 @@ test("approval is owner-only and promotes an exact Case+SHA baseline", async () 
     },
   );
 
-  const baseline = bucket.object(`review-hub/v1/baselines/${CASE_ID}.json`);
-  assert.ok(baseline, "Case baseline pointer must be promoted");
-  const baselinePayload = JSON.parse(new TextDecoder().decode(baseline.bytes));
-  assert.equal(baselinePayload.sourceSha, SOURCE_SHA);
-  assert.equal(baselinePayload.reviewDepth, "quick");
+  const state = bucket.object(`review-hub/v1/state/${CASE_ID}.json`);
+  assert.ok(state, "Case state must persist");
+  const statePayload = JSON.parse(new TextDecoder().decode(state.bytes));
+  assert.equal(statePayload.current.sourceSha, SOURCE_SHA);
+  assert.equal(statePayload.baseline.sourceSha, SOURCE_SHA);
+  assert.equal(statePayload.baseline.reviewDepth, "quick");
   assert.equal(
-    baselinePayload.evidence[0].url,
+    statePayload.baseline.evidence[0].url,
     `/lab/review/baseline/${CASE_ID}/evidence/desktop`,
   );
 
@@ -163,10 +185,10 @@ test("approval is owner-only and promotes an exact Case+SHA baseline", async () 
   assert.equal(durableEvidence.length, 1, "approved baseline evidence must be durable");
   assert.equal(new TextDecoder().decode(durableEvidence[0].bytes), "private-image");
 
-  const approval = bucket.object(
-    `review-hub/v1/approvals/${CASE_ID}/${SOURCE_SHA}/quick.json`,
+  const approvals = bucket.objectsWithPrefix(
+    `review-hub/v1/approvals/${CASE_ID}/${SOURCE_SHA}/quick/`,
   );
-  assert.ok(approval, "compact approval record must persist separately");
+  assert.equal(approvals.length, 1, "compact approval record must persist separately");
 
   const baselineResponse = await handleReviewRequest({
     request: new Request(
@@ -203,10 +225,14 @@ test("stale SHA approval fails closed and cannot replace the Case baseline", asy
     now: () => NOW,
   });
   assert.equal(stale.status, 409);
-  assert.equal(bucket.object(`review-hub/v1/baselines/${CASE_ID}.json`), null);
+  const state = bucket.object(`review-hub/v1/state/${CASE_ID}.json`);
+  assert.ok(state);
+  assert.equal(JSON.parse(new TextDecoder().decode(state.bytes)).baseline, null);
   assert.equal(
-    bucket.object(`review-hub/v1/approvals/${CASE_ID}/${STALE_SHA}/quick.json`),
-    null,
+    bucket.objectsWithPrefix(
+      `review-hub/v1/approvals/${CASE_ID}/${STALE_SHA}/quick/`,
+    ).length,
+    0,
   );
 });
 
@@ -243,8 +269,11 @@ test("temporary review evidence carries four-day retention while approved copies
     bucket.object(`review-hub/v1/cases/${CASE_ID}/${SOURCE_SHA}/evidence/desktop`),
     null,
   );
-  assert.ok(
-    bucket.object(`review-hub/v1/approvals/${CASE_ID}/${SOURCE_SHA}/quick.json`),
+  assert.equal(
+    bucket.objectsWithPrefix(
+      `review-hub/v1/approvals/${CASE_ID}/${SOURCE_SHA}/quick/`,
+    ).length,
+    1,
     "compact approval record must outlive temporary evidence",
   );
   assert.equal(
@@ -275,7 +304,7 @@ test("Review Hub approval UI binds the displayed review and handles stale approv
 test("failed final baseline promotion rolls back durable copies and approval record", async () => {
   const bucket = new MemoryR2();
   await createReview(bucket);
-  bucket.failNextPutFor(`review-hub/v1/baselines/${CASE_ID}.json`);
+  bucket.failNextPutFor(`review-hub/v1/state/${CASE_ID}.json`);
 
   const response = await handleReviewRequest({
     request: approvalRequest(),
@@ -285,10 +314,14 @@ test("failed final baseline promotion rolls back durable copies and approval rec
   });
 
   assert.equal(response.status, 503);
-  assert.equal(bucket.object(`review-hub/v1/baselines/${CASE_ID}.json`), null);
+  const failedState = bucket.object(`review-hub/v1/state/${CASE_ID}.json`);
+  assert.ok(failedState);
+  assert.equal(JSON.parse(new TextDecoder().decode(failedState.bytes)).baseline, null);
   assert.equal(
-    bucket.object(`review-hub/v1/approvals/${CASE_ID}/${SOURCE_SHA}/quick.json`),
-    null,
+    bucket.objectsWithPrefix(
+      `review-hub/v1/approvals/${CASE_ID}/${SOURCE_SHA}/quick/`,
+    ).length,
+    0,
   );
   assert.equal(
     bucket.objectsWithPrefix(`review-hub/v1/baselines/${CASE_ID}/objects/`).length,
@@ -309,7 +342,7 @@ test("failed re-approval never destroys the previously visible Case baseline", a
   });
   assert.equal(first.status, 201);
 
-  bucket.failNextPutFor(`review-hub/v1/baselines/${CASE_ID}.json`);
+  bucket.failNextPutFor(`review-hub/v1/state/${CASE_ID}.json`);
   const second = await handleReviewRequest({
     request: approvalRequest(),
     env: { REVIEW_EVIDENCE: bucket },
@@ -328,4 +361,45 @@ test("failed re-approval never destroys the previously visible Case baseline", a
   });
   assert.equal(baselineEvidence.status, 200);
   assert.equal(await baselineEvidence.text(), "private-image");
+});
+
+
+test("superseding review during the final Case promotion makes approval fail closed", async () => {
+  const bucket = new MemoryR2();
+  await createReview(bucket);
+
+  bucket.beforeNextPutFor(
+    `review-hub/v1/state/${CASE_ID}.json`,
+    async () => {
+      await createReview(bucket, SUPERSEDED_SHA, NOW + 500);
+    },
+  );
+
+  const response = await handleReviewRequest({
+    request: approvalRequest(),
+    env: { REVIEW_EVIDENCE: bucket },
+    session: OWNER_SESSION,
+    now: () => NOW + 1_000,
+  });
+
+  assert.equal(response.status, 409);
+
+  const current = await handleReviewRequest({
+    request: new Request("https://admin.looksawful.ru/lab/review/api"),
+    env: { REVIEW_EVIDENCE: bucket },
+    session: OWNER_SESSION,
+    now: () => NOW + 1_000,
+  });
+  assert.equal(current.status, 200);
+  assert.equal((await current.json()).sourceSha, SUPERSEDED_SHA);
+
+  const baseline = await handleReviewRequest({
+    request: new Request(
+      `https://admin.looksawful.ru/lab/review/baseline?caseId=${CASE_ID}`,
+    ),
+    env: { REVIEW_EVIDENCE: bucket },
+    session: OWNER_SESSION,
+    now: () => NOW + 1_000,
+  });
+  assert.equal(baseline.status, 404);
 });
