@@ -203,7 +203,7 @@
   }
 }
 
-.work-index > h1 {
+[data-page-id="work"] .projects-grid > h1 {
   margin-block-end: var(--size-400);
   font-size: var(--fs-500);
   font-weight: var(--fw-600);
