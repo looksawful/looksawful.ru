@@ -4,6 +4,7 @@ import test from "node:test";
 
 import { sitePages } from "../src/site/pages/manifest.ts";
 import { renderGalleryPage } from "../src/site/renderers/gallery-page.ts";
+import { renderGalleryResolvedSeries } from "../src/components/gallery/gallery-markup.ts";
 
 const pluginSource = await readFile(
   new URL("../src/site/build/site-pages-plugin.ts", import.meta.url),
@@ -49,6 +50,110 @@ test("Gallery output keeps invisible series boundaries and intrinsic image geome
   assert.match(html, /data-gallery-item-id=/);
   assert.match(html, /<img[^>]*\bwidth="\d+"[^>]*\bheight="\d+"/);
   assert.doesNotMatch(html, /gallery-series__title|data-gallery-series-title/);
+});
+
+test("Gallery production markup renders typed image, video, model and multi-slide placements", () => {
+  const markup = renderGalleryResolvedSeries({
+    id: "mixed-series",
+    projectLabel: "Jestei Pool",
+    placements: [
+      {
+        itemId: "image-a",
+        seriesId: "mixed-series",
+        seriesOrder: 0,
+        itemOrder: 0,
+        featured: true,
+        media: [{
+          assetId: "image-a",
+          kind: "image",
+          src: "/media/image-a.webp",
+          posterSrc: "/media/image-a.webp",
+          width: 1200,
+          height: 800,
+          title: "Image A",
+          alt: "Image A alt",
+          credits: [],
+        }],
+      },
+      {
+        itemId: "video-a",
+        seriesId: "mixed-series",
+        seriesOrder: 0,
+        itemOrder: 1,
+        featured: false,
+        media: [{
+          assetId: "video-a",
+          kind: "video",
+          src: "/media/video-a.mp4",
+          posterSrc: "/media/video-a-poster.webp",
+          width: 1280,
+          height: 720,
+          title: "Video A",
+          alt: "Video A alt",
+          credits: ["Ivan"],
+        }],
+      },
+      {
+        itemId: "document-a",
+        seriesId: "mixed-series",
+        seriesOrder: 0,
+        itemOrder: 2,
+        featured: false,
+        media: [
+          {
+            assetId: "document-a",
+            kind: "image",
+            src: "/media/document-a.webp",
+            posterSrc: "/media/document-a.webp",
+            width: 1000,
+            height: 1400,
+            title: "Document A",
+            alt: "Document A page 1",
+            credits: [],
+          },
+          {
+            assetId: "document-b",
+            kind: "image",
+            src: "/media/document-b.webp",
+            posterSrc: "/media/document-b.webp",
+            width: 1000,
+            height: 1400,
+            title: "Document A",
+            alt: "Document A page 2",
+            credits: [],
+          },
+        ],
+      },
+      {
+        itemId: "model-a",
+        seriesId: "mixed-series",
+        seriesOrder: 0,
+        itemOrder: 3,
+        featured: false,
+        media: [{
+          assetId: "model-a",
+          kind: "model",
+          src: "/media/model-a.glb",
+          posterSrc: "/media/model-a-poster.webp",
+          title: "Model A",
+          alt: "Model A alt",
+          credits: [],
+        }],
+      },
+    ],
+  });
+
+  assert.match(markup, /data-gallery-series="mixed-series"/);
+  assert.match(markup, /class="gallery-series__marker">Jestei Pool<\/p>/);
+  assert.equal((markup.match(/\bdata-gallery-card\b/g) ?? []).length, 4);
+  assert.match(markup, /data-gallery-item-id="image-a"[^>]*data-gallery-featured/);
+  assert.match(markup, /data-gallery-item-id="video-a"[^>]*data-gallery-kind="video"/);
+  assert.match(markup, /data-gallery-item-id="video-a"[\s\S]*?src="\/media\/video-a-poster\.webp"/);
+  assert.doesNotMatch(markup, /<video\b[^>]*autoplay/i);
+  assert.equal((markup.match(/data-gallery-item-id="document-a"/g) ?? []).length, 1);
+  assert.match(markup, /data-gallery-item-id="document-a"[\s\S]*?data-gallery-slide="1"[\s\S]*?data-gallery-slide="2"/);
+  assert.match(markup, /data-gallery-item-id="model-a"[^>]*data-gallery-kind="model"/);
+  assert.match(markup, /data-gallery-item-id="model-a"[\s\S]*?src="\/media\/model-a-poster\.webp"/);
 });
 
 test("Gallery renders exactly five approved Jestei symbols as interactive model cards", () => {
