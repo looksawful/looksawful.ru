@@ -369,7 +369,7 @@ test("Supabase SQL keeps Review Hub writes under RLS and runtime signup bootstra
   );
   assert.match(
     sql,
-    /revoke all on function public\.review_hub_confirm_runtime_signup\(\)\s+from public, anon, authenticated;/u,
+    /revoke all on function public\.review_hub_confirm_runtime_signup\(\)\s+from public, anon, authenticated, service_role;/u,
   );
   assert.match(
     sql,
