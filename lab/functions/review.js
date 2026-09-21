@@ -1,3 +1,5 @@
+import { createSupabaseReviewStorage } from "./review-storage-supabase.js";
+
 const CURRENT_POINTER_KEY = "review-hub/v1/current.json";
 const ADMIN_REPOSITORY = "looksawful/looksawful.ru";
 const TEMP_RETENTION_MS = 4 * 24 * 60 * 60 * 1000;
@@ -32,10 +34,25 @@ function text(message, status, extraHeaders = {}) {
   });
 }
 
-function reviewBucket(env) {
-  const bucket = env?.REVIEW_EVIDENCE;
-  if (!bucket || typeof bucket.get !== "function" || typeof bucket.put !== "function") return null;
-  return bucket;
+function reviewStorage(env) {
+  const injected = env?.REVIEW_STORAGE;
+  if (
+    injected &&
+    typeof injected.get === "function" &&
+    typeof injected.put === "function"
+  ) {
+    return injected;
+  }
+  return createSupabaseReviewStorage(env);
+}
+
+async function cleanupExpired(storage) {
+  if (typeof storage?.cleanupExpired !== "function") return;
+  try {
+    await storage.cleanupExpired(200);
+  } catch {
+    // Retention cleanup is best effort; request authorization/data access still fail closed.
+  }
 }
 
 function validDate(value) {
@@ -672,9 +689,11 @@ export async function handleReviewRequest({ request, env, session = null, now = 
 
   if (!isApi && !isEvidence && !isApproval && !isBaseline && !isBaselineEvidence) return null;
 
-  const bucket = reviewBucket(env);
+  const bucket = reviewStorage(env);
   if (!bucket) return text("Private review storage is not configured.", 503);
   const nowMs = typeof now === "function" ? now() : Date.now();
+
+  await cleanupExpired(bucket);
 
   if (isApi && request.method === "GET") return getCurrentReview(bucket, nowMs);
   if (isApi && request.method === "POST") return createReview(request, bucket, nowMs);
