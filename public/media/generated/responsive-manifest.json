@@ -245,22 +245,22 @@
       "src": "/media/projects/awful-mockups/02-monitor.jpg",
       "sourceWidth": 1122,
       "sourceHeight": 1402,
-      "sourceBytes": 75318,
-      "sourceHash": "47bb209922e7a83906fb272a3403a6f1ab431e5cf1ec35afce9897864dc871d3",
+      "sourceBytes": 106628,
+      "sourceHash": "ac1aac9c99ea7379cd6312d9af7e62148a34d754ebd3ca6f2fa7d7b4787f5792",
       "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
       "variants": [
         {
           "src": "/media/generated/responsive/projects/awful-mockups/02-monitor@480.webp",
           "width": 480,
           "height": 600,
-          "bytes": 11754,
+          "bytes": 11864,
           "format": "webp"
         },
         {
           "src": "/media/generated/responsive/projects/awful-mockups/02-monitor@768.webp",
           "width": 768,
           "height": 960,
-          "bytes": 19186,
+          "bytes": 19736,
           "format": "webp"
         }
       ]
@@ -270,29 +270,29 @@
       "src": "/media/projects/awful-mockups/03-phone-fashion.jpg",
       "sourceWidth": 1448,
       "sourceHeight": 1086,
-      "sourceBytes": 226244,
-      "sourceHash": "6f2797929cb7133acf0f488b99e229e60c549c1f82aee4449099891a9f89c936",
+      "sourceBytes": 215507,
+      "sourceHash": "8f4c09f6a2f7816f293c883bf16e0e277895a2931c80ba227fd1b5612dc7983f",
       "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
       "variants": [
         {
           "src": "/media/generated/responsive/projects/awful-mockups/03-phone-fashion@480.webp",
           "width": 480,
           "height": 360,
-          "bytes": 11448,
+          "bytes": 11916,
           "format": "webp"
         },
         {
           "src": "/media/generated/responsive/projects/awful-mockups/03-phone-fashion@768.webp",
           "width": 768,
           "height": 576,
-          "bytes": 23570,
+          "bytes": 23998,
           "format": "webp"
         },
         {
           "src": "/media/generated/responsive/projects/awful-mockups/03-phone-fashion@1280.webp",
           "width": 1280,
           "height": 960,
-          "bytes": 54216,
+          "bytes": 51788,
           "format": "webp"
         }
       ]
@@ -302,22 +302,22 @@
       "src": "/media/projects/awful-mockups/11-square.jpg",
       "sourceWidth": 1024,
       "sourceHeight": 1024,
-      "sourceBytes": 199378,
-      "sourceHash": "3f95a04a3353968f102bf4081edddda09df5dcaa85d1b87ea38b3bfdaefde974",
+      "sourceBytes": 163837,
+      "sourceHash": "813cce4402ed0f32420eff7564839c35052bf781c03d85388aecd6ee427b7e77",
       "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
       "variants": [
         {
           "src": "/media/generated/responsive/projects/awful-mockups/11-square@480.webp",
           "width": 480,
           "height": 480,
-          "bytes": 31182,
+          "bytes": 14592,
           "format": "webp"
         },
         {
           "src": "/media/generated/responsive/projects/awful-mockups/11-square@768.webp",
           "width": 768,
           "height": 768,
-          "bytes": 66230,
+          "bytes": 31146,
           "format": "webp"
         }
       ]
@@ -327,29 +327,29 @@
       "src": "/media/projects/awful-mockups/16-landscape.jpg",
       "sourceWidth": 1536,
       "sourceHeight": 1024,
-      "sourceBytes": 74664,
-      "sourceHash": "d7d8305e5ad4787752c3efee2b6f12bf9411e64e52ddd6a5bc858504cd1e2546",
+      "sourceBytes": 134112,
+      "sourceHash": "1d4b5b3f2ab1539c9da0df4495eb824ff3f95dd751308d667ce6e57e438e0645",
       "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
       "variants": [
         {
           "src": "/media/generated/responsive/projects/awful-mockups/16-landscape@480.webp",
           "width": 480,
           "height": 320,
-          "bytes": 6966,
+          "bytes": 7016,
           "format": "webp"
         },
         {
           "src": "/media/generated/responsive/projects/awful-mockups/16-landscape@768.webp",
           "width": 768,
           "height": 512,
-          "bytes": 11290,
+          "bytes": 11236,
           "format": "webp"
         },
         {
           "src": "/media/generated/responsive/projects/awful-mockups/16-landscape@1280.webp",
           "width": 1280,
           "height": 853,
-          "bytes": 19746,
+          "bytes": 19894,
           "format": "webp"
         }
       ]
@@ -359,22 +359,22 @@
       "src": "/media/projects/awful-mockups/17-dual-phone.jpg",
       "sourceWidth": 1024,
       "sourceHeight": 1536,
-      "sourceBytes": 159825,
-      "sourceHash": "cf3d597447db2a86c54564addd33230fb49d93f8088ef118bb4c7021b708a181",
+      "sourceBytes": 151643,
+      "sourceHash": "6d57f9f2e62cc0bacc2f5f4a25bb9e05cd97b68d6b319924c7bf1d498451486b",
       "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
       "variants": [
         {
           "src": "/media/generated/responsive/projects/awful-mockups/17-dual-phone@480.webp",
           "width": 480,
           "height": 720,
-          "bytes": 14052,
+          "bytes": 13772,
           "format": "webp"
         },
         {
           "src": "/media/generated/responsive/projects/awful-mockups/17-dual-phone@768.webp",
           "width": 768,
           "height": 1152,
-          "bytes": 27082,
+          "bytes": 25740,
           "format": "webp"
         }
       ]
@@ -384,22 +384,22 @@
       "src": "/media/projects/awful-mockups/18-phone.jpg",
       "sourceWidth": 1122,
       "sourceHeight": 1402,
-      "sourceBytes": 48926,
-      "sourceHash": "3d73a4b5f8d38dc90defcb256fb0e21c65eef508adb6cb7a9ac6958b952cab15",
+      "sourceBytes": 86969,
+      "sourceHash": "f59a68f0bb8210df24cc19744a1346b6f1120f558f3a9fc76df79e2a201b1b03",
       "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
       "variants": [
         {
           "src": "/media/generated/responsive/projects/awful-mockups/18-phone@480.webp",
           "width": 480,
           "height": 600,
-          "bytes": 6786,
+          "bytes": 8068,
           "format": "webp"
         },
         {
           "src": "/media/generated/responsive/projects/awful-mockups/18-phone@768.webp",
           "width": 768,
           "height": 960,
-          "bytes": 13252,
+          "bytes": 15292,
           "format": "webp"
         }
       ]
@@ -409,22 +409,22 @@
       "src": "/media/projects/awful-mockups/28-phone-camera.jpg",
       "sourceWidth": 1122,
       "sourceHeight": 1402,
-      "sourceBytes": 305924,
-      "sourceHash": "f12a404a2f648c5ca84d7074cf29b4f1594d9bbd2cd53efae4dd55578d4f1be0",
+      "sourceBytes": 318355,
+      "sourceHash": "3bbb5d905fa5495f42ebb3bf82dfaa394a46122d831781e2a70fccc46bfd0316",
       "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
       "variants": [
         {
           "src": "/media/generated/responsive/projects/awful-mockups/28-phone-camera@480.webp",
           "width": 480,
           "height": 600,
-          "bytes": 13126,
+          "bytes": 12876,
           "format": "webp"
         },
         {
           "src": "/media/generated/responsive/projects/awful-mockups/28-phone-camera@768.webp",
           "width": 768,
           "height": 960,
-          "bytes": 42668,
+          "bytes": 41680,
           "format": "webp"
         }
       ]
@@ -434,22 +434,22 @@
       "src": "/media/projects/awful-mockups/39-print-case.jpg",
       "sourceWidth": 1122,
       "sourceHeight": 1402,
-      "sourceBytes": 595652,
-      "sourceHash": "c903db81507c017545a0e1f3dbdb05abadbc6f01a703383592a9836a978b7053",
+      "sourceBytes": 654973,
+      "sourceHash": "462ce09ea3594815ebcc871666ab01793a33d8907c97325b2c4ed2e1d749ab85",
       "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
       "variants": [
         {
           "src": "/media/generated/responsive/projects/awful-mockups/39-print-case@480.webp",
           "width": 480,
           "height": 600,
-          "bytes": 59392,
+          "bytes": 58412,
           "format": "webp"
         },
         {
           "src": "/media/generated/responsive/projects/awful-mockups/39-print-case@768.webp",
           "width": 768,
           "height": 960,
-          "bytes": 171918,
+          "bytes": 171444,
           "format": "webp"
         }
       ]
@@ -459,36 +459,36 @@
       "src": "/media/projects/awful-mockups/photoshop-layers-full.png",
       "sourceWidth": 2560,
       "sourceHeight": 1440,
-      "sourceBytes": 159375,
-      "sourceHash": "ecd5e5a43d1bf02637c8049ee78837e3deea5fdc270eee1aa92dd8ba273da723",
+      "sourceBytes": 88291,
+      "sourceHash": "37e08f15e481daf111c63a8d980e20f5632bfde281cfb4eb0be4c539b3f82698",
       "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
       "variants": [
         {
           "src": "/media/generated/responsive/projects/awful-mockups/photoshop-layers-full@480.webp",
           "width": 480,
           "height": 270,
-          "bytes": 6144,
+          "bytes": 3086,
           "format": "webp"
         },
         {
           "src": "/media/generated/responsive/projects/awful-mockups/photoshop-layers-full@768.webp",
           "width": 768,
           "height": 432,
-          "bytes": 12110,
+          "bytes": 5854,
           "format": "webp"
         },
         {
           "src": "/media/generated/responsive/projects/awful-mockups/photoshop-layers-full@1280.webp",
           "width": 1280,
           "height": 720,
-          "bytes": 26942,
+          "bytes": 13544,
           "format": "webp"
         },
         {
           "src": "/media/generated/responsive/projects/awful-mockups/photoshop-layers-full@1920.webp",
           "width": 1920,
           "height": 1080,
-          "bytes": 48628,
+          "bytes": 27472,
           "format": "webp"
         }
       ]
