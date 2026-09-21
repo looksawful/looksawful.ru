@@ -296,3 +296,23 @@ test("portfolio presentation rejects unknown and duplicate main-tier page ids", 
     /duplicate/i,
   );
 });
+
+
+test("portfolio presentation uses the approved current main selection without unsafe utility pages", () => {
+  assert.deepEqual(portfolioPresentation.flagship, [
+    "case:jestei-pool",
+    "case:styx",
+    "case:sensetique",
+  ]);
+  assert.deepEqual(portfolioPresentation.featured, [
+    "project:awful-cases",
+    "project:moves-awful",
+    "project:awful-studio",
+    "project:awful-3d-mockups",
+  ]);
+  assert.deepEqual(portfolioPresentation.archive, [
+    "project:berry-social-content-2020",
+  ]);
+  assert.equal(portfolioPresentation.featured.includes("project:berserk-timer"), false);
+  assert.equal(portfolioPresentation.featured.includes("project:awful-mockups"), false);
+});
