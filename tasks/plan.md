@@ -196,6 +196,31 @@ These may run in parallel only when they do not compete for the same shared toke
   - narrow prod release;
   - production workflow verifies exact deployed SHA.
 
+
+## Final Gallery UX Contract (GrillMe Q1–Q56)
+
+The following owner decisions are binding for Gallery phase 2 implementation:
+
+- Gallery is editorial, not catalog UI: explicit series order and explicit in-series order; no public filters/tabs.
+- A Gallery series is a real editorial boundary. Its quiet marker shows the project name only, once at each series start; markers are not links. Viewer navigation never crosses a series boundary.
+- Series may mix image, video, 3D and short document-like sequences when they form one visual narrative.
+- A canonical Media Catalog asset appears at most once in the public Gallery. Gallery placement may add presentation metadata without changing canonical asset identity.
+- Featured is an explicit placement property, never an algorithm or separate queue. Hard maximum: two featured placements per series. The first opens the series; an optional second may appear later. Featured spans two grid columns on desktop and mobile, preserves editorial order, and may own a Gallery-only crop/position. Viewer always shows the full canonical asset. Featured is visual hierarchy, not assistive-technology state.
+- Grid cards have no permanent captions. Project markers provide orientation; authored title/credits live in the viewer. Interaction affordances may identify video/3D behavior.
+- Video grid preview is muted on hover and keyboard focus, starts from zero, and fully stops/resets on leave/blur. Touch keeps poster + play affordance and opens viewer on first tap. Viewer video may autoplay muted after explicit opening; sound requires user action.
+- 3D is preview-first in the grid. Full 3D interaction opens in the shared Gallery viewer shell, never autorotates, supports drag/pinch plus explicit rotate left/right, zoom +/- and reset controls, and has keyboard-equivalent operation.
+- One viewer shell owns image/video/3D/document-like presentation; only media-specific controls vary. Loading uses stable poster/skeleton state with unavailable controls disabled. Media failure stays recoverable inside viewer; next/close remain available.
+- Short multi-page visual works may appear as an editorial subset inside Gallery. Long/context-heavy/multi-section material belongs in a Case. Sequence navigation uses previous/next + current/total, swipe and keyboard, with no thumbnail strip.
+- URL contract: `?item=<canonical-id>`; multi-page items may add `&slide=<n>`. Item changes replace the current viewer URL after the initial open; slide changes replace history rather than creating Back entries. Direct deep-link Back closes viewer to Gallery. Close restores scroll and focus to the originating card.
+- Mobile and desktop share one editorial order. Layout changes only; consecutive featured items remain consecutive.
+- Very long series are editorially reduced rather than hidden behind `Show more`.
+- Empty Gallery uses a neutral authored empty state. Broken media preserves its placement with a neutral fallback and authored title; no technical error prose is exposed.
+- A series with a fuller public Case may end with a quiet `View case / Смотреть кейс`; omit it when no Case exists. The final Gallery handoff is a quiet text-link block: Selected cases → CV → Contact.
+- Visible editorial text is explicitly authored. Taxonomy/project metadata may structure the experience but must not synthesize user-facing copy.
+- The final viewer item remains normal content followed by a quiet continuation/end-state. No auto-close and no loop.
+
+These decisions refine #1108 and #1111 and override any older Gallery behavior that conflicts with them while preserving canonical Media Catalog identity, authored copy, and the narrow release contract.
+
 ## Verification Strategy
 
 Use the cheapest sufficient repository-owned verification at each slice:
