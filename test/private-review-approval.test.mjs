@@ -11,7 +11,7 @@ const NOW = Date.parse("2026-09-21T15:00:00.000Z");
 const FOUR_DAYS_LATER = "2026-09-25T15:00:00.000Z";
 const OWNER_SESSION = { repository: "looksawful/looksawful.ru" };
 
-class MemoryR2 {
+class MemoryReviewStorage {
   #objects = new Map();
   #version = 0;
   #failPutKey = null;
@@ -127,26 +127,26 @@ function approvalRequest(sourceSha = SOURCE_SHA) {
 async function createReview(bucket, sourceSha = SOURCE_SHA, now = NOW) {
   const response = await handleReviewRequest({
     request: uploadRequest(sourceSha),
-    env: { REVIEW_EVIDENCE: bucket },
+    env: { REVIEW_STORAGE: bucket },
     now: () => now,
   });
   assert.equal(response.status, 201);
 }
 
 test("approval is owner-only and promotes an exact Case+SHA baseline", async () => {
-  const bucket = new MemoryR2();
+  const bucket = new MemoryReviewStorage();
   await createReview(bucket);
 
   const forbidden = await handleReviewRequest({
     request: approvalRequest(),
-    env: { REVIEW_EVIDENCE: bucket },
+    env: { REVIEW_STORAGE: bucket },
     now: () => NOW,
   });
   assert.equal(forbidden.status, 403);
 
   const approved = await handleReviewRequest({
     request: approvalRequest(),
-    env: { REVIEW_EVIDENCE: bucket },
+    env: { REVIEW_STORAGE: bucket },
     session: OWNER_SESSION,
     now: () => NOW,
   });
@@ -194,7 +194,7 @@ test("approval is owner-only and promotes an exact Case+SHA baseline", async () 
     request: new Request(
       `https://admin.looksawful.ru/lab/review/baseline?caseId=${CASE_ID}`,
     ),
-    env: { REVIEW_EVIDENCE: bucket },
+    env: { REVIEW_STORAGE: bucket },
     session: OWNER_SESSION,
     now: () => NOW,
   });
@@ -206,7 +206,7 @@ test("approval is owner-only and promotes an exact Case+SHA baseline", async () 
     request: new Request(
       `https://admin.looksawful.ru/lab/review/baseline/${CASE_ID}/evidence/desktop`,
     ),
-    env: { REVIEW_EVIDENCE: bucket },
+    env: { REVIEW_STORAGE: bucket },
     session: OWNER_SESSION,
     now: () => NOW,
   });
@@ -215,12 +215,12 @@ test("approval is owner-only and promotes an exact Case+SHA baseline", async () 
 });
 
 test("stale SHA approval fails closed and cannot replace the Case baseline", async () => {
-  const bucket = new MemoryR2();
+  const bucket = new MemoryReviewStorage();
   await createReview(bucket);
 
   const stale = await handleReviewRequest({
     request: approvalRequest(STALE_SHA),
-    env: { REVIEW_EVIDENCE: bucket },
+    env: { REVIEW_STORAGE: bucket },
     session: OWNER_SESSION,
     now: () => NOW,
   });
@@ -237,7 +237,7 @@ test("stale SHA approval fails closed and cannot replace the Case baseline", asy
 });
 
 test("temporary review evidence carries four-day retention while approved copies do not", async () => {
-  const bucket = new MemoryR2();
+  const bucket = new MemoryReviewStorage();
   await createReview(bucket);
 
   const temporaryEvidence = bucket.object(
@@ -247,7 +247,7 @@ test("temporary review evidence carries four-day retention while approved copies
 
   await handleReviewRequest({
     request: approvalRequest(),
-    env: { REVIEW_EVIDENCE: bucket },
+    env: { REVIEW_STORAGE: bucket },
     session: OWNER_SESSION,
     now: () => NOW,
   });
@@ -260,7 +260,7 @@ test("temporary review evidence carries four-day retention while approved copies
 
   const expiredReview = await handleReviewRequest({
     request: new Request("https://admin.looksawful.ru/lab/review/api"),
-    env: { REVIEW_EVIDENCE: bucket },
+    env: { REVIEW_STORAGE: bucket },
     session: OWNER_SESSION,
     now: () => NOW + 4 * 24 * 60 * 60 * 1000,
   });
@@ -302,13 +302,13 @@ test("Review Hub approval UI binds the displayed review and handles stale approv
 
 
 test("failed final baseline promotion rolls back durable copies and approval record", async () => {
-  const bucket = new MemoryR2();
+  const bucket = new MemoryReviewStorage();
   await createReview(bucket);
   bucket.failNextPutFor(`review-hub/v1/state/${CASE_ID}.json`);
 
   const response = await handleReviewRequest({
     request: approvalRequest(),
-    env: { REVIEW_EVIDENCE: bucket },
+    env: { REVIEW_STORAGE: bucket },
     session: OWNER_SESSION,
     now: () => NOW,
   });
@@ -331,12 +331,12 @@ test("failed final baseline promotion rolls back durable copies and approval rec
 
 
 test("failed re-approval never destroys the previously visible Case baseline", async () => {
-  const bucket = new MemoryR2();
+  const bucket = new MemoryReviewStorage();
   await createReview(bucket);
 
   const first = await handleReviewRequest({
     request: approvalRequest(),
-    env: { REVIEW_EVIDENCE: bucket },
+    env: { REVIEW_STORAGE: bucket },
     session: OWNER_SESSION,
     now: () => NOW,
   });
@@ -345,7 +345,7 @@ test("failed re-approval never destroys the previously visible Case baseline", a
   bucket.failNextPutFor(`review-hub/v1/state/${CASE_ID}.json`);
   const second = await handleReviewRequest({
     request: approvalRequest(),
-    env: { REVIEW_EVIDENCE: bucket },
+    env: { REVIEW_STORAGE: bucket },
     session: OWNER_SESSION,
     now: () => NOW + 1_000,
   });
@@ -355,7 +355,7 @@ test("failed re-approval never destroys the previously visible Case baseline", a
     request: new Request(
       `https://admin.looksawful.ru/lab/review/baseline/${CASE_ID}/evidence/desktop`,
     ),
-    env: { REVIEW_EVIDENCE: bucket },
+    env: { REVIEW_STORAGE: bucket },
     session: OWNER_SESSION,
     now: () => NOW + 1_000,
   });
@@ -365,7 +365,7 @@ test("failed re-approval never destroys the previously visible Case baseline", a
 
 
 test("superseding review during the final Case promotion makes approval fail closed", async () => {
-  const bucket = new MemoryR2();
+  const bucket = new MemoryReviewStorage();
   await createReview(bucket);
 
   bucket.beforeNextPutFor(
@@ -377,7 +377,7 @@ test("superseding review during the final Case promotion makes approval fail clo
 
   const response = await handleReviewRequest({
     request: approvalRequest(),
-    env: { REVIEW_EVIDENCE: bucket },
+    env: { REVIEW_STORAGE: bucket },
     session: OWNER_SESSION,
     now: () => NOW + 1_000,
   });
@@ -386,7 +386,7 @@ test("superseding review during the final Case promotion makes approval fail clo
 
   const current = await handleReviewRequest({
     request: new Request("https://admin.looksawful.ru/lab/review/api"),
-    env: { REVIEW_EVIDENCE: bucket },
+    env: { REVIEW_STORAGE: bucket },
     session: OWNER_SESSION,
     now: () => NOW + 1_000,
   });
@@ -397,7 +397,7 @@ test("superseding review during the final Case promotion makes approval fail clo
     request: new Request(
       `https://admin.looksawful.ru/lab/review/baseline?caseId=${CASE_ID}`,
     ),
-    env: { REVIEW_EVIDENCE: bucket },
+    env: { REVIEW_STORAGE: bucket },
     session: OWNER_SESSION,
     now: () => NOW + 1_000,
   });
