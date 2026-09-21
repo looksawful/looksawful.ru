@@ -113,7 +113,7 @@ const petProjectsStyles = `
   .pet-projects a.subproject-card:focus-visible { outline: var(--border-width-200) solid currentColor; outline-offset: var(--size-100); border-radius: clamp(0.875rem, 2.2cqi, 1.375rem); }
 
   @keyframes pet-project-card-focus {
-    from, to { scale: 0.95; }
+    from, to { scale: 0.9; }
     50% { scale: 1; }
   }
   @supports (animation-timeline: view(inline)) {
@@ -125,29 +125,6 @@ const petProjectsStyles = `
       }
     }
   }
-  @container pet-projects (width > 42rem) {
-    .pet-projects__grid {
-      --reel-overflow-x: visible;
-      --reel-overscroll-inline: auto;
-      --reel-snap-type: none;
-      --reel-snap-align: none;
-
-      grid-auto-flow: row;
-      grid-auto-columns: initial;
-      grid-template-columns: repeat(2, minmax(0, var(--pet-card-width)));
-      justify-content: center;
-      scroll-padding-inline: 0;
-      padding-inline: var(--section-inline);
-    }
-    .pet-projects .subproject-card__figure { animation: none; scale: 1; }
-  }
-
-  @container pet-projects (width > 68rem) {
-    .pet-projects__grid {
-      grid-template-columns: repeat(3, minmax(0, var(--pet-card-width)));
-    }
-  }
-
   @media (prefers-reduced-motion: reduce) {
     .pet-projects .subproject-card__figure { animation: none; scale: 1; }
   }
