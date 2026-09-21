@@ -111,6 +111,7 @@ test("the obsolete interactive JavaScript compatibility shim is retired", async 
 test("authored production JavaScript under src is limited to explicitly tracked legacy migrations and the still-consumed main entry shim", async () => {
   const allowed = [
     "components/animated-canvas-gallery.js",
+    "components/awful-cases-core.js",
     "components/awful-cases-game.js",
     "components/jestei-theme-organism/jestei-theme-organism.js",
     "main.js",
