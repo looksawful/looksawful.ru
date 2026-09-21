@@ -142,3 +142,19 @@ test("browser smoke exercises first-tap lightbox behavior on touch viewports too
   assert.match(smoke, /await verifyLightbox\(page, label/);
   assert.doesNotMatch(smoke, /viewport\.width\s*>=\s*768[^\n]*verifyLightbox/);
 });
+
+
+test("PhotoSwipe dialog receives an accessible name at the shared adapter seam", async () => {
+  const [adapter, gallery] = await Promise.all([
+    read("src/components/photoswipe-lightbox.ts"),
+    read("src/components/gallery/gallery-lightbox.ts"),
+  ]);
+
+  assert.match(adapter, /export function labelPhotoSwipeDialog/);
+  assert.match(adapter, /pswp\?\.element/);
+  assert.match(adapter, /setAttribute\("aria-label", label\)/);
+  assert.match(adapter, /labelPhotoSwipeDialog\(lightbox\.pswp, "Просмотр медиа"\)/);
+
+  assert.match(gallery, /labelPhotoSwipeDialog/);
+  assert.match(gallery, /labelPhotoSwipeDialog\(lightbox\.pswp, "Галерея"\)/);
+});

@@ -46,6 +46,13 @@ function isVideoItem(data: SlideData): data is PhotoSwipeVideoItem {
   return data.kind === "video";
 }
 
+export function labelPhotoSwipeDialog(
+  pswp: PhotoSwipe | null | undefined,
+  label: string,
+): void {
+  pswp?.element?.setAttribute("aria-label", label);
+}
+
 function activeItemFor(pswp: PhotoSwipe): PhotoSwipeLightboxItem | null {
   const dataSource = pswp.options.dataSource;
   if (!Array.isArray(dataSource)) {
@@ -217,6 +224,10 @@ export function createPhotoSwipeLightbox(): {
 
     registerCaptionUi(lightbox);
     bindVideoLifecycle(lightbox);
+
+    lightbox.on("afterInit", () => {
+      labelPhotoSwipeDialog(lightbox.pswp, "Просмотр медиа");
+    });
 
     lightbox.on("close", () => {
       restoreFocus?.focus();
