@@ -11,7 +11,7 @@ function isVisible(element: Element): boolean {
 
 function primeVideo(video: Element): void {
   if (!(video instanceof HTMLVideoElement) || !isVisible(video)) return;
-  if (video.hasAttribute("data-autoplay-deferred")) return;
+  if (video.hasAttribute("data-autoplay-deferred") || video.hasAttribute("data-media-video-fallback")) return;
   if (video.hasAttribute("autoplay")) {
     video.muted = true;
     video.defaultMuted = true;
@@ -20,6 +20,18 @@ function primeVideo(video: Element): void {
   if (!video.poster && video.preload !== "auto") video.preload = "auto";
   if (video.readyState === HTMLMediaElement.HAVE_NOTHING) video.load();
   if (video.hasAttribute("autoplay") && video.paused && !document.hidden) video.play().catch(() => {});
+}
+
+function showVideoPosterFallback(video: HTMLVideoElement): void {
+  if (video.hasAttribute("data-media-video-fallback") || !video.poster) return;
+
+  video.setAttribute("data-media-video-fallback", "");
+  video.pause();
+  video.removeAttribute("autoplay");
+  video.preload = "none";
+  video.removeAttribute("src");
+  video.querySelectorAll("source").forEach((source) => source.removeAttribute("src"));
+  video.load();
 }
 
 function nudgeCanvas(canvas: Element): void {
@@ -69,9 +81,13 @@ export function createMediaRuntimeHealth({ root = document }: { root?: MediaRunt
   const handleVisibility = (): void => {
     if (!document.hidden) schedule();
   };
+  const handleMediaError = (event: Event): void => {
+    if (event.target instanceof HTMLVideoElement) showVideoPosterFallback(event.target);
+  };
   window.addEventListener("pageshow", schedule);
   window.addEventListener("resize", schedule, { passive: true });
   document.addEventListener("visibilitychange", handleVisibility);
+  root.addEventListener?.("error", handleMediaError, true);
   root.addEventListener?.("loadedmetadata", schedule, true);
   root.addEventListener?.("canplay", schedule, true);
   schedule();
@@ -81,6 +97,7 @@ export function createMediaRuntimeHealth({ root = document }: { root?: MediaRunt
     window.removeEventListener("pageshow", schedule);
     window.removeEventListener("resize", schedule);
     document.removeEventListener("visibilitychange", handleVisibility);
+    root.removeEventListener?.("error", handleMediaError, true);
     root.removeEventListener?.("loadedmetadata", schedule, true);
     root.removeEventListener?.("canplay", schedule, true);
   };
