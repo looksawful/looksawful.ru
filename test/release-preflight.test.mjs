@@ -301,3 +301,48 @@ test("release preflight ignores unrelated merge conflicts outside approved produ
     rmSync(cwd, { recursive: true, force: true });
   }
 });
+
+
+test("release preflight still rejects conflicts inside approved product files", () => {
+  const cwd = createRepo();
+  try {
+    writeFileSync(path.join(cwd, "src/index.ts"), "export const value = 1;\n");
+    git(cwd, "add", "src/index.ts");
+    git(cwd, "commit", "-qm", "shared conflict base");
+    const base = git(cwd, "rev-parse", "HEAD");
+
+    git(cwd, "switch", "-qc", "approved");
+    writeFileSync(path.join(cwd, "src/index.ts"), "export const value = 2;\n");
+    git(cwd, "add", "src/index.ts");
+    git(cwd, "commit", "-qm", "approved conflicting change");
+    const approved = git(cwd, "rev-parse", "HEAD");
+
+    git(cwd, "switch", "-qc", "prod", base);
+    writeFileSync(path.join(cwd, "src/index.ts"), "export const value = 3;\n");
+    git(cwd, "add", "src/index.ts");
+    git(cwd, "commit", "-qm", "prod conflicting change");
+    const prod = git(cwd, "rev-parse", "HEAD");
+
+    writeFileSync(path.join(cwd, "src/index.ts"), "export const value = 2;\n");
+    git(cwd, "add", "src/index.ts");
+    git(cwd, "commit", "-qm", "unreconciled candidate");
+    const candidate = git(cwd, "rev-parse", "HEAD");
+
+    const result = spawnSync(process.execPath, [
+      preflightPath,
+      "--repo", cwd,
+      "--prod-base", prod,
+      "--candidate", candidate,
+      "--approved-base", base,
+      "--approved-head", approved,
+    ], { encoding: "utf8" });
+
+    assert.equal(result.status, 1);
+    assert.match(
+      `${result.stdout}\n${result.stderr}`,
+      /PROD_OVERLAP_REQUIRES_RECONCILIATION src\/index\.ts/,
+    );
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
