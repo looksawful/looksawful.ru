@@ -2,7 +2,7 @@
 
 Status: OAUTH SECURITY CANDIDATE / non-production internal tooling foundation.
 
-Private Lab is read-only with respect to site/CMS state. The Private Review Hub may write isolated visual-review evidence to its private R2 binding; it is not a CMS branch, not a source of truth, not a deployment authority and not a shortcut around Media/Content Desk write policy.
+Private Lab is read-only with respect to site/CMS state. The Private Review Hub may write isolated visual-review evidence to its private Supabase backend; it is not a CMS branch, not a source of truth, not a deployment authority and not a shortcut around Media/Content Desk write policy.
 
 ## Build
 
@@ -24,7 +24,7 @@ Runtime bindings required by the candidate:
 ADMIN_GITHUB_CLIENT_ID
 ADMIN_GITHUB_CLIENT_SECRET
 ADMIN_SESSION_SECRET
-REVIEW_EVIDENCE          # private R2 bucket binding for Review Hub evidence/manifests
+SUPABASE_URL             # backend-only Supabase project URL\nSUPABASE_SECRET_KEY      # backend-only secret key; never browser/public source\nREVIEW_EVIDENCE_BUCKET  # dedicated private Storage bucket id
 ```
 
 Accepted application origins are deliberately narrow:
@@ -112,7 +112,7 @@ The Lab shell links to `/lab/system/` and `/lab/system/inventory.html`. Storyboo
 
 The first Review Hub slice lives at `/lab/review/` behind the existing GitHub OAuth boundary.
 
-Private review data uses the `REVIEW_EVIDENCE` R2 binding. The repository does not contain captured review screenshots, runtime Review manifests, private object identifiers or private review URLs. Missing storage configuration fails closed with `503`.
+Private review data uses a server-only Supabase adapter: JSON control/state records live behind RLS in Postgres and image evidence lives in a private Storage bucket. The repository does not contain captured review screenshots, runtime Review manifests, private object identifiers, private review URLs or Supabase secret keys. Missing backend configuration fails closed with `503`.
 
 The authenticated runtime exposes:
 
@@ -122,7 +122,7 @@ POST /lab/review/api
 GET  /lab/review/evidence/<evidence-id>
 ```
 
-`POST /lab/review/api` accepts multipart form data containing a JSON `manifest` field and one image part per evidence id. The v1 manifest binds one Case to an exact 40-character source SHA, a review depth (`quick`, `interactive` or `full`), capture time and image evidence descriptors. R2 object keys are derived server-side and are never returned to the browser.
+`POST /lab/review/api` accepts multipart form data containing a JSON `manifest` field and one image part per evidence id. The v1 manifest binds one Case to an exact 40-character source SHA, a review depth (`quick`, `interactive` or `full`), capture time and image evidence descriptors. Storage paths are derived server-side and are never returned to the browser.
 
 The initial Review Hub slice intentionally left approval, stale-SHA rejection, retention, affected-Case routing and viewport matrices to follow-up work.
 
@@ -130,8 +130,8 @@ The initial Review Hub slice intentionally left approval, stale-SHA rejection, r
 
 Visual approval is an explicit owner-only mutation at `POST /lab/review/approval`. The request carries the exact displayed `caseId`, 40-character `sourceSha` and `reviewDepth`; the server rejects a mismatch with `409 Conflict`. Browser-facing approval and baseline responses expose approval facts only; private promotion/storage identifiers remain server-side.
 
-Approved evidence is staged into a unique durable bundle under `review-hub/v1/baselines/`. The Case-scoped state object at `review-hub/v1/state/<case>.json` carries both the current review identity and the active baseline pointer; approval updates that one object with an R2 ETag conditional write, so a superseding review makes the promotion fail closed instead of publishing a stale baseline. Compact approval records persist separately under `review-hub/v1/approvals/<case>/<sha>/<review-depth>/<promotion-id>.json`; the promotion id remains private and is never returned to the browser.
+Approved evidence is staged into a unique durable bundle under `review-hub/v1/baselines/`. The Case-scoped state record at `review-hub/v1/state/<case>.json` carries both the current review identity and the active baseline pointer; approval updates that record through a service-role-only Postgres RPC with an exact opaque-etag compare-and-swap, so a superseding review makes promotion fail closed instead of publishing a stale baseline. Compact approval records persist separately under `review-hub/v1/approvals/<case>/<sha>/<review-depth>/<promotion-id>.json`; the promotion id remains private and is never returned to the browser.
 
-Temporary capture objects under `review-hub/v1/cases/` receive an application `expiresAt` exactly four days after ingestion. The Review Hub stops serving them at that deadline and deletes them on access when the binding supports deletion. The production R2 bucket must additionally have a four-day object lifecycle rule scoped to the `review-hub/v1/cases/` prefix so inactive temporary captures are physically removed. The `baselines/` and `approvals/` namespaces must not inherit that temporary lifecycle rule.
+Temporary capture objects under `review-hub/v1/cases/` receive an application `expiresAt` exactly four days after ingestion. The Review Hub stops serving them at that deadline. On every Review Hub request the Supabase adapter also performs a bounded best-effort sweep of expired temporary records; binary objects are deleted through the Storage API before their metadata rows are removed. The cleanup RPC is hard-scoped to `review-hub/v1/cases/`, so durable `baselines/`, `approvals/` and Case state are excluded. If the Hub is completely idle, expired bytes may remain physically stored until the next authenticated Hub request, but they are not readable through the Review Hub after the deadline.
 
-The repository can verify the application contract, but not the deployed bucket lifecycle configuration.
+The repository verifies the adapter and application contracts. Deployment still must provide the backend-only Supabase URL, secret key and private bucket id; none of those values belongs in browser code or the public repository.
