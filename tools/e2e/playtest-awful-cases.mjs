@@ -105,7 +105,12 @@ async function exerciseKeyboard(page) {
   assert.equal(state.mode, "running");
   assert.equal(state.correct, 0);
 
-  await page.waitForTimeout(260);
+  await page.evaluate(() => {
+    const api = document.querySelector("[data-awful-cases]").awfulCasesCaseTrainer;
+    api.game.inputCooldown = 0;
+    const task = api.nearestTask();
+    if (task) task.x = api.view.playerX + 300 * api.view.scale;
+  });
   await page.keyboard.press(keyByAction[correctAction]);
   await page.waitForFunction(
     () =>
