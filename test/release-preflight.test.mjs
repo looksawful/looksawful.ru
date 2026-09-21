@@ -253,20 +253,24 @@ test("release preflight ignores unrelated merge conflicts outside approved produ
     writeFileSync(path.join(cwd, "docs/context.md"), "shared\n");
     git(cwd, "add", ".");
     git(cwd, "commit", "-qm", "shared ancestor");
-    const base = git(cwd, "rev-parse", "HEAD");
+    const shared = git(cwd, "rev-parse", "HEAD");
 
     git(cwd, "switch", "-qc", "approved");
+    writeFileSync(path.join(cwd, "docs/context.md"), "approved docs\n");
+    git(cwd, "add", "docs/context.md");
+    git(cwd, "commit", "-qm", "preexisting dev docs drift");
+    const approvedBase = git(cwd, "rev-parse", "HEAD");
+
     writeFileSync(path.join(cwd, "src/index.ts"), [
       "export const value = 2;",
       "export const prodOnly = false;",
       "",
     ].join("\n"));
-    writeFileSync(path.join(cwd, "docs/context.md"), "approved docs\n");
-    git(cwd, "add", ".");
-    git(cwd, "commit", "-qm", "approved product plus unrelated docs");
-    const approved = git(cwd, "rev-parse", "HEAD");
+    git(cwd, "add", "src/index.ts");
+    git(cwd, "commit", "-qm", "approved product change");
+    const approvedHead = git(cwd, "rev-parse", "HEAD");
 
-    git(cwd, "switch", "-qc", "prod", base);
+    git(cwd, "switch", "-qc", "prod", shared);
     writeFileSync(path.join(cwd, "src/index.ts"), [
       "export const value = 1;",
       "export const prodOnly = true;",
@@ -291,8 +295,8 @@ test("release preflight ignores unrelated merge conflicts outside approved produ
       "--repo", cwd,
       "--prod-base", prod,
       "--candidate", candidate,
-      "--approved-base", base,
-      "--approved-head", approved,
+      "--approved-base", approvedBase,
+      "--approved-head", approvedHead,
     ], { encoding: "utf8" });
 
     assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`);
@@ -306,9 +310,6 @@ test("release preflight ignores unrelated merge conflicts outside approved produ
 test("release preflight still rejects conflicts inside approved product files", () => {
   const cwd = createRepo();
   try {
-    writeFileSync(path.join(cwd, "src/index.ts"), "export const value = 1;\n");
-    git(cwd, "add", "src/index.ts");
-    git(cwd, "commit", "-qm", "shared conflict base");
     const base = git(cwd, "rev-parse", "HEAD");
 
     git(cwd, "switch", "-qc", "approved");
