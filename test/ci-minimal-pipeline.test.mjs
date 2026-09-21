@@ -5,7 +5,6 @@ import test from "node:test";
 const read = (file) => readFile(new URL(`../${file}`, import.meta.url), "utf8");
 
 const expectedWorkflows = [
-  "caption-qa.yml",
   "ci-fast.yml",
   "cms-media.yml",
   "codeql.yml",
