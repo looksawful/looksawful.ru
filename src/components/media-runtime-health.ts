@@ -11,6 +11,7 @@ function isVisible(element: Element): boolean {
 
 function primeVideo(video: Element): void {
   if (!(video instanceof HTMLVideoElement) || !isVisible(video)) return;
+  if (video.hasAttribute("data-autoplay-deferred")) return;
   if (video.hasAttribute("autoplay")) {
     video.muted = true;
     video.defaultMuted = true;
