@@ -112,3 +112,10 @@ Removal or neutralization of private review evidence from mutable publication su
 
 **History rewrite**:
 Replacement of existing Git commits to remove material embedded in committed history; reserved for material whose continued presence in Git history is itself unacceptable.
+
+**Privacy audit**:
+A repository-wide inspection that classifies potentially private material across current files, mutable GitHub surfaces and Git history before deciding whether ordinary sanitization or History rewrite is required.
+
+**Sensitive committed material**:
+Committed content whose continued presence in Git history is itself unacceptable, such as credentials, private correspondence, personal data, private screenshots/files or access-bearing private URLs.
+
