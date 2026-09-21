@@ -76,18 +76,16 @@ test("Gallery public contract keeps one photo collection plus an explicit 3D ser
   assert.equal(typeof gallery.getGalleryModelItems, "function");
 });
 
-test("Gallery 3D curation exposes exactly the five approved Jestei Pool symbols", async () => {
+test("Gallery 3D curation keeps a short three-item Jestei Pool series", async () => {
   const gallery = await import("../src/data/media/gallery.ts");
   const models = gallery.getGalleryModelItems();
 
   assert.deepEqual(
     models.map((item) => item.id),
     [
-      "jestei-symbol-metal",
       "jestei-symbol-pear",
       "jestei-symbol-orange",
       "jestei-symbol-blue",
-      "jestei-symbol-biloba",
     ],
   );
   assert.ok(models.every((item) => item.asset.type === "model"));
@@ -95,30 +93,32 @@ test("Gallery 3D curation exposes exactly the five approved Jestei Pool symbols"
   assert.ok(models.every((item) => item.posterSrc.endsWith(".png")));
 });
 
-test("Gallery defaults to the approved musician photography set including Ofelia and OFFMi plus Styx photography", async () => {
+test("Gallery uses the explicit 22-image curation plus one three-item 3D series", async () => {
   const gallery = await import("../src/data/media/gallery.ts");
   const items = gallery.getGalleryItems();
+  const models = gallery.getGalleryModelItems();
 
-  assert.ok(items.length > 0, "Gallery must not be empty");
+  assert.equal(items.length, 22);
+  assert.equal(items.length + models.length, 25);
+  assert.deepEqual(items.map((item) => item.asset.id), gallery.GALLERY_IMAGE_ASSET_IDS);
 
   for (const projectId of requiredDefaultProjectIds) {
     assert.ok(
       items.some((item) => item.projectIds.includes(projectId)),
-      `missing default Gallery photography project ${projectId}`,
+      `missing curated Gallery photography project ${projectId}`,
     );
   }
 
-  assert.ok(
-    items.some((item) => item.projectIds.some((projectId) => projectId.startsWith("styx-"))),
-    "missing Styx photography",
-  );
+  assert.ok(items.some((item) => item.projectIds.includes("styx-lookbook-2025")));
+
+  const counts = new Map();
+  for (const item of items) counts.set(item.seriesId, (counts.get(item.seriesId) ?? 0) + 1);
+  for (const [seriesId, count] of counts) {
+    assert.ok(count <= 3, `${seriesId} exceeds the three-frame series cap`);
+  }
 
   for (const projectId of defaultHiddenProjectIds) {
-    assert.equal(
-      items.some((item) => item.projectIds.includes(projectId)),
-      false,
-      `${projectId} must be hidden from Gallery by default`,
-    );
+    assert.equal(items.some((item) => item.projectIds.includes(projectId)), false);
   }
 });
 
@@ -143,10 +143,8 @@ test("Gallery requires canonical photography work area, not a derived photo dire
   );
 });
 
-test("Other real photography is off by default and can be enabled with showInCatalog", async () => {
+test("Gallery membership is explicit and showInCatalog cannot silently publish another photo", async () => {
   const gallery = await import("../src/data/media/gallery.ts");
-  assert.equal(typeof gallery.getGalleryItemsFromMediaCatalog, "function");
-
   const optionalPhoto = contextualMediaCatalogItems.find((item) => (
     item.asset.type === "image"
     && !item.archived
@@ -157,17 +155,10 @@ test("Other real photography is off by default and can be enabled with showInCat
 
   assert.deepEqual(
     gallery.getGalleryItemsFromMediaCatalog([
-      { ...optionalPhoto, showInCatalog: false },
+      { ...optionalPhoto, showInCatalog: true },
     ]),
     [],
-    "optional photography must remain hidden while showInCatalog is false",
   );
-
-  const enabled = gallery.getGalleryItemsFromMediaCatalog([
-    { ...optionalPhoto, showInCatalog: true },
-  ]);
-  assert.equal(enabled.length, 1, "showInCatalog must enable optional photography");
-  assert.equal(enabled[0].id, optionalPhoto.asset.id);
 });
 
 test("Gallery projection keeps intrinsic dimensions and stable series", async () => {
