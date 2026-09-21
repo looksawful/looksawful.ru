@@ -141,6 +141,43 @@ async function verifyBuiltAssets(page) {
   }
 }
 
+async function verifyHomepageVideos(page) {
+  const videos = page.locator("video:visible");
+  const count = await videos.count();
+  assert.ok(count > 0, "Homepage must expose at least one visible video for runtime smoke");
+
+  for (let index = 0; index < count; index += 1) {
+    const video = videos.nth(index);
+    await video.scrollIntoViewIfNeeded();
+    await page.waitForFunction((targetIndex) => {
+      const visibleVideos = [...document.querySelectorAll("video")].filter((node) => {
+        const style = getComputedStyle(node);
+        const rect = node.getBoundingClientRect();
+        return style.display !== "none"
+          && style.visibility !== "hidden"
+          && rect.width > 0
+          && rect.height > 0;
+      });
+      const node = visibleVideos[targetIndex];
+      return Boolean(
+        node?.error
+        || (node?.readyState >= HTMLMediaElement.HAVE_METADATA && node.videoWidth > 0 && node.videoHeight > 0),
+      );
+    }, index, { timeout: 8_000 });
+
+    const state = await video.evaluate((node) => ({
+      src: node.currentSrc || node.src || node.querySelector("source")?.src || "<missing-src>",
+      error: node.error?.message ?? null,
+      readyState: node.readyState,
+      width: node.videoWidth,
+      height: node.videoHeight,
+    }));
+
+    assert.equal(state.error, null, `Homepage video failed: ${state.src}`);
+    assert.ok(state.readyState >= 1 && state.width > 0 && state.height > 0, `Homepage video metadata unavailable: ${state.src}`);
+  }
+}
+
 async function verifyNavigation(page) {
   const toggle = page.locator("[data-site-menu-toggle]");
   await toggle.click();
@@ -263,6 +300,7 @@ export async function runQuickSmoke({ browser, baseUrl, cvMode = "authored" }) {
     await verifyBuiltAssets(page);
     await verifyNavigation(page);
     await verifyImage(page);
+    if (viewport.width >= 1000) await verifyHomepageVideos(page);
   }));
   await mapWithConcurrency([
     ["/work/jestei-pool/", verifyCase],
