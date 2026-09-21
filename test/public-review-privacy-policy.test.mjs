@@ -6,6 +6,7 @@ import test from "node:test";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const legacyWorkflow = path.join(root, ".github/workflows/pr-preview.yml");
+const legacyCaptionWorkflow = path.join(root, ".github/workflows/caption-qa.yml");
 const policyPath = path.join(root, "docs/agents/public-reporting.md");
 const scanRoots = [
   path.join(root, ".github/workflows"),
@@ -35,6 +36,7 @@ async function textFiles(directory) {
 
 test("public automation has no pre-production review publication path", async () => {
   await assert.rejects(access(legacyWorkflow), (error) => error?.code === "ENOENT");
+  await assert.rejects(access(legacyCaptionWorkflow), (error) => error?.code === "ENOENT");
 
   const files = (await Promise.all(scanRoots.map(textFiles))).flat();
   for (const file of files) {
