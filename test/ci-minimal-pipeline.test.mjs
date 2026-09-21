@@ -3,15 +3,19 @@ import { readdir, readFile } from "node:fs/promises";
 import test from "node:test";
 
 const read = (file) => readFile(new URL(`../${file}`, import.meta.url), "utf8");
+const step = (workflow, name) => workflow.match(new RegExp(`      - name: ${name}\\n[\\s\\S]*?(?=\\n      - name: |$)`))?.[0] ?? "";
 
 const expectedWorkflows = [
+  "agent-verify.yml",
   "ci-fast.yml",
   "cms-media.yml",
   "codeql.yml",
   "dependency-review.yml",
   "media-affected.yml",
+  "media-desk-cloudflare.yml",
   "pages-cms-publish.yml",
   "pages.yml",
+  "private-lab-verify.yml",
   "production-health.yml",
   "quality.yml",
   "ui-responsive.yml",
@@ -67,7 +71,7 @@ test("production validates exact prod tree, exact media cache, fast safety, comp
   assert.match(workflow, /npm ci/);
   assert.match(workflow, /node tools\/media-dev-state\.mjs --fingerprint/);
   assert.match(workflow, /actions\/cache\/restore@v6/);
-  assert.doesNotMatch(workflow, /restore-keys:/);
+  assert.doesNotMatch(step(workflow, "Restore exact generated media cache"), /restore-keys:/);
   assert.match(workflow, /node tools\/media-dev-state\.mjs --cache-verify/);
   assert.match(workflow, /Regenerate exact media cache on miss[\s\S]*?if: steps\.media-cache\.outputs\.cache-hit != 'true'[\s\S]*?npm run media:sync/);
   assert.match(workflow, /Require clean tracked tree after cache recovery[\s\S]*?if: steps\.media-cache\.outputs\.cache-hit != 'true'[\s\S]*?git diff --exit-code/);
@@ -96,8 +100,17 @@ test("CMS media distinguishes references, image sources and video sources, saves
   assert.match(workflow, /has_video/);
   assert.match(workflow, /has_source/);
 
-  assert.match(workflow, /Install video tooling[\s\S]*?if: steps\.scope\.outputs\.has_video == 'true'[\s\S]*?ffmpeg/);
-  assert.match(workflow, /Build image derivatives incrementally[\s\S]*?if: steps\.scope\.outputs\.rebuild != 'true' && steps\.scope\.outputs\.has_image == 'true'/);
+  const validationTooling = step(workflow, "Install video tooling");
+  assert.match(validationTooling, /has_media_change == 'true'/);
+  assert.match(validationTooling, /image_only != 'true'/);
+  assert.doesNotMatch(validationTooling, /has_video == 'true'/);
+  assert.match(validationTooling, /ffmpeg/);
+
+  const broadImageBuild = step(workflow, "Build image derivatives incrementally");
+  assert.match(broadImageBuild, /rebuild != 'true'/);
+  assert.match(broadImageBuild, /has_image == 'true'/);
+  assert.match(broadImageBuild, /image_only != 'true'/);
+  assert.match(broadImageBuild, /requires_full_rebuild != 'true'/);
   assert.match(workflow, /npm run test:media:contract/);
   assert.match(workflow, /npm run test:media:checks/);
   assert.match(workflow, /actions\/cache\/save@v6/);
