@@ -75,6 +75,21 @@ test("Gallery renders exactly five approved Jestei symbols as interactive model 
   }
 });
 
+test("Gallery photo controls expose item-specific accessible names", () => {
+  const cards = [...html.matchAll(/<figure class="gallery-card"[\\s\\S]*?<\\/figure>/g)].map((match) => match[0]);
+  assert.ok(cards.length > 0, "Gallery must render photo controls");
+
+  for (const card of cards) {
+    const title = card.match(/data-gallery-title="([^"]*)"/)?.[1] ?? "";
+    const alt = card.match(/data-gallery-alt="([^"]*)"/)?.[1] ?? "";
+    const label = card.match(/aria-label="([^"]*)"/)?.[1] ?? "";
+    const identity = title.trim() || alt.trim();
+
+    assert.ok(identity, "Gallery photo control must have canonical title or alt identity");
+    assert.equal(label, `Открыть изображение: ${identity}`);
+  }
+});
+
 test("Gallery cards never expose an empty accessible image label when canonical title exists", () => {
   const cards = [...html.matchAll(/<figure class="gallery-card"[\s\S]*?<\/figure>/g)].map((match) => match[0]);
   assert.ok(cards.length > 0, "Gallery must render cards");
