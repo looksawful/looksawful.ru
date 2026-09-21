@@ -53,12 +53,14 @@ test("Lab client stays read-only and carries exact build provenance fields", asy
 
 
 test("Private Lab deploy proxies public media instead of packaging oversized production assets", async () => {
-  const [worker, workflow] = await Promise.all([
+  const [worker, config] = await Promise.all([
     read("tools/cloudflare/private-lab/worker.mjs"),
-    read(".github/workflows/private-lab-cloudflare.yml"),
+    read("tools/cloudflare/private-lab/wrangler.jsonc"),
   ]);
 
   assert.match(worker, /pathname\.startsWith\(["']\/media\/["']\)/);
   assert.match(worker, /https:\/\/www\.looksawful\.ru/);
-  assert.match(workflow, /rm -rf dist-lab\/media/);
+  assert.match(worker, /pathname\.startsWith\(["']\/lab\/["']\)/);
+  assert.match(config, /dist-lab\/lab/);
+  assert.doesNotMatch(config, /"directory"\s*:\s*"\.\.\/\.\.\/\.\.\/dist-lab"/);
 });
