@@ -269,6 +269,13 @@
   font-weight: var(--fw-600);
 }
 
+.project-card__type {
+  display: block;
+  margin-block-start: 0.15rem;
+  color: var(--clr-text-muted);
+  font-weight: var(--fw-400);
+}
+
 .project-card__focus {
   max-inline-size: 34ch;
 }
