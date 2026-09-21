@@ -150,7 +150,7 @@ test("approval is owner-only and promotes an exact Case+SHA baseline", async () 
   assert.equal(new TextDecoder().decode(durableEvidence.bytes), "private-image");
 
   const approval = bucket.object(
-    `review-hub/v1/approvals/${CASE_ID}/${SOURCE_SHA}.json`,
+    `review-hub/v1/approvals/${CASE_ID}/${SOURCE_SHA}/quick.json`,
   );
   assert.ok(approval, "compact approval record must persist separately");
 
@@ -189,7 +189,7 @@ test("stale SHA approval fails closed and cannot replace the Case baseline", asy
   assert.equal(stale.status, 409);
   assert.equal(bucket.object(`review-hub/v1/baselines/${CASE_ID}.json`), null);
   assert.equal(
-    bucket.object(`review-hub/v1/approvals/${CASE_ID}/${STALE_SHA}.json`),
+    bucket.object(`review-hub/v1/approvals/${CASE_ID}/${STALE_SHA}/quick.json`),
     null,
   );
 });
@@ -227,7 +227,7 @@ test("temporary review evidence carries four-day retention while approved copies
     null,
   );
   assert.ok(
-    bucket.object(`review-hub/v1/approvals/${CASE_ID}/${SOURCE_SHA}.json`),
+    bucket.object(`review-hub/v1/approvals/${CASE_ID}/${SOURCE_SHA}/quick.json`),
     "compact approval record must outlive temporary evidence",
   );
   assert.ok(
