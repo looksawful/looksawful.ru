@@ -140,6 +140,8 @@ test("Supabase review storage keeps binary evidence in a private bucket", async 
   assert.ok(upload);
   assert.equal(upload.init.headers["x-upsert"], "true");
   assert.equal(upload.init.headers["Content-Type"], "image/png");
+  assert.equal(upload.init.headers.apikey, ENV.SUPABASE_SECRET_KEY);
+  assert.equal(upload.init.headers.Authorization, `Bearer ${ENV.SUPABASE_SECRET_KEY}`);
 });
 
 test("Supabase review storage deletes physical binaries before metadata rows", async () => {
