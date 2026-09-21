@@ -72,7 +72,7 @@ export const LongContent = {
   args: {
     title: "Preview command",
     description: "Longer source checks wrapping and overflow behavior.",
-    code: "npm run build:site && node tools/preview/prepare-cloudflare-pages.mjs dist",
+    code: "npm run typecheck && npm run build:site",
   },
   play: enhance,
   parameters: {

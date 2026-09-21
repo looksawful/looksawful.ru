@@ -43,6 +43,14 @@ Do not transfer these values from private/local context into GitHub:
 
 Repository-relative paths and intentionally public names are preferable to local absolute paths or account-specific identifiers.
 
+## Pre-production visual review
+
+Production is the only public rendered version of the site. Pre-production visual review must stay private behind the authenticated review boundary.
+
+Do not publish pre-production preview URLs, screenshots, review manifests, visual diffs, raw capture artifacts, storage identifiers, or equivalent review evidence to repository files, Issues, pull requests, comments, reviews, workflow summaries, logs, or public artifacts. A `noindex` directive does not make a rendered preview private.
+
+Public GitHub status may identify a Case and exact source SHA and may report sanitized technical check results. It must not reveal where private review evidence is stored or how to access it.
+
 ## Issues, pull requests, and comments
 
 Issue and PR reports should explain the problem, scope, guardrails, evidence, verification, and final state without reproducing private source material.
