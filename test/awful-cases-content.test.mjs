@@ -22,11 +22,14 @@ test("Awful Cases typography examples preserve enabled real Unicode output", () 
   assert.equal(task("ru", "lint", "(tm) brand")?.output, "™ brand");
 });
 
-test("Awful Cases Russian copy keeps the real application terminology", () => {
+test("each locale exposes guidance for all actions and learning phases", () => {
   const { COPY } = requireContent();
-  assert.equal(COPY.ru.actionTitles.upper, "верхний регистр");
-  assert.equal(COPY.ru.actionTitles.lint, "типографский линтер");
-  assert.equal(COPY.ru.actionTitles.sentence, "типографика предложений");
+  const actions = ["upper", "lower", "toggle", "title", "lint", "sentence"];
+  const phases = ["tutorial", "practice", "exam"];
+  for (const locale of ["en", "ru"]) {
+    assert.deepEqual(Object.keys(COPY[locale].actionTitles).sort(), [...actions].sort(), locale);
+    assert.deepEqual(Object.keys(COPY[locale].phaseLabels).sort(), [...phases].sort(), locale);
+  }
 });
 
 test("each locale teaches all six real actions", () => {
