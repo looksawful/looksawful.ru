@@ -149,6 +149,47 @@ async function verifyNavigation(page) {
   await page.waitForFunction(() => document.querySelector("[data-site-menu-toggle]")?.getAttribute("aria-expanded") === "false" && document.querySelector("[data-site-menu]")?.hidden === true);
 }
 
+async function verifyGalleryAccessibilityBaseline(page) {
+  assert.equal(await page.locator("body").getAttribute("data-page-type"), "gallery");
+
+  const heading = page.locator("main#main-content h1.visually-hidden");
+  assert.equal(await heading.count(), 1, "Gallery must expose one non-visual h1");
+  assert.equal((await heading.innerText()).trim(), "Галерея");
+
+  await page.locator("body").focus();
+  await page.keyboard.press("Tab");
+  assert.equal(
+    await page.evaluate(() => document.activeElement?.classList.contains("skip-link") === true),
+    true,
+    "first keyboard stop must be the shared skip link",
+  );
+
+  const skip = page.locator(".skip-link");
+  assert.equal(await skip.getAttribute("href"), "#main-content");
+  const focusedRect = await skip.evaluate((node) => {
+    const rect = node.getBoundingClientRect();
+    return { top: rect.top, bottom: rect.bottom, width: rect.width, height: rect.height };
+  });
+  assert.ok(
+    focusedRect.bottom > 0 && focusedRect.width > 0 && focusedRect.height > 0,
+    `focused skip link must be visible: ${JSON.stringify(focusedRect)}`,
+  );
+
+  await page.keyboard.press("Enter");
+  await page.waitForFunction(() => document.activeElement?.id === "main-content");
+  assert.equal(
+    await page.evaluate(() => document.activeElement?.id),
+    "main-content",
+    "skip link must move keyboard focus to main content",
+  );
+
+  const labels = await page.locator("[data-gallery-card][aria-label]").evaluateAll((nodes) =>
+    nodes.map((node) => node.getAttribute("aria-label")?.trim() ?? "").filter(Boolean)
+  );
+  assert.ok(labels.length > 1, "Gallery must expose multiple named photo controls");
+  assert.ok(new Set(labels).size > 1, "Gallery photo controls must not share one generic accessible name");
+}
+
 async function verifyImage(page) {
   const image = page.locator("img:visible").first();
   await image.scrollIntoViewIfNeeded();
@@ -265,6 +306,7 @@ export async function runQuickSmoke({ browser, baseUrl, cvMode = "authored" }) {
     await verifyImage(page);
   }));
   await mapWithConcurrency([
+    ["/gallery/", verifyGalleryAccessibilityBaseline],
     ["/work/jestei-pool/", verifyCase],
     ["/work/moves-awful/", verifyCanvas],
   ], 2, ([route, verify]) => audit(runtime, route, VIEWPORTS[1], verify));
