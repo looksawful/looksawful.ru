@@ -2,11 +2,12 @@ import { spawn } from "node:child_process";
 import path from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
 import { fileURLToPath } from "node:url";
-import { chromium } from "playwright";
+import { chromium, firefox, webkit } from "playwright";
 
 const DEFAULT_HOST = "127.0.0.1";
 const DEFAULT_PORT = 4173;
 const SERVER_STOP_GRACE_MS = 2_000;
+const BROWSER_TYPES = { chromium, firefox, webkit };
 export const ANALYTICS_INTERNAL_STORAGE_KEY = "looksawful:analytics-internal";
 const internalAnalyticsBrowsers = new WeakMap();
 
@@ -153,7 +154,12 @@ export async function withE2ERuntime(callback, options = {}) {
 
   try {
     await waitForServer(baseUrl, server, () => serverOutput, options.waitAttempts);
-    browser = await chromium.launch({ headless: true });
+    const browserName = options.browserName ?? process.env.E2E_BROWSER ?? "chromium";
+    const browserType = BROWSER_TYPES[browserName];
+    if (!browserType) {
+      throw new Error(`unsupported E2E browser: ${browserName}`);
+    }
+    browser = await browserType.launch({ headless: true });
     const analyticsSafeBrowser = createInternalAnalyticsBrowser(browser);
     return await callback({ browser: analyticsSafeBrowser, baseUrl, host, port });
   } finally {
