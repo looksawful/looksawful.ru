@@ -125,3 +125,9 @@ Any repository, pull-request, issue, comment, review, artifact or workflow outpu
 **Review evidence**:
 The private screenshots, manifests, diffs and exact rendered outputs used to make a Visual approval decision.
 
+**Review manifest**:
+The private machine-readable record for one Case review, identifying its source SHA, review depth, required profiles, evidence locations, checks and approval state.
+
+**Approval record**:
+An immutable private audit record proving that a specific Case at a specific source SHA received Visual approval.
+
