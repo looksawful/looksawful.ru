@@ -64,6 +64,10 @@ class MemoryR2 {
   object(key) {
     return this.#objects.get(key) ?? null;
   }
+
+  objectsWithPrefix(prefix) {
+    return [...this.#objects.values()].filter((object) => object.key.startsWith(prefix));
+  }
 }
 
 function reviewManifest() {
@@ -152,11 +156,11 @@ test("approval is owner-only and promotes an exact Case+SHA baseline", async () 
     `/lab/review/baseline/${CASE_ID}/evidence/desktop`,
   );
 
-  const durableEvidence = bucket.object(
-    `review-hub/v1/baselines/${CASE_ID}/${SOURCE_SHA}/evidence/desktop`,
+  const durableEvidence = bucket.objectsWithPrefix(
+    `review-hub/v1/baselines/${CASE_ID}/objects/`,
   );
-  assert.ok(durableEvidence, "approved baseline evidence must be durable");
-  assert.equal(new TextDecoder().decode(durableEvidence.bytes), "private-image");
+  assert.equal(durableEvidence.length, 1, "approved baseline evidence must be durable");
+  assert.equal(new TextDecoder().decode(durableEvidence[0].bytes), "private-image");
 
   const approval = bucket.object(
     `review-hub/v1/approvals/${CASE_ID}/${SOURCE_SHA}/quick.json`,
@@ -172,6 +176,8 @@ test("approval is owner-only and promotes an exact Case+SHA baseline", async () 
     now: () => NOW,
   });
   assert.equal(baselineResponse.status, 200);
+  const publicBaseline = await baselineResponse.json();
+  assert.equal(publicBaseline.promotionId, undefined, "private storage identifiers must not leak");
 
   const baselineEvidence = await handleReviewRequest({
     request: new Request(
@@ -219,10 +225,11 @@ test("temporary review evidence carries four-day retention while approved copies
     now: () => NOW,
   });
 
-  const durableEvidence = bucket.object(
-    `review-hub/v1/baselines/${CASE_ID}/${SOURCE_SHA}/evidence/desktop`,
+  const durableEvidence = bucket.objectsWithPrefix(
+    `review-hub/v1/baselines/${CASE_ID}/objects/`,
   );
-  assert.deepEqual(durableEvidence?.customMetadata ?? {}, {});
+  assert.equal(durableEvidence.length, 1);
+  assert.deepEqual(durableEvidence[0]?.customMetadata ?? {}, {});
 
   const expiredReview = await handleReviewRequest({
     request: new Request("https://admin.looksawful.ru/lab/review/api"),
@@ -239,8 +246,9 @@ test("temporary review evidence carries four-day retention while approved copies
     bucket.object(`review-hub/v1/approvals/${CASE_ID}/${SOURCE_SHA}/quick.json`),
     "compact approval record must outlive temporary evidence",
   );
-  assert.ok(
-    bucket.object(`review-hub/v1/baselines/${CASE_ID}/${SOURCE_SHA}/evidence/desktop`),
+  assert.equal(
+    bucket.objectsWithPrefix(`review-hub/v1/baselines/${CASE_ID}/objects/`).length,
+    1,
     "approved baseline evidence must outlive temporary evidence",
   );
 });
@@ -282,10 +290,8 @@ test("failed final baseline promotion rolls back durable copies and approval rec
     null,
   );
   assert.equal(
-    bucket.object(
-      `review-hub/v1/baselines/${CASE_ID}/${SOURCE_SHA}/evidence/desktop`,
-    ),
-    null,
+    bucket.objectsWithPrefix(`review-hub/v1/baselines/${CASE_ID}/objects/`).length,
+    0,
   );
 });
 
