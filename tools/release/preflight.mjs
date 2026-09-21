@@ -41,10 +41,10 @@ function changedFiles(repo, base, head) {
   return changedEntries(repo, base, head).map((entry) => entry.target);
 }
 
-function mergeTree(repo, left, right) {
+function mergeTree(repo, left, right, mergeBase) {
   const result = spawnSync(
     "git",
-    ["-c", "core.quotePath=false", "merge-tree", "--write-tree", left, right],
+    ["-c", "core.quotePath=false", "merge-tree", "--write-tree", `--merge-base=${mergeBase}`, left, right],
     { cwd: repo, encoding: "utf8" },
   );
   if (result.error) throw result.error;
@@ -126,7 +126,7 @@ export function runPreflight(argv = process.argv.slice(2)) {
   if (overlap.length) {
     let expected;
     try {
-      expected = mergeTree(repo, prodBase, approvedHead);
+      expected = mergeTree(repo, prodBase, approvedHead, approvedBase);
     } catch {
       for (const file of overlap) console.error(`PROD_OVERLAP_REQUIRES_RECONCILIATION ${file}`);
       return 1;
