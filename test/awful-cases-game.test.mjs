@@ -70,7 +70,8 @@ test("both game surfaces expose onboarding, guidance and all six actions", async
     for (const action of ["upper", "lower", "title", "toggle", "lint", "sentence"]) {
       assert.match(source, new RegExp(`data-awful-cases-action="${action}"`));
     }
-    assert.doesNotMatch(source, />[WSAD]<\/b>/);\n    assert.doesNotMatch(source, /WASD/);
+    assert.doesNotMatch(source, />[WSAD]<\/b>/);
+    assert.doesNotMatch(source, /WASD/);
   }
 
   assert.match(component, /data-awful-cases-action="upper"[\s\S]*?<b>↑<\/b>/);
