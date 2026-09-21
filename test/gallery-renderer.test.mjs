@@ -27,13 +27,13 @@ assert.ok(galleryPage && galleryPage.type === "gallery");
 
 const html = renderGalleryPage(galleryPage);
 
-test("Gallery renderer emits semantic build-time content inside the shared page shell without a page-level heading", () => {
+test("Gallery renderer exposes one visible page heading inside the shared page shell", () => {
   assert.match(html, /<body[^>]*data-page-type="gallery"[^>]*>/);
   assert.match(html, /data-site-navigation/);
   assert.match(html, /<main>/);
   assert.match(html, /<section[^>]*data-gallery/);
-  assert.doesNotMatch(html, /<h1\b/i);
-  assert.doesNotMatch(html, /gallery__header|gallery__title/);
+  assert.match(html, /<h1 class="gallery__title">Gallery<\/h1>/);
+  assert.equal((html.match(/<h1\b/g) ?? []).length, 1);
 });
 
 test("Gallery renderer has one photo stream and no retired layer/filter UI", () => {
@@ -44,26 +44,26 @@ test("Gallery renderer has one photo stream and no retired layer/filter UI", () 
   assert.doesNotMatch(html, /data-gallery-sort|data-gallery-search/);
 });
 
-test("Gallery output keeps invisible series boundaries and intrinsic image geometry", () => {
+test("Gallery output exposes quiet series headings, captions, and intrinsic image geometry", () => {
   assert.match(html, /data-gallery-series=/);
   assert.match(html, /data-gallery-item-id=/);
   assert.match(html, /<img[^>]*\bwidth="\d+"[^>]*\bheight="\d+"/);
-  assert.doesNotMatch(html, /gallery-series__title|data-gallery-series-title/);
+  assert.match(html, /gallery-series__title/);
+  assert.match(html, /gallery-card__caption/);
+  assert.match(html, /aria-label="Открыть: [^"]+"/);
 });
 
-test("Gallery renders exactly five approved Jestei symbols as interactive model cards", () => {
+test("Gallery renders exactly three curated Jestei symbols as interactive model cards", () => {
   const modelCards = [...html.matchAll(/<figure class="gallery-card gallery-card--model"[\s\S]*?<\/figure>/g)]
     .map((match) => match[0]);
 
-  assert.equal(modelCards.length, 5);
+  assert.equal(modelCards.length, 3);
   assert.deepEqual(
     modelCards.map((card) => card.match(/data-model-src="([^"]+)"/)?.[1]),
     [
-      "/media/logo-3d/jestei/jestei-symbol-metal.glb",
       "/media/logo-3d/jestei/jestei-symbol-pear.glb",
       "/media/logo-3d/jestei/jestei-symbol-orange.glb",
       "/media/logo-3d/jestei/jestei-symbol-blue.glb",
-      "/media/logo-3d/jestei/jestei-symbol-biloba.glb",
     ],
   );
 
@@ -111,9 +111,11 @@ test("Gallery PhotoSwipe credits inherit a high-contrast lightbox surface", () =
   assert.match(captionRule, /position:\s*absolute/);
 });
 
-test("Gallery CSS has no retired heading styles and explicitly avoids masonry mechanics", () => {
+test("Gallery CSS keeps visible hierarchy and explicitly avoids masonry mechanics", () => {
   assert.doesNotMatch(galleryCss, /\.gallery__header\b/);
-  assert.doesNotMatch(galleryCss, /\.gallery__title\b/);
+  assert.match(galleryCss, /\.gallery__title\b/);
+  assert.match(galleryCss, /\.gallery-series__title\b/);
+  assert.match(galleryCss, /\.gallery-card__caption\b/);
   assert.doesNotMatch(galleryCss, /column-count\s*:/);
   assert.doesNotMatch(galleryCss, /grid-auto-rows\s*:/);
   assert.doesNotMatch(galleryCss, /grid-row-end\s*:/);
