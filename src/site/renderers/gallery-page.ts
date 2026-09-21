@@ -40,7 +40,7 @@ function renderGalleryCard(item: GalleryItem): string {
 
 function renderGalleryModelCard(item: GalleryModelItem): string {
   return `<figure class="gallery-card gallery-card--model" data-gallery-model-card>
-  <div class="gallery-model" data-model-viewer-runtime data-model-src="${escapeHtml(item.asset.src)}" data-model-autorotate="false" role="img" aria-label="${escapeHtml(item.alt)}">
+  <div class="gallery-model" data-model-viewer-runtime data-model-src="${escapeHtml(item.asset.src)}" data-model-autorotate="false" tabindex="0" role="group" aria-label="${escapeHtml(item.alt)}" aria-keyshortcuts="ArrowLeft ArrowRight ArrowUp ArrowDown Home">
     <img class="gallery-model__poster" src="${escapeHtml(item.posterSrc)}" alt="" loading="lazy" decoding="async">
     <canvas class="gallery-model__canvas" data-model-viewer-canvas aria-hidden="true"></canvas>
   </div>
