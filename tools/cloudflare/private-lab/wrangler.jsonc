@@ -15,7 +15,7 @@
     "SUPABASE_PUBLISHABLE_KEY": "sb_publishable_XjqncIsro_2zJR3mIgtNaw_uS39k0Yy"
   },
   "assets": {
-    "directory": "../../../dist-lab",
+    "directory": "../../../dist-lab/lab",
     "binding": "ASSETS",
     "run_worker_first": true,
     "html_handling": "auto-trailing-slash"
