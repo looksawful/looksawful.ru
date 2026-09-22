@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
+import { waitForDocumentReady } from "./readiness.mjs";
 import { withE2ERuntime } from "./runtime.mjs";
 
 const outputDir = path.resolve("dist/playtest-awful-cases");
@@ -37,7 +38,10 @@ async function openTrainer(page, url) {
     if (message.type() === "error") errors.push(`console: ${message.text()}`);
   });
   await page.goto(url, { waitUntil: "domcontentloaded" });
-  await page.locator("[data-awful-cases]").waitFor();
+  await waitForDocumentReady(page, "[data-awful-cases]");
+  const trainer = page.locator("[data-awful-cases]").first();
+  await trainer.scrollIntoViewIfNeeded();
+  await trainer.waitFor({ state: "visible" });
   await page.waitForFunction(() =>
     Boolean(document.querySelector("[data-awful-cases]")?.awfulCasesCaseTrainer),
   );
