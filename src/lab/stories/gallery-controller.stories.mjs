@@ -2,9 +2,15 @@ import { createGalleryController } from "../../components/gallery/gallery-contro
 import { getPageByPath } from "../../site/pages/manifest.ts";
 import { extractElementContainingMarker } from "../../site/rendering/html.ts";
 import { renderGalleryPage } from "../../site/renderers/gallery-page.ts";
+import { cases } from "../../data/catalog/cases.ts";
 import { contextualMediaCatalogItems } from "../../data/media/catalog-view.ts";
 import { resolveGalleryCuration } from "../../data/media/gallery-curation.ts";
 import { renderGalleryResolvedSeries } from "../../components/gallery/gallery-markup.ts";
+
+const jesteiCaseName = cases.find(({ id }) => id === "jestei-pool")?.name;
+if (!jesteiCaseName) {
+  throw new Error("Canonical Jestei Pool Case identity is unavailable");
+}
 
 const galleryPage = getPageByPath("/gallery/");
 if (!galleryPage || galleryPage.type !== "gallery") {
@@ -37,7 +43,7 @@ const mixedMediaMarkup = `<section class="gallery" data-gallery>
   <div class="gallery__content">
     ${renderGalleryResolvedSeries({
       id: "jestei-track-filter-proof",
-      projectLabel: "Jestei Pool",
+      projectLabel: jesteiCaseName,
       placements: mixedMediaPlacements,
     })}
   </div>
