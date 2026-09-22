@@ -94,6 +94,8 @@ export const fastTests = new Set([
   // CONTRACT: public GitHub automation must never publish pre-production visual-review evidence.
   "test/public-review-privacy-policy.test.mjs",
   "test/private-lab-shell.test.mjs",
+  // CONTRACT: visual-impact routing is a cheap, deterministic privacy-review gate.
+  "test/private-review-routing.test.mjs",
   "test/project-card-hover.test.mjs",
   "test/project-lead-desktop-width.test.mjs",
   "test/repository-growth-policy.test.mjs",
