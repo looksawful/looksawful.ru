@@ -3,7 +3,6 @@ import test from "node:test";
 import { routeVisualReviewChanges } from "../tools/private-review/routing.ts";
 
 const knownCaseIds = [
-  "awful-mockups",
   "jestei-pool",
   "sensetique",
   "styx",
@@ -74,7 +73,7 @@ test("interactive declaration raises review depth to Interactive", () => {
       knownCaseIds,
       declarations: [{
         path: "src/components/project-carousel.ts",
-        caseIds: ["awful-mockups", "jestei-pool"],
+        caseIds: ["jestei-pool", "styx"],
         minimumDepth: "Interactive",
       }],
     },
@@ -83,7 +82,7 @@ test("interactive declaration raises review depth to Interactive", () => {
   assert.equal(route.visualImpact, "interactive");
   assert.equal(route.reviewDepth, "Interactive");
   assert.equal(route.affectedCaseMode, "explicit");
-  assert.deepEqual(route.affectedCaseIds, ["awful-mockups", "jestei-pool"]);
+  assert.deepEqual(route.affectedCaseIds, ["jestei-pool", "styx"]);
 });
 
 test("global shared UI fails closed to Full review for all Cases", () => {
@@ -219,4 +218,33 @@ test("declarations never lower inferred interactive review depth", () => {
   assert.equal(route.reviewDepth, "Interactive");
   assert.equal(route.affectedCaseMode, "explicit");
   assert.deepEqual(route.affectedCaseIds, ["styx"]);
+});
+
+
+test("shared interactive UI without a declaration requires Full review", () => {
+  const route = routeVisualReviewChanges(
+    [{ path: "src/components/project-carousel.ts", status: "modified" }],
+    { knownCaseIds },
+  );
+
+  assert.equal(route.visualImpact, "global");
+  assert.equal(route.reviewDepth, "Full");
+  assert.equal(route.affectedCaseMode, "all");
+  assert.deepEqual(route.affectedCaseIds, knownCaseIds);
+});
+
+test("user-visible text never lowers the Full floor for shared UI", () => {
+  const route = routeVisualReviewChanges(
+    [{
+      path: "src/components/project-card.ts",
+      status: "modified",
+      userVisibleText: true,
+    }],
+    { knownCaseIds },
+  );
+
+  assert.equal(route.visualImpact, "global");
+  assert.equal(route.reviewDepth, "Full");
+  assert.equal(route.affectedCaseMode, "all");
+  assert.deepEqual(route.affectedCaseIds, knownCaseIds);
 });
