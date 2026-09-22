@@ -6,11 +6,21 @@ import { pathToFileURL } from "node:url";
 import { chromium, webkit } from "playwright";
 
 import { buildReviewRuntimeMatrix } from "./runtime-matrix.mjs";
-import { captureReviewEvidence, openReviewPage } from "./runtime.mjs";
+import {
+  captureReviewEvidence,
+  openReviewPage,
+  prepareDynamicReviewStates,
+} from "./runtime.mjs";
 
 const host = "127.0.0.1";
 
 const dynamicStates = [
+  {
+    id: "fixture-video",
+    kind: "video",
+    selector: "video[data-review-video]",
+    time: 0.05,
+  },
   {
     id: "fixture-canvas",
     kind: "canvas",
@@ -54,10 +64,65 @@ function startFixtureServer() {
   </head>
   <body>
     <main data-review-fixture="ready">runtime smoke</main>
-    <div data-review-canvas data-review-ready="loading" data-review-stable="moving"></div>
-    <div data-review-webgl data-review-ready="loading" data-review-stable="moving"></div>
-    <div data-review-gallery data-review-ready="loading" data-review-stable="moving"></div>
+    <video
+      data-review-dynamic="video"
+      data-review-state-id="fixture-video"
+      data-review-video
+      muted
+      preload="auto"
+    ></video>
+    <canvas
+      data-review-dynamic="canvas"
+      data-review-state-id="fixture-canvas"
+      data-review-canvas
+      data-review-ready="loading"
+      data-review-stable="moving"
+    ></canvas>
+    <canvas
+      data-review-dynamic="webgl"
+      data-review-state-id="fixture-webgl"
+      data-review-webgl
+      data-review-ready="loading"
+      data-review-stable="moving"
+    ></canvas>
+    <div
+      data-review-dynamic="infinite-gallery"
+      data-review-state-id="fixture-gallery"
+      data-review-gallery
+      data-review-ready="loading"
+      data-review-stable="moving"
+    ></div>
+    <div
+      data-reveal
+      style="opacity:0;visibility:hidden;transform:translateX(40px)"
+    >settled reveal</div>
     <script>
+      const writeAscii = (view, offset, value) => {
+        for (let index = 0; index < value.length; index += 1) {
+          view.setUint8(offset + index, value.charCodeAt(index));
+        }
+      };
+      const sampleRate = 8000;
+      const sampleCount = 2000;
+      const wav = new ArrayBuffer(44 + sampleCount);
+      const wavView = new DataView(wav);
+      writeAscii(wavView, 0, "RIFF");
+      wavView.setUint32(4, 36 + sampleCount, true);
+      writeAscii(wavView, 8, "WAVE");
+      writeAscii(wavView, 12, "fmt ");
+      wavView.setUint32(16, 16, true);
+      wavView.setUint16(20, 1, true);
+      wavView.setUint16(22, 1, true);
+      wavView.setUint32(24, sampleRate, true);
+      wavView.setUint32(28, sampleRate, true);
+      wavView.setUint16(32, 1, true);
+      wavView.setUint16(34, 8, true);
+      writeAscii(wavView, 36, "data");
+      wavView.setUint32(40, sampleCount, true);
+      new Uint8Array(wav, 44).fill(128);
+      document.querySelector("[data-review-video]").src = URL.createObjectURL(
+        new Blob([wav], { type: "audio/wav" }),
+      );
       document.addEventListener("looksawful:review-state-request", (event) => {
         const target = event.target;
         const stable = event.detail?.stable;
@@ -110,12 +175,39 @@ async function runRow(browser, baseUrl, row) {
       "runtime smoke",
     );
 
-    if (row.phase === "capture") {
-      for (const state of dynamicStates) {
+    if (row.phase === "technical-smoke") {
+      await prepareDynamicReviewStates(opened.page, dynamicStates);
+    }
+
+    if (row.phase === "capture" || row.phase === "technical-smoke") {
+      for (const state of dynamicStates.filter(({ kind }) => kind !== "video")) {
         const target = opened.page.locator(state.selector);
         assert.equal(await target.getAttribute("data-review-ready"), "ready");
         assert.equal(await target.getAttribute("data-review-stable"), "stable");
       }
+
+      const videoState = dynamicStates.find(({ kind }) => kind === "video");
+      const video = opened.page.locator(videoState.selector);
+      assert.equal(await video.evaluate((element) => element.paused), true);
+      assert.ok(
+        Math.abs((await video.evaluate((element) => element.currentTime)) - videoState.time) <= 0.05,
+      );
+    }
+
+    if (row.phase === "capture") {
+      const revealStyle = await opened.page.locator("[data-reveal]").evaluate((element) => {
+        const style = getComputedStyle(element);
+        return {
+          opacity: style.opacity,
+          visibility: style.visibility,
+          transform: style.transform,
+        };
+      });
+      assert.deepEqual(revealStyle, {
+        opacity: "1",
+        visibility: "visible",
+        transform: "none",
+      });
 
       const evidence = await captureReviewEvidence(opened.page, row);
       assert.ok(evidence.length > 0);

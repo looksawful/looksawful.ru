@@ -1,4 +1,6 @@
-import { validateDynamicReviewState } from "./runtime-matrix.mjs";
+import {
+  validateDynamicReviewStateCoverage,
+} from "./runtime-matrix.mjs";
 
 export const DEFAULT_REVIEW_SEED = 1087;
 export const DEFAULT_REVIEW_TIME = "2026-01-01T12:00:00.000Z";
@@ -306,6 +308,18 @@ async function prepareVideoState(page, state, timeoutMs) {
   await locator.waitFor({ state: "attached", timeout: timeoutMs });
   await locator.scrollIntoViewIfNeeded({ timeout: timeoutMs });
 
+  await locator.evaluate((video) => {
+    if (!(video instanceof HTMLVideoElement)) {
+      throw new TypeError("Declared review video selector did not resolve to a video");
+    }
+    const hasAuthoredSource =
+      Boolean(video.getAttribute("src")) ||
+      Boolean(video.querySelector("source[src]"));
+    if (hasAuthoredSource && video.readyState === HTMLMediaElement.HAVE_NOTHING) {
+      video.load();
+    }
+  });
+
   await page.waitForFunction(
     ({ selector, time }) => {
       const video = document.querySelector(selector);
@@ -375,6 +389,17 @@ async function prepareAttributeState(page, state, timeoutMs) {
   await waitForAttributeState(page, state.selector, state.stable, timeoutMs);
 }
 
+async function collectDynamicReviewDeclarations(page) {
+  return page.evaluate(() =>
+    [...document.querySelectorAll("video, canvas, [data-review-dynamic]")].map(
+      (element) => ({
+        id: element.getAttribute("data-review-state-id"),
+        kind: element.getAttribute("data-review-dynamic"),
+      }),
+    ),
+  );
+}
+
 export async function prepareDynamicReviewStates(
   page,
   states = [],
@@ -389,7 +414,8 @@ export async function prepareDynamicReviewStates(
     "Review readiness timeout",
     MAX_TIMEOUT_MS,
   );
-  const normalized = states.map(validateDynamicReviewState);
+  const declarations = await collectDynamicReviewDeclarations(page);
+  const normalized = validateDynamicReviewStateCoverage(declarations, states);
 
   for (const state of normalized) {
     if (state.kind === "video") {

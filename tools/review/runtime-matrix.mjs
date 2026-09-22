@@ -90,18 +90,6 @@ function selectedProfiles(reviewDepth, affectedProfiles) {
   return [...CANONICAL_REVIEW_PROFILES];
 }
 
-function normalizeMotionDifference(motionDifference) {
-  const value = motionDifference ?? {};
-  if (!value || typeof value !== "object" || Array.isArray(value)) {
-    throw new TypeError("motionDifference must be an object when provided");
-  }
-
-  return {
-    viewport: value.viewport === true,
-    fullPage: value.fullPage === true,
-  };
-}
-
 function matrixRow({
   phase,
   browser,
@@ -132,12 +120,18 @@ function matrixRow({
 export function buildReviewRuntimeMatrix({
   reviewDepth,
   affectedProfiles,
+  motionStates = [],
   motionDifference,
 } = {}) {
   const normalizedDepth = normalizeReviewDepth(reviewDepth);
+  if (motionDifference !== undefined) {
+    throw new TypeError(
+      "motionDifference is derived from motionStates; declare component motion states instead",
+    );
+  }
 
   const profiles = selectedProfiles(normalizedDepth, affectedProfiles);
-  const materialMotion = normalizeMotionDifference(motionDifference);
+  const materialMotion = resolveMotionDifference(motionStates);
   const rows = [];
 
   for (const profile of profiles) {
@@ -209,6 +203,51 @@ function nonEmptyString(value, label) {
   return value;
 }
 
+function normalizeMotionReviewState(value) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    throw new TypeError("Motion review state must be an object");
+  }
+
+  const id = nonEmptyString(value.id, "motion state id");
+  const scope = nonEmptyString(value.scope, "motion state scope");
+  if (!["viewport", "below-fold"].includes(scope)) {
+    throw new TypeError("Motion review state scope must be viewport or below-fold");
+  }
+  if (typeof value.materialDifference !== "boolean") {
+    throw new TypeError("Motion review state materialDifference must be boolean");
+  }
+
+  return Object.freeze({
+    id,
+    scope,
+    materialDifference: value.materialDifference,
+  });
+}
+
+export function resolveMotionDifference(motionStates = []) {
+  if (!Array.isArray(motionStates)) {
+    throw new TypeError("motionStates must be an array");
+  }
+
+  const ids = new Set();
+  let viewport = false;
+  let fullPage = false;
+
+  for (const value of motionStates) {
+    const state = normalizeMotionReviewState(value);
+    if (ids.has(state.id)) {
+      throw new TypeError(`Duplicate motion review state id: ${state.id}`);
+    }
+    ids.add(state.id);
+
+    if (!state.materialDifference) continue;
+    if (state.scope === "viewport") viewport = true;
+    if (state.scope === "below-fold") fullPage = true;
+  }
+
+  return Object.freeze({ viewport, fullPage });
+}
+
 function attributeState(value, label) {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
     throw new TypeError(`${label} must declare attribute and value`);
@@ -258,4 +297,55 @@ export function validateDynamicReviewState(value) {
     ready: attributeState(value.ready, "ready"),
     stable: attributeState(value.stable, "stable"),
   });
+}
+
+export function validateDynamicReviewStateCoverage(declarations = [], states = []) {
+  if (!Array.isArray(declarations)) {
+    throw new TypeError("Dynamic review declarations must be an array");
+  }
+  if (!Array.isArray(states)) {
+    throw new TypeError("Dynamic review states must be an array");
+  }
+
+  const normalizedStates = states.map(validateDynamicReviewState);
+  const stateById = new Map();
+  for (const state of normalizedStates) {
+    if (stateById.has(state.id)) {
+      throw new TypeError(`Duplicate dynamic review state id: ${state.id}`);
+    }
+    stateById.set(state.id, state);
+  }
+
+  const declarationIds = new Set();
+  for (const declaration of declarations) {
+    if (!declaration || typeof declaration !== "object" || Array.isArray(declaration)) {
+      throw new TypeError("Dynamic review declaration must be an object");
+    }
+
+    const id = nonEmptyString(declaration.id, "dynamic declaration id");
+    const kind = nonEmptyString(declaration.kind, "dynamic declaration kind");
+    if (!DYNAMIC_KINDS.has(kind)) {
+      throw new TypeError(`Unsupported dynamic review declaration kind: ${kind}`);
+    }
+    if (declarationIds.has(id)) {
+      throw new TypeError(`Duplicate dynamic review declaration id: ${id}`);
+    }
+    declarationIds.add(id);
+
+    const state = stateById.get(id);
+    if (!state) {
+      throw new Error(`Missing dynamic review state for declaration: ${id}`);
+    }
+    if (state.kind !== kind) {
+      throw new Error(`Dynamic review state kind mismatch for declaration: ${id}`);
+    }
+  }
+
+  for (const state of normalizedStates) {
+    if (!declarationIds.has(state.id)) {
+      throw new Error(`Dynamic review state has no matching declaration: ${state.id}`);
+    }
+  }
+
+  return normalizedStates;
 }

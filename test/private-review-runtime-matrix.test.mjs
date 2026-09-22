@@ -82,7 +82,7 @@ test("motion material-difference rules are derived from component declarations",
       { id: "hero-motion", scope: "viewport", materialDifference: true },
       { id: "footer-marquee", scope: "below-fold", materialDifference: false },
     ]),
-    { viewport: true, fullPage: true },
+    { viewport: true, fullPage: false },
   );
 
   assert.deepEqual(
