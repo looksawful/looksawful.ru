@@ -44,11 +44,11 @@ export const portfolioPresentation = {
 export function getProjectIndexPageIds(
   presentation: PortfolioPresentation = portfolioPresentation,
 ): readonly PortfolioEntityPageId[] {
-  return [
+  return [...new Set<PortfolioEntityPageId>([
     ...presentation.flagship,
     ...presentation.featured,
     ...presentation.projectIndexExtras,
-  ];
+  ])];
 }
 
 export function getNextCasePageId(
