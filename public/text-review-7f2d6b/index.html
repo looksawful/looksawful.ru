@@ -26,6 +26,7 @@ main{max-width:1180px;margin:auto;padding:18px 14px 100px}
 .copy{font-size:clamp(18px,2vw,27px);line-height:1.35;white-space:pre-wrap;overflow-wrap:anywhere;flex:1}
 .choose{margin-top:24px;padding:13px;border:1px solid #ccc;border-radius:11px;background:#fff;color:#111}.choose.primary{background:#111;color:#fff;border-color:#111}
 .custom-toggle{border:0;background:transparent;padding:12px 0;color:#666;text-decoration:underline;text-underline-offset:4px}
+.swipe-hint{display:none}
 .custom-panel{display:none}.custom-panel.open{display:block}
 textarea{width:100%;min-height:140px;padding:14px;border:1px solid #ccc;border-radius:12px;resize:vertical;background:#fff;outline:none}
 textarea:focus{border-color:#111;box-shadow:0 0 0 1px #111}
@@ -33,7 +34,7 @@ textarea:focus{border-color:#111;box-shadow:0 0 0 1px #111}
 .footer{position:fixed;left:50%;bottom:max(12px,env(safe-area-inset-bottom));transform:translateX(-50%);display:grid;grid-template-columns:44px minmax(180px,auto) 44px;gap:8px;align-items:center;background:#fff;border:1px solid #d6d6d0;border-radius:15px;padding:7px;box-shadow:0 8px 30px #0001}
 .nav{width:44px;height:40px;border:0;border-radius:9px;background:#efefec;font-size:20px}.nav:disabled{opacity:.3}
 .status{text-align:center;font-size:12px;color:#666;padding:0 8px}
-@media(max-width:700px){main{padding:10px 10px 96px}.compare{grid-template-columns:1fr;gap:9px}.card{min-height:0;padding:16px}.copy{font-size:18px}.footer{width:calc(100% - 20px);grid-template-columns:44px 1fr 44px}.login{margin-top:10vh}}
+@media(max-width:700px){main{padding:10px 10px 112px}.compare{grid-template-columns:1fr;gap:9px;will-change:transform;transform-origin:50% 70%}.compare.swipe-moving{transition:none}.compare.swipe-reset{transition:transform .18s ease}.card{min-height:0;padding:16px}.copy{font-size:18px}.swipe-hint{display:flex;justify-content:space-between;gap:8px;margin:10px 2px 0;color:#777;font-size:11px;letter-spacing:.01em;user-select:none}.swipe-hint span{white-space:nowrap}.footer{width:calc(100% - 20px);grid-template-columns:44px 1fr 44px}.login{margin-top:10vh}}
 </style>
 </head>
 <body>
@@ -80,8 +81,7 @@ function render(){
   '<section class="compare">'+
     '<article class="card '+(v.choice==='b'?'selected':'')+'"><div class="head"><span>Сейчас</span><span>B</span></div><div class="copy">'+esc(before)+'</div><button class="choose" data-choice="b">B · не трогаем</button></article>'+
     '<article class="card '+(v.choice==='a'?'selected':'')+'"><div class="head"><span>После</span><span>A</span></div><div class="copy">'+esc(after)+'</div><button class="choose primary" data-choice="a">A · меняем</button></article>'+
-  '</section>'+
-  '<button class="custom-toggle" id="custom-toggle">Свой текст</button>'+
+  '</section>'+\n  '<div class="swipe-hint" aria-hidden="true"><span>← оставить</span><span>↓ свой текст</span><span>изменить →</span></div>'+\n  '<button class="custom-toggle" id="custom-toggle">Свой текст</button>'+
   '<div class="custom-panel '+(customOpen||v.choice==='custom'?'open':'')+'"><textarea id="custom-text" placeholder="Напиши свой вариант…">'+esc(v.custom_text||'')+'</textarea><button class="save-custom" id="save-custom">Сохранить свой текст</button></div>'+
   '<footer class="footer"><button class="nav" id="prev" '+(index===0?'disabled':'')+'>←</button><div class="status" id="status">'+(v.choice?'Сохранено':'Не решено')+' · '+done+'/'+items.length+'</div><button class="nav" id="next" '+(index===items.length-1?'disabled':'')+'>→</button></footer>';
   document.querySelectorAll('.choose').forEach(b=>b.onclick=()=>save(b.dataset.choice));
@@ -89,6 +89,36 @@ function render(){
   document.getElementById('save-custom').onclick=saveCustom;
   document.getElementById('prev').onclick=()=>{if(index>0){index--;customOpen=false;render()}};
   document.getElementById('next').onclick=()=>{if(index<items.length-1){index++;customOpen=false;render()}};
+  bindSwipe();
+}
+function openCustom(){
+  customOpen=true;render();
+  setTimeout(()=>document.getElementById('custom-text')?.focus(),0);
+}
+function bindSwipe(){
+  if(!matchMedia('(max-width:700px) and (pointer:coarse)').matches)return;
+  const el=document.querySelector('.compare');if(!el)return;
+  let sx=0,sy=0,dx=0,dy=0,active=false,locked='';
+  const reset=()=>{el.classList.remove('swipe-moving');el.classList.add('swipe-reset');el.style.transform='';setTimeout(()=>el.classList.remove('swipe-reset'),190)};
+  el.addEventListener('touchstart',e=>{
+    if(e.touches.length!==1)return;
+    const t=e.touches[0];sx=t.clientX;sy=t.clientY;dx=dy=0;active=true;locked='';el.classList.add('swipe-moving');
+  },{passive:true});
+  el.addEventListener('touchmove',e=>{
+    if(!active||e.touches.length!==1)return;
+    const t=e.touches[0];dx=t.clientX-sx;dy=t.clientY-sy;
+    if(!locked&&Math.max(Math.abs(dx),Math.abs(dy))>12)locked=Math.abs(dx)>Math.abs(dy)?'x':(dy>0?'down':'up');
+    if(locked==='x'||locked==='down')e.preventDefault();
+    const tx=locked==='x'?dx*.42:0,ty=locked==='down'?Math.min(dy*.18,28):0,rot=locked==='x'?dx*.018:0;
+    el.style.transform='translate3d('+tx+'px,'+ty+'px,0) rotate('+rot+'deg)';
+  },{passive:false});
+  el.addEventListener('touchend',()=>{
+    if(!active)return;active=false;
+    const ax=Math.abs(dx),ay=Math.abs(dy);reset();
+    if(locked==='x'&&ax>64){dx>0?save('a'):save('b');return}
+    if(locked==='down'&&dy>72&&ay>ax){openCustom();return}
+  },{passive:true});
+  el.addEventListener('touchcancel',()=>{active=false;reset()},{passive:true});
 }
 async function save(choice){
   if(saving)return;saving=true;
