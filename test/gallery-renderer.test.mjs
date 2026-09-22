@@ -26,6 +26,10 @@ const sharedLightboxSource = await readFile(
   new URL("../src/components/photoswipe-lightbox.ts", import.meta.url),
   "utf8",
 );
+const videoPreviewSource = await readFile(
+  new URL("../src/components/gallery/gallery-video-preview.ts", import.meta.url),
+  "utf8",
+).catch(() => "");
 
 const galleryPage = sitePages.find((page) => page.id === "gallery");
 assert.ok(galleryPage && galleryPage.type === "gallery");
@@ -165,6 +169,45 @@ test("Gallery production page uses typed placement markup for its canonical phot
   assert.match(html, /\bdata-gallery-media\b/);
   assert.match(html, /data-gallery-slide="1"/);
   assert.match(html, /data-gallery-kind="image"/);
+});
+
+test("Gallery video cards are poster-first and preview only on deliberate hover or keyboard focus", () => {
+  const markup = renderGalleryResolvedSeries({
+    id: "video-preview",
+    projectLabel: "Jestei Pool",
+    placements: [{
+      itemId: "video-a",
+      seriesId: "video-preview",
+      seriesOrder: 0,
+      itemOrder: 0,
+      projectId: "project-a",
+      featured: false,
+      media: [{
+        assetId: "video-a",
+        kind: "video",
+        src: "/media/video-a.mp4",
+        posterSrc: "/media/video-a-poster.webp",
+        width: 1280,
+        height: 720,
+        title: "Video A",
+        alt: "Video A alt",
+        credits: [],
+      }],
+    }],
+  });
+
+  assert.match(markup, /<img[^>]+src="\/media\/video-a-poster\.webp"/);
+  assert.match(markup, /<video[^>]+data-gallery-video-preview[^>]+muted[^>]+playsinline[^>]+preload="metadata"/i);
+  assert.doesNotMatch(markup, /<video[^>]+autoplay/i);
+  assert.match(markup, /gallery-card__play-indicator/);
+
+  assert.match(videoPreviewSource, /currentTime\s*=\s*0/);
+  assert.match(videoPreviewSource, /pointerover/);
+  assert.match(videoPreviewSource, /focusin/);
+  assert.match(videoPreviewSource, /pointerout/);
+  assert.match(videoPreviewSource, /focusout/);
+  assert.match(videoPreviewSource, /\.pause\(\)/);
+  assert.match(videoPreviewSource, /\(hover:\s*hover\) and \(pointer:\s*fine\)/);
 });
 
 test("Gallery renders exactly five approved Jestei symbols as interactive model cards", () => {
