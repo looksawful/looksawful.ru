@@ -6,7 +6,6 @@ on:
     paths:
       - "tools/review/**"
       - "test/private-review-runtime-*.test.mjs"
-      - "tools/ci/run-tests.mjs"
       - ".github/workflows/private-review-runtime.yml"
   workflow_dispatch:
 
