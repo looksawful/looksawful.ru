@@ -192,6 +192,7 @@ async function runRow(browser, baseUrl, row) {
       assert.ok(
         Math.abs((await video.evaluate((element) => element.currentTime)) - videoState.time) <= 0.05,
       );
+      assert.deepEqual(opened.runtimeErrors, []);
     }
 
     if (row.phase === "capture") {
@@ -243,6 +244,21 @@ export async function smokeReviewRuntimeMatrix() {
       const browserType = browserName === "chromium" ? chromium : webkit;
       browsers.set(browserName, await browserType.launch({ headless: true }));
     }
+
+    const captureRow = rows.find(
+      ({ browser, phase }) => browser === "chromium" && phase === "capture",
+    );
+    assert.ok(captureRow);
+    await assert.rejects(
+      openReviewPage({
+        browser: browsers.get("chromium"),
+        baseUrl,
+        route: "/",
+        row: captureRow,
+        dynamicStates: [],
+      }),
+      /Missing dynamic review state/i,
+    );
 
     for (const row of rows) {
       const browser = browsers.get(row.browser);
