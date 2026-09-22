@@ -1,35 +1,39 @@
-import navigationJson from "../../src/content/navigation.json" with { type: "json" };
+import { getCase, getCollection } from "../../src/data/catalog/lookup.ts";
+import { getNavigationLabel } from "../../src/data/navigation.ts";
 import { isDirectExecution, withE2ERuntime } from "./runtime.mjs";
 
 let BASE_URL = "";
 
-const labelById = new Map(navigationJson.map(({ id, label }) => [id, label]));
-const requireLabel = (id) => {
-  const label = labelById.get(id);
-  if (typeof label !== "string" || label.length === 0) {
-    throw new Error(`missing navigation label ${id}`);
-  }
-  return label;
-};
+const HOME_LABEL = getNavigationLabel("home");
+const WORK_LABEL = getNavigationLabel("work");
+const GALLERY_LABEL = getNavigationLabel("gallery");
+const CV_LABEL = getNavigationLabel("cv");
+const JESTEI_LABEL = getCase("jestei-pool").name;
+const STYX_LABEL = getCase("styx").name;
+const SENSETIQUE_LABEL = getCase("sensetique").name;
+const SHOOTINGS_COLLECTION = getCollection("music-photography");
+const SHOOTINGS_LABEL = SHOOTINGS_COLLECTION.displayName || SHOOTINGS_COLLECTION.name;
 
 const PRIMARY_LINKS = [
-  ["home", "/"],
-  ["case:jestei-pool", "/work/jestei-pool/"],
-  ["case:styx", "/work/styx/"],
-  ["case:sensetique", "/work/sensetique/"],
-  ["collection:music-photography", "/shootings/"],
-  ["cv", "/cv/"],
-].map(([id, href]) => [requireLabel(id), href]);
+  [WORK_LABEL, "/work/"],
+  [JESTEI_LABEL, "/work/jestei-pool/"],
+  [STYX_LABEL, "/work/styx/"],
+  [SENSETIQUE_LABEL, "/work/sensetique/"],
+  [SHOOTINGS_LABEL, "/shootings/"],
+  [GALLERY_LABEL, "/gallery/"],
+  [CV_LABEL, "/cv/"],
+];
 
 const LONG_UNBROKEN_LABEL = `CMS${"navigationlabel".repeat(32)}`;
 
 const CASES = [
-  ["/", requireLabel("home"), 390, 844],
-  ["/work/jestei-pool/", requireLabel("case:jestei-pool"), 390, 844],
-  ["/work/styx/", requireLabel("case:styx"), 390, 844],
-  ["/work/sensetique/", requireLabel("case:sensetique"), 390, 844],
-  ["/shootings/", requireLabel("collection:music-photography"), 390, 844],
-  ["/work/jestei-pool/", requireLabel("case:jestei-pool"), 1440, 900],
+  ["/", "", 390, 844],
+  ["/work/", WORK_LABEL, 390, 844],
+  ["/work/jestei-pool/", JESTEI_LABEL, 390, 844],
+  ["/shootings/", SHOOTINGS_LABEL, 390, 844],
+  ["/gallery/", GALLERY_LABEL, 390, 844],
+  ["/cv/", CV_LABEL, 390, 844],
+  ["/work/jestei-pool/", JESTEI_LABEL, 1440, 900],
 ];
 
 function assert(condition, message) {
@@ -84,7 +88,7 @@ async function auditNavigation(browser, path, currentLabel, width, height) {
       const breadcrumb = await page.locator('[aria-label="Хлебные крошки"]').innerText();
       assert(breadcrumb.includes(currentLabel), `${label}: breadcrumb is missing current label: ${breadcrumb}`);
       if (!mobile) {
-        assert(breadcrumb.includes(requireLabel("home")), `${label}: desktop breadcrumb is missing home label: ${breadcrumb}`);
+        assert(breadcrumb.includes(HOME_LABEL), `${label}: desktop breadcrumb is missing home label: ${breadcrumb}`);
       }
     }
 
