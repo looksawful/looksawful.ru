@@ -277,6 +277,20 @@ async function verifyDenseMobileCaptions(page, { requireMiddleReel = false } = {
     assert.ok(authoredCaption, "hidden dense overlay must retain authored caption content in DOM");
     const source = hiddenOverlay.locator("[data-lightbox-source]").first();
     await source.scrollIntoViewIfNeeded();
+    const hitProbe = await source.evaluate((node) => {
+      const rect = node.getBoundingClientRect();
+      const x = rect.left + rect.width / 2;
+      const y = rect.top + rect.height / 2;
+      const top = document.elementFromPoint(x, y);
+      return {
+        x,
+        y,
+        topTag: top?.tagName ?? null,
+        topClass: top?.className ?? null,
+        blockedByPet: Boolean(top?.closest("[data-portfolio-pet-launcher], [data-portfolio-pet-dismiss], [data-portfolio-pet-restore]")),
+      };
+    });
+    console.log(`[pet-hit-debug] ${JSON.stringify(hitProbe)}`);
     await source.click({ force: true });
     await page.waitForFunction(() => window.pswp?.opener?.isOpen === true || document.querySelector("[data-media-lightbox][open]"));
     const lightboxCaption = page.locator(".media-lightbox__caption").first();
