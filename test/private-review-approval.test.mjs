@@ -11,6 +11,7 @@ const NOW = Date.parse("2026-09-21T15:00:00.000Z");
 const FOUR_DAYS_LATER = "2026-09-25T15:00:00.000Z";
 const OWNER_SESSION = { repository: "looksawful/looksawful.ru" };
 const REVIEW_ID = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
+const SECOND_REVIEW_ID = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
 const SUPERSEDED_REVIEW_ID = "cccccccc-cccc-4ccc-8ccc-cccccccccccc";
 
 function reviewIdFor(sourceSha) {
@@ -97,10 +98,10 @@ class MemoryReviewStorage {
   }
 }
 
-function reviewManifest(sourceSha = SOURCE_SHA) {
+function reviewManifest(sourceSha = SOURCE_SHA, reviewId = reviewIdFor(sourceSha)) {
   return {
     version: 1,
-    reviewId: reviewIdFor(sourceSha),
+    reviewId,
     caseId: CASE_ID,
     sourceSha,
     reviewDepth: "quick",
@@ -109,9 +110,9 @@ function reviewManifest(sourceSha = SOURCE_SHA) {
   };
 }
 
-function uploadRequest(sourceSha = SOURCE_SHA) {
+function uploadRequest(sourceSha = SOURCE_SHA, reviewId = reviewIdFor(sourceSha)) {
   const form = new FormData();
-  form.set("manifest", JSON.stringify(reviewManifest(sourceSha)));
+  form.set("manifest", JSON.stringify(reviewManifest(sourceSha, reviewId)));
   form.set("desktop", new File(["private-image"], "desktop.png", { type: "image/png" }));
   return new Request("https://admin.looksawful.ru/lab/review/api", {
     method: "POST",
@@ -119,11 +120,12 @@ function uploadRequest(sourceSha = SOURCE_SHA) {
   });
 }
 
-function approvalRequest(sourceSha = SOURCE_SHA) {
+function approvalRequest(sourceSha = SOURCE_SHA, reviewId = reviewIdFor(sourceSha)) {
   return new Request("https://admin.looksawful.ru/lab/review/approval", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
+      reviewId,
       caseId: CASE_ID,
       sourceSha,
       reviewDepth: "quick",
@@ -131,9 +133,9 @@ function approvalRequest(sourceSha = SOURCE_SHA) {
   });
 }
 
-async function createReview(bucket, sourceSha = SOURCE_SHA, now = NOW) {
+async function createReview(bucket, sourceSha = SOURCE_SHA, now = NOW, reviewId = reviewIdFor(sourceSha)) {
   const response = await handleReviewRequest({
-    request: uploadRequest(sourceSha),
+    request: uploadRequest(sourceSha, reviewId),
     env: { REVIEW_STORAGE: bucket },
     now: () => now,
   });
@@ -160,6 +162,7 @@ test("approval is owner-only and promotes an exact Case+SHA baseline", async () 
   assert.equal(approved.status, 201);
   const payload = await approved.json();
   assert.equal(payload.promotionId, undefined, "private promotion identifiers must not leak");
+  assert.equal(payload.reviewId, REVIEW_ID);
   assert.deepEqual(
     {
       caseId: payload.caseId,
@@ -219,6 +222,29 @@ test("approval is owner-only and promotes an exact Case+SHA baseline", async () 
   });
   assert.equal(baselineEvidence.status, 200);
   assert.equal(await baselineEvidence.text(), "private-image");
+});
+
+test("same-SHA recapture cannot approve a different Review than the one displayed", async () => {
+  const bucket = new MemoryReviewStorage();
+  await createReview(bucket, SOURCE_SHA, NOW, REVIEW_ID);
+  await createReview(bucket, SOURCE_SHA, NOW + 500, SECOND_REVIEW_ID);
+
+  const staleDisplayedReview = await handleReviewRequest({
+    request: approvalRequest(SOURCE_SHA, REVIEW_ID),
+    env: { REVIEW_STORAGE: bucket },
+    session: OWNER_SESSION,
+    now: () => NOW + 1_000,
+  });
+  assert.equal(staleDisplayedReview.status, 409);
+
+  const currentReview = await handleReviewRequest({
+    request: approvalRequest(SOURCE_SHA, SECOND_REVIEW_ID),
+    env: { REVIEW_STORAGE: bucket },
+    session: OWNER_SESSION,
+    now: () => NOW + 1_000,
+  });
+  assert.equal(currentReview.status, 201);
+  assert.equal((await currentReview.json()).reviewId, SECOND_REVIEW_ID);
 });
 
 test("stale SHA approval fails closed and cannot replace the Case baseline", async () => {
@@ -301,6 +327,7 @@ test("Review Hub approval UI binds the displayed review and handles stale approv
   assert.match(html, /id="review-approve"/);
   assert.match(html, /id="review-approval-status"/);
   assert.match(client, /\/lab\/review\/approval/);
+  assert.match(client, /reviewId:\s*manifest\.reviewId/);
   assert.match(client, /caseId:\s*manifest\.caseId/);
   assert.match(client, /sourceSha:\s*manifest\.sourceSha/);
   assert.match(client, /reviewDepth:\s*manifest\.reviewDepth/);
