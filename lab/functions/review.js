@@ -179,6 +179,7 @@ function sameReview(input, review) {
 function validBaseline(value, caseId) {
   if (!value || typeof value !== "object" || Array.isArray(value)) return null;
   if (value.version !== 1 || value.caseId !== caseId) return null;
+  if (typeof value.reviewId !== "string" || !REVIEW_ID.test(value.reviewId)) return null;
   if (typeof value.sourceSha !== "string" || !SHA.test(value.sourceSha)) return null;
   if (typeof value.reviewDepth !== "string" || !REVIEW_DEPTHS.has(value.reviewDepth)) return null;
   if (!validDate(value.approvedAt)) return null;
@@ -202,6 +203,7 @@ function validBaseline(value, caseId) {
 
   return {
     version: 1,
+    reviewId: value.reviewId,
     caseId,
     sourceSha: value.sourceSha,
     reviewDepth: value.reviewDepth,
@@ -491,6 +493,8 @@ function validApprovalInput(value) {
     value &&
     typeof value === "object" &&
     !Array.isArray(value) &&
+    typeof value.reviewId === "string" &&
+    REVIEW_ID.test(value.reviewId) &&
     typeof value.caseId === "string" &&
     CASE_ID.test(value.caseId) &&
     typeof value.sourceSha === "string" &&
@@ -521,6 +525,7 @@ function newPromotionId() {
 function publicBaseline(baseline) {
   return {
     version: baseline.version,
+    reviewId: baseline.reviewId,
     caseId: baseline.caseId,
     sourceSha: baseline.sourceSha,
     reviewDepth: baseline.reviewDepth,
@@ -576,6 +581,7 @@ async function approveReview(request, bucket, session, nowMs) {
   );
   const approval = {
     version: 1,
+    reviewId: manifest.reviewId,
     caseId: manifest.caseId,
     sourceSha: manifest.sourceSha,
     reviewDepth: manifest.reviewDepth,
