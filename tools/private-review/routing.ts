@@ -251,15 +251,20 @@ function decisionForPath(
     return allCasesDecision("global", "Full", `Malformed visual-review declaration encountered while routing ${path}`);
   }
 
+  if (globalVisualPatterns.some((pattern) => pattern.test(path))) {
+    return allCasesDecision("global", "Full", `Global/shared visual surface changed: ${path}`);
+  }
+
   const declaration = declarationMatch.declaration;
   if (declaration) {
     if (declaration.caseIds.some((caseId) => !knownCaseIds.has(caseId))) {
       return allCasesDecision("global", "Full", `Visual-review declaration for ${path} references an unknown Case`);
     }
 
+    const inferredDepth: ReviewDepth =
+      interactivePattern.test(path) ? "Interactive" : "Quick";
     const declaredDepth =
-      declaration.minimumDepth ??
-      (interactivePattern.test(path) ? "Interactive" : "Quick");
+      maxDepth(inferredDepth, declaration.minimumDepth ?? inferredDepth) ?? inferredDepth;
     const impact: VisualImpact =
       declaredDepth === "Full"
         ? "global"
@@ -271,12 +276,8 @@ function decisionForPath(
       impact,
       declaredDepth,
       declaration.caseIds,
-      `Explicit declaration maps ${path} to affected Cases`,
+      `Explicit declaration maps ${path} to affected Cases without lowering inferred review depth`,
     );
-  }
-
-  if (globalVisualPatterns.some((pattern) => pattern.test(path))) {
-    return allCasesDecision("global", "Full", `Global/shared visual surface changed: ${path}`);
   }
 
   const owner = localOwnerFromPath(path);
