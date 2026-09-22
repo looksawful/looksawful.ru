@@ -82,6 +82,7 @@ function renderCanonicalEntityArticle(
     standalonePresentation: pagePresentation,
     introHeadingLevel: 1,
     footerHtml: page.type === "case" ? renderNextCaseFooter(page, portfolioState) : "",
+    includePortfolioIntro: true,
     specialized: { jesteiTrackFilter: renderJesteiTrackFilter },
   });
 }
