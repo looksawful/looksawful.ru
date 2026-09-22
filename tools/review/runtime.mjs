@@ -354,18 +354,21 @@ async function prepareAttributeState(page, state, timeoutMs) {
   await locator.scrollIntoViewIfNeeded({ timeout: timeoutMs });
 
   await locator.evaluate(
-    (element, detail) => {
+    (element, { eventName, detail }) => {
       element.dispatchEvent(
-        new CustomEvent("looksawful:review-state-request", {
+        new CustomEvent(eventName, {
           bubbles: true,
           detail,
         }),
       );
     },
     {
-      id: state.id,
-      kind: state.kind,
-      stable: state.stable,
+      eventName: REVIEW_STATE_REQUEST_EVENT,
+      detail: {
+        id: state.id,
+        kind: state.kind,
+        stable: state.stable,
+      },
     },
   );
 
