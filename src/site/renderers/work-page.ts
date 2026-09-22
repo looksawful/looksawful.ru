@@ -1,8 +1,4 @@
-import { renderPortfolioEntityCard } from "../../components/composition/portfolio-entity-card.ts";
 import { getCase, getProject } from "../../data/catalog/lookup.ts";
-import { projectCardPresentations } from "../../data/projects.ts";
-import { petProjectCards } from "../../data/subproject-cards.ts";
-import { renderSubprojectCard } from "../../templates/subproject-card.ts";
 import {
   getProjectIndexPageIds,
   portfolioPresentation,
@@ -12,6 +8,7 @@ import {
 import { sitePages } from "../pages/manifest.ts";
 import type { WorkPageDefinition } from "../pages/types.ts";
 import { renderPageShell } from "../shell/page-shell.ts";
+import { renderPortfolioCardListItem } from "./portfolio/portfolio-card.ts";
 
 function requirePortfolioPage(pageId: PortfolioEntityPageId) {
   const page = sitePages.find((candidate) => candidate.id === pageId && candidate.enabled);
@@ -21,29 +18,9 @@ function requirePortfolioPage(pageId: PortfolioEntityPageId) {
   return page;
 }
 
-function renderPortfolioCard(pageId: PortfolioEntityPageId): string {
-  const page = requirePortfolioPage(pageId);
-  const projectCard = projectCardPresentations.find((candidate) => candidate.pageId === pageId);
-
-  if (projectCard) {
-    return renderPortfolioEntityCard(projectCard, {
-      ...(page.type === "collection" ? { typeLabel: "Collection" } : {}),
-    });
-  }
-
-  if (page.type === "project") {
-    const teaser = petProjectCards.find((candidate) => candidate.id === page.entityId);
-    if (teaser) {
-      return `<li>${renderSubprojectCard({ ...teaser, href: page.path }, { reveal: true })}</li>`;
-    }
-  }
-
-  throw new Error(`Work index is missing an existing card presentation for ${pageId}`);
-}
-
 function renderProjectIndex(presentation: PortfolioPresentation): string {
   return getProjectIndexPageIds(presentation)
-    .map(renderPortfolioCard)
+    .map(renderPortfolioCardListItem)
     .join("\n");
 }
 
@@ -63,7 +40,7 @@ function renderArchive(presentation: PortfolioPresentation): string {
 
   const cards = [...presentation.archive]
     .sort((left, right) => archiveSortValue(right) - archiveSortValue(left))
-    .map(renderPortfolioCard)
+    .map(renderPortfolioCardListItem)
     .join("\n");
 
   return `<details class="projects-grid" data-work-archive>
