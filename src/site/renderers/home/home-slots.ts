@@ -52,6 +52,7 @@ const petProjectsStyles = `
     --pet-edge-space: max(var(--section-inline), calc((100cqi - var(--pet-card-width)) / 2));
     container: pet-projects / inline-size;
     padding-block: var(--size-700);
+    padding-inline: 0;
     overflow: clip;
     border-block-start: var(--border-width-100) solid var(--clr-border);
   }
@@ -61,21 +62,20 @@ const petProjectsStyles = `
   .pet-projects__lead { max-inline-size: 48ch; margin-block-end: var(--size-500); color: var(--clr-text-muted); font-size: var(--fs-300); line-height: var(--lh-copy); }
 
   .pet-projects__grid {
-    display: grid;
+    --reel-display: grid;
+    --reel-align: start;
+    --reel-gap: var(--pet-card-gap);
+    --reel-snap-type: inline mandatory;
+    --reel-snap-align: center;
+
     grid-auto-flow: column;
     grid-auto-columns: var(--pet-card-width);
-    align-items: start;
-    gap: var(--pet-card-gap);
-    overflow-x: auto;
-    overscroll-behavior-inline: contain;
-    scroll-snap-type: inline mandatory;
+    grid-template-columns: none;
     scroll-padding-inline: var(--pet-edge-space);
     padding: var(--size-200) var(--pet-edge-space) var(--size-400);
-    scrollbar-width: none;
   }
-  .pet-projects__grid::-webkit-scrollbar { display: none; }
 
-  .pet-projects .subproject-card { display: block; min-inline-size: 0; color: inherit; text-decoration: none; scroll-snap-align: center; }
+  .pet-projects .subproject-card { display: block; min-inline-size: 0; color: inherit; text-decoration: none; }
   .pet-projects .subproject-card__figure { display: grid; min-inline-size: 0; margin: 0; transform-origin: center; }
   .pet-projects .subproject-card__media {
     position: relative;
@@ -115,8 +115,10 @@ const petProjectsStyles = `
   .pet-projects a.subproject-card:focus-visible { outline: var(--border-width-200) solid currentColor; outline-offset: var(--size-100); border-radius: clamp(0.875rem, 2.2cqi, 1.375rem); }
 
   @keyframes pet-project-card-focus {
-    from, to { scale: 0.95; }
+    from, to { scale: 0.94; }
     50% { scale: 1; }
+    from { translate: calc(var(--pet-card-gap) * 0.35) 0; }
+    to { translate: calc(var(--pet-card-gap) * -0.35) 0; }
   }
   @supports (animation-timeline: view(inline)) {
     @media (prefers-reduced-motion: no-preference) {
@@ -124,34 +126,12 @@ const petProjectsStyles = `
         animation: pet-project-card-focus linear both;
         animation-timeline: view(inline);
         animation-range: cover 20% cover 80%;
+        will-change: scale, translate;
       }
     }
   }
-  @container pet-projects (width > 42rem) {
-    .pet-projects__grid {
-      grid-auto-flow: row;
-      grid-auto-columns: initial;
-      grid-template-columns: repeat(2, minmax(0, var(--pet-card-width)));
-      justify-content: center;
-      overflow-x: visible;
-      overscroll-behavior-inline: auto;
-      scroll-snap-type: none;
-      scroll-padding-inline: 0;
-      padding-inline: var(--section-inline);
-    }
-
-    .pet-projects .subproject-card { scroll-snap-align: none; }
-    .pet-projects .subproject-card__figure { animation: none; scale: 1; }
-  }
-
-  @container pet-projects (width > 68rem) {
-    .pet-projects__grid {
-      grid-template-columns: repeat(3, minmax(0, var(--pet-card-width)));
-    }
-  }
-
   @media (prefers-reduced-motion: reduce) {
-    .pet-projects .subproject-card__figure { animation: none; scale: 1; }
+    .pet-projects .subproject-card__figure { animation: none; scale: 1; translate: none; }
   }
 `;
 
@@ -161,7 +141,7 @@ function renderPetProjectsSection(): string {
       <section class="pet-projects" aria-labelledby="pet-projects-title" data-reveal-group>
         <h2 id="pet-projects-title" data-reveal="copy">${usefulProjectsContent.section.title}</h2>
         <p class="pet-projects__lead" data-reveal="copy">${usefulProjectsContent.section.description}</p>
-        <div class="pet-projects__grid" data-reveal-group>
+        <div class="pet-projects__grid reel" data-reveal-group>
           ${renderPetProjectCards(petProjectCards)}
         </div>
       </section>`;

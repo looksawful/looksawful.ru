@@ -24,3 +24,19 @@ test("section copy and expertise consume text-pair instead of hand-authored spli
   assert.match(projectShell, /\.section-copy__text\s*>\s*\*\s*\{[\s\S]*?max-inline-size:\s*var\(--project-copy-max\);/);
   assert.doesNotMatch(expertiseCss, /\.expertise__head\s*\{[\s\S]*?grid-template-columns:/);
 });
+
+
+test("expertise restores space-between alignment between titles and copy", () => {
+  assert.match(
+    expertiseCss,
+    /\.expertise__head\s*\{[\s\S]*?justify-content:\s*space-between;/,
+  );
+  assert.match(
+    expertiseCss,
+    /\.expertise__head\s*>\s*:first-child\s*\{[\s\S]*?flex-grow:\s*0;/,
+  );
+  assert.match(
+    expertiseCss,
+    /\.expertise__head\s*>\s*:last-child\s*\{[\s\S]*?flex-grow:\s*0;[\s\S]*?flex-basis:\s*min\(62\.5%,\s*62ch\);/,
+  );
+});
