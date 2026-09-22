@@ -5,8 +5,6 @@ import { fileURLToPath } from "node:url";
 
 import { sitePages } from "../../src/site/pages/manifest.ts";
 
-import { sitePages } from "../../src/site/pages/manifest.ts";
-
 const REVIEW_DEPTHS = Object.freeze(["quick", "interactive", "full"]);
 const REVIEW_DEPTH_RANK = new Map(REVIEW_DEPTHS.map((depth, index) => [depth, index]));
 const reviewCases = sitePages
@@ -110,122 +108,6 @@ export function classifyVisualReview(files, { escalateDepth, escalateCases = [] 
     visual: reviewDepth !== null,
     affectedCases: [...affectedCases].sort(),
     reviewDepth,
-  };
-}
-
-const REVIEW_DEPTH_ORDER = Object.freeze({
-  quick: 0,
-  interactive: 1,
-  full: 2,
-});
-
-const reviewableCases = sitePages
-  .filter((page) => page.enabled && page.build.kind === "vite" && page.type !== "not-found")
-  .map((page) => ({
-    id: page.id,
-    entityId: "entityId" in page ? page.entityId : null,
-  }));
-
-const reviewableCaseIds = Object.freeze(reviewableCases.map((item) => item.id).sort());
-const reviewableCaseIdSet = new Set(reviewableCaseIds);
-
-function normalizeChangedFiles(files) {
-  return [...new Set(files.map((file) => file.replaceAll("\\", "/")).filter(Boolean))].sort();
-}
-
-function affectedCasesForFile(file) {
-  const exact = reviewableCases
-    .filter(({ entityId }) => entityId && file.includes(entityId))
-    .map(({ id }) => id);
-
-  if (exact.length > 0) return exact;
-  if (/\/(?:home)(?:\/|\.|-)/u.test(file) || /home-project-cards/u.test(file)) return ["home"];
-  if (/\/(?:gallery)(?:\/|\.|-)/u.test(file)) return ["gallery"];
-  return [];
-}
-
-function strongestReviewDepth(current, candidate) {
-  if (!candidate) return current;
-  if (!(candidate in REVIEW_DEPTH_ORDER)) {
-    throw new TypeError(`Unknown visual review depth: ${candidate}`);
-  }
-  if (!current || REVIEW_DEPTH_ORDER[candidate] > REVIEW_DEPTH_ORDER[current]) return candidate;
-  return current;
-}
-
-function validateEscalationCases(cases) {
-  if (cases === undefined) return [];
-  if (!Array.isArray(cases)) throw new TypeError("Visual review escalation cases must be an array");
-  for (const caseId of cases) {
-    if (!reviewableCaseIdSet.has(caseId)) {
-      throw new TypeError(`Unknown visual review Case: ${caseId}`);
-    }
-  }
-  return cases;
-}
-
-export function classifyVisualReview(
-  files,
-  { escalateDepth, escalateCases } = {},
-) {
-  const changedFiles = normalizeChangedFiles(files);
-  const affectedCases = new Set();
-  let visual = false;
-  let reviewDepth = null;
-
-  for (const file of changedFiles) {
-    const localCases = affectedCasesForFile(file);
-    const isUserVisibleText = /^(?:src\/(?:content\/|data\/content\/)|work\/|shootings\/)/u.test(file);
-    const isSharedNavigation = /^(?:src\/content\/navigation\.json|src\/(?:components\/site-nav|site\/navigation\/|site\/shell\/navigation)|src\/styles\/(?:site-nav|project-navigation))/u.test(file);
-    const isSharedVisualRuntime = /^(?:src\/(?:main\.|interactive\.|motion\/|components\/|templates\/|styles\/|site\/renderers\/|site\/shell\/)|index\.html$|404\.html$)/u.test(file);
-    const isClearlyNonVisual = /^(?:docs\/|AGENTS\.md$|\.agents\/|\.github\/|test\/|tools\/ci\/|lab\/|src\/lab\/)/u.test(file);
-
-    if (isUserVisibleText) {
-      visual = true;
-      reviewDepth = strongestReviewDepth(reviewDepth, "quick");
-      const targets = localCases.length > 0 ? localCases : reviewableCaseIds;
-      for (const caseId of targets) affectedCases.add(caseId);
-      continue;
-    }
-
-    if (isSharedNavigation) {
-      visual = true;
-      reviewDepth = strongestReviewDepth(reviewDepth, "full");
-      for (const caseId of reviewableCaseIds) affectedCases.add(caseId);
-      continue;
-    }
-
-    if (isSharedVisualRuntime) {
-      visual = true;
-      reviewDepth = strongestReviewDepth(
-        reviewDepth,
-        localCases.length > 0 ? "interactive" : "full",
-      );
-      const targets = localCases.length > 0 ? localCases : reviewableCaseIds;
-      for (const caseId of targets) affectedCases.add(caseId);
-      continue;
-    }
-
-    if (isClearlyNonVisual) continue;
-
-    // Ambiguity fails safe to a targeted Quick review rather than silently skipping.
-    visual = true;
-    reviewDepth = strongestReviewDepth(reviewDepth, "quick");
-    const targets = localCases.length > 0 ? localCases : reviewableCaseIds;
-    for (const caseId of targets) affectedCases.add(caseId);
-  }
-
-  const manualCases = validateEscalationCases(escalateCases);
-  if (escalateDepth !== undefined || manualCases.length > 0) {
-    visual = true;
-    reviewDepth = strongestReviewDepth(reviewDepth, escalateDepth ?? "quick");
-    for (const caseId of manualCases) affectedCases.add(caseId);
-  }
-
-  return {
-    visual,
-    affectedCases: visual ? [...affectedCases].sort() : [],
-    reviewDepth: visual ? (reviewDepth ?? "quick") : null,
   };
 }
 
