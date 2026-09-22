@@ -97,6 +97,22 @@ async function resetSession(page) {
 }
 async function exerciseKeyboard(page) {
   let state = await startSession(page);
+  const canvasFocus = await page.locator("[data-awful-cases-canvas]").evaluate((canvas) => {
+    const style = getComputedStyle(canvas);
+    return {
+      focused: document.activeElement === canvas,
+      outlineStyle: style.outlineStyle,
+      outlineWidth: Number.parseFloat(style.outlineWidth) || 0,
+      outlineOffset: Number.parseFloat(style.outlineOffset) || 0,
+    };
+  });
+  assert.equal(canvasFocus.focused, true, "running trainer must focus the game canvas");
+  assert.notEqual(canvasFocus.outlineStyle, "none", "focused game canvas must expose a visible outline");
+  assert.ok(canvasFocus.outlineWidth >= 2, "focused game canvas outline must remain visible");
+  assert.ok(
+    canvasFocus.outlineOffset <= 0,
+    "focused game canvas outline must stay inside the clipped game shell",
+  );
   const correctAction = state.taskType;
   const wrongAction = Object.keys(keyByAction).find((action) => action !== correctAction);
   assert.ok(wrongAction, "keyboard playtest needs an alternate action");
