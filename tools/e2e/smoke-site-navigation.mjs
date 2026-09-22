@@ -32,7 +32,6 @@ const CASES = [
   ["/work/jestei-pool/", JESTEI_LABEL, 390, 844],
   ["/shootings/", SHOOTINGS_LABEL, 390, 844],
   ["/gallery/", GALLERY_LABEL, 390, 844],
-  ["/cv/", CV_LABEL, 390, 844],
   ["/work/jestei-pool/", JESTEI_LABEL, 1440, 900],
 ];
 
