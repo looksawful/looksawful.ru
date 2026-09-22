@@ -234,12 +234,19 @@
   padding-block-end: var(--size-700);
 }
 
-[data-work-card="archive"] .project-card__media {
-  max-block-size: 22rem;
+[data-work-archive] .project-card__media {
+  max-block-size: 18rem;
 }
 
-[data-work-card="archive"] .project-card__caption {
+[data-work-archive] .project-card__caption {
   min-block-size: 0;
+  font-size: var(--fs-100);
+}
+
+@container page-section (width > 44rem) {
+  [data-work-archive] .projects-grid__list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 .projects-grid__list {
