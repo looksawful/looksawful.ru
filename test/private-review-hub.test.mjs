@@ -8,8 +8,16 @@ const SOURCE_SHA = "0123456789abcdef0123456789abcdef01234567";
 
 class MemoryReviewStorage {
   #objects = new Map();
+  #version = 0;
 
   async put(key, value, options = {}) {
+    const existing = this.#objects.get(key);
+    if (
+      typeof options.onlyIf?.etagMatches === "string" &&
+      existing?.etag !== options.onlyIf.etagMatches
+    ) {
+      return null;
+    }
     const bytes =
       typeof value === "string"
         ? new TextEncoder().encode(value)
@@ -18,10 +26,14 @@ class MemoryReviewStorage {
           : value instanceof Uint8Array
             ? value
             : new Uint8Array(await new Response(value).arrayBuffer());
-    this.#objects.set(key, {
+    const object = {
       bytes,
+      etag: `etag-${++this.#version}`,
       httpMetadata: options.httpMetadata ?? {},
-    });
+      customMetadata: options.customMetadata ?? {},
+    };
+    this.#objects.set(key, object);
+    return object;
   }
 
   async get(key) {
@@ -29,7 +41,9 @@ class MemoryReviewStorage {
     if (!object) return null;
     return {
       body: object.bytes,
+      etag: object.etag,
       httpMetadata: object.httpMetadata,
+      customMetadata: object.customMetadata,
       text: async () => new TextDecoder().decode(object.bytes),
     };
   }
