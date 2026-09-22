@@ -27,6 +27,7 @@ type ApprovalRecord = {
   reviewDepth: ReviewDepth;
   approvedAt: string;
   approvedBy: string;
+  valid: boolean;
 };
 
 const REVIEW_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/u;
@@ -155,7 +156,8 @@ function isApprovalRecord(value: unknown): value is ApprovalRecord {
     typeof candidate.approvedAt === "string" &&
     Number.isFinite(Date.parse(candidate.approvedAt)) &&
     typeof candidate.approvedBy === "string" &&
-    candidate.approvedBy.length > 0
+    candidate.approvedBy.length > 0 &&
+    typeof candidate.valid === "boolean"
   );
 }
 

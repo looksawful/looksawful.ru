@@ -42,6 +42,7 @@ class MemoryReviewStorage {
       throw new Error("synthetic R2 put failure");
     }
     const existing = this.#objects.get(key);
+    if (options.onlyIfAbsent === true && existing) return null;
     if (
       typeof options.onlyIf?.etagMatches === "string" &&
       existing?.etag !== options.onlyIf.etagMatches

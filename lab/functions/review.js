@@ -4,6 +4,7 @@ const CURRENT_POINTER_KEY = "review-hub/v1/current.json";
 const ADMIN_REPOSITORY = "looksawful/looksawful.ru";
 const TEMP_RETENTION_MS = 4 * 24 * 60 * 60 * 1000;
 const MAX_STATE_UPDATE_ATTEMPTS = 5;
+const TERMINAL_REVIEW_STATES = new Set(["superseded", "stale", "expired"]);
 const CASE_ID = /^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$/u;
 const EVIDENCE_ID = /^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$/u;
 const SHA = /^[0-9a-f]{40}$/u;
@@ -166,7 +167,7 @@ function validReviewRef(value) {
   );
 }
 
-function reviewDescriptor(manifest) {
+function reviewDescriptor(manifest, expiresAt = manifest.expiresAt) {
   return {
     version: 1,
     reviewId: manifest.reviewId,
@@ -174,6 +175,7 @@ function reviewDescriptor(manifest) {
     sourceSha: manifest.sourceSha,
     reviewDepth: manifest.reviewDepth,
     capturedAt: manifest.capturedAt,
+    expiresAt,
   };
 }
 
@@ -181,7 +183,7 @@ function validReviewDescriptor(value) {
   if (!value || typeof value !== "object" || Array.isArray(value)) return null;
   if (value.version !== 1) return null;
   if (typeof value.caseId !== "string" || !CASE_ID.test(value.caseId)) return null;
-  if (!validReviewRef(value)) return null;
+  if (!validReviewRef(value) || !validDate(value.expiresAt)) return null;
   return reviewDescriptor(value);
 }
 
@@ -238,11 +240,50 @@ function validBaseline(value, caseId) {
   };
 }
 
+function terminalReviewRecord(reviewId, status, transitionedAt, details = {}) {
+  return {
+    reviewId,
+    status,
+    transitionedAt,
+    ...(status === "superseded"
+      ? { supersededByReviewId: details.supersededByReviewId }
+      : {}),
+    ...(status === "stale"
+      ? { affectingSourceSha: details.affectingSourceSha }
+      : {}),
+  };
+}
+
+function validTerminalReviewRecord(value) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  if (typeof value.reviewId !== "string" || !REVIEW_ID.test(value.reviewId)) return null;
+  if (typeof value.status !== "string" || !TERMINAL_REVIEW_STATES.has(value.status)) return null;
+  if (!validDate(value.transitionedAt)) return null;
+
+  if (
+    value.status === "superseded" &&
+    (typeof value.supersededByReviewId !== "string" ||
+      !REVIEW_ID.test(value.supersededByReviewId))
+  ) {
+    return null;
+  }
+  if (
+    value.status === "stale" &&
+    (typeof value.affectingSourceSha !== "string" || !SHA.test(value.affectingSourceSha))
+  ) {
+    return null;
+  }
+
+  return terminalReviewRecord(value.reviewId, value.status, value.transitionedAt, value);
+}
+
 function emptyCaseState(caseId) {
   return {
     version: 1,
     caseId,
+    sourceSha: null,
     current: null,
+    history: [],
     baseline: null,
   };
 }
@@ -263,10 +304,30 @@ function validateCaseState(value, caseId) {
     if (!baseline) return null;
   }
 
+  const historyInput = value.history === undefined ? [] : value.history;
+  if (!Array.isArray(historyInput)) return null;
+  const history = [];
+  for (const item of historyInput) {
+    const record = validTerminalReviewRecord(item);
+    if (!record) return null;
+    history.push(record);
+  }
+  if (new Set(history.map((item) => item.reviewId)).size !== history.length) return null;
+  if (current && history.some((item) => item.reviewId === current.reviewId)) return null;
+
+  let sourceSha = value.sourceSha;
+  if (sourceSha === undefined || sourceSha === null) {
+    sourceSha = current?.sourceSha ?? baseline?.sourceSha ?? null;
+  } else if (typeof sourceSha !== "string" || !SHA.test(sourceSha)) {
+    return null;
+  }
+
   return {
     version: 1,
     caseId,
+    sourceSha,
     current,
+    history,
     baseline,
   };
 }
@@ -287,6 +348,7 @@ async function putCaseState(bucket, caseId, state, object) {
     httpMetadata: { contentType: "application/json; charset=utf-8" },
   };
   if (object) options.onlyIf = { etagMatches: object.etag };
+  else options.onlyIfAbsent = true;
 
   const stored = await bucket.put(caseStateKey(caseId), JSON.stringify(state), options);
   return stored !== null;
@@ -301,14 +363,29 @@ async function putImmutable(bucket, key, value, options = {}) {
   return stored;
 }
 
-async function setCaseCurrent(bucket, manifest) {
+async function setCaseCurrent(bucket, manifest, nowMs) {
   for (let attempt = 0; attempt < MAX_STATE_UPDATE_ATTEMPTS; attempt += 1) {
     const loaded = await loadCaseState(bucket, manifest.caseId);
     if (loaded.invalid) return "invalid";
 
+    let history = loaded.state.history;
+    if (loaded.state.current && !sameReviewId(loaded.state.current, manifest)) {
+      history = [
+        ...history,
+        terminalReviewRecord(
+          loaded.state.current.reviewId,
+          "superseded",
+          new Date(nowMs).toISOString(),
+          { supersededByReviewId: manifest.reviewId },
+        ),
+      ];
+    }
+
     const nextState = {
       ...loaded.state,
+      sourceSha: manifest.sourceSha,
       current: reviewRef(manifest),
+      history,
     };
 
     try {
@@ -318,6 +395,50 @@ async function setCaseCurrent(bucket, manifest) {
     }
   }
   return "conflict";
+}
+
+async function transitionCurrentReview(
+  bucket,
+  caseId,
+  reviewId,
+  status,
+  nowMs,
+  details = {},
+) {
+  for (let attempt = 0; attempt < MAX_STATE_UPDATE_ATTEMPTS; attempt += 1) {
+    const loaded = await loadCaseState(bucket, caseId);
+    if (loaded.invalid) return { result: "invalid" };
+
+    const existing = loaded.state.history.find((item) => item.reviewId === reviewId);
+    if (existing) return { result: "already-terminal", record: existing };
+
+    if (!loaded.state.current || loaded.state.current.reviewId !== reviewId) {
+      return { result: "not-current" };
+    }
+
+    const record = terminalReviewRecord(
+      reviewId,
+      status,
+      new Date(nowMs).toISOString(),
+      details,
+    );
+    const nextState = {
+      ...loaded.state,
+      ...(status === "stale" ? { sourceSha: details.affectingSourceSha } : {}),
+      current: null,
+      history: [...loaded.state.history, record],
+    };
+
+    try {
+      if (await putCaseState(bucket, caseId, nextState, loaded.object)) {
+        return { result: "ok", record };
+      }
+    } catch {
+      return { result: "failed" };
+    }
+  }
+
+  return { result: "conflict" };
 }
 
 async function clearCaseCurrentIfMatches(bucket, manifest) {
@@ -351,12 +472,20 @@ async function bestEffortDeleteKeys(bucket, keys) {
   }
 }
 
+async function deleteTemporaryEvidence(bucket, manifest) {
+  const keys = manifest.evidence.map((item) =>
+    evidenceKey(manifest.caseId, manifest.sourceSha, manifest.reviewId, item.id),
+  );
+  await bestEffortDeleteKeys(bucket, keys);
+}
+
 async function deleteTemporaryReview(bucket, manifest) {
   const keys = [
     ...manifest.evidence.map((item) =>
       evidenceKey(manifest.caseId, manifest.sourceSha, manifest.reviewId, item.id),
     ),
     manifestKey(manifest.caseId, manifest.sourceSha, manifest.reviewId),
+    reviewIndexKey(manifest.reviewId),
   ];
   await bestEffortDeleteKeys(bucket, keys);
   await clearCaseCurrentIfMatches(bucket, manifest);
@@ -378,24 +507,15 @@ async function loadCurrentManifest(bucket, nowMs) {
     return null;
   }
 
-  const manifestObject = await bucket.get(
-    manifestKey(pointer.caseId, pointer.sourceSha, pointer.reviewId),
-  );
-  if (!manifestObject) return null;
-  const manifest = validateReviewManifest(await readJsonObject(manifestObject));
-  if (!manifest || typeof manifest.reviewId !== "string") return null;
+  const loaded = await loadReviewById(bucket, pointer.reviewId, nowMs);
+  if (!loaded || loaded.status !== "current") return null;
   if (
-    manifest.caseId !== pointer.caseId ||
-    manifest.sourceSha !== pointer.sourceSha ||
-    manifest.reviewId !== pointer.reviewId
+    loaded.manifest.caseId !== pointer.caseId ||
+    loaded.manifest.sourceSha !== pointer.sourceSha
   ) {
     return null;
   }
-  if (objectExpired(manifestObject, nowMs)) {
-    await deleteTemporaryReview(bucket, manifest);
-    return null;
-  }
-  return manifest;
+  return loaded.manifest;
 }
 
 function clientManifest(manifest) {
@@ -489,13 +609,12 @@ async function createReview(request, bucket, nowMs) {
       JSON.stringify(manifest),
       {
         httpMetadata: { contentType: "application/json; charset=utf-8" },
-        customMetadata: temporaryMetadata,
       },
     );
     await putImmutable(
       bucket,
       descriptorKey,
-      JSON.stringify(reviewDescriptor(manifest)),
+      JSON.stringify(reviewDescriptor(manifest, expiresAt)),
       { httpMetadata: { contentType: "application/json; charset=utf-8" } },
     );
   } catch {
@@ -503,7 +622,7 @@ async function createReview(request, bucket, nowMs) {
     return text("Private review evidence could not be stored.", 503);
   }
 
-  const stateResult = await setCaseCurrent(bucket, manifest);
+  const stateResult = await setCaseCurrent(bucket, manifest, nowMs);
   if (stateResult !== "ok") {
     await bestEffortDeleteKeys(bucket, temporaryKeys);
     return text(
@@ -525,15 +644,13 @@ async function createReview(request, bucket, nowMs) {
       { httpMetadata: { contentType: "application/json; charset=utf-8" } },
     );
   } catch {
-    await deleteTemporaryReview(bucket, manifest);
-    await bestEffortDeleteKeys(bucket, [descriptorKey]);
-    return text("Private review pointer could not be stored.", 503);
+    // Case state is authoritative. The global pointer is only latest-review discovery.
   }
 
   return json(clientManifest(manifest), 201);
 }
 
-async function loadReviewManifestById(bucket, reviewId, nowMs) {
+async function loadReviewById(bucket, reviewId, nowMs) {
   const descriptorObject = await bucket.get(reviewIndexKey(reviewId));
   if (!descriptorObject) return null;
 
@@ -556,12 +673,51 @@ async function loadReviewManifestById(bucket, reviewId, nowMs) {
     return null;
   }
 
-  if (objectExpired(manifestObject, nowMs)) {
-    await deleteTemporaryReview(bucket, manifest);
-    return null;
+  let loadedState = await loadCaseState(bucket, descriptor.caseId);
+  if (loadedState.invalid) return { descriptor, manifest, status: "invalid" };
+
+  const terminal = loadedState.state.history.find((item) => item.reviewId === reviewId);
+  if (terminal) return { descriptor, manifest, status: terminal.status, terminal };
+
+  if (!loadedState.state.current || loadedState.state.current.reviewId !== reviewId) {
+    return { descriptor, manifest, status: "unavailable" };
   }
 
-  return manifest;
+  if (Date.parse(descriptor.expiresAt) <= nowMs) {
+    await deleteTemporaryEvidence(bucket, manifest);
+
+    if (!sameReviewId(loadedState.state.baseline, manifest)) {
+      const transition = await transitionCurrentReview(
+        bucket,
+        descriptor.caseId,
+        reviewId,
+        "expired",
+        Date.parse(descriptor.expiresAt),
+      );
+      if (transition.result === "ok" || transition.result === "already-terminal") {
+        return { descriptor, manifest, status: "expired", terminal: transition.record };
+      }
+
+      loadedState = await loadCaseState(bucket, descriptor.caseId);
+      if (loadedState.invalid) return { descriptor, manifest, status: "invalid" };
+      const racedTerminal = loadedState.state.history.find(
+        (item) => item.reviewId === reviewId,
+      );
+      if (racedTerminal) {
+        return {
+          descriptor,
+          manifest,
+          status: racedTerminal.status,
+          terminal: racedTerminal,
+        };
+      }
+      if (!loadedState.state.current || loadedState.state.current.reviewId !== reviewId) {
+        return { descriptor, manifest, status: "unavailable" };
+      }
+    }
+  }
+
+  return { descriptor, manifest, status: "current" };
 }
 
 async function getCurrentReview(bucket, nowMs) {
@@ -623,7 +779,7 @@ function newPromotionId() {
   return crypto.randomUUID();
 }
 
-function publicBaseline(baseline) {
+function publicBaseline(baseline, sourceSha = baseline.sourceSha) {
   return {
     version: baseline.version,
     caseId: baseline.caseId,
@@ -632,6 +788,7 @@ function publicBaseline(baseline) {
     reviewDepth: baseline.reviewDepth,
     approvedAt: baseline.approvedAt,
     approvedBy: baseline.approvedBy,
+    valid: sourceSha === baseline.sourceSha,
   };
 }
 
@@ -651,11 +808,21 @@ async function approveReview(request, bucket, session, nowMs) {
   if (input.error === 415) return text("Expected JSON approval request.", 415);
   if (input.error) return text("Approval request is invalid.", 400);
 
-  const manifest = await loadReviewManifestById(bucket, input.value.reviewId, nowMs);
-  if (!manifest) {
-    return text("Review is stale, expired, or unavailable.", 409);
+  const loadedReview = await loadReviewById(bucket, input.value.reviewId, nowMs);
+  if (!loadedReview) {
+    return text("Review is unavailable.", 409);
+  }
+  if (loadedReview.status === "expired") {
+    return json({ reviewId: input.value.reviewId, status: "expired" }, 410);
+  }
+  if (loadedReview.status === "superseded" || loadedReview.status === "stale") {
+    return json({ reviewId: input.value.reviewId, status: loadedReview.status }, 409);
+  }
+  if (loadedReview.status !== "current") {
+    return text("Review is unavailable.", 409);
   }
 
+  const manifest = loadedReview.manifest;
   const loadedState = await loadCaseState(bucket, manifest.caseId);
   if (loadedState.invalid) return text("Case review state is invalid.", 503);
   if (
@@ -669,7 +836,7 @@ async function approveReview(request, bucket, session, nowMs) {
 
   const existingBaseline = loadedState.state.baseline;
   if (existingBaseline && sameReviewId(manifest, existingBaseline)) {
-    return json(publicBaseline(existingBaseline), 200);
+    return json(publicBaseline(existingBaseline, loadedState.state.sourceSha), 200);
   }
 
   const copies = [];
@@ -715,14 +882,15 @@ async function approveReview(request, bucket, session, nowMs) {
   try {
     await Promise.all(
       copies.map(({ item, source }) =>
-        bucket.put(
+        putImmutable(
+          bucket,
           baselineEvidenceKey(manifest.caseId, promotionId, item.id),
           source.body,
           { httpMetadata: { contentType: item.contentType } },
         ),
       ),
     );
-    await bucket.put(recordKey, JSON.stringify(approval), {
+    await putImmutable(bucket, recordKey, JSON.stringify(approval), {
       httpMetadata: { contentType: "application/json; charset=utf-8" },
     });
   } catch {
@@ -758,7 +926,7 @@ async function approveReview(request, bucket, session, nowMs) {
     await bestEffortDeleteKeys(bucket, previousBaselineKeys);
   }
 
-  return json(publicBaseline(baseline), 201);
+  return json(publicBaseline(baseline, manifest.sourceSha), 201);
 }
 
 async function getBaseline(request, bucket) {
@@ -769,7 +937,7 @@ async function getBaseline(request, bucket) {
   const loaded = await loadCaseState(bucket, caseId);
   if (loaded.invalid) return text("Case baseline state is invalid.", 503);
   if (!loaded.state.baseline) return text("Case baseline not found.", 404);
-  return json(publicBaseline(loaded.state.baseline));
+  return json(publicBaseline(loaded.state.baseline, loaded.state.sourceSha));
 }
 
 async function getBaselineEvidence(pathname, bucket) {
@@ -806,6 +974,49 @@ async function getBaselineEvidence(pathname, bucket) {
       "X-Content-Type-Options": "nosniff",
     },
   });
+}
+
+export async function markCurrentReviewStale({
+  env,
+  caseId,
+  affectingSourceSha,
+  now = Date.now,
+}) {
+  if (
+    typeof caseId !== "string" ||
+    !CASE_ID.test(caseId) ||
+    typeof affectingSourceSha !== "string" ||
+    !SHA.test(affectingSourceSha)
+  ) {
+    return null;
+  }
+
+  const bucket = reviewStorage(env);
+  if (!bucket) return null;
+
+  const loaded = await loadCaseState(bucket, caseId);
+  if (loaded.invalid || !loaded.state.current) return null;
+  if (loaded.state.current.sourceSha === affectingSourceSha) return null;
+
+  const reviewId = loaded.state.current.reviewId;
+  const nowMs = typeof now === "function" ? now() : Date.now();
+  const transitioned = await transitionCurrentReview(
+    bucket,
+    caseId,
+    reviewId,
+    "stale",
+    nowMs,
+    { affectingSourceSha },
+  );
+
+  if (
+    transitioned.result === "ok" ||
+    (transitioned.result === "already-terminal" &&
+      transitioned.record?.status === "stale")
+  ) {
+    return { reviewId, status: "stale" };
+  }
+  return null;
 }
 
 export async function handleReviewRequest({ request, env, session = null, now = Date.now }) {
