@@ -11,6 +11,7 @@ export interface EntityShellOptions extends SectionRenderOptions {
   introHeadingLevel?: 1 | 2;
   visuallyHideIntroTitle?: boolean;
   standalonePresentation?: EntityStandalonePresentation;
+  footerHtml?: string;
 }
 
 function applyStandalonePresentation(
@@ -77,6 +78,7 @@ export function renderEntityShell(content: EntityPageContent, options: EntityShe
     <article ${attributes.join(" ")}>
       ${intro}
       ${sections}
+      ${options.footerHtml ?? ""}
     </article>
   `;
 }
