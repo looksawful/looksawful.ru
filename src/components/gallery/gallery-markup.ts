@@ -27,6 +27,14 @@ function renderMediaDescriptor(
   return `<span hidden data-gallery-media data-gallery-slide="${slide}" data-gallery-asset-id="${escapeHtml(media.assetId)}" data-gallery-kind="${media.kind}" data-gallery-src="${escapeHtml(media.src)}" data-gallery-poster-src="${escapeHtml(media.posterSrc)}"${media.width ? ` data-gallery-width="${media.width}"` : ""}${media.height ? ` data-gallery-height="${media.height}"` : ""} data-gallery-alt="${escapeHtml(media.alt)}" data-gallery-title="${escapeHtml(media.title)}" data-gallery-credits="${creditsAttribute(media.credits)}"></span>`;
 }
 
+function cropAttributes(
+  placement: GalleryResolvedPlacement,
+): string {
+  if (!placement.crop) return "";
+  const { aspectRatio, positionX, positionY } = placement.crop;
+  return ` data-gallery-crop style="--gallery-card-crop-ratio:${aspectRatio};--gallery-card-crop-position:${positionX}% ${positionY}%"`;
+}
+
 function renderCardMedia(media: GalleryResolvedMedia): string {
   const srcset = media.srcset ? ` srcset="${escapeHtml(media.srcset)}"` : "";
   return `<img class="gallery-card__image" src="${escapeHtml(media.posterSrc)}"${srcset} sizes="(max-width: 720px) 50vw, (max-width: 1100px) 33vw, (max-width: 1500px) 25vw, 20vw"${dimensionAttributes(media)} alt="${escapeHtml(media.alt)}" loading="lazy" decoding="async">`;
@@ -40,7 +48,7 @@ export function renderGalleryResolvedPlacement(
     throw new Error(`Gallery placement "${placement.itemId}" has no media`);
   }
 
-  const featuredAttribute = placement.featured ? " data-gallery-featured" : "";
+  const featuredAttribute = placement.featured ? " data-gallery-featured" : "";\n  const cropAttribute = cropAttributes(placement);
   const kindClass = primary.kind === "image" ? "" : ` gallery-card--${primary.kind}`;
   const label = primary.alt.trim() || primary.title.trim() || placement.itemId;
   const primaryCredits = creditsAttribute(primary.credits);
@@ -49,7 +57,7 @@ export function renderGalleryResolvedPlacement(
     .map((media, index) => renderMediaDescriptor(media, index + 1))
     .join("\n  ");
 
-  return `<figure class="gallery-card${kindClass}" data-gallery-card data-gallery-item-id="${escapeHtml(placement.itemId)}" data-gallery-kind="${primary.kind}" data-gallery-src="${escapeHtml(primary.src)}"${primaryDimensions} data-gallery-alt="${escapeHtml(primary.alt)}" data-gallery-title="${escapeHtml(primary.title)}" data-gallery-credits="${primaryCredits}"${featuredAttribute} tabindex="0" role="button" aria-haspopup="dialog" aria-label="Открыть: ${escapeHtml(label)}">
+  return `<figure class="gallery-card${kindClass}" data-gallery-card data-gallery-item-id="${escapeHtml(placement.itemId)}" data-gallery-kind="${primary.kind}" data-gallery-src="${escapeHtml(primary.src)}"${primaryDimensions} data-gallery-alt="${escapeHtml(primary.alt)}" data-gallery-title="${escapeHtml(primary.title)}" data-gallery-credits="${primaryCredits}"${featuredAttribute}${cropAttribute} tabindex="0" role="button" aria-haspopup="dialog" aria-label="Открыть: ${escapeHtml(label)}">
   ${renderCardMedia(primary)}
   ${descriptors}
 </figure>`;
