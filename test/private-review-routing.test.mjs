@@ -168,3 +168,16 @@ test("prefix declarations accept a trailing slash and map the subtree", () => {
   assert.equal(route.affectedCaseMode, "explicit");
   assert.deepEqual(route.affectedCaseIds, ["jestei-pool", "styx"]);
 });
+
+
+test("navigation changes require Interactive review", () => {
+  const route = routeVisualReviewChanges(
+    [{ path: "src/content/navigation.json", status: "modified" }],
+    { knownCaseIds },
+  );
+
+  assert.equal(route.visualImpact, "interactive");
+  assert.equal(route.reviewDepth, "Interactive");
+  assert.equal(route.affectedCaseMode, "all");
+  assert.deepEqual(route.affectedCaseIds, knownCaseIds);
+});
