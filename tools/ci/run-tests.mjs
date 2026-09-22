@@ -95,6 +95,7 @@ export const fastTests = new Set([
   "test/public-review-privacy-policy.test.mjs",
   "test/private-lab-shell.test.mjs",
   "test/private-review-runtime-matrix.test.mjs",
+  "test/private-review-runtime-stabilization.test.mjs",
   "test/project-card-hover.test.mjs",
   "test/project-lead-desktop-width.test.mjs",
   "test/repository-growth-policy.test.mjs",
