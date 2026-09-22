@@ -7,6 +7,7 @@ import { sitePages } from "../../src/site/pages/manifest.ts";
 
 const REVIEW_DEPTHS = Object.freeze(["quick", "interactive", "full"]);
 const REVIEW_DEPTH_RANK = new Map(REVIEW_DEPTHS.map((depth, index) => [depth, index]));
+// Review Cases come from the canonical site-page registry; routing must not invent a second page list.
 const reviewCases = sitePages
   .filter((page) => page.enabled && page.build.kind === "vite" && page.type !== "not-found")
   .map((page) => ({
