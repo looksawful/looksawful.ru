@@ -181,3 +181,42 @@ test("navigation changes require Interactive review", () => {
   assert.equal(route.affectedCaseMode, "all");
   assert.deepEqual(route.affectedCaseIds, knownCaseIds);
 });
+
+
+test("declarations may narrow Cases but never lower global Full review", () => {
+  const route = routeVisualReviewChanges(
+    [{ path: "src/styles/base.css", status: "modified" }],
+    {
+      knownCaseIds,
+      declarations: [{
+        path: "src/styles/base.css",
+        caseIds: ["styx"],
+        minimumDepth: "Quick",
+      }],
+    },
+  );
+
+  assert.equal(route.visualImpact, "global");
+  assert.equal(route.reviewDepth, "Full");
+  assert.equal(route.affectedCaseMode, "all");
+  assert.deepEqual(route.affectedCaseIds, knownCaseIds);
+});
+
+test("declarations never lower inferred interactive review depth", () => {
+  const route = routeVisualReviewChanges(
+    [{ path: "src/components/project-carousel.ts", status: "modified" }],
+    {
+      knownCaseIds,
+      declarations: [{
+        path: "src/components/project-carousel.ts",
+        caseIds: ["styx"],
+        minimumDepth: "Quick",
+      }],
+    },
+  );
+
+  assert.equal(route.visualImpact, "interactive");
+  assert.equal(route.reviewDepth, "Interactive");
+  assert.equal(route.affectedCaseMode, "explicit");
+  assert.deepEqual(route.affectedCaseIds, ["styx"]);
+});
