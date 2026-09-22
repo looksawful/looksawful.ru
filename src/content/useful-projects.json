@@ -11,7 +11,7 @@
   },
   {
     "id": "berserk-timer",
-    "visible": false,
+    "visible": true,
     "state": "live"
   },
   {
@@ -21,7 +21,7 @@
   },
   {
     "id": "awful-mockups",
-    "visible": false,
+    "visible": true,
     "state": "coming-soon"
   },
   {
