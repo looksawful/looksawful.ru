@@ -1,4 +1,5 @@
 import { createGalleryLightbox } from "./gallery-lightbox.ts";
+import { createGalleryVideoPreviews } from "./gallery-video-preview.ts";
 import {
   galleryViewerHistoryTransition,
   parseGallerySearch,
@@ -56,6 +57,8 @@ export function createGalleryController(root: HTMLElement): Destroy {
     writeHistory(state, transition.action);
   };
 
+  const destroyVideoPreviews = createGalleryVideoPreviews(root);
+
   const lightbox = createGalleryLightbox({
     root,
     onChange: (itemId, slide) => {
@@ -107,5 +110,6 @@ export function createGalleryController(root: HTMLElement): Destroy {
   return () => {
     window.removeEventListener("popstate", handlePopState);
     lightbox.destroy();
+    destroyVideoPreviews();
   };
 }
