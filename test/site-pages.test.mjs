@@ -300,6 +300,27 @@ test("portfolio presentation rejects unknown and duplicate main-tier page ids", 
 });
 
 
+test("Project index de-duplicates an entity that is both Featured and an index extra", () => {
+  const presentation = {
+    ...portfolioPresentation,
+    featured: [
+      "project:awful-cases",
+      "project:moves-awful",
+      "collection:music-photography",
+    ],
+  };
+
+  assert.doesNotThrow(() => validatePortfolioPresentation(presentation, sitePages));
+  assert.deepEqual(getProjectIndexPageIds(presentation), [
+    "case:jestei-pool",
+    "case:styx",
+    "case:sensetique",
+    "project:awful-cases",
+    "project:moves-awful",
+    "collection:music-photography",
+  ]);
+});
+
 test("portfolio presentation validates manual next-Case routes", () => {
   assert.doesNotThrow(() => validatePortfolioPresentation({
     ...portfolioPresentation,
