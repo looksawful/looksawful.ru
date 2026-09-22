@@ -47,7 +47,7 @@ Repository-relative paths and intentionally public names are preferable to local
 
 Production is the only public rendered version of the site. Pre-production visual review must stay private behind the authenticated review boundary.
 
-A `noindex` directive is search-engine guidance, not an access-control boundary. Do not publish pre-production preview URLs, screenshots, review manifests, visual diffs, raw capture artifacts, storage identifiers, or equivalent review evidence to repository files, Issues, pull requests, comments, reviews, workflow summaries, logs, or public artifacts.
+A `noindex` directive does not make a rendered preview private; it is search-engine guidance, not an access-control boundary. Do not publish pre-production preview URLs, screenshots, review manifests, visual diffs, raw capture artifacts, storage identifiers, or equivalent review evidence to repository files, Issues, pull requests, comments, reviews, workflow summaries, logs, or public artifacts.
 
 ### Public Review projection
 
@@ -55,7 +55,7 @@ Public GitHub may contain only the minimum projection needed to coordinate repos
 
 - stable Case identity or Case name when that Case is already repository-public;
 - the exact source SHA under review;
-- a coarse lifecycle status limited to `review-required`, `approved`, `stale`, or `failed`;
+- a coarse lifecycle status limited to `review-required`, `approved`, `stale`, or `failed`; private `Superseded`, `Stale`, and `Expired` states collapse to public `stale`;
 - sanitized structural/runtime check names and outcomes;
 - sanitized failure classes that contain no private Review, storage, identity, URL, or evidence details.
 
