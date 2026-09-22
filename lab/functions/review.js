@@ -7,7 +7,9 @@ const MAX_STATE_UPDATE_ATTEMPTS = 5;
 const CASE_ID = /^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$/u;
 const EVIDENCE_ID = /^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$/u;
 const SHA = /^[0-9a-f]{40}$/u;
-const PROMOTION_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/u;
+const UUID_V4 = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/u;
+const REVIEW_ID = UUID_V4;
+const PROMOTION_ID = UUID_V4;
 const REVIEW_DEPTHS = new Set(["quick", "interactive", "full"]);
 const EVIDENCE_KINDS = new Set(["viewport", "full-page", "component", "diff"]);
 const IMAGE_TYPES = new Set(["image/png", "image/jpeg", "image/webp"]);
@@ -72,9 +74,16 @@ function validEvidence(value) {
   );
 }
 
+function withReviewId(value) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return value;
+  if (typeof value.reviewId === "string") return value;
+  return { ...value, reviewId: crypto.randomUUID() };
+}
+
 export function validateReviewManifest(value) {
   if (!value || typeof value !== "object" || Array.isArray(value)) return null;
   if (value.version !== 1) return null;
+  if (typeof value.reviewId !== "string" || !REVIEW_ID.test(value.reviewId)) return null;
   if (typeof value.caseId !== "string" || !CASE_ID.test(value.caseId)) return null;
   if (typeof value.sourceSha !== "string" || !SHA.test(value.sourceSha)) return null;
   if (typeof value.reviewDepth !== "string" || !REVIEW_DEPTHS.has(value.reviewDepth)) return null;
@@ -87,6 +96,7 @@ export function validateReviewManifest(value) {
 
   return {
     version: 1,
+    reviewId: value.reviewId,
     caseId: value.caseId,
     sourceSha: value.sourceSha,
     reviewDepth: value.reviewDepth,
@@ -95,12 +105,12 @@ export function validateReviewManifest(value) {
   };
 }
 
-function manifestKey(caseId, sourceSha) {
-  return `review-hub/v1/cases/${caseId}/${sourceSha}/manifest.json`;
+function manifestKey(caseId, reviewId) {
+  return `review-hub/v1/cases/${caseId}/reviews/${reviewId}/manifest.json`;
 }
 
-function evidenceKey(caseId, sourceSha, evidenceId) {
-  return `review-hub/v1/cases/${caseId}/${sourceSha}/evidence/${evidenceId}`;
+function evidenceKey(caseId, reviewId, evidenceId) {
+  return `review-hub/v1/cases/${caseId}/reviews/${reviewId}/evidence/${evidenceId}`;
 }
 
 function caseStateKey(caseId) {
@@ -134,6 +144,7 @@ function objectExpired(object, nowMs) {
 
 function reviewRef(manifest) {
   return {
+    reviewId: manifest.reviewId,
     sourceSha: manifest.sourceSha,
     reviewDepth: manifest.reviewDepth,
     capturedAt: manifest.capturedAt,
@@ -144,6 +155,8 @@ function validReviewRef(value) {
   return (
     value &&
     typeof value === "object" &&
+    typeof value.reviewId === "string" &&
+    REVIEW_ID.test(value.reviewId) &&
     typeof value.sourceSha === "string" &&
     SHA.test(value.sourceSha) &&
     typeof value.reviewDepth === "string" &&
@@ -156,6 +169,7 @@ function sameReview(input, review) {
   return (
     input &&
     review &&
+    (!("reviewId" in input) || input.reviewId === review.reviewId) &&
     input.sourceSha === review.sourceSha &&
     input.reviewDepth === review.reviewDepth &&
     (!("caseId" in input) || input.caseId === review.caseId || review.caseId === undefined)
@@ -304,8 +318,8 @@ async function bestEffortDeleteKeys(bucket, keys) {
 
 async function deleteTemporaryReview(bucket, manifest) {
   const keys = [
-    ...manifest.evidence.map((item) => evidenceKey(manifest.caseId, manifest.sourceSha, item.id)),
-    manifestKey(manifest.caseId, manifest.sourceSha),
+    ...manifest.evidence.map((item) => evidenceKey(manifest.caseId, manifest.reviewId, item.id)),
+    manifestKey(manifest.caseId, manifest.reviewId),
   ];
   await bestEffortDeleteKeys(bucket, keys);
   await clearCaseCurrentIfMatches(bucket, manifest);
@@ -319,17 +333,17 @@ async function loadCurrentManifest(bucket, nowMs) {
     !pointer ||
     typeof pointer.caseId !== "string" ||
     !CASE_ID.test(pointer.caseId) ||
-    typeof pointer.sourceSha !== "string" ||
-    !SHA.test(pointer.sourceSha)
+    typeof pointer.reviewId !== "string" ||
+    !REVIEW_ID.test(pointer.reviewId)
   ) {
     return null;
   }
 
-  const manifestObject = await bucket.get(manifestKey(pointer.caseId, pointer.sourceSha));
+  const manifestObject = await bucket.get(manifestKey(pointer.caseId, pointer.reviewId));
   if (!manifestObject) return null;
   const manifest = validateReviewManifest(await readJsonObject(manifestObject));
   if (!manifest) return null;
-  if (manifest.caseId !== pointer.caseId || manifest.sourceSha !== pointer.sourceSha) return null;
+  if (manifest.caseId !== pointer.caseId || manifest.reviewId !== pointer.reviewId) return null;
   if (objectExpired(manifestObject, nowMs)) {
     await deleteTemporaryReview(bucket, manifest);
     return null;
@@ -379,7 +393,7 @@ async function createReview(request, bucket, nowMs) {
   } catch {
     return text("Review manifest is invalid JSON.", 400);
   }
-  const manifest = validateReviewManifest(parsedManifest);
+  const manifest = validateReviewManifest(withReviewId(parsedManifest));
   if (!manifest) return text("Review manifest is invalid.", 400);
 
   const uploads = [];
@@ -396,20 +410,20 @@ async function createReview(request, bucket, nowMs) {
   const expiresAt = new Date(nowMs + TEMP_RETENTION_MS).toISOString();
   const temporaryMetadata = { expiresAt };
   const temporaryKeys = [
-    ...manifest.evidence.map((item) => evidenceKey(manifest.caseId, manifest.sourceSha, item.id)),
-    manifestKey(manifest.caseId, manifest.sourceSha),
+    ...manifest.evidence.map((item) => evidenceKey(manifest.caseId, manifest.reviewId, item.id)),
+    manifestKey(manifest.caseId, manifest.reviewId),
   ];
 
   try {
     await Promise.all(
       uploads.map(({ item, bytes }) =>
-        bucket.put(evidenceKey(manifest.caseId, manifest.sourceSha, item.id), bytes, {
+        bucket.put(evidenceKey(manifest.caseId, manifest.reviewId, item.id), bytes, {
           httpMetadata: { contentType: item.contentType },
           customMetadata: temporaryMetadata,
         }),
       ),
     );
-    await bucket.put(manifestKey(manifest.caseId, manifest.sourceSha), JSON.stringify(manifest), {
+    await bucket.put(manifestKey(manifest.caseId, manifest.reviewId), JSON.stringify(manifest), {
       httpMetadata: { contentType: "application/json; charset=utf-8" },
       customMetadata: temporaryMetadata,
     });
@@ -432,7 +446,7 @@ async function createReview(request, bucket, nowMs) {
   try {
     await bucket.put(
       CURRENT_POINTER_KEY,
-      JSON.stringify({ caseId: manifest.caseId, sourceSha: manifest.sourceSha }),
+      JSON.stringify({ caseId: manifest.caseId, reviewId: manifest.reviewId }),
       { httpMetadata: { contentType: "application/json; charset=utf-8" } },
     );
   } catch {
@@ -459,7 +473,7 @@ async function getEvidence(pathname, bucket, nowMs) {
   const descriptor = manifest.evidence.find((item) => item.id === evidenceId);
   if (!descriptor) return text("Review evidence not found.", 404);
 
-  const object = await bucket.get(evidenceKey(manifest.caseId, manifest.sourceSha, evidenceId));
+  const object = await bucket.get(evidenceKey(manifest.caseId, manifest.reviewId, evidenceId));
   if (!object || objectExpired(object, nowMs)) return text("Review evidence not found.", 404);
 
   return new Response(object.body, {
@@ -549,7 +563,7 @@ async function approveReview(request, bucket, session, nowMs) {
 
   const copies = [];
   for (const item of manifest.evidence) {
-    const source = await bucket.get(evidenceKey(manifest.caseId, manifest.sourceSha, item.id));
+    const source = await bucket.get(evidenceKey(manifest.caseId, manifest.reviewId, item.id));
     if (!source || objectExpired(source, nowMs)) {
       return text("Review evidence is incomplete or expired.", 409);
     }

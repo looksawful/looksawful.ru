@@ -10,6 +10,12 @@ const SUPERSEDED_SHA = "2222222222222222222222222222222222222222";
 const NOW = Date.parse("2026-09-21T15:00:00.000Z");
 const FOUR_DAYS_LATER = "2026-09-25T15:00:00.000Z";
 const OWNER_SESSION = { repository: "looksawful/looksawful.ru" };
+const REVIEW_ID = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
+const SUPERSEDED_REVIEW_ID = "cccccccc-cccc-4ccc-8ccc-cccccccccccc";
+
+function reviewIdFor(sourceSha) {
+  return sourceSha === SUPERSEDED_SHA ? SUPERSEDED_REVIEW_ID : REVIEW_ID;
+}
 
 class MemoryReviewStorage {
   #objects = new Map();
@@ -94,6 +100,7 @@ class MemoryReviewStorage {
 function reviewManifest(sourceSha = SOURCE_SHA) {
   return {
     version: 1,
+    reviewId: reviewIdFor(sourceSha),
     caseId: CASE_ID,
     sourceSha,
     reviewDepth: "quick",
@@ -241,7 +248,7 @@ test("temporary review evidence carries four-day retention while approved copies
   await createReview(bucket);
 
   const temporaryEvidence = bucket.object(
-    `review-hub/v1/cases/${CASE_ID}/${SOURCE_SHA}/evidence/desktop`,
+    `review-hub/v1/cases/${CASE_ID}/reviews/${REVIEW_ID}/evidence/desktop`,
   );
   assert.equal(temporaryEvidence?.customMetadata?.expiresAt, FOUR_DAYS_LATER);
 
@@ -266,7 +273,7 @@ test("temporary review evidence carries four-day retention while approved copies
   });
   assert.equal(expiredReview.status, 404);
   assert.equal(
-    bucket.object(`review-hub/v1/cases/${CASE_ID}/${SOURCE_SHA}/evidence/desktop`),
+    bucket.object(`review-hub/v1/cases/${CASE_ID}/reviews/${REVIEW_ID}/evidence/desktop`),
     null,
   );
   assert.equal(
