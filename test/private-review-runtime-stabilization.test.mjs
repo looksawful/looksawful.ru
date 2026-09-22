@@ -68,3 +68,25 @@ test("capture runtime contains no arbitrary sleep primitive", async () => {
   assert.match(source, /readyState/);
   assert.match(source, /data-model-state|attribute/);
 });
+
+
+test("review browser smoke stays affected-only and never publishes visual evidence", async () => {
+  const [smoke, workflow] = await Promise.all([
+    readFile(new URL("../tools/review/smoke-runtime-matrix.mjs", import.meta.url), "utf8"),
+    readFile(new URL("../.github/workflows/private-review-runtime.yml", import.meta.url), "utf8"),
+  ]);
+
+  assert.match(smoke, /chromium/);
+  assert.match(smoke, /webkit/);
+  assert.match(smoke, /runtime-smoke/);
+  assert.match(smoke, /technical-smoke/);
+  assert.match(smoke, /buildReviewRuntimeMatrix/);
+  assert.match(smoke, /openReviewPage/);
+
+  assert.match(workflow, /workflow_dispatch:/);
+  assert.match(workflow, /tools\/review\/\*\*/);
+  assert.match(workflow, /playwright install --with-deps --only-shell chromium/);
+  assert.match(workflow, /playwright install --with-deps webkit/);
+  assert.match(workflow, /node tools\/review\/smoke-runtime-matrix\.mjs/);
+  assert.doesNotMatch(workflow, /upload-artifact|deploy|pages|secrets\./i);
+});
