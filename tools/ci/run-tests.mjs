@@ -94,7 +94,9 @@ export const fastTests = new Set([
   // CONTRACT: public GitHub automation must never publish pre-production visual-review evidence.
   "test/public-review-privacy-policy.test.mjs",
   "test/private-lab-shell.test.mjs",
+  // CONTRACT: #1087/#1092 canonical browser/profile/motion roles must stay deterministic and cheap.
   "test/private-review-runtime-matrix.test.mjs",
+  // CONTRACT: review capture must pin time/random/network/readiness and keep cross-engine proof in affected CI.
   "test/private-review-runtime-stabilization.test.mjs",
   "test/project-card-hover.test.mjs",
   "test/project-lead-desktop-width.test.mjs",
