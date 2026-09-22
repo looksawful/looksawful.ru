@@ -85,10 +85,8 @@ function selectedProfiles(reviewDepth, affectedProfiles) {
     return CANONICAL_REVIEW_PROFILES.filter((profile) => affected.includes(profile.id));
   }
 
-  if (reviewDepth === "quick") {
-    return [PROFILE_BY_ID.get("desktop-1440")];
-  }
-
+  // #1091 currently routes Cases and depth, not viewport profiles. Until an
+  // explicit profile router exists, missing profile input must fail safe.
   return [...CANONICAL_REVIEW_PROFILES];
 }
 
