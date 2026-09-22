@@ -23,18 +23,44 @@ function required(args, name) {
   if (!value) throw new Error(`missing --${name}`);
   return value;
 }
+function gitRaw(repo, ...args) {
+  return execFileSync("git", args, { cwd: repo, encoding: "utf8" });
+}
+
 function git(repo, ...args) {
-  return execFileSync("git", args, { cwd: repo, encoding: "utf8" }).trim();
+  return gitRaw(repo, ...args).trim();
 }
 
 function changedEntries(repo, base, head) {
-  const output = git(repo, "diff", "--name-status", "-M", "--diff-filter=ACMR", `${base}..${head}`);
+  const output = gitRaw(
+    repo,
+    "-c",
+    "core.quotePath=false",
+    "diff",
+    "--name-status",
+    "-z",
+    "-M",
+    "--diff-filter=ACMR",
+    `${base}..${head}`,
+  );
   if (!output) return [];
-  return output.split(/\r?\n/).filter(Boolean).map((line) => {
-    const [status, ...paths] = line.split("\t");
-    const target = status.startsWith("R") ? paths.at(-1) : paths[0];
-    return { status, paths, target };
-  });
+
+  const fields = output.split("\0");
+  if (fields.at(-1) === "") fields.pop();
+
+  const entries = [];
+  for (let index = 0; index < fields.length;) {
+    const status = fields[index++];
+    const pathCount = /^[RC]/.test(status) ? 2 : 1;
+    const paths = fields.slice(index, index + pathCount);
+    index += pathCount;
+    const target = paths.at(-1);
+    if (!target || paths.length !== pathCount) {
+      throw new Error("git diff returned an incomplete name-status record");
+    }
+    entries.push({ status, paths, target });
+  }
+  return entries;
 }
 
 function changedFiles(repo, base, head) {
@@ -74,8 +100,85 @@ function mergeTree(repo, left, right, mergeBase) {
 
 function differingFiles(repo, left, right, files) {
   if (!files.length) return [];
-  const output = git(repo, "diff", "--name-only", left, right, "--", ...files);
-  return output ? output.split(/\r?\n/).filter(Boolean) : [];
+  const output = gitRaw(
+    repo,
+    "-c",
+    "core.quotePath=false",
+    "diff",
+    "--name-only",
+    "-z",
+    left,
+    right,
+    "--",
+    ...files,
+  );
+  return output ? output.split("\0").filter(Boolean) : [];
+}
+
+function readTreeText(repo, treeish, file) {
+  const entry = gitRaw(
+    repo,
+    "-c",
+    "core.quotePath=false",
+    "ls-tree",
+    "-z",
+    treeish,
+    "--",
+    file,
+  );
+  if (!entry) throw new Error(`missing tree entry for ${file}`);
+
+  const tab = entry.indexOf("\t");
+  const metadata = tab >= 0 ? entry.slice(0, tab).split(" ") : [];
+  const type = metadata[1];
+  const object = metadata[2];
+  if (type !== "blob" || !object) {
+    throw new Error(`expected blob tree entry for ${file}`);
+  }
+
+  return gitRaw(repo, "cat-file", "-p", object);
+}
+
+function stableMergedSegments(text) {
+  const lines = text.match(/.*(?:\n|$)/g)?.filter(Boolean) ?? [];
+  const segments = [];
+  let current = "";
+  let inConflict = false;
+  let sawConflict = false;
+
+  for (const line of lines) {
+    if (!inConflict && line.startsWith("<<<<<<< ")) {
+      sawConflict = true;
+      if (current) segments.push(current);
+      current = "";
+      inConflict = true;
+      continue;
+    }
+    if (inConflict) {
+      if (line.startsWith(">>>>>>> ")) inConflict = false;
+      continue;
+    }
+    current += line;
+  }
+
+  if (inConflict) throw new Error("unterminated merge conflict marker");
+  if (current) segments.push(current);
+  return { sawConflict, segments };
+}
+
+function preservesReconciledStableContent(repo, expectedTree, candidate, file) {
+  const expectedText = readTreeText(repo, expectedTree, file);
+  const candidateText = readTreeText(repo, candidate, file);
+  const { sawConflict, segments } = stableMergedSegments(expectedText);
+  if (!sawConflict) return false;
+
+  let cursor = 0;
+  for (const segment of segments) {
+    const match = candidateText.indexOf(segment, cursor);
+    if (match < 0) return false;
+    cursor = match + segment.length;
+  }
+  return true;
 }
 
 export function isLabOnlyPath(file) {
@@ -154,8 +257,12 @@ export function runPreflight(argv = process.argv.slice(2)) {
 
     const autoReconciled = overlap.filter((file) => !reconcilePaths.has(file));
     const dropped = differingFiles(repo, candidate, expected.tree, autoReconciled);
-    if (dropped.length) {
-      for (const file of dropped) console.error(`PROD_ONLY_CHANGE_DROPPED ${file}`);
+    const reconciledDropped = [...reconcilePaths].filter(
+      (file) => !preservesReconciledStableContent(repo, expected.tree, candidate, file),
+    );
+    const allDropped = [...new Set([...dropped, ...reconciledDropped])];
+    if (allDropped.length) {
+      for (const file of allDropped) console.error(`PROD_ONLY_CHANGE_DROPPED ${file}`);
       return 1;
     }
   }
