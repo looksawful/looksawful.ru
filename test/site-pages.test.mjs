@@ -18,6 +18,7 @@ import {
 } from "../src/site/pages/validation.ts";
 import { renderWorkPage } from "../src/site/renderers/work-page.ts";
 import {
+  getProjectIndexPageIds,
   portfolioPresentation,
   validatePortfolioPresentation,
 } from "../src/site/pages/portfolio-presentation.ts";
@@ -231,12 +232,7 @@ test("only enabled pages are returned for build ownership decisions", () => {
   assert.ok(enabled.every((page) => page.enabled));
 });
 
-test("public discovery matches the approved portfolio selection", () => {
-  const approvedPublicProjects = new Set([
-    ...portfolioPresentation.featured,
-    ...portfolioPresentation.archive,
-  ]);
-
+test("Project discovery remains fail-closed until owner approval", () => {
   for (const page of sitePages) {
     if (page.type === "case" || page.type === "collection" || page.type === "gallery" || page.type === "work" || page.id === "cv" || page.id === "privacy") {
       assert.equal(page.discovery.listed, true);
@@ -244,9 +240,8 @@ test("public discovery matches the approved portfolio selection", () => {
     }
 
     if (page.type === "project") {
-      const expectedPublic = approvedPublicProjects.has(page.id);
-      assert.equal(page.discovery.listed, expectedPublic, page.id);
-      assert.equal(page.discovery.indexable, expectedPublic, page.id);
+      assert.equal(page.discovery.listed, false, page.id);
+      assert.equal(page.discovery.indexable, false, page.id);
     }
   }
 
@@ -305,27 +300,32 @@ test("portfolio presentation rejects unknown and duplicate main-tier page ids", 
 });
 
 
-test("portfolio presentation uses the approved current main selection without unsafe utility pages", () => {
+test("portfolio presentation keeps editorial tiers unresolved until owner approval", () => {
   assert.deepEqual(portfolioPresentation.flagship, [
     "case:jestei-pool",
     "case:styx",
     "case:sensetique",
   ]);
-  assert.deepEqual(portfolioPresentation.featured, [
-    "project:awful-cases",
-    "project:moves-awful",
-    "project:awful-studio",
-    "project:awful-3d-mockups",
+  assert.deepEqual(portfolioPresentation.featured, []);
+  assert.deepEqual(portfolioPresentation.archive, []);
+  assert.deepEqual(getProjectIndexPageIds(portfolioPresentation), [
+    "case:jestei-pool",
+    "case:styx",
+    "case:sensetique",
+    "collection:music-photography",
   ]);
-  assert.deepEqual(portfolioPresentation.archive, [
-    "project:berry-social-content-2020",
-  ]);
-  assert.equal(portfolioPresentation.featured.includes("project:berserk-timer"), false);
-  assert.equal(portfolioPresentation.featured.includes("project:awful-mockups"), false);
 });
 
 
-test("Work page renders main selection and a closed semantic Archive", () => {
+test("Work page renders the resolved main index and keeps unresolved Archive out of production output", () => {
+  const page = sitePages.find((candidate) => candidate.id === "work");
+  assert.ok(page && page.type === "work");
+  const html = renderWorkPage(page);
+
+  for (const id of getProjectIndexPageIds(portfolioPresentation)) {
+    const target = sitePages.find((candidate) => candidate.id === id);
+    assert.ok(target);
+    assert.match(html, new RegExp(`href="${target.path.replace(/[.*+?^{}()|[\\]\\]/g, "\\test("Work page renders main selection and a closed semantic Archive", () => {
   const page = sitePages.find((candidate) => candidate.id === "work");
   assert.ok(page && page.type === "work");
   const html = renderWorkPage(page);
@@ -340,4 +340,19 @@ test("Work page renders main selection and a closed semantic Archive", () => {
   assert.doesNotMatch(html, /<details[^>]*data-work-archive[^>]*\sopen(?:\s|>)/);
   assert.match(html, />Archive<\/summary>/);
   assert.match(html, /Berry Agency/);
+});")}"`));
+  }
+
+  assert.doesNotMatch(html, /data-work-archive/);
+
+  const archiveHtml = renderWorkPage(page, {
+    ...portfolioPresentation,
+    projectIndexExtras: [],
+    archive: ["collection:music-photography"],
+  });
+  assert.match(archiveHtml, /<details[^>]*data-work-archive/);
+  assert.doesNotMatch(archiveHtml, /<details[^>]*data-work-archive[^>]*\sopen(?:\s|>)/);
+  assert.match(archiveHtml, />Archive<\/summary>/);
+  assert.match(archiveHtml, /href="\/shootings\/"/);
+  assert.match(archiveHtml, /project-card__type">Collection/);
 });
