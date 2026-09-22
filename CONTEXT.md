@@ -42,3 +42,92 @@ A browser-facing optimized media file used for site delivery while the source ma
 
 **Editorial copy**:
 Authored human-facing text that can be edited where an explicit editorial/CMS model exposes it.
+
+**Visual review**:
+A review of a rendered Case against its intended appearance across defined viewing contexts.
+
+**Visual baseline**:
+An explicitly approved reference rendering of a Case used to identify unintended visual changes.
+
+**Affected Case**:
+A Case whose rendered output may be changed by a change set, either directly or through shared site behavior.
+_Avoid_: Affected project, when referring specifically to Case-level visual review.
+
+**Viewport profile**:
+A named viewing context representing a target device or display class for visual review.
+
+**Review state**:
+A deterministic visual state used to render a component or Case reproducibly during visual review.
+
+**Motion profile**:
+A visual-review context corresponding to the user's motion preference, such as normal motion or reduced motion.
+
+**Motion-sensitive component**:
+A component whose rendered appearance materially differs between motion profiles and therefore requires distinct visual-review states.
+
+**Case review profile**:
+The set of viewport, motion and review-state contexts required to review a Case without redundant duplicate states.
+
+**Component review profile**:
+The component-level visual-review contexts required only when a component has materially distinct visual states that cannot be represented by the Case's default state.
+
+**Visual approval**:
+An explicit human confirmation that the rendered review output for a specific Case and source SHA is acceptable.
+
+**Baseline approval**:
+The explicit act, performed only after Visual approval, of promoting that exact reviewed Case and source SHA to the canonical Visual baseline.
+
+**Review surface**:
+A user-facing way to inspect the rendered output of a Visual review, ranging from a quick derived preview to the exact immutable rendered Case.
+
+**Review Hub**:
+A persistent private Review surface that provides the fastest path to the current visual-review evidence for a Case.
+
+**Review depth**:
+The amount of evidence required for a Visual review, ranging from a quick derived preview to exact interactive and full cross-profile inspection.
+
+**Visual-impacting change**:
+A change that can alter rendered appearance, responsive composition, interactive visual state or motion behavior and therefore requires Visual review for its Affected Cases.
+
+**Non-visual change**:
+A change with no expected effect on rendered appearance or interactive visual behavior and therefore no Visual review requirement unless automated impact detection finds otherwise.
+
+**Private preview**:
+An exact rendered preview of unreleased material that is accessible only through the project's authenticated review boundary.
+
+**Public release**:
+The production-published state of the portfolio that is intentionally exposed to the public internet.
+
+**Private visual review**:
+A Visual review of unreleased or in-progress material that must remain behind the project's authenticated review boundary.
+
+**Text change**:
+A change to user-visible copy that is always treated as Visual-impacting because line breaks, density, hierarchy and layout can change even when component code does not.
+
+**Private review boundary**:
+The authenticated boundary inside which all pre-production Visual review surfaces, previews and evidence must remain unavailable to the public internet.
+
+**Historical sanitization**:
+Removal or neutralization of private review evidence from mutable publication surfaces such as pull-request text, issue text, comments, artifacts and deployments without rewriting Git commit history.
+
+**History rewrite**:
+Replacement of existing Git commits to remove material embedded in committed history; reserved for material whose continued presence in Git history is itself unacceptable.
+
+**Privacy audit**:
+A repository-wide inspection that classifies potentially private material across current files, mutable GitHub surfaces and Git history before deciding whether ordinary sanitization or History rewrite is required.
+
+**Sensitive committed material**:
+Committed content whose continued presence in Git history is itself unacceptable, such as credentials, private correspondence, personal data, private screenshots/files or access-bearing private URLs.
+
+**Public GitHub surface**:
+Any repository, pull-request, issue, comment, review, artifact or workflow output visible through the public GitHub repository and therefore restricted to sanitized publication-safe information.
+
+**Review evidence**:
+The private screenshots, manifests, diffs and exact rendered outputs used to make a Visual approval decision.
+
+**Review manifest**:
+The private machine-readable record for one Case review, identifying its source SHA, review depth, required profiles, evidence locations, checks and approval state.
+
+**Approval record**:
+An immutable private audit record proving that a specific Case at a specific source SHA received Visual approval.
+

@@ -1,18 +1,16 @@
-import type { AnimatedCanvasGalleryData } from "../../types/animated-canvas-gallery.ts";
-import type { MediaFigureData, ProjectIntroData, SectionIntroData } from "../../types/content.ts";
+import type { ProjectIntroData, SectionIntroData } from "../../types/content.ts";
 import type { MediaGroupData } from "../../types/media-group.ts";
-import type { MockupDeckData } from "../../types/mockup-deck.ts";
 import type { MediaEntryId } from "../media/index.ts";
 import type { LogoUsageId } from "../logos/index.ts";
 
 export const awfulMockupsIntro = {
   head: { type: "text", text: "Awful Mockups" },
   title: { type: "text", text: "Awful Mockups" },
-  role: "Дизайн и ретушь",
+  role: "PSD-мокапы",
   period: "2026",
-  summary: "Набор редактируемых PSD-мокапов для презентации интерфейсов и графики.",
-  lead:
-    "Экран, объект, фон, цвет и обработка собраны отдельно. Мокап можно быстро подстроить под проект, не пересобирая сцену с нуля.",
+  summary: "Набор редактируемых мокапов для интерфейсов и графики.",
+  lead: "Экран, фон и постобработка разделены по слоям.",
+  linksLabel: "Исходники",
   links: [
     {
       label: "Скачать PSD",
@@ -23,65 +21,37 @@ export const awfulMockupsIntro = {
   ],
 } as const satisfies ProjectIntroData<LogoUsageId>;
 
-export const awfulMockupsMedia = [
-  { entryId: "awful-mockups-02-monitor-use-01", captionView: "summary" },
-  { entryId: "awful-mockups-03-phone-fashion-use-01", captionView: "summary" },
-  { entryId: "awful-mockups-11-square-use-01", captionView: "summary" },
-  { entryId: "awful-mockups-16-landscape-use-01", captionView: "summary" },
-  { entryId: "awful-mockups-17-dual-phone-use-01", captionView: "summary" },
-  { entryId: "awful-mockups-18-phone-use-01", captionView: "summary" },
-  { entryId: "awful-mockups-28-phone-camera-use-01", captionView: "summary" },
-  { entryId: "awful-mockups-39-print-case-use-01", captionView: "summary" },
-] as const satisfies readonly MediaFigureData<MediaEntryId>[];
-
 export const awfulMockupsPreviewGroup = {
   layout: "grid",
   captionView: "lightbox-only",
   columns: 2,
   mobileColumns: 1,
-  items: awfulMockupsMedia.map(({ entryId }) => ({ entryId })),
+  items: [
+    { entryId: "awful-mockups-03-phone-fashion-use-01", role: "wide" },
+    { entryId: "awful-mockups-02-monitor-use-01" },
+    { entryId: "awful-mockups-17-dual-phone-use-01" },
+    { entryId: "awful-mockups-28-phone-camera-use-01" },
+    { entryId: "awful-mockups-16-landscape-use-01", role: "wide" },
+    { entryId: "awful-mockups-11-square-use-01" },
+    { entryId: "awful-mockups-18-phone-use-01" },
+    { entryId: "awful-mockups-39-print-case-use-01" },
+  ],
 } as const satisfies MediaGroupData<MediaEntryId>;
 
-export const awfulMockupsCanvasGallery = {
-  profile: "moves",
-  variant: "showcase-diagonal",
-  id: "awful-mockups-canvas",
-  className: "awful-mockups-showcase",
-  items: awfulMockupsMedia.map(({ entryId }) => ({ entryId, title: "" })),
-} as const satisfies AnimatedCanvasGalleryData<MediaEntryId>;
-
-export const awfulMockupsMockupDeck = {
-  variant: "standard",
-  device: "desktop",
-  captionView: "lightbox-only",
-  controls: false,
-  captions: false,
-  slides: [
-    {
-      kind: "canvas-gallery",
-      className: "awful-mockups-slider-canvas-slide",
-      captionView: "lightbox-only",
-      caption: { title: "Awful Mockups" },
-      gallery: awfulMockupsCanvasGallery,
-    },
-  ],
-} as const satisfies MockupDeckData<MediaEntryId>;
+export const awfulMockupsShowcaseIntro = {
+  title: "Мокапы",
+  paragraphs: ["Зелёный экран — заменяемая область."],
+} as const satisfies SectionIntroData;
 
 export const awfulMockupsStructureIntro = {
-  title: "Внутри PSD",
-  paragraphs: [
-    "Мокапы остаются рабочими файлами: экран меняется через Smart Object, а фон, маски, цвет и постобработка лежат отдельно.",
-    "Ниже один из файлов открыт в Photoshop. По структуре слоёв видно, как устроен мокап и что в нём можно менять.",
-  ],
+  title: "PSD",
+  paragraphs: ["Один из исходников с раскрытыми слоями в Photoshop."],
 } as const satisfies SectionIntroData;
 
 export const awfulMockupsPhotoshopGroup = {
   layout: "grid",
-  captionView: "overlay",
-  columns: 2,
+  captionView: "lightbox-only",
+  columns: 1,
   mobileColumns: 1,
-  items: [
-    { entryId: "awful-mockups-photoshop-layers-full-use-01", loading: "lazy" },
-    { entryId: "awful-mockups-photoshop-layers-detail-use-01", loading: "lazy" },
-  ],
+  items: [{ entryId: "awful-mockups-photoshop-layers-full-use-01", loading: "lazy" }],
 } as const satisfies MediaGroupData<MediaEntryId>;
