@@ -71,21 +71,18 @@ test("motion evidence duplicates only the capture kind with material difference"
   );
 });
 
-test("runtime matrix accepts canonical #1091 review-depth casing", () => {
-  const quick = buildReviewRuntimeMatrix({ reviewDepth: "Quick" });
-  assert.deepEqual(
-    [...new Set(quick.filter((row) => row.phase === "capture").map((row) => row.profileId))],
-    ["desktop-1440"],
-  );
+test("runtime matrix accepts only the exact #1091 review-depth values", () => {
+  for (const depth of ["quick", "interactive", "full"]) {
+    assert.doesNotThrow(() => buildReviewRuntimeMatrix({ reviewDepth: depth }));
+  }
 
-  const interactive = buildReviewRuntimeMatrix({ reviewDepth: "Interactive" });
-  assert.ok(interactive.some((row) => row.browser === "webkit"));
-
-  const full = buildReviewRuntimeMatrix({ reviewDepth: "Full" });
-  assert.deepEqual(
-    [...new Set(full.filter((row) => row.phase === "capture").map((row) => row.profileId))],
-    profileIds,
-  );
+  for (const depth of ["Quick", "Interactive", "Full"]) {
+    assert.throws(
+      () => buildReviewRuntimeMatrix({ reviewDepth: depth }),
+      /Unsupported review depth/,
+      depth,
+    );
+  }
 });
 
 test("review depth remains conservative when affected profile routing is absent", () => {
