@@ -33,6 +33,12 @@ function startPreview(card: HTMLElement): void {
   const video = previewFor(card);
   if (!video) return;
 
+  if (!video.getAttribute("src")) {
+    const src = video.dataset.galleryPreviewSrc?.trim();
+    if (!src) return;
+    video.src = src;
+  }
+
   video.muted = true;
   video.defaultMuted = true;
   video.playsInline = true;
