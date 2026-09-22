@@ -7,6 +7,7 @@ import { entryRequestToPagePath } from "../src/site/build/site-pages-plugin.ts";
 import * as pageValidation from "../src/site/pages/content-validation.ts";
 import * as entityPresentation from "../src/site/pages/entity-presentation.ts";
 import { sitePages } from "../src/site/pages/manifest.ts";
+import { portfolioPresentation } from "../src/site/pages/portfolio-presentation.ts";
 import { extractElementById } from "../src/site/rendering/html.ts";
 import { renderStandaloneEntityPage } from "../src/site/renderers/entity-page.ts";
 import { renderHomepagePage } from "../src/site/renderers/home/home-page.ts";
@@ -131,6 +132,24 @@ test("homepage canonical entities do not depend on legacy entity markers", () =>
   );
 
   assert.doesNotThrow(() => renderHomepagePage(withoutEntityMarkers));
+});
+
+test("standalone Case renders only an explicitly mapped next-Case footer", () => {
+  const current = page("case:jestei-pool");
+  const withoutMapping = renderStandaloneEntityPage(current);
+  assert.doesNotMatch(withoutMapping, /data-next-case/);
+
+  const withMapping = renderStandaloneEntityPage(current, {
+    ...portfolioPresentation,
+    nextCase: {
+      "case:jestei-pool": "case:styx",
+    },
+  });
+
+  assert.match(withMapping, /<footer class="project__footer cluster"[^>]*data-next-case/);
+  assert.match(withMapping, /href="\/work\/styx\/"/);
+  assert.match(withMapping, />Next case<\/span>/);
+  assert.match(withMapping, />Styx Jewel<\/span>/);
 });
 
 test("standalone Jestei page is isolated from other case DOM and uses h1", () => {
