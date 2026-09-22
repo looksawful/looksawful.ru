@@ -22,6 +22,10 @@ const lightboxSource = await readFile(
   new URL("../src/components/gallery/gallery-lightbox.ts", import.meta.url),
   "utf8",
 );
+const sharedLightboxSource = await readFile(
+  new URL("../src/components/photoswipe-lightbox.ts", import.meta.url),
+  "utf8",
+);
 
 const galleryPage = sitePages.find((page) => page.id === "gallery");
 assert.ok(galleryPage && galleryPage.type === "gallery");
@@ -250,6 +254,18 @@ test("Gallery CSS has no retired heading styles and explicitly avoids masonry me
   assert.match(galleryCss, /\.gallery-card--model\s*\{/);
   assert.match(galleryCss, /\.gallery-model\[data-model-state="ready"\]/);
   assert.match(galleryCss, /touch-action:\s*none/);
+});
+
+test("Gallery viewer is series-bounded and delegates image/video rendering to the shared PhotoSwipe seam", () => {
+  assert.match(lightboxSource, /createPhotoSwipeLightbox/);
+  assert.doesNotMatch(lightboxSource, /new PhotoSwipeLightbox/);
+  assert.match(lightboxSource, /closest<HTMLElement>\("\[data-gallery-series\]"\)/);
+  assert.match(lightboxSource, /loop:\s*false/);
+  assert.match(lightboxSource, /kind === "video"[\s\S]*?muted:\s*true/);
+  assert.match(lightboxSource, /kind === "model"[\s\S]*?kind:\s*"image"/);
+  assert.match(sharedLightboxSource, /onChange\?:/);
+  assert.match(sharedLightboxSource, /onClose\?:/);
+  assert.match(sharedLightboxSource, /loop\?:\s*boolean/);
 });
 
 test("Gallery lightbox reads the one public photo stream instead of retired layer panels", () => {
