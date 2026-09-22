@@ -265,3 +265,51 @@ test("Supabase review storage fails closed when backend configuration is incompl
     null,
   );
 });
+
+
+test("Supabase review storage writes immutable evidence create-only instead of upserting", async () => {
+  const calls = [];
+  const fetchImpl = async (url, init = {}) => {
+    const href = String(url);
+    calls.push({ url: href, init });
+
+    if (href.includes("/storage/v1/object/private-review-evidence/")) {
+      return jsonResponse({ Key: "stored" });
+    }
+    if (href.includes("/rest/v1/rpc/review_hub_put_object")) {
+      return jsonResponse({ stored: true, etag: "etag-immutable" });
+    }
+    throw new Error(`Unexpected request: ${url}`);
+  };
+
+  const storage = createSupabaseReviewStorage(ENV, fetchImpl);
+  const key =
+    "review-hub/v1/cases/case-a/0123456789abcdef0123456789abcdef01234567/reviews/11111111-1111-4111-8111-111111111111/evidence/desktop";
+
+  const stored = await storage.put(key, new Uint8Array([1, 2, 3]).buffer, {
+    httpMetadata: { contentType: "image/png" },
+    onlyIfAbsent: true,
+  });
+  assert.equal(stored.etag, "etag-immutable");
+
+  const upload = calls.find(({ url }) =>
+    url.includes("/storage/v1/object/private-review-evidence/")
+  );
+  assert.ok(upload);
+  assert.equal(upload.init.headers["x-upsert"], "false");
+
+  const rpcCall = calls.find(({ url }) =>
+    url.includes("/rest/v1/rpc/review_hub_put_object")
+  );
+  assert.ok(rpcCall);
+  assert.equal(JSON.parse(rpcCall.init.body).p_create_only, true);
+});
+
+test("Supabase SQL exposes a create-only path for immutable review objects", async () => {
+  const { readFile } = await import("node:fs/promises");
+  const sql = await readFile(new URL("../tools/supabase/review-hub.sql", import.meta.url), "utf8");
+
+  assert.match(sql, /p_create_only boolean default false/u);
+  assert.match(sql, /if p_create_only then/u);
+  assert.match(sql, /on conflict \(key\) do nothing/u);
+});

@@ -220,6 +220,26 @@ test("approval is owner-only and promotes an exact Case+SHA baseline", async () 
   assert.equal(await baselineEvidence.text(), "private-image");
 });
 
+test("owner approval accepts immutable Review ID without Case SHA or depth", async () => {
+  const bucket = new MemoryReviewStorage();
+  const review = await createReview(bucket);
+
+  const approved = await handleReviewRequest({
+    request: new Request("https://admin.looksawful.ru/lab/review/approval", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ reviewId: review.reviewId }),
+    }),
+    env: { REVIEW_STORAGE: bucket },
+    session: OWNER_SESSION,
+    now: () => NOW,
+  });
+
+  assert.equal(approved.status, 201);
+  assert.equal((await approved.json()).reviewId, review.reviewId);
+});
+
+
 test("repeating approval for the same exact Review is idempotent", async () => {
   const bucket = new MemoryReviewStorage();
   const review = await createReview(bucket);
