@@ -150,3 +150,21 @@ test("manual escalation is monotonic and may only broaden review", () => {
   assert.equal(route.reviewDepth, "Full");
   assert.deepEqual(route.affectedCaseIds, ["jestei-pool", "styx"]);
 });
+
+
+test("prefix declarations accept a trailing slash and map the subtree", () => {
+  const route = routeVisualReviewChanges(
+    [{ path: "src/components/cards/project-card.ts", status: "modified" }],
+    {
+      knownCaseIds,
+      declarations: [{
+        pathPrefix: "src/components/",
+        caseIds: ["jestei-pool", "styx"],
+      }],
+    },
+  );
+
+  assert.equal(route.reviewDepth, "Quick");
+  assert.equal(route.affectedCaseMode, "explicit");
+  assert.deepEqual(route.affectedCaseIds, ["jestei-pool", "styx"]);
+});
