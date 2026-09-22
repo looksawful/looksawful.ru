@@ -83,6 +83,10 @@ test("review browser smoke stays affected-only and never publishes visual eviden
   assert.match(smoke, /technical-smoke/);
   assert.match(smoke, /buildReviewRuntimeMatrix/);
   assert.match(smoke, /openReviewPage/);
+  assert.match(smoke, /dynamicStates/);
+  assert.match(smoke, /kind:\s*"canvas"/);
+  assert.match(smoke, /kind:\s*"webgl"/);
+  assert.match(smoke, /kind:\s*"infinite-gallery"/);
 
   assert.match(workflow, /workflow_dispatch:/);
   assert.match(workflow, /tools\/review\/\*\*/);
