@@ -295,6 +295,10 @@ function decisionForPath(
     );
   }
 
+  if (sharedUiPatterns.some((pattern) => pattern.test(path))) {
+    return allCasesDecision("global", "Full", `Shared UI changed without an affected-Case declaration: ${path}`);
+  }
+
   if (/^src\//u.test(path) && interactivePattern.test(path)) {
     return allCasesDecision(
       "interactive",
@@ -305,10 +309,6 @@ function decisionForPath(
 
   if (change.userVisibleText === true) {
     return allCasesDecision("ambiguous", "Quick", `User-visible text changed without narrower Case ownership: ${path}`);
-  }
-
-  if (sharedUiPatterns.some((pattern) => pattern.test(path))) {
-    return allCasesDecision("global", "Full", `Shared UI changed without an affected-Case declaration: ${path}`);
   }
 
   if (mediaPatterns.some((pattern) => pattern.test(path))) {
