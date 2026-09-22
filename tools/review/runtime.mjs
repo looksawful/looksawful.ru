@@ -68,6 +68,14 @@ export function createDeterministicCaptureStyle() {
       scroll-behavior: auto !important;
       caret-color: transparent !important;
     }
+
+    html[data-review-capture="deterministic"] [data-reveal] {
+      opacity: 1 !important;
+      visibility: visible !important;
+      transform: none !important;
+      translate: none !important;
+      scale: none !important;
+    }
   `;
 }
 
