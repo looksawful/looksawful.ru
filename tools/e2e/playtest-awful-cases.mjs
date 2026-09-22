@@ -42,6 +42,17 @@ async function openTrainer(page, url) {
   const trainer = page.locator("[data-awful-cases]").first();
   await trainer.scrollIntoViewIfNeeded();
   await trainer.waitFor({ state: "visible" });
+  assert.equal(
+    await trainer.getAttribute("tabindex"),
+    null,
+    "trainer shell must not add a redundant keyboard tab stop",
+  );
+  const canvas = trainer.locator("[data-awful-cases-canvas]");
+  assert.equal(
+    await canvas.getAttribute("tabindex"),
+    "0",
+    "game canvas must be the single keyboard focus target",
+  );
   await page.waitForFunction(() =>
     Boolean(document.querySelector("[data-awful-cases]")?.awfulCasesCaseTrainer),
   );
@@ -176,6 +187,19 @@ async function exerciseExamDeath(page) {
     { timeout: 3000 },
   );
   assert.equal(await page.locator("[data-awful-cases-restart]").isVisible(), true);
+  const restartButton = page.locator("[data-awful-cases-restart-button]");
+  await page.keyboard.press("Tab");
+  const restartFocus = await restartButton.evaluate((button) => {
+    const style = getComputedStyle(button);
+    return {
+      focused: document.activeElement === button,
+      outlineStyle: style.outlineStyle,
+      outlineWidth: Number.parseFloat(style.outlineWidth) || 0,
+    };
+  });
+  assert.equal(restartFocus.focused, true, "restart button must be reachable from the game canvas");
+  assert.notEqual(restartFocus.outlineStyle, "none", "restart button must expose visible focus");
+  assert.ok(restartFocus.outlineWidth >= 2, "restart button focus outline must remain visible");
 }
 
 async function exerciseVictoryRestart(page) {
@@ -291,6 +315,24 @@ async function exerciseMobileTouch(browser, baseUrl) {
   const controls = page.locator("[data-awful-cases-controls]");
   assert.equal(await controls.isVisible(), true);
   assert.equal(await controls.locator("[data-awful-cases-action]").count(), 6);
+  const controlMetrics = await controls
+    .locator("[data-awful-cases-action]")
+    .evaluateAll((buttons) =>
+      buttons.map((button) => {
+        const rect = button.getBoundingClientRect();
+        const label = button.querySelector("span");
+        return {
+          width: rect.width,
+          height: rect.height,
+          labelFontSize: label ? Number.parseFloat(getComputedStyle(label).fontSize) || 0 : 0,
+        };
+      }),
+    );
+  for (const metric of controlMetrics) {
+    assert.ok(metric.width >= 44, "touch action width must stay at least 44 CSS px");
+    assert.ok(metric.height >= 44, "touch action height must stay at least 44 CSS px");
+    assert.ok(metric.labelFontSize >= 9, "touch action labels must stay readable");
+  }
   const rightEdgePixel = await page.evaluate(async () => {
     await document.fonts.ready;
     await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
