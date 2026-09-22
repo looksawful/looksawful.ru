@@ -71,16 +71,15 @@ test("capture runtime contains no arbitrary sleep primitive", async () => {
 });
 
 
-// RED/GREEN contract for production global reveal settling during private capture.
-test("deterministic capture leaves production global reveals in their settled visible state", async () => {
-  const motion = await readFile(new URL("../src/motion.ts", import.meta.url), "utf8");
+test("deterministic capture style settles review reveals without changing production motion", () => {
+  const style = createDeterministicCaptureStyle();
 
-  assert.match(motion, /data-review-capture/);
-  assert.match(motion, /deterministic/);
-  assert.match(
-    motion,
-    /createGlobalReveals[\s\S]*review-capture[\s\S]*return noop/,
-  );
+  assert.match(style, /data-review-capture=["']deterministic["'][^}]*data-reveal/is);
+  assert.match(style, /opacity:\s*1\s*!important/i);
+  assert.match(style, /visibility:\s*visible\s*!important/i);
+  assert.match(style, /transform:\s*none\s*!important/i);
+  assert.match(style, /translate:\s*none\s*!important/i);
+  assert.match(style, /scale:\s*none\s*!important/i);
 });
 
 test("review browser smoke stays affected-only and never publishes visual evidence", async () => {
