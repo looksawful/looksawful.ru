@@ -71,3 +71,18 @@ A Review whose temporary evidence retention window ended before approval. It is 
 
 **Review lifecycle**:
 The system may automatically create a Review, make it Current, supersede it, or mark it Expired. Only the owner may perform Visual approval. Objective mandatory checks cannot be overridden by Visual approval.
+
+**Review manifest**:
+The immutable machine-readable description of one Review. It identifies the Review, Case, exact source SHA, Review depth, capture time, evidence descriptors and required-check results. It describes that Review package, not mutable Case state.
+
+**Review evidence**:
+Private captured artifacts that belong immutably to one Review. Evidence is not replaced in place; recapturing creates a new Review.
+
+**Stale Review**:
+A Review that is no longer eligible for approval because an affecting source change changed its Case after capture, even when no newer Review exists yet. This differs from a Superseded Review, which has been replaced by a newer Review.
+
+**Approval record**:
+An immutable audit record of one successful Visual approval. Approval records are append-only and remain after a newer Baseline replaces the one produced by that approval.
+
+**Approval validity**:
+Whether the current Case state is covered by Visual approval. An affecting source change invalidates approval for the current Case state without deleting the historical Approval record or Baseline.
