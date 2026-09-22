@@ -8,6 +8,30 @@ import { captureReviewEvidence, openReviewPage } from "./runtime.mjs";
 
 const host = "127.0.0.1";
 
+const dynamicStates = [
+  {
+    id: "fixture-canvas",
+    kind: "canvas",
+    selector: "[data-review-canvas]",
+    ready: { attribute: "data-review-ready", value: "ready" },
+    stable: { attribute: "data-review-stable", value: "stable" },
+  },
+  {
+    id: "fixture-webgl",
+    kind: "webgl",
+    selector: "[data-review-webgl]",
+    ready: { attribute: "data-review-ready", value: "ready" },
+    stable: { attribute: "data-review-stable", value: "stable" },
+  },
+  {
+    id: "fixture-gallery",
+    kind: "infinite-gallery",
+    selector: "[data-review-gallery]",
+    ready: { attribute: "data-review-ready", value: "ready" },
+    stable: { attribute: "data-review-stable", value: "stable" },
+  },
+];
+
 function startFixtureServer() {
   const server = createServer((request, response) => {
     if (request.url !== "/") {
@@ -28,6 +52,18 @@ function startFixtureServer() {
   </head>
   <body>
     <main data-review-fixture="ready">runtime smoke</main>
+    <div data-review-canvas data-review-ready="loading" data-review-stable="moving"></div>
+    <div data-review-webgl data-review-ready="loading" data-review-stable="moving"></div>
+    <div data-review-gallery data-review-ready="loading" data-review-stable="moving"></div>
+    <script>
+      document.addEventListener("looksawful:review-state-request", (event) => {
+        const target = event.target;
+        const stable = event.detail?.stable;
+        if (!(target instanceof HTMLElement) || !stable) return;
+        target.setAttribute("data-review-ready", "ready");
+        target.setAttribute(stable.attribute, stable.value);
+      });
+    </script>
   </body>
 </html>`);
   });
@@ -63,6 +99,7 @@ async function runRow(browser, baseUrl, row) {
     baseUrl,
     route: "/",
     row,
+    dynamicStates: row.phase === "capture" ? dynamicStates : [],
   });
 
   try {
@@ -72,6 +109,12 @@ async function runRow(browser, baseUrl, row) {
     );
 
     if (row.phase === "capture") {
+      for (const state of dynamicStates) {
+        const target = opened.page.locator(state.selector);
+        assert.equal(await target.getAttribute("data-review-ready"), "ready");
+        assert.equal(await target.getAttribute("data-review-stable"), "stable");
+      }
+
       const evidence = await captureReviewEvidence(opened.page, row);
       assert.ok(evidence.length > 0);
       assert.ok(evidence.every(({ bytes }) => bytes.byteLength > 0));
