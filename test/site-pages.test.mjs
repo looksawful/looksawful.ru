@@ -300,6 +300,27 @@ test("portfolio presentation rejects unknown and duplicate main-tier page ids", 
 });
 
 
+test("portfolio presentation validates manual next-Case routes", () => {
+  assert.doesNotThrow(() => validatePortfolioPresentation({
+    ...portfolioPresentation,
+    nextCase: {
+      "case:jestei-pool": "case:styx",
+      "case:styx": "case:sensetique",
+      "case:sensetique": "case:jestei-pool",
+    },
+  }, sitePages));
+
+  assert.throws(
+    () => validatePortfolioPresentation({
+      ...portfolioPresentation,
+      nextCase: {
+        "case:jestei-pool": "case:jestei-pool",
+      },
+    }, sitePages),
+    /cannot point to itself/i,
+  );
+});
+
 test("portfolio presentation keeps editorial tiers unresolved until owner approval", () => {
   assert.deepEqual(portfolioPresentation.flagship, [
     "case:jestei-pool",
