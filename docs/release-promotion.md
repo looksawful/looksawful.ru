@@ -48,6 +48,10 @@ The preflight rejects:
 
 An intentional extra product file can be declared with repeated `--allow <path>`. This never overrides the Lab-only path guard.
 
+If an approved file and `prod` both changed the same lines and the release candidate was manually reconciled, declare that exact conflicting overlap path with repeated `--reconcile <path>`. The preflight accepts `--reconcile` only for paths that its three-way merge classifies as genuine overlap conflicts. A non-overlap or automatically mergeable path is rejected with `INVALID_RECONCILIATION_PATH`.
+
+`--reconcile` is an acknowledgement of a reviewed manual conflict resolution, not a general bypass: Lab-only paths, missing approved files, extra unapproved candidate files, and clean prod-only changes remain fail-closed.
+
 ## 4. Use an explicit temp root for local release verification
 
 If the system temp drive is constrained, do not delete arbitrary user files and do not accept ENOSPC as a product failure. Route child-process temp files to an explicit roomy location:
