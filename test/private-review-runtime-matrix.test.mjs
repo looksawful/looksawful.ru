@@ -85,11 +85,11 @@ test("runtime matrix accepts only the exact #1091 review-depth values", () => {
   }
 });
 
-test("review depth remains conservative when affected profile routing is absent", () => {
+test("missing profile routing fails safe to all canonical Chromium profiles", () => {
   const quick = buildReviewRuntimeMatrix({ reviewDepth: "quick" });
   assert.deepEqual(
     [...new Set(quick.filter((row) => row.phase === "capture").map((row) => row.profileId))],
-    ["desktop-1440"],
+    profileIds,
   );
 
   const interactive = buildReviewRuntimeMatrix({ reviewDepth: "interactive" });
@@ -101,7 +101,7 @@ test("review depth remains conservative when affected profile routing is absent"
   assert.equal(
     quick.some((row) => row.browser === "webkit"),
     false,
-    "Quick evidence does not pay the cross-engine smoke cost",
+    "Quick evidence keeps Chromium-only baseline capture",
   );
   assert.equal(
     interactive.some((row) => row.browser === "webkit"),
