@@ -5,6 +5,7 @@ on:
     branches: [dev]
     paths:
       - "tools/review/**"
+      - "src/motion.ts"
       - "test/private-review-runtime-*.test.mjs"
       - ".github/workflows/private-review-runtime.yml"
   workflow_dispatch:
