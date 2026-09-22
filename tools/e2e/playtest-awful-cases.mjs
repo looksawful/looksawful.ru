@@ -216,8 +216,49 @@ async function exerciseReducedMotion(browser, baseUrl) {
     viewport: { width: 1280, height: 900 },
     reducedMotion: "reduce",
   });
+
+  let releaseAtlas;
+  let markAtlasRequested;
+  const atlasGate = new Promise((resolve) => {
+    releaseAtlas = resolve;
+  });
+  const atlasRequested = new Promise((resolve) => {
+    markAtlasRequested = resolve;
+  });
+
+  await context.route("**/media/interactive/awful-cases-atlas.png", async (route) => {
+    markAtlasRequested();
+    await atlasGate;
+    await route.continue();
+  });
+
   const page = await context.newPage();
   const errors = await openTrainer(page, `${baseUrl}/work/awful-cases/`);
+  await atlasRequested;
+
+  const snapshot = () =>
+    page.locator("[data-awful-cases-canvas]").evaluate((canvas) => canvas.toDataURL());
+
+  const beforeAtlas = await snapshot();
+  await page.waitForTimeout(150);
+  assert.equal(
+    await snapshot(),
+    beforeAtlas,
+    "reduced-motion demo must stay visually stable while the atlas is delayed",
+  );
+
+  const atlasResponse = page.waitForResponse((response) =>
+    response.url().includes("/media/interactive/awful-cases-atlas.png"),
+  );
+  releaseAtlas();
+  await atlasResponse;
+  await page.waitForTimeout(150);
+  assert.notEqual(
+    await snapshot(),
+    beforeAtlas,
+    "reduced-motion demo must redraw when the delayed atlas becomes available",
+  );
+
   const before = await page.evaluate(() =>
     document.querySelector("[data-awful-cases]").awfulCasesCaseTrainer.game.time,
   );
