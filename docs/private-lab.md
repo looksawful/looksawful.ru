@@ -61,6 +61,8 @@ Security contract:
 
 Repository code alone does **not** prove that the remote Admin is deployed or protected. `ADMIN_GITHUB_CLIENT_ID`, `ADMIN_GITHUB_CLIENT_SECRET`, `ADMIN_SESSION_SECRET`, the GitHub OAuth application callback and the `admin.looksawful.ru` runtime/custom-domain configuration must exist in the actual deployment environment before remote access can be claimed operational.
 
+Trusted deployment credentials must never be exposed to feature/candidate build steps. Unreviewed branch code, package scripts, media tooling and Lab builds run without Cloudflare/OAuth/session/Supabase production secrets; privileged deployment is a separate trusted step or workflow operating on already-validated output.
+
 ## Read-only rule
 
 The Lab client contains no Desk mutation API calls and displays `READ ONLY`.
