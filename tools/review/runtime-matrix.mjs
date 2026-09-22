@@ -1,4 +1,4 @@
-const REVIEW_DEPTHS = new Set(["quick", "interactive", "full"]);
+const REVIEW_DEPTHS = new Set(["Quick", "Interactive", "Full"]);
 const MOTION_VALUES = new Set(["no-preference", "reduce"]);
 const DYNAMIC_KINDS = new Set(["video", "canvas", "webgl", "infinite-gallery"]);
 const REVIEW_STATE_ATTRIBUTE = /^data-[a-z0-9][a-z0-9-]*$/u;
@@ -178,7 +178,7 @@ export function buildReviewRuntimeMatrix({
     );
   }
 
-  if (normalizedDepth !== "quick") {
+  if (normalizedDepth !== "Quick") {
     for (const profile of CANONICAL_REVIEW_PROFILES.filter(({ apple }) => apple)) {
       rows.push(
         matrixRow({
