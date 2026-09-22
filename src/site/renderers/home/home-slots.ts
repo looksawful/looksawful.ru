@@ -6,7 +6,6 @@ import {
 } from "../../../data/content/awful-cases.ts";
 import { berryIntro, berryStoryMockups } from "../../../data/content/berry.ts";
 import { isHomeSectionVisible } from "../../../data/content/home-visibility.ts";
-import { usefulProjectsContent } from "../../../data/content/useful-projects.ts";
 import { liNeAgencyIntro } from "../../../data/content/li-ne-agency.ts";
 import { madCowFilmsIntro } from "../../../data/content/mad-cow-films.ts";
 import { moskovskieNovostiIntro } from "../../../data/content/moskovskie-novosti.ts";
@@ -26,7 +25,6 @@ import { portfolioSensetiqueStrip } from "../../../data/content/sensetique.ts";
 import { portfolioShootingsStrip } from "../../../data/content/shootings.ts";
 import { portfolioScanographyStrip } from "../../../data/content/styx.ts";
 import { getVisibleProjectCardPresentations } from "../../../data/projects.ts";
-import { petProjectCards } from "../../../data/subproject-cards.ts";
 
 import { renderAnimatedCanvasGallery } from "../../../templates/animated-canvas-gallery.ts";
 import { renderClientLogo } from "../../../templates/client-logo.ts";
@@ -37,12 +35,13 @@ import { renderMockupDeck } from "../../../templates/mockup-deck.ts";
 import { renderProjectCard } from "../../../templates/project-card.ts";
 import { renderProjectIntro } from "../../../templates/project-intro.ts";
 import { renderSectionIntro } from "../../../templates/section-intro.ts";
-import { renderPetProjectCards } from "../../../templates/subproject-card.ts";
 import {
   extractElementContainingMarker,
   replaceRequiredSlots,
   type HtmlSlot,
 } from "../../rendering/html.ts";
+import type { PortfolioPresentation } from "../../pages/portfolio-presentation.ts";
+import { renderPortfolioCardListItem } from "../portfolio/portfolio-card.ts";
 
 const petProjectsStyles = `
   .pet-projects {
@@ -135,29 +134,41 @@ const petProjectsStyles = `
   }
 `;
 
-function renderPetProjectsSection(): string {
+function renderFeaturedProjectsSection(
+  presentation: PortfolioPresentation,
+): string {
+  if (presentation.featured.length === 0) return "";
+
+  const cards = presentation.featured
+    .map(renderPortfolioCardListItem)
+    .join("\n");
+
   return `
       <style>${petProjectsStyles}</style>
-      <section class="pet-projects" aria-labelledby="pet-projects-title" data-reveal-group>
-        <h2 id="pet-projects-title" data-reveal="copy">${usefulProjectsContent.section.title}</h2>
-        <p class="pet-projects__lead" data-reveal="copy">${usefulProjectsContent.section.description}</p>
-        <div class="pet-projects__grid reel" data-reveal-group>
-          ${renderPetProjectCards(petProjectCards)}
-        </div>
+      <section class="pet-projects" aria-labelledby="featured-projects-title" data-reveal-group>
+        <h2 id="featured-projects-title" class="visually-hidden">Featured</h2>
+        <ol class="pet-projects__grid reel" data-reveal-group>
+          ${cards}
+        </ol>
       </section>`;
 }
 
-function injectPetProjectsSection(html: string): string {
-  if (!isHomeSectionVisible("pet-projects")) return html;
+function injectFeaturedProjectsSection(
+  html: string,
+  presentation: PortfolioPresentation,
+): string {
+  if (!isHomeSectionVisible("pet-projects") || presentation.featured.length === 0) {
+    return html;
+  }
 
   const insertionPoint = '<section class="expertise" hidden>';
   if (!html.includes(insertionPoint)) {
-    throw new Error("Homepage Pet Projects insertion point is missing.");
+    throw new Error("Homepage Featured insertion point is missing.");
   }
 
   return html.replace(
     insertionPoint,
-    `${renderPetProjectsSection()}\n      ${insertionPoint}`,
+    `${renderFeaturedProjectsSection(presentation)}\n      ${insertionPoint}`,
   );
 }
 
@@ -211,11 +222,14 @@ export function applyClientLogoWallVisibility(html: string, visible: boolean): s
   return html.replace(logoWallSection, "");
 }
 
-export function renderHomepage(html: string): string {
+export function renderHomepage(
+  html: string,
+  presentation: PortfolioPresentation,
+): string {
   const rendered = replaceRequiredSlots(html, createHomepageSlots());
-  const withPetProjects = injectPetProjectsSection(rendered);
+  const withFeatured = injectFeaturedProjectsSection(rendered, presentation);
   return applyClientLogoWallVisibility(
-    withPetProjects,
+    withFeatured,
     isHomeSectionVisible("client-logo-wall"),
   );
 }
