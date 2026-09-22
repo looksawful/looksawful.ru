@@ -41,7 +41,7 @@ export function renderEntityPortfolioIntro(data?: EntityPortfolioIntroData): str
     </div>`)
     .join("\n");
 
-  return `<section class="project__portfolio-intro wrapper" aria-label="Project summary"${renderRevealGroupAttribute()}>
+  return `<section class="project__portfolio-intro wrapper" data-portfolio-intro-kind="${escapeHtml(data.kind)}" aria-label="Project summary"${renderRevealGroupAttribute()}>
     <dl class="project__portfolio-intro-list">
       ${fields}
     </dl>
