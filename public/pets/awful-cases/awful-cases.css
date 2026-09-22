@@ -1,3 +1,4 @@
+/* Standalone Win98/DOS skin. Runtime/data are canonical in src/components; this file intentionally owns only the standalone presentation layer. */
 @import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
 
 .awful-cases {
