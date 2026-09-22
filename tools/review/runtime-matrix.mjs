@@ -1,11 +1,4 @@
-const REVIEW_DEPTHS = new Map([
-  ["quick", "quick"],
-  ["Quick", "quick"],
-  ["interactive", "interactive"],
-  ["Interactive", "interactive"],
-  ["full", "full"],
-  ["Full", "full"],
-]);
+const REVIEW_DEPTHS = new Set(["quick", "interactive", "full"]);
 const MOTION_VALUES = new Set(["no-preference", "reduce"]);
 const DYNAMIC_KINDS = new Set(["video", "canvas", "webgl", "infinite-gallery"]);
 const REVIEW_STATE_ATTRIBUTE = /^data-[a-z0-9][a-z0-9-]*$/u;
@@ -61,11 +54,10 @@ const PROFILE_BY_ID = new Map(
 );
 
 function normalizeReviewDepth(reviewDepth) {
-  const normalized = REVIEW_DEPTHS.get(reviewDepth);
-  if (!normalized) {
+  if (!REVIEW_DEPTHS.has(reviewDepth)) {
     throw new Error(`Unsupported review depth: ${reviewDepth}`);
   }
-  return normalized;
+  return reviewDepth;
 }
 
 function normalizeAffectedProfiles(affectedProfiles) {
