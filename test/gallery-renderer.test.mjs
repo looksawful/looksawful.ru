@@ -199,6 +199,8 @@ test("Gallery video cards are poster-first and preview only on deliberate hover 
   assert.match(markup, /<img[^>]+src="\/media\/video-a-poster\.webp"/);
   assert.match(markup, /<video[^>]+data-gallery-video-preview[^>]+muted[^>]+playsinline[^>]+preload="metadata"/i);
   assert.doesNotMatch(markup, /<video[^>]+autoplay/i);
+  assert.doesNotMatch(markup, /<video[^>]+\ssrc=/i, "preview video source must stay lazy");
+  assert.match(markup, /data-gallery-preview-src="\/media\/video-a\.mp4"/);
   assert.match(markup, /gallery-card__play-indicator/);
 
   assert.match(videoPreviewSource, /currentTime\s*=\s*0/);
