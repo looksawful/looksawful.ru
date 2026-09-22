@@ -35,7 +35,7 @@ test("private review exposes one deterministic canonical profile registry", () =
 });
 
 test("full review keeps Chromium canonical and WebKit Apple-only technical smoke", () => {
-  const matrix = buildReviewRuntimeMatrix({ reviewDepth: "Full" });
+  const matrix = buildReviewRuntimeMatrix({ reviewDepth: "full" });
 
   const captures = matrix.filter((row) => row.phase === "capture");
   assert.deepEqual([...new Set(captures.map((row) => row.browser))], ["chromium"]);
@@ -53,7 +53,7 @@ test("full review keeps Chromium canonical and WebKit Apple-only technical smoke
 
 test("motion evidence duplicates only the capture kind with material difference", () => {
   const matrix = buildReviewRuntimeMatrix({
-    reviewDepth: "Quick",
+    reviewDepth: "quick",
     affectedProfiles: ["desktop-1440"],
     motionStates: [
       {
@@ -101,11 +101,11 @@ test("motion material-difference rules are derived from component declarations",
 });
 
 test("runtime matrix accepts only the exact #1091 review-depth values", () => {
-  for (const depth of ["Quick", "Interactive", "Full"]) {
+  for (const depth of ["quick", "interactive", "full"]) {
     assert.doesNotThrow(() => buildReviewRuntimeMatrix({ reviewDepth: depth }));
   }
 
-  for (const depth of ["quick", "interactive", "full"]) {
+  for (const depth of ["Quick", "Interactive", "Full"]) {
     assert.throws(
       () => buildReviewRuntimeMatrix({ reviewDepth: depth }),
       /Unsupported review depth/,
@@ -115,13 +115,13 @@ test("runtime matrix accepts only the exact #1091 review-depth values", () => {
 });
 
 test("missing profile routing fails safe to all canonical Chromium profiles", () => {
-  const quick = buildReviewRuntimeMatrix({ reviewDepth: "Quick" });
+  const quick = buildReviewRuntimeMatrix({ reviewDepth: "quick" });
   assert.deepEqual(
     [...new Set(quick.filter((row) => row.phase === "capture").map((row) => row.profileId))],
     profileIds,
   );
 
-  const interactive = buildReviewRuntimeMatrix({ reviewDepth: "Interactive" });
+  const interactive = buildReviewRuntimeMatrix({ reviewDepth: "interactive" });
   assert.deepEqual(
     [...new Set(interactive.filter((row) => row.phase === "capture").map((row) => row.profileId))],
     profileIds,
@@ -141,7 +141,7 @@ test("missing profile routing fails safe to all canonical Chromium profiles", ()
 
 test("normal runtime smoke stays separate from deterministic capture", () => {
   const matrix = buildReviewRuntimeMatrix({
-    reviewDepth: "Full",
+    reviewDepth: "full",
     motionStates: [
       { id: "hero-motion", scope: "viewport", materialDifference: true },
       { id: "footer-motion", scope: "below-fold", materialDifference: true },

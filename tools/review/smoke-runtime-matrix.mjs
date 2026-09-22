@@ -225,7 +225,7 @@ export async function smokeReviewRuntimeMatrix() {
 
   try {
     const matrix = buildReviewRuntimeMatrix({
-      reviewDepth: "Interactive",
+      reviewDepth: "interactive",
       affectedProfiles: ["iphone-17", "ipad-air-11-portrait"],
     });
 
