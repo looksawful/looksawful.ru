@@ -1,10 +1,17 @@
 import type { MediaCatalogItem } from "./catalog.ts";
 
+export interface GalleryPlacementCrop {
+  aspectRatio: number;
+  positionX: number;
+  positionY: number;
+}
+
 export interface GalleryPlacementDefinition {
   assetId: string;
   slideAssetIds?: readonly string[];
   posterAssetId?: string;
   featured?: boolean;
+  crop?: GalleryPlacementCrop;
 }
 
 export interface GallerySeriesDefinition {
@@ -33,7 +40,9 @@ export interface GalleryResolvedPlacement {
   seriesId: string;
   seriesOrder: number;
   itemOrder: number;
+  projectId: string;
   featured: boolean;
+  crop?: GalleryPlacementCrop;
   media: readonly GalleryResolvedMedia[];
 }
 
@@ -110,6 +119,42 @@ function resolvedSlide(
   return resolvedMedia(item, { assetId }, itemById);
 }
 
+function requireNonEmpty(value: string, label: string): string {
+  const normalized = value.trim();
+  if (!normalized) throw new Error(`${label} must be non-empty`);
+  return normalized;
+}
+
+function assertProjectOwnership(item: MediaCatalogItem, projectId: string): void {
+  if (!item.projectIds.some((candidate) => candidate === projectId)) {
+    throw new Error(
+      `Gallery asset "${item.asset.id}" is not owned by project "${projectId}"`,
+    );
+  }
+}
+
+function normalizeCrop(
+  definition: GalleryPlacementDefinition,
+): GalleryPlacementCrop | undefined {
+  if (!definition.crop) return undefined;
+  if (definition.featured !== true) {
+    throw new Error("Gallery crop is only valid on a featured placement");
+  }
+
+  const { aspectRatio, positionX, positionY } = definition.crop;
+  const valid = Number.isFinite(aspectRatio)
+    && aspectRatio > 0
+    && Number.isFinite(positionX)
+    && positionX >= 0
+    && positionX <= 100
+    && Number.isFinite(positionY)
+    && positionY >= 0
+    && positionY <= 100;
+  if (!valid) throw new Error("Gallery placement has invalid crop values");
+
+  return { aspectRatio, positionX, positionY };
+}
+
 function assertFeaturedInvariants(series: GallerySeriesDefinition): void {
   const featuredCount = series.placements.filter(({ featured }) => featured === true).length;
   if (featuredCount > 2) {
@@ -126,6 +171,7 @@ export function resolveGalleryCuration(
 ): readonly GalleryResolvedPlacement[] {
   const itemById = canonicalItemById(catalogItems);
   const usedAssetIds = new Set<string>();
+  const usedSeriesIds = new Set<string>();
   const result: GalleryResolvedPlacement[] = [];
 
   const claimAsset = (assetId: string): void => {
@@ -136,26 +182,41 @@ export function resolveGalleryCuration(
   };
 
   seriesDefinitions.forEach((series, seriesOrder) => {
+    const seriesId = requireNonEmpty(series.id, "Gallery series id");
+    if (usedSeriesIds.has(seriesId)) {
+      throw new Error(`Duplicate Gallery series id "${seriesId}"`);
+    }
+    usedSeriesIds.add(seriesId);
+    const projectId = requireNonEmpty(
+      series.projectId,
+      `Gallery series "${seriesId}" project id`,
+    );
     assertFeaturedInvariants(series);
 
     series.placements.forEach((definition, itemOrder) => {
       claimAsset(definition.assetId);
       const item = resolveCanonicalItem(itemById, definition.assetId);
+      assertProjectOwnership(item, projectId);
       const media: GalleryResolvedMedia[] = [
         resolvedMedia(item, definition, itemById),
       ];
 
       for (const slideAssetId of definition.slideAssetIds ?? []) {
         claimAsset(slideAssetId);
+        const slideItem = resolveCanonicalItem(itemById, slideAssetId);
+        assertProjectOwnership(slideItem, projectId);
         media.push(resolvedSlide(itemById, slideAssetId));
       }
 
+      const crop = normalizeCrop(definition);
       result.push({
         itemId: definition.assetId,
-        seriesId: series.id,
+        seriesId,
         seriesOrder,
         itemOrder,
+        projectId,
         featured: definition.featured === true,
+        ...(crop ? { crop } : {}),
         media,
       });
     });
