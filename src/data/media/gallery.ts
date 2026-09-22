@@ -25,39 +25,22 @@ export interface GalleryModelItem {
   seriesOrder: number;
 }
 
-export const GALLERY_IMAGE_ASSET_IDS = [
-  "obladaet-01-source-01-32x45",
-  "obladaet-01-source-02-2x3",
-  "obladaet-01-source-03-4x5",
-  "evasha-05-source-01-1x1",
-  "evasha-06-source-01-2x3",
-  "evasha-06-source-02-2x3",
-  "igguana-11-source-01-1x1",
-  "igguana-11-source-02-4x5",
-  "igguana-11-source-03-4x5",
-  "esmi-12-source-01-1x1",
-  "hypression-14-source-01-5x4",
-  "hypression-15-source-01-1x1",
-  "hypression-15-source-02-256x181",
-  "ofelia-19-source-01-4x5",
-  "ofelia-19-source-02-3x4",
-  "ofelia-19-source-03-1553x2135",
-  "behance-offmi-001",
-  "behance-offmi-002",
-  "behance-offmi-003",
-  "styx-09-source-01-1x1",
-  "styx-09-source-02-3x4",
-  "styx-09-source-03-1x1",
-] as const;
-
-const galleryImageOrder = new Map<string, number>(
-  GALLERY_IMAGE_ASSET_IDS.map((id, index) => [id, index]),
-);
+const DEFAULT_GALLERY_PROJECT_IDS = new Set([
+  "shootings-obladaet",
+  "shootings-evasha",
+  "shootings-igguana",
+  "shootings-esmi",
+  "shootings-hypression",
+  "shootings-ofelia",
+  "shootings-behance-offmi",
+]);
 
 const GALLERY_JESTEI_SYMBOL_VARIANTS = [
+  "metal",
   "pear",
   "orange",
   "blue",
+  "biloba",
 ] as const;
 
 function isCanonicalPhotograph(item: MediaCatalogItem): boolean {
@@ -66,8 +49,11 @@ function isCanonicalPhotograph(item: MediaCatalogItem): boolean {
     && item.workAreaIds.includes("photography");
 }
 
-function isCuratedGalleryImage(item: MediaCatalogItem): boolean {
-  return galleryImageOrder.has(item.asset.id);
+function isDefaultGalleryPhotograph(item: MediaCatalogItem): boolean {
+  return item.projectIds.some((projectId) => (
+    DEFAULT_GALLERY_PROJECT_IDS.has(projectId)
+    || projectId.startsWith("styx-")
+  ));
 }
 
 function seriesIdFor(item: CatalogItem): string {
@@ -97,31 +83,37 @@ function toGalleryItems(catalogItems: readonly CatalogItem[]): readonly GalleryI
     });
 }
 
+/**
+ * Gallery photography remains a curated view over the canonical Media Catalog.
+ *
+ * Curated musician photography and Styx photography form the default portfolio selection.
+ * Any other real photograph remains hidden until the existing
+ * `showInCatalog` / "Показывать в галерее" editorial flag is enabled in
+ * CMS or MediaDesk. Non-photographic catalog assets never enter this photo
+ * projection even when a broader Public Catalog direction can resolve to `photo`.
+ */
 export function getGalleryItemsFromMediaCatalog(
   mediaItems: readonly MediaCatalogItem[] = contextualMediaCatalogItems,
 ): readonly GalleryItem[] {
   const catalogItems = mediaItems
     .filter(isCanonicalPhotograph)
-    .filter(isCuratedGalleryImage)
-    .sort((left, right) => (
-      (galleryImageOrder.get(left.asset.id) ?? Number.MAX_SAFE_INTEGER)
-      - (galleryImageOrder.get(right.asset.id) ?? Number.MAX_SAFE_INTEGER)
-    ))
+    .filter((item) => isDefaultGalleryPhotograph(item) || item.showInCatalog)
     .map(toCatalogItem);
 
   return toGalleryItems(catalogItems);
 }
 
 export function getGalleryItems(): readonly GalleryItem[] {
-  const items = getGalleryItemsFromMediaCatalog();
-  if (items.length !== GALLERY_IMAGE_ASSET_IDS.length) {
-    const found = new Set(items.map((item) => item.asset.id));
-    const missing = GALLERY_IMAGE_ASSET_IDS.filter((id) => !found.has(id));
-    throw new Error(`Gallery curation is missing canonical image assets: ${missing.join(", ")}`);
-  }
-  return items;
+  return getGalleryItemsFromMediaCatalog();
 }
 
+/**
+ * Explicit production curation for the interactive Jestei Pool 3D series.
+ *
+ * These are generated production assets, not photographs, so they stay outside
+ * the photo eligibility rules above. Keeping the five approved variants here
+ * makes Gallery opt-in deterministic instead of exposing every ready 3D asset.
+ */
 export function getGalleryModelItems(): readonly GalleryModelItem[] {
   return GALLERY_JESTEI_SYMBOL_VARIANTS.map((variant, seriesOrder) => {
     const id = `jestei-symbol-${variant}`;
