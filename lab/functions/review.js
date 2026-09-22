@@ -595,6 +595,11 @@ async function approveReview(request, bucket, session, nowMs) {
     return text("Review is stale or no longer current.", 409);
   }
 
+  const existingBaseline = loadedState.state.baseline;
+  if (existingBaseline && sameReview(input.value, existingBaseline)) {
+    return json(publicBaseline(existingBaseline), 200);
+  }
+
   const copies = [];
   for (const item of manifest.evidence) {
     const source = await bucket.get(
