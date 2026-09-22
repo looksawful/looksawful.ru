@@ -1,15 +1,12 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 import { createSupabaseReviewStorage } from "../lab/functions/review-storage-supabase.js";
 
-const reviewHubSqlUrl = new URL("../tools/supabase/review-hub.sql", import.meta.url);
-
 const ENV = {
   SUPABASE_URL: "https://example.supabase.co",
-  SUPABASE_PUBLISHABLE_KEY: "sb_publishable_test",
-  REVIEW_RUNTIME_PASSWORD: "runtime-password",
+  SUPABASE_SECRET_KEY: "sb_secret_test",
+  REVIEW_EVIDENCE_BUCKET: "private-review-evidence",
 };
 
 function jsonResponse(value, status = 200) {
@@ -17,19 +14,6 @@ function jsonResponse(value, status = 200) {
     status,
     headers: { "Content-Type": "application/json" },
   });
-}
-
-function withRuntimeAuth(fetchImpl) {
-  return async (url, init = {}) => {
-    if (String(url).includes("/auth/v1/token?grant_type=password")) {
-      return jsonResponse({
-        access_token: "runtime-access-token",
-        token_type: "bearer",
-        expires_in: 3600,
-      });
-    }
-    return fetchImpl(url, init);
-  };
 }
 
 test("Supabase review storage keeps JSON control objects in Postgres with CAS semantics", async () => {
@@ -62,7 +46,7 @@ test("Supabase review storage keeps JSON control objects in Postgres with CAS se
     throw new Error(`Unexpected request: ${url}`);
   };
 
-  const storage = createSupabaseReviewStorage(ENV, withRuntimeAuth(fetchImpl));
+  const storage = createSupabaseReviewStorage(ENV, fetchImpl);
   assert.ok(storage);
 
   const object = await storage.get("review-hub/v1/state/case-a.json");
@@ -125,7 +109,7 @@ test("Supabase review storage keeps binary evidence in a private bucket", async 
       ]);
     }
 
-    if (href.includes("/storage/v1/object/review-hub-evidence/")) {
+    if (href.includes("/storage/v1/object/private-review-evidence/")) {
       if (init.method === "POST") return jsonResponse({ Key: "stored" });
       return new Response(new Uint8Array([1, 2, 3]), {
         status: 200,
@@ -136,7 +120,7 @@ test("Supabase review storage keeps binary evidence in a private bucket", async 
     throw new Error(`Unexpected request: ${url}`);
   };
 
-  const storage = createSupabaseReviewStorage(ENV, withRuntimeAuth(fetchImpl));
+  const storage = createSupabaseReviewStorage(ENV, fetchImpl);
   const key = "review-hub/v1/cases/case-a/abc/evidence/desktop";
 
   await storage.put(key, new Uint8Array([1, 2, 3]).buffer, {
@@ -151,13 +135,13 @@ test("Supabase review storage keeps binary evidence in a private bucket", async 
   assert.deepEqual(new Uint8Array(await new Response(object.body).arrayBuffer()), new Uint8Array([1, 2, 3]));
 
   const upload = calls.find(({ url, init }) =>
-    url.includes("/storage/v1/object/review-hub-evidence/") && init.method === "POST"
+    url.includes("/storage/v1/object/private-review-evidence/") && init.method === "POST"
   );
   assert.ok(upload);
   assert.equal(upload.init.headers["x-upsert"], "true");
   assert.equal(upload.init.headers["Content-Type"], "image/png");
-  assert.equal(upload.init.headers.apikey, ENV.SUPABASE_PUBLISHABLE_KEY);
-  assert.equal(upload.init.headers.Authorization, "Bearer runtime-access-token");
+  assert.equal(upload.init.headers.apikey, ENV.SUPABASE_SECRET_KEY);
+  assert.equal(upload.init.headers.Authorization, `Bearer ${ENV.SUPABASE_SECRET_KEY}`);
 });
 
 test("Supabase review storage deletes physical binaries before metadata rows", async () => {
@@ -190,7 +174,7 @@ test("Supabase review storage deletes physical binaries before metadata rows", a
       ]);
     }
 
-    if (href.endsWith("/storage/v1/object/review-hub-evidence") && init.method === "DELETE") {
+    if (href.endsWith("/storage/v1/object/private-review-evidence") && init.method === "DELETE") {
       return jsonResponse([]);
     }
 
@@ -201,14 +185,14 @@ test("Supabase review storage deletes physical binaries before metadata rows", a
     throw new Error(`Unexpected request: ${url}`);
   };
 
-  const storage = createSupabaseReviewStorage(ENV, withRuntimeAuth(fetchImpl));
+  const storage = createSupabaseReviewStorage(ENV, fetchImpl);
   await storage.delete([
     "review-hub/v1/cases/case-a/abc/evidence/desktop",
     "review-hub/v1/cases/case-a/abc/manifest.json",
   ]);
 
   const deleteStorageIndex = calls.findIndex(({ url }) =>
-    url.endsWith("/storage/v1/object/review-hub-evidence")
+    url.endsWith("/storage/v1/object/private-review-evidence")
   );
   const deleteRowsIndex = calls.findIndex(({ url }) =>
     url.includes("/rest/v1/rpc/review_hub_delete_object_rows")
@@ -248,7 +232,7 @@ test("Supabase review storage cleans expired temporary evidence without touching
       ]);
     }
 
-    if (href.endsWith("/storage/v1/object/review-hub-evidence") && init.method === "DELETE") {
+    if (href.endsWith("/storage/v1/object/private-review-evidence") && init.method === "DELETE") {
       return jsonResponse([]);
     }
 
@@ -259,13 +243,13 @@ test("Supabase review storage cleans expired temporary evidence without touching
     throw new Error(`Unexpected request: ${url}`);
   };
 
-  const storage = createSupabaseReviewStorage(ENV, withRuntimeAuth(fetchImpl));
+  const storage = createSupabaseReviewStorage(ENV, fetchImpl);
   const result = await storage.cleanupExpired(100);
 
   assert.deepEqual(result, { deleted: 2 });
   const rpc = calls.find(({ url }) => url.includes("/rest/v1/rpc/review_hub_expired_objects"));
   assert.deepEqual(JSON.parse(rpc.init.body), { p_limit: 100 });
-  const deletion = calls.find(({ url }) => url.endsWith("/storage/v1/object/review-hub-evidence"));
+  const deletion = calls.find(({ url }) => url.endsWith("/storage/v1/object/private-review-evidence"));
   assert.deepEqual(JSON.parse(deletion.init.body), {
     prefixes: ["review-hub/v1/cases/case-a/abc/evidence/desktop"],
   });
@@ -275,109 +259,9 @@ test("Supabase review storage fails closed when backend configuration is incompl
   assert.equal(createSupabaseReviewStorage({}, async () => new Response()), null);
   assert.equal(
     createSupabaseReviewStorage(
-      { SUPABASE_URL: ENV.SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY: ENV.SUPABASE_PUBLISHABLE_KEY },
+      { SUPABASE_URL: ENV.SUPABASE_URL, REVIEW_EVIDENCE_BUCKET: ENV.REVIEW_EVIDENCE_BUCKET },
       async () => new Response(),
     ),
     null,
   );
 });
-
-
-test("Supabase review storage authenticates with a publishable key and runtime identity", async () => {
-  const calls = [];
-  const env = {
-    SUPABASE_URL: "https://example.supabase.co",
-    SUPABASE_PUBLISHABLE_KEY: "sb_publishable_test",
-    REVIEW_RUNTIME_PASSWORD: "runtime-password",
-  };
-
-  const fetchImpl = async (url, init = {}) => {
-    const href = String(url);
-    calls.push({ url: href, init });
-
-    if (href.includes("/auth/v1/token?grant_type=password")) {
-      return jsonResponse({
-        access_token: "runtime-access-token",
-        token_type: "bearer",
-        expires_in: 3600,
-      });
-    }
-
-    if (href.includes("/rest/v1/review_hub_objects?")) {
-      return jsonResponse([]);
-    }
-
-    throw new Error(`Unexpected request: ${url}`);
-  };
-
-  const storage = createSupabaseReviewStorage(env, fetchImpl);
-  assert.ok(storage);
-  assert.equal(await storage.get("review-hub/v1/state/case-a.json"), null);
-
-  const authCall = calls.find(({ url }) =>
-    url.includes("/auth/v1/token?grant_type=password"),
-  );
-  assert.ok(authCall);
-  assert.equal(authCall.init.headers.apikey, env.SUPABASE_PUBLISHABLE_KEY);
-  assert.equal(
-    JSON.parse(authCall.init.body).email,
-    "review-hub-runtime@looksawful.invalid",
-  );
-
-  const metadataCall = calls.find(({ url }) =>
-    url.includes("/rest/v1/review_hub_objects?"),
-  );
-  assert.ok(metadataCall);
-  assert.equal(metadataCall.init.headers.apikey, env.SUPABASE_PUBLISHABLE_KEY);
-  assert.equal(
-    metadataCall.init.headers.Authorization,
-    "Bearer runtime-access-token",
-  );
-  assert.equal(JSON.stringify(calls).includes("SUPABASE_SECRET_KEY"), false);
-});
-
-test("Supabase SQL keeps Review Hub writes under RLS and runtime signup bootstrap private", async () => {
-  const sql = await readFile(reviewHubSqlUrl, "utf8");
-
-  for (const functionName of [
-    "review_hub_put_object",
-    "review_hub_delete_object_rows",
-    "review_hub_expired_objects",
-  ]) {
-    assert.match(
-      sql,
-      new RegExp(`create or replace function public\\.${functionName}\\([\\s\\S]*?security invoker`, "u"),
-      `${functionName} must run as the authenticated runtime identity so RLS remains authoritative`,
-    );
-  }
-
-  assert.match(
-    sql,
-    /grant select, insert, update, delete on table public\.review_hub_objects\s+to authenticated, service_role;/u,
-  );
-  for (const policyName of [
-    "review_hub_runtime_insert",
-    "review_hub_runtime_update",
-    "review_hub_runtime_delete",
-  ]) {
-    assert.match(sql, new RegExp(`create policy "${policyName}"`, "u"));
-  }
-
-  assert.match(
-    sql,
-    /create or replace function public\.review_hub_confirm_runtime_signup\(\)[\s\S]*?security definer/u,
-  );
-  assert.match(
-    sql,
-    /revoke all on function public\.review_hub_confirm_runtime_signup\(\)\s+from public, anon, authenticated, service_role;/u,
-  );
-  assert.match(
-    sql,
-    /grant execute on function public\.review_hub_confirm_runtime_signup\(\)\s+to supabase_auth_admin;/u,
-  );
-  assert.match(
-    sql,
-    /create trigger review_hub_runtime_autoconfirm[\s\S]*?on auth\.users[\s\S]*?execute function public\.review_hub_confirm_runtime_signup\(\);/u,
-  );
-});
-

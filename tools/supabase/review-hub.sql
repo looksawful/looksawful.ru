@@ -1,11 +1,9 @@
 -- Private Review Hub Supabase schema.
--- Public-safe infrastructure contract: no secret API keys, Vault values,
--- private evidence, or deployment credentials are stored here.
+-- Safe to keep in the public repository: no project ids, API keys, Vault values,
+-- private object ids, or review evidence are stored here.
 --
--- The Admin runtime authenticates as one dedicated Supabase Auth user with a
--- password generated at deploy time and stored only as a Cloudflare Worker secret.
--- Public Supabase URL/publishable-key values identify the project but grant only
--- the access allowed by RLS.
+-- Scheduled physical cleanup is provisioned separately because its Edge Function
+-- URL and Vault token are deployment-specific. See docs/private-lab.md.
 
 create table if not exists public.review_hub_objects (
   key text primary key,
@@ -27,71 +25,11 @@ create table if not exists public.review_hub_objects (
 
 alter table public.review_hub_objects enable row level security;
 
-create or replace function public.review_hub_runtime_authorized()
-returns boolean
-language sql
-stable
-security invoker
-set search_path = public, pg_temp
-as $$
-  select
-    coalesce((select auth.jwt() ->> 'role') = 'service_role', false)
-    or (
-      (select auth.jwt() ->> 'role') = 'authenticated'
-      and (select auth.jwt() ->> 'email') = 'review-hub-runtime@looksawful.invalid'
-      and not coalesce((select (auth.jwt() ->> 'is_anonymous')::boolean), false)
-    );
-$$;
-
-revoke all on function public.review_hub_runtime_authorized()
-  from public, anon;
-grant execute on function public.review_hub_runtime_authorized()
-  to authenticated, service_role;
-
 revoke all on table public.review_hub_objects from anon, authenticated;
-grant select, insert, update, delete on table public.review_hub_objects
-  to authenticated, service_role;
-
-drop policy if exists "review_hub_runtime_select" on public.review_hub_objects;
-create policy "review_hub_runtime_select"
-on public.review_hub_objects
-for select
-to authenticated
-using ((select public.review_hub_runtime_authorized()));
-
-drop policy if exists "review_hub_runtime_insert" on public.review_hub_objects;
-create policy "review_hub_runtime_insert"
-on public.review_hub_objects
-for insert
-to authenticated
-with check (
-  key like 'review-hub/v1/%'
-  and (select public.review_hub_runtime_authorized())
-);
-
-drop policy if exists "review_hub_runtime_update" on public.review_hub_objects;
-create policy "review_hub_runtime_update"
-on public.review_hub_objects
-for update
-to authenticated
-using (
-  key like 'review-hub/v1/%'
-  and (select public.review_hub_runtime_authorized())
-)
-with check (
-  key like 'review-hub/v1/%'
-  and (select public.review_hub_runtime_authorized())
-);
-
-drop policy if exists "review_hub_runtime_delete" on public.review_hub_objects;
-create policy "review_hub_runtime_delete"
-on public.review_hub_objects
-for delete
-to authenticated
-using (
-  key like 'review-hub/v1/%'
-  and (select public.review_hub_runtime_authorized())
-);
+revoke insert, update, delete, truncate, references, trigger
+  on table public.review_hub_objects
+  from service_role;
+grant select on table public.review_hub_objects to service_role;
 
 create index if not exists review_hub_objects_expires_at_idx
   on public.review_hub_objects (expires_at)
@@ -108,17 +46,13 @@ create or replace function public.review_hub_put_object(
 )
 returns jsonb
 language plpgsql
-security invoker
+security definer
 set search_path = public, pg_temp
 as $$
 declare
   v_etag text := gen_random_uuid()::text;
   v_expires_at timestamptz := null;
 begin
-  if not public.review_hub_runtime_authorized() then
-    raise insufficient_privilege using message = 'Review Hub runtime authorization required';
-  end if;
-
   if p_key not like 'review-hub/v1/%' then
     raise exception 'invalid review object key';
   end if;
@@ -198,21 +132,17 @@ revoke all on function public.review_hub_put_object(
 ) from public, anon, authenticated;
 grant execute on function public.review_hub_put_object(
   text, text, text, text, text, jsonb, text
-) to authenticated, service_role;
+) to service_role;
 
 create or replace function public.review_hub_delete_object_rows(p_keys text[])
 returns jsonb
 language plpgsql
-security invoker
+security definer
 set search_path = public, pg_temp
 as $$
 declare
   v_deleted integer;
 begin
-  if not public.review_hub_runtime_authorized() then
-    raise insufficient_privilege using message = 'Review Hub runtime authorization required';
-  end if;
-
   delete from public.review_hub_objects
   where key = any(p_keys)
     and key like 'review-hub/v1/%';
@@ -225,7 +155,7 @@ $$;
 revoke all on function public.review_hub_delete_object_rows(text[])
   from public, anon, authenticated;
 grant execute on function public.review_hub_delete_object_rows(text[])
-  to authenticated, service_role;
+  to service_role;
 
 create or replace function public.review_hub_expired_objects(p_limit integer default 500)
 returns table (
@@ -235,16 +165,10 @@ returns table (
   content_type text,
   etag text
 )
-language plpgsql
-security invoker
+language sql
+security definer
 set search_path = public, pg_temp
 as $$
-begin
-  if not public.review_hub_runtime_authorized() then
-    raise insufficient_privilege using message = 'Review Hub runtime authorization required';
-  end if;
-
-  return query
   select
     o.key,
     o.kind,
@@ -257,105 +181,17 @@ begin
     and o.key like 'review-hub/v1/cases/%'
   order by o.expires_at asc
   limit greatest(1, least(coalesce(p_limit, 500), 1000));
-end;
 $$;
 
 revoke all on function public.review_hub_expired_objects(integer)
   from public, anon, authenticated;
 grant execute on function public.review_hub_expired_objects(integer)
-  to authenticated, service_role;
+  to service_role;
 
-create or replace function public.review_hub_confirm_runtime_signup()
-returns trigger
-language plpgsql
-security definer
-set search_path = auth, public, pg_temp
-as $$
-begin
-  if new.email = 'review-hub-runtime@looksawful.invalid' then
-    new.email_confirmed_at := coalesce(new.email_confirmed_at, now());
-    new.confirmation_token := '';
-  end if;
-  return new;
-end;
-$$;
-
-revoke all on function public.review_hub_confirm_runtime_signup()
-  from public, anon, authenticated, service_role;
-grant execute on function public.review_hub_confirm_runtime_signup()
-  to supabase_auth_admin;
-
-drop trigger if exists review_hub_runtime_autoconfirm on auth.users;
-create trigger review_hub_runtime_autoconfirm
-before insert on auth.users
-for each row
-when (new.email = 'review-hub-runtime@looksawful.invalid')
-execute function public.review_hub_confirm_runtime_signup();
-
-insert into storage.buckets (
-  id,
-  name,
-  public,
-  file_size_limit,
-  allowed_mime_types
-)
-values (
-  'review-hub-evidence',
-  'review-hub-evidence',
-  false,
-  20971520,
-  array['image/png', 'image/jpeg', 'image/webp']::text[]
-)
-on conflict (id) do update
-set
-  public = false,
-  file_size_limit = excluded.file_size_limit,
-  allowed_mime_types = excluded.allowed_mime_types;
-
-drop policy if exists "review_hub_runtime_storage_select" on storage.objects;
-create policy "review_hub_runtime_storage_select"
-on storage.objects
-for select
-to authenticated
-using (
-  bucket_id = 'review-hub-evidence'
-  and (select public.review_hub_runtime_authorized())
-);
-
-drop policy if exists "review_hub_runtime_storage_insert" on storage.objects;
-create policy "review_hub_runtime_storage_insert"
-on storage.objects
-for insert
-to authenticated
-with check (
-  bucket_id = 'review-hub-evidence'
-  and name like 'review-hub/v1/%'
-  and (select public.review_hub_runtime_authorized())
-);
-
-drop policy if exists "review_hub_runtime_storage_update" on storage.objects;
-create policy "review_hub_runtime_storage_update"
-on storage.objects
-for update
-to authenticated
-using (
-  bucket_id = 'review-hub-evidence'
-  and name like 'review-hub/v1/%'
-  and (select public.review_hub_runtime_authorized())
-)
-with check (
-  bucket_id = 'review-hub-evidence'
-  and name like 'review-hub/v1/%'
-  and (select public.review_hub_runtime_authorized())
-);
-
-drop policy if exists "review_hub_runtime_storage_delete" on storage.objects;
-create policy "review_hub_runtime_storage_delete"
-on storage.objects
-for delete
-to authenticated
-using (
-  bucket_id = 'review-hub-evidence'
-  and name like 'review-hub/v1/%'
-  and (select public.review_hub_runtime_authorized())
-);
+-- The private Storage bucket is intentionally not named in this public file.
+-- Provision its deployment-specific id outside the public repository, then pass
+-- that id to the Admin runtime through REVIEW_EVIDENCE_BUCKET.
+-- Required bucket properties:
+--   public = false
+--   file_size_limit = 20 MiB
+--   allowed_mime_types = image/png, image/jpeg, image/webp
