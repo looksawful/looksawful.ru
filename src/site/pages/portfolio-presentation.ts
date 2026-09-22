@@ -5,12 +5,18 @@ export type PortfolioEntityPageId = Extract<
   { type: "case" | "project" | "collection" }
 >["id"];
 
+export type PortfolioCasePageId = Extract<
+  SitePageDefinition,
+  { type: "case" }
+>["id"];
+
 export interface PortfolioPresentation {
   flagship: readonly PortfolioEntityPageId[];
   featured: readonly PortfolioEntityPageId[];
   archive: readonly PortfolioEntityPageId[];
   projectIndexExtras: readonly PortfolioEntityPageId[];
   workShortcuts: readonly PortfolioEntityPageId[];
+  nextCase: Readonly<Partial<Record<PortfolioCasePageId, PortfolioCasePageId>>>;
 }
 
 export const portfolioPresentation = {
@@ -31,6 +37,8 @@ export const portfolioPresentation = {
     "case:sensetique",
     "collection:music-photography",
   ],
+  // Exact editorial routing stays empty until Wayfinder #1145 is resolved.
+  nextCase: {},
 } as const satisfies PortfolioPresentation;
 
 export function getProjectIndexPageIds(
@@ -41,6 +49,13 @@ export function getProjectIndexPageIds(
     ...presentation.featured,
     ...presentation.projectIndexExtras,
   ];
+}
+
+export function getNextCasePageId(
+  pageId: PortfolioCasePageId,
+  presentation: PortfolioPresentation = portfolioPresentation,
+): PortfolioCasePageId | undefined {
+  return presentation.nextCase[pageId];
 }
 
 function requireEntityPage(
@@ -105,5 +120,16 @@ export function validatePortfolioPresentation(
     presentation.featured.length < 3 || presentation.featured.length > 5
   )) {
     throw new Error("Featured portfolio selection must be empty while unapproved or contain 3–5 entities");
+  }
+
+  for (const [sourceId, targetId] of Object.entries(presentation.nextCase)) {
+    const source = requireEntityPage(sourceId, pages);
+    const target = requireEntityPage(targetId, pages);
+    if (source.type !== "case" || target.type !== "case") {
+      throw new Error(`Next-case routing must connect Case pages: ${sourceId} -> ${targetId}`);
+    }
+    if (sourceId === targetId) {
+      throw new Error(`Next-case routing cannot point to itself: ${sourceId}`);
+    }
   }
 }
