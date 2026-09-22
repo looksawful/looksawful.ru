@@ -53,3 +53,12 @@ The single Review for a Case that is presently authoritative for inspection and 
 
 **Review depth**:
 The evidence contract applied to an entire Review: Quick, Interactive or Full. It describes the breadth of review required, not the class of an individual evidence item.
+
+**Visual approval**:
+The owner's explicit acceptance of one specific Current Review by Review ID. The approved Review's Case, source SHA and Review depth remain immutable attributes of that approval. A superseded Review cannot be approved.
+
+**Baseline**:
+The durable comparison reference for a Case, derived from the evidence of its most recently approved Review. Creating or superseding a Current Review does not change the Baseline; only owner approval of a newer Current Review replaces it.
+
+**Superseded Review**:
+A historical Review that stopped being Current because a newer Review for the same Case became Current. It remains auditable but is no longer eligible for approval.
