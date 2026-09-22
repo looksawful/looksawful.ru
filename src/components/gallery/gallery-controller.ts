@@ -10,6 +10,11 @@ import {
 type Destroy = () => void;
 type WritableHistoryMode = "push" | "replace";
 
+const EMPTY_GALLERY_STATE: GalleryState = {
+  itemId: null,
+  slide: null,
+};
+
 function galleryUrl(state: GalleryState): string {
   return `${window.location.pathname}${serializeGalleryState(state)}${window.location.hash}`;
 }
@@ -28,11 +33,14 @@ export function createGalleryController(root: HTMLElement): Destroy {
 
   const applyViewerTransition = (
     nextItemId: string | null,
+    nextSlide: number | null,
     cause: GalleryViewerHistoryCause,
   ): void => {
     const transition = galleryViewerHistoryTransition({
       currentItemId: state.itemId,
+      currentSlide: state.slide,
       nextItemId,
+      nextSlide,
       ownsViewerEntry: viewerHistoryEntryOwned,
       cause,
     });
@@ -44,32 +52,32 @@ export function createGalleryController(root: HTMLElement): Destroy {
       return;
     }
 
-    state = { itemId: nextItemId, slide: null };
+    state = { itemId: nextItemId, slide: nextItemId ? nextSlide : null };
     writeHistory(state, transition.action);
   };
 
   const lightbox = createGalleryLightbox({
     root,
-    onChange: (itemId) => {
+    onChange: (itemId, slide) => {
       if (syncingHistory) {
-        state = { itemId, slide: null };
+        state = { itemId, slide };
         return;
       }
-      applyViewerTransition(itemId, "viewer-change");
+      applyViewerTransition(itemId, slide, "viewer-change");
     },
     onClose: () => {
       if (syncingHistory || !state.itemId) return;
-      applyViewerTransition(null, "viewer-close");
+      applyViewerTransition(null, null, "viewer-close");
     },
   });
 
-  const openStateItem = (itemId: string | null): void => {
-    if (!itemId) {
+  const openStateItem = (nextState: GalleryState): void => {
+    if (!nextState.itemId) {
       lightbox.close();
       return;
     }
-    if (!lightbox.openItem(itemId)) {
-      state = { itemId: null, slide: null };
+    if (!lightbox.openItem(nextState.itemId, nextState.slide)) {
+      state = EMPTY_GALLERY_STATE;
       if (!syncingHistory) writeHistory(state, "replace");
     }
   };
@@ -79,15 +87,22 @@ export function createGalleryController(root: HTMLElement): Destroy {
     syncingHistory = true;
     state = parseGallerySearch(window.location.search);
     viewerHistoryEntryOwned = Boolean(!previousItemId && state.itemId);
-    openStateItem(state.itemId);
+    openStateItem(state);
     syncingHistory = false;
   };
   window.addEventListener("popstate", handlePopState);
 
-  // Normalize retired query parameters such as ?layer=production away while
-  // preserving a valid deep-linked photo id.
-  writeHistory(state, "replace");
-  if (initialState.itemId) requestAnimationFrame(() => openStateItem(initialState.itemId));
+  // A direct viewer URL owns one same-document history entry so Back closes the
+  // viewer to Gallery instead of immediately ejecting the visitor from the page.
+  if (initialState.itemId) {
+    writeHistory(EMPTY_GALLERY_STATE, "replace");
+    writeHistory(initialState, "push");
+    viewerHistoryEntryOwned = true;
+    requestAnimationFrame(() => openStateItem(initialState));
+  } else {
+    // Normalize retired query parameters such as ?layer=production away.
+    writeHistory(initialState, "replace");
+  }
 
   return () => {
     window.removeEventListener("popstate", handlePopState);
