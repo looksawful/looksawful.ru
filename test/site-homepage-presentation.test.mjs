@@ -109,7 +109,7 @@ test("project preview CTA uses compact desktop sizing and full-width mobile sizi
 });
 
 
-test("homepage major portfolio layers follow Hero → Project index → Flagships → Featured", () => {
+test("homepage keeps the existing lower-priority project section after the three Flagship previews", () => {
   const homepage = renderHomepagePage(indexSource);
   const positions = [
     homepage.indexOf('class="hero"'),
