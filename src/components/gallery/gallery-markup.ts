@@ -41,7 +41,7 @@ function renderCardMedia(media: GalleryResolvedMedia): string {
   if (media.kind !== "video") return poster;
 
   return `${poster}
-  <video class="gallery-card__preview-video" data-gallery-video-preview src="${escapeHtml(media.src)}" muted playsinline preload="metadata" aria-hidden="true" tabindex="-1"></video>
+  <video class="gallery-card__preview-video" data-gallery-video-preview data-gallery-preview-src="${escapeHtml(media.src)}" muted playsinline preload="metadata" aria-hidden="true" tabindex="-1"></video>
   <span class="gallery-card__play-indicator" aria-hidden="true"></span>`;
 }
 
