@@ -59,8 +59,10 @@ export function createDeterministicCaptureStyle() {
     }
 
     *, *::before, *::after {
-      animation-play-state: paused !important;
+      animation-duration: 0s !important;
       animation-delay: 0s !important;
+      animation-iteration-count: 1 !important;
+      animation-play-state: paused !important;
       transition-duration: 0s !important;
       transition-delay: 0s !important;
       scroll-behavior: auto !important;
