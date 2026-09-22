@@ -4,9 +4,64 @@ import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
-import { classifyChangedFiles } from "../tools/ci/change-scope.mjs";
+import { classifyChangedFiles, classifyVisualReview } from "../tools/ci/change-scope.mjs";
+import { sitePages } from "../src/site/pages/manifest.ts";
 
 const changeScopeModuleUrl = new URL("../tools/ci/change-scope.mjs", import.meta.url).href;
+
+const expectedReviewCases = sitePages
+  .filter((page) => page.enabled && page.build.kind === "vite" && page.type !== "not-found")
+  .map((page) => page.id)
+  .sort();
+
+test("visual review routes Awful Mockups copy to its exact Case at Quick depth", () => {
+  const review = classifyVisualReview(["src/data/content/awful-mockups.ts"]);
+  assert.deepEqual(review, {
+    visual: true,
+    affectedCases: ["project:awful-mockups"],
+    reviewDepth: "quick",
+  });
+});
+
+test("visual review fans shared navigation changes across all Cases at Full depth", () => {
+  const review = classifyVisualReview(["src/content/navigation.json"]);
+  assert.equal(review.visual, true);
+  assert.equal(review.reviewDepth, "full");
+  assert.deepEqual(review.affectedCases, expectedReviewCases);
+});
+
+test("visual review skips clearly non-visual repository-only changes", () => {
+  for (const file of [
+    "docs/private-lab.md",
+    "test/change-scope.test.mjs",
+    "tools/ci/change-scope.mjs",
+  ]) {
+    assert.deepEqual(classifyVisualReview([file]), {
+      visual: false,
+      affectedCases: [],
+      reviewDepth: null,
+    }, file);
+  }
+});
+
+test("visual review fails ambiguous paths safe to Quick instead of skipping", () => {
+  const review = classifyVisualReview(["src/experimental/unknown-owner.ts"]);
+  assert.equal(review.visual, true);
+  assert.equal(review.reviewDepth, "quick");
+  assert.deepEqual(review.affectedCases, expectedReviewCases);
+});
+
+test("visual review escalation can only increase depth and add canonical Cases", () => {
+  const review = classifyVisualReview(
+    ["src/data/content/awful-mockups.ts"],
+    { escalateDepth: "interactive", escalateCases: ["home"] },
+  );
+  assert.deepEqual(review, {
+    visual: true,
+    affectedCases: ["home", "project:awful-mockups"],
+    reviewDepth: "interactive",
+  });
+});
 const git = (cwd, args, options = {}) => execFileSync("git", args, { cwd, encoding: "utf8", ...options });
 
 test("CV copy stays focused and never requests media transcoding", () => {
