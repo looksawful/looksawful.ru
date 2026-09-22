@@ -1,4 +1,11 @@
-const REVIEW_DEPTHS = new Set(["quick", "interactive", "full"]);
+const REVIEW_DEPTHS = new Map([
+  ["quick", "quick"],
+  ["Quick", "quick"],
+  ["interactive", "interactive"],
+  ["Interactive", "interactive"],
+  ["full", "full"],
+  ["Full", "full"],
+]);
 const MOTION_VALUES = new Set(["no-preference", "reduce"]);
 const DYNAMIC_KINDS = new Set(["video", "canvas", "webgl", "infinite-gallery"]);
 
@@ -52,10 +59,12 @@ const PROFILE_BY_ID = new Map(
   CANONICAL_REVIEW_PROFILES.map((profile) => [profile.id, profile]),
 );
 
-function assertReviewDepth(reviewDepth) {
-  if (!REVIEW_DEPTHS.has(reviewDepth)) {
+function normalizeReviewDepth(reviewDepth) {
+  const normalized = REVIEW_DEPTHS.get(reviewDepth);
+  if (!normalized) {
     throw new Error(`Unsupported review depth: ${reviewDepth}`);
   }
+  return normalized;
 }
 
 function normalizeAffectedProfiles(affectedProfiles) {
@@ -134,9 +143,9 @@ export function buildReviewRuntimeMatrix({
   affectedProfiles,
   motionDifference,
 } = {}) {
-  assertReviewDepth(reviewDepth);
+  const normalizedDepth = normalizeReviewDepth(reviewDepth);
 
-  const profiles = selectedProfiles(reviewDepth, affectedProfiles);
+  const profiles = selectedProfiles(normalizedDepth, affectedProfiles);
   const materialMotion = normalizeMotionDifference(motionDifference);
   const rows = [];
 
@@ -184,7 +193,7 @@ export function buildReviewRuntimeMatrix({
     );
   }
 
-  if (reviewDepth !== "quick") {
+  if (normalizedDepth !== "quick") {
     for (const profile of CANONICAL_REVIEW_PROFILES.filter(({ apple }) => apple)) {
       rows.push(
         matrixRow({
