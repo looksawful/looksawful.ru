@@ -71,6 +71,23 @@ test("motion evidence duplicates only the capture kind with material difference"
   );
 });
 
+test("runtime matrix accepts canonical #1091 review-depth casing", () => {
+  const quick = buildReviewRuntimeMatrix({ reviewDepth: "Quick" });
+  assert.deepEqual(
+    [...new Set(quick.filter((row) => row.phase === "capture").map((row) => row.profileId))],
+    ["desktop-1440"],
+  );
+
+  const interactive = buildReviewRuntimeMatrix({ reviewDepth: "Interactive" });
+  assert.ok(interactive.some((row) => row.browser === "webkit"));
+
+  const full = buildReviewRuntimeMatrix({ reviewDepth: "Full" });
+  assert.deepEqual(
+    [...new Set(full.filter((row) => row.phase === "capture").map((row) => row.profileId))],
+    profileIds,
+  );
+});
+
 test("review depth remains conservative when affected profile routing is absent", () => {
   const quick = buildReviewRuntimeMatrix({ reviewDepth: "quick" });
   assert.deepEqual(
