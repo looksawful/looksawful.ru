@@ -79,7 +79,8 @@
     "verify:full": "npm run media:sync && npm run verify:core",
     "cv:prod:verify": "node tools/verify-cv-production.mjs",
     "media-desk:page-usage:check": "node tools/media-desk/index-page-media.mjs --check",
-    "media-desk:static-usage:check": "node tools/media-desk/index-static-usage.mjs --check"
+    "media-desk:static-usage:check": "node tools/media-desk/index-static-usage.mjs --check",
+    "prototype:gallery-curation": "vite --config vite.lab.config.ts --open /lab/prototypes/gallery-curation/?variant=continuous"
   },
   "devDependencies": {
     "@lhci/cli": "^0.15.1",
