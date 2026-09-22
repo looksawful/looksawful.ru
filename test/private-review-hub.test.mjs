@@ -5,6 +5,8 @@ import test from "node:test";
 import { handleReviewRequest } from "../lab/functions/review.js";
 
 const SOURCE_SHA = "0123456789abcdef0123456789abcdef01234567";
+const REVIEW_ID = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
+const SECOND_REVIEW_ID = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
 
 class MemoryReviewStorage {
   #objects = new Map();
@@ -33,11 +35,22 @@ class MemoryReviewStorage {
       text: async () => new TextDecoder().decode(object.bytes),
     };
   }
+
+  object(key) {
+    return this.#objects.get(key) ?? null;
+  }
+
+  objectsWithPrefix(prefix) {
+    return [...this.#objects.entries()]
+      .filter(([key]) => key.startsWith(prefix))
+      .map(([key, object]) => ({ key, ...object }));
+  }
 }
 
-function manifest() {
+function manifest(reviewId = REVIEW_ID) {
   return {
     version: 1,
+    reviewId,
     caseId: "awful-mockups",
     sourceSha: SOURCE_SHA,
     reviewDepth: "quick",
@@ -52,10 +65,10 @@ function manifest() {
   };
 }
 
-function uploadRequest() {
+function uploadRequest(reviewId = REVIEW_ID, image = "private-image") {
   const form = new FormData();
-  form.set("manifest", JSON.stringify(manifest()));
-  form.set("desktop", new File(["private-image"], "desktop.png", { type: "image/png" }));
+  form.set("manifest", JSON.stringify(manifest(reviewId)));
+  form.set("desktop", new File([image], "desktop.png", { type: "image/png" }));
   return new Request("https://admin.looksawful.ru/lab/review/api", {
     method: "POST",
     body: form,
@@ -79,6 +92,7 @@ test("private review stores one Case evidence and returns only sanitized manifes
   assert.equal(response.headers.get("Cache-Control"), "private, no-store");
 
   const payload = await response.json();
+  assert.equal(payload.reviewId, REVIEW_ID);
   assert.equal(payload.caseId, "awful-mockups");
   assert.equal(payload.sourceSha, SOURCE_SHA);
   assert.equal(payload.reviewDepth, "quick");
@@ -92,6 +106,55 @@ test("private review stores one Case evidence and returns only sanitized manifes
   ]);
   assert.equal(JSON.stringify(payload).includes("reviews/"), false);
   assert.equal(JSON.stringify(payload).includes("objectKey"), false);
+});
+
+
+test("recapturing the same Case and SHA creates a new immutable Review", async () => {
+  const bucket = new MemoryReviewStorage();
+
+  const first = await handleReviewRequest({
+    request: uploadRequest(REVIEW_ID, "first-private-image"),
+    env: { REVIEW_STORAGE: bucket },
+  });
+  assert.equal(first.status, 201);
+
+  const second = await handleReviewRequest({
+    request: uploadRequest(SECOND_REVIEW_ID, "second-private-image"),
+    env: { REVIEW_STORAGE: bucket },
+  });
+  assert.equal(second.status, 201);
+
+  const current = await handleReviewRequest({
+    request: new Request("https://admin.looksawful.ru/lab/review/api"),
+    env: { REVIEW_STORAGE: bucket },
+  });
+  assert.equal(current.status, 200);
+  assert.equal((await current.json()).reviewId, SECOND_REVIEW_ID);
+
+  const firstManifestKey =
+    `review-hub/v1/cases/awful-mockups/reviews/${REVIEW_ID}/manifest.json`;
+  const secondManifestKey =
+    `review-hub/v1/cases/awful-mockups/reviews/${SECOND_REVIEW_ID}/manifest.json`;
+  const firstEvidenceKey =
+    `review-hub/v1/cases/awful-mockups/reviews/${REVIEW_ID}/evidence/desktop`;
+  const secondEvidenceKey =
+    `review-hub/v1/cases/awful-mockups/reviews/${SECOND_REVIEW_ID}/evidence/desktop`;
+
+  assert.ok(bucket.object(firstManifestKey), "first Review manifest must remain immutable");
+  assert.ok(bucket.object(secondManifestKey), "second Review manifest must be stored separately");
+  assert.equal(
+    new TextDecoder().decode(bucket.object(firstEvidenceKey)?.bytes),
+    "first-private-image",
+  );
+  assert.equal(
+    new TextDecoder().decode(bucket.object(secondEvidenceKey)?.bytes),
+    "second-private-image",
+  );
+  assert.equal(
+    bucket.objectsWithPrefix("review-hub/v1/cases/awful-mockups/reviews/").length,
+    4,
+    "two immutable Review packages must coexist",
+  );
 });
 
 test("private review evidence is served from private storage and fails closed without backend configuration", async () => {
