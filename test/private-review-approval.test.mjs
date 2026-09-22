@@ -1,7 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { handleReviewRequest } from "../lab/functions/review.js";
+import {
+  handleReviewRequest,
+  markCurrentReviewStale,
+} from "../lab/functions/review.js";
 
 const CASE_ID = "awful-mockups";
 const SOURCE_SHA = "0123456789abcdef0123456789abcdef01234567";
@@ -346,7 +349,8 @@ test("temporary review evidence carries four-day retention while approved copies
     session: OWNER_SESSION,
     now: () => NOW + 4 * 24 * 60 * 60 * 1000,
   });
-  assert.equal(expiredReview.status, 404);
+  assert.equal(expiredReview.status, 200);
+  assert.equal((await expiredReview.json()).reviewId, review.reviewId);
   assert.equal(
     bucket.object(
       `review-hub/v1/cases/${CASE_ID}/${SOURCE_SHA}/reviews/${review.reviewId}/evidence/desktop`,
@@ -453,6 +457,202 @@ test("superseding review during the final Case promotion makes approval fail clo
     now: () => NOW + 1_000,
   });
   assert.equal(baseline.status, 404);
+});
+
+
+test("recapture atomically makes the previous Review Superseded and keeps one Current Review", async () => {
+  const bucket = new MemoryReviewStorage();
+  const first = await createReview(bucket, SOURCE_SHA, NOW);
+  const second = await createReview(bucket, SOURCE_SHA, NOW + 500);
+
+  const state = JSON.parse(
+    new TextDecoder().decode(bucket.object(`review-hub/v1/state/${CASE_ID}.json`).bytes),
+  );
+  assert.equal(state.current.reviewId, second.reviewId);
+  assert.equal(state.history.length, 1);
+  assert.deepEqual(state.history[0], {
+    reviewId: first.reviewId,
+    status: "superseded",
+    transitionedAt: new Date(NOW + 500).toISOString(),
+    supersededByReviewId: second.reviewId,
+  });
+
+  const rejected = await handleReviewRequest({
+    request: new Request("https://admin.looksawful.ru/lab/review/approval", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ reviewId: first.reviewId }),
+    }),
+    env: { REVIEW_STORAGE: bucket },
+    session: OWNER_SESSION,
+    now: () => NOW + 1_000,
+  });
+  assert.equal(rejected.status, 409);
+  assert.deepEqual(await rejected.json(), {
+    reviewId: first.reviewId,
+    status: "superseded",
+  });
+});
+
+
+test("affecting source change makes the Current Review Stale without deleting Baseline history", async () => {
+  const bucket = new MemoryReviewStorage();
+  const review = await createReview(bucket);
+
+  const approved = await handleReviewRequest({
+    request: new Request("https://admin.looksawful.ru/lab/review/approval", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ reviewId: review.reviewId }),
+    }),
+    env: { REVIEW_STORAGE: bucket },
+    session: OWNER_SESSION,
+    now: () => NOW,
+  });
+  assert.equal(approved.status, 201);
+
+  const stale = await markCurrentReviewStale({
+    env: { REVIEW_STORAGE: bucket },
+    caseId: CASE_ID,
+    affectingSourceSha: STALE_SHA,
+    now: () => NOW + 1_000,
+  });
+  assert.deepEqual(stale, {
+    reviewId: review.reviewId,
+    status: "stale",
+  });
+
+  const state = JSON.parse(
+    new TextDecoder().decode(bucket.object(`review-hub/v1/state/${CASE_ID}.json`).bytes),
+  );
+  assert.equal(state.current, null);
+  assert.equal(state.sourceSha, STALE_SHA);
+  assert.equal(state.history.at(-1).reviewId, review.reviewId);
+  assert.equal(state.history.at(-1).status, "stale");
+
+  const baseline = await handleReviewRequest({
+    request: new Request(
+      `https://admin.looksawful.ru/lab/review/baseline?caseId=${CASE_ID}`,
+    ),
+    env: { REVIEW_STORAGE: bucket },
+    session: OWNER_SESSION,
+    now: () => NOW + 1_000,
+  });
+  assert.equal(baseline.status, 200);
+  const payload = await baseline.json();
+  assert.equal(payload.reviewId, review.reviewId);
+  assert.equal(payload.valid, false);
+
+  const rejected = await handleReviewRequest({
+    request: new Request("https://admin.looksawful.ru/lab/review/approval", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ reviewId: review.reviewId }),
+    }),
+    env: { REVIEW_STORAGE: bucket },
+    session: OWNER_SESSION,
+    now: () => NOW + 1_000,
+  });
+  assert.equal(rejected.status, 409);
+  assert.deepEqual(await rejected.json(), {
+    reviewId: review.reviewId,
+    status: "stale",
+  });
+});
+
+
+test("unapproved Review expires distinctly while compact audit state remains", async () => {
+  const bucket = new MemoryReviewStorage();
+  const review = await createReview(bucket);
+
+  const rejected = await handleReviewRequest({
+    request: new Request("https://admin.looksawful.ru/lab/review/approval", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ reviewId: review.reviewId }),
+    }),
+    env: { REVIEW_STORAGE: bucket },
+    session: OWNER_SESSION,
+    now: () => NOW + 4 * 24 * 60 * 60 * 1000,
+  });
+  assert.equal(rejected.status, 410);
+  assert.deepEqual(await rejected.json(), {
+    reviewId: review.reviewId,
+    status: "expired",
+  });
+
+  const state = JSON.parse(
+    new TextDecoder().decode(bucket.object(`review-hub/v1/state/${CASE_ID}.json`).bytes),
+  );
+  assert.equal(state.current, null);
+  assert.equal(state.history.at(-1).reviewId, review.reviewId);
+  assert.equal(state.history.at(-1).status, "expired");
+});
+
+
+test("Baseline changes only after approval and Approval history stays append-only", async () => {
+  const bucket = new MemoryReviewStorage();
+  const first = await createReview(bucket, SOURCE_SHA, NOW);
+  const firstApproval = await handleReviewRequest({
+    request: new Request("https://admin.looksawful.ru/lab/review/approval", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ reviewId: first.reviewId }),
+    }),
+    env: { REVIEW_STORAGE: bucket },
+    session: OWNER_SESSION,
+    now: () => NOW,
+  });
+  assert.equal(firstApproval.status, 201);
+
+  const second = await createReview(bucket, SUPERSEDED_SHA, NOW + 500);
+
+  const beforeApproval = await handleReviewRequest({
+    request: new Request(
+      `https://admin.looksawful.ru/lab/review/baseline?caseId=${CASE_ID}`,
+    ),
+    env: { REVIEW_STORAGE: bucket },
+    session: OWNER_SESSION,
+    now: () => NOW + 600,
+  });
+  assert.equal(beforeApproval.status, 200);
+  const beforePayload = await beforeApproval.json();
+  assert.equal(beforePayload.reviewId, first.reviewId);
+  assert.equal(beforePayload.valid, false);
+  assert.equal(
+    bucket.objectsWithPrefix(`review-hub/v1/approvals/${CASE_ID}/`).length,
+    1,
+  );
+
+  const secondApproval = await handleReviewRequest({
+    request: new Request("https://admin.looksawful.ru/lab/review/approval", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ reviewId: second.reviewId }),
+    }),
+    env: { REVIEW_STORAGE: bucket },
+    session: OWNER_SESSION,
+    now: () => NOW + 1_000,
+  });
+  assert.equal(secondApproval.status, 201);
+
+  const afterApproval = await handleReviewRequest({
+    request: new Request(
+      `https://admin.looksawful.ru/lab/review/baseline?caseId=${CASE_ID}`,
+    ),
+    env: { REVIEW_STORAGE: bucket },
+    session: OWNER_SESSION,
+    now: () => NOW + 1_000,
+  });
+  assert.equal(afterApproval.status, 200);
+  const afterPayload = await afterApproval.json();
+  assert.equal(afterPayload.reviewId, second.reviewId);
+  assert.equal(afterPayload.valid, true);
+  assert.equal(
+    bucket.objectsWithPrefix(`review-hub/v1/approvals/${CASE_ID}/`).length,
+    2,
+    "successful Approval records are append-only",
+  );
 });
 
 
