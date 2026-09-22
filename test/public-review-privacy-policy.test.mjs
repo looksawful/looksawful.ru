@@ -21,6 +21,7 @@ function trackedMatches(literal) {
     "git",
     [
       "grep",
+      "-i",
       "-I",
       "-l",
       "-F",
