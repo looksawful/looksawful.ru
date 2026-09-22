@@ -166,6 +166,88 @@ test("Gallery curation enforces featured editorial invariants", () => {
   );
 });
 
+test("Gallery curation keeps explicit project ownership and authored featured crop", () => {
+  const [placement] = resolveGalleryCuration([
+    {
+      id: "project-a-featured",
+      projectId: "project-a",
+      placements: [{
+        assetId: "image-a",
+        featured: true,
+        crop: {
+          aspectRatio: 1.5,
+          positionX: 40,
+          positionY: 65,
+        },
+      }],
+    },
+  ], catalog);
+
+  assert.equal(placement.projectId, "project-a");
+  assert.deepEqual(placement.crop, {
+    aspectRatio: 1.5,
+    positionX: 40,
+    positionY: 65,
+  });
+
+  assert.throws(
+    () => resolveGalleryCuration([
+      {
+        id: "wrong-project",
+        projectId: "project-b",
+        placements: [{ assetId: "image-a" }],
+      },
+    ], catalog),
+    /asset "image-a".*project "project-b"/i,
+  );
+
+  assert.throws(
+    () => resolveGalleryCuration([
+      {
+        id: "crop-without-featured",
+        projectId: "project-a",
+        placements: [{
+          assetId: "image-a",
+          crop: { aspectRatio: 1.5, positionX: 50, positionY: 50 },
+        }],
+      },
+    ], catalog),
+    /crop.*featured/i,
+  );
+
+  assert.throws(
+    () => resolveGalleryCuration([
+      {
+        id: "invalid-crop",
+        projectId: "project-a",
+        placements: [{
+          assetId: "image-a",
+          featured: true,
+          crop: { aspectRatio: 0, positionX: -1, positionY: 101 },
+        }],
+      },
+    ], catalog),
+    /invalid.*crop/i,
+  );
+});
+
+test("Gallery curation requires unique non-empty series identity", () => {
+  assert.throws(
+    () => resolveGalleryCuration([
+      { id: " ", projectId: "project-a", placements: [{ assetId: "image-a" }] },
+    ], catalog),
+    /series id.*non-empty/i,
+  );
+
+  assert.throws(
+    () => resolveGalleryCuration([
+      { id: "same", projectId: "project-a", placements: [{ assetId: "image-a" }] },
+      { id: "same", projectId: "project-a", placements: [{ assetId: "image-b" }] },
+    ], catalog),
+    /duplicate gallery series id "same"/i,
+  );
+});
+
 test("Gallery curation rejects unknown, archived, and unrenderable canonical media", () => {
   assert.throws(
     () => resolveGalleryCuration([
