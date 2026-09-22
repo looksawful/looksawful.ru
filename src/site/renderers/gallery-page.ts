@@ -1,3 +1,4 @@
+import { cases } from "../../data/catalog/cases.ts";
 import { projects } from "../../data/catalog/projects/index.ts";
 import type { GalleryResolvedPlacement } from "../../data/media/gallery-curation.ts";
 import {
@@ -30,6 +31,10 @@ function groupBySeries(
 
 function projectLabelForSeries(seriesId: string): string {
   return projects.find(({ id }) => id === seriesId)?.name ?? "";
+}
+
+function caseLabel(caseId: string): string {
+  return cases.find(({ id }) => id === caseId)?.name ?? "";
 }
 
 function toResolvedPhotoPlacement(
@@ -85,7 +90,7 @@ function renderGalleryModelSeries(items: readonly GalleryModelItem[]): string {
   if (!items.length) return "";
 
   return `<section class="gallery-series gallery-series--models" data-gallery-series="${escapeHtml(items[0].seriesId)}">
-  <p class="gallery-series__marker">Jestei Pool</p>
+  <p class="gallery-series__marker">${escapeHtml(caseLabel("jestei-pool"))}</p>
   <div class="gallery-series__grid" data-gallery-series-grid>
     ${items.map(renderGalleryModelCard).join("\n    ")}
   </div>
