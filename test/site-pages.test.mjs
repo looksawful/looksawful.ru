@@ -325,22 +325,7 @@ test("Work page renders the resolved main index and keeps unresolved Archive out
   for (const id of getProjectIndexPageIds(portfolioPresentation)) {
     const target = sitePages.find((candidate) => candidate.id === id);
     assert.ok(target);
-    assert.match(html, new RegExp(`href="${target.path.replace(/[.*+?^{}()|[\\]\\]/g, "\\test("Work page renders main selection and a closed semantic Archive", () => {
-  const page = sitePages.find((candidate) => candidate.id === "work");
-  assert.ok(page && page.type === "work");
-  const html = renderWorkPage(page);
-
-  for (const id of portfolioPresentation.projectIndex) {
-    const target = sitePages.find((candidate) => candidate.id === id);
-    assert.ok(target);
     assert.match(html, new RegExp(`href="${target.path.replace(/[.*+?^{}()|[\\]\\]/g, "\\$&")}"`));
-  }
-
-  assert.match(html, /<details[^>]*data-work-archive/);
-  assert.doesNotMatch(html, /<details[^>]*data-work-archive[^>]*\sopen(?:\s|>)/);
-  assert.match(html, />Archive<\/summary>/);
-  assert.match(html, /Berry Agency/);
-});")}"`));
   }
 
   assert.doesNotMatch(html, /data-work-archive/);
