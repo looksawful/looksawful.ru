@@ -101,7 +101,7 @@ test("review browser smoke stays affected-only and never publishes visual eviden
 
   assert.match(workflow, /workflow_dispatch:/);
   assert.match(workflow, /tools\/review\/\*\*/);
-  assert.match(workflow, /src\/motion\.ts/);
+  assert.doesNotMatch(workflow, /src\/motion\.ts/);
   assert.match(workflow, /playwright install --with-deps --only-shell chromium/);
   assert.match(workflow, /playwright install --with-deps webkit/);
   assert.match(workflow, /node tools\/review\/smoke-runtime-matrix\.mjs/);
