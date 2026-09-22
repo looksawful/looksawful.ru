@@ -282,7 +282,7 @@ async function approveCurrentReview(): Promise<void> {
   if (manifest === null || button === null || button.disabled) return;
 
   button.disabled = true;
-  setApprovalStatus("Approving the exact Case, SHA and review depth shown above.", "loading");
+  setApprovalStatus("Approving the exact immutable Review shown above.", "loading");
 
   let response: Response;
   try {
@@ -296,9 +296,6 @@ async function approveCurrentReview(): Promise<void> {
       cache: "no-store",
       body: JSON.stringify({
         reviewId: manifest.reviewId,
-        caseId: manifest.caseId,
-        sourceSha: manifest.sourceSha,
-        reviewDepth: manifest.reviewDepth,
       }),
     });
   } catch {

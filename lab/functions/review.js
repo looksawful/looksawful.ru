@@ -114,6 +114,10 @@ function caseStateKey(caseId) {
   return `review-hub/v1/state/${caseId}.json`;
 }
 
+function reviewIndexKey(reviewId) {
+  return `review-hub/v1/reviews/${reviewId}.json`;
+}
+
 function approvalKey(caseId, sourceSha, reviewDepth, reviewId, promotionId) {
   return `review-hub/v1/approvals/${caseId}/${sourceSha}/${reviewDepth}/${reviewId}/${promotionId}.json`;
 }
@@ -160,6 +164,29 @@ function validReviewRef(value) {
     REVIEW_DEPTHS.has(value.reviewDepth) &&
     validDate(value.capturedAt)
   );
+}
+
+function reviewDescriptor(manifest) {
+  return {
+    version: 1,
+    reviewId: manifest.reviewId,
+    caseId: manifest.caseId,
+    sourceSha: manifest.sourceSha,
+    reviewDepth: manifest.reviewDepth,
+    capturedAt: manifest.capturedAt,
+  };
+}
+
+function validReviewDescriptor(value) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  if (value.version !== 1) return null;
+  if (typeof value.caseId !== "string" || !CASE_ID.test(value.caseId)) return null;
+  if (!validReviewRef(value)) return null;
+  return reviewDescriptor(value);
+}
+
+function sameReviewId(left, right) {
+  return Boolean(left && right && left.reviewId === right.reviewId);
 }
 
 function sameReview(input, review) {
@@ -263,6 +290,15 @@ async function putCaseState(bucket, caseId, state, object) {
 
   const stored = await bucket.put(caseStateKey(caseId), JSON.stringify(state), options);
   return stored !== null;
+}
+
+async function putImmutable(bucket, key, value, options = {}) {
+  const stored = await bucket.put(key, value, {
+    ...options,
+    onlyIfAbsent: true,
+  });
+  if (!stored) throw new Error("Immutable review object already exists.");
+  return stored;
 }
 
 async function setCaseCurrent(bucket, manifest) {
@@ -424,33 +460,43 @@ async function createReview(request, bucket, nowMs) {
 
   const expiresAt = new Date(nowMs + TEMP_RETENTION_MS).toISOString();
   const temporaryMetadata = { expiresAt };
+  const descriptorKey = reviewIndexKey(manifest.reviewId);
   const temporaryKeys = [
     ...manifest.evidence.map((item) =>
       evidenceKey(manifest.caseId, manifest.sourceSha, manifest.reviewId, item.id),
     ),
     manifestKey(manifest.caseId, manifest.sourceSha, manifest.reviewId),
+    descriptorKey,
   ];
 
   try {
     await Promise.all(
       uploads.map(({ item, bytes }) =>
-        bucket.put(
+        putImmutable(
+          bucket,
           evidenceKey(manifest.caseId, manifest.sourceSha, manifest.reviewId, item.id),
           bytes,
           {
-          httpMetadata: { contentType: item.contentType },
-          customMetadata: temporaryMetadata,
+            httpMetadata: { contentType: item.contentType },
+            customMetadata: temporaryMetadata,
           },
         ),
       ),
     );
-    await bucket.put(
+    await putImmutable(
+      bucket,
       manifestKey(manifest.caseId, manifest.sourceSha, manifest.reviewId),
       JSON.stringify(manifest),
       {
         httpMetadata: { contentType: "application/json; charset=utf-8" },
         customMetadata: temporaryMetadata,
       },
+    );
+    await putImmutable(
+      bucket,
+      descriptorKey,
+      JSON.stringify(reviewDescriptor(manifest)),
+      { httpMetadata: { contentType: "application/json; charset=utf-8" } },
     );
   } catch {
     await bestEffortDeleteKeys(bucket, temporaryKeys);
@@ -480,10 +526,42 @@ async function createReview(request, bucket, nowMs) {
     );
   } catch {
     await deleteTemporaryReview(bucket, manifest);
+    await bestEffortDeleteKeys(bucket, [descriptorKey]);
     return text("Private review pointer could not be stored.", 503);
   }
 
   return json(clientManifest(manifest), 201);
+}
+
+async function loadReviewManifestById(bucket, reviewId, nowMs) {
+  const descriptorObject = await bucket.get(reviewIndexKey(reviewId));
+  if (!descriptorObject) return null;
+
+  const descriptor = validReviewDescriptor(await readJsonObject(descriptorObject));
+  if (!descriptor || descriptor.reviewId !== reviewId) return null;
+
+  const manifestObject = await bucket.get(
+    manifestKey(descriptor.caseId, descriptor.sourceSha, descriptor.reviewId),
+  );
+  if (!manifestObject) return null;
+
+  const manifest = validateReviewManifest(await readJsonObject(manifestObject));
+  if (
+    !manifest ||
+    manifest.reviewId !== descriptor.reviewId ||
+    manifest.caseId !== descriptor.caseId ||
+    manifest.sourceSha !== descriptor.sourceSha ||
+    manifest.reviewDepth !== descriptor.reviewDepth
+  ) {
+    return null;
+  }
+
+  if (objectExpired(manifestObject, nowMs)) {
+    await deleteTemporaryReview(bucket, manifest);
+    return null;
+  }
+
+  return manifest;
 }
 
 async function getCurrentReview(bucket, nowMs) {
@@ -523,13 +601,7 @@ function validApprovalInput(value) {
     typeof value === "object" &&
     !Array.isArray(value) &&
     typeof value.reviewId === "string" &&
-    REVIEW_ID.test(value.reviewId) &&
-    typeof value.caseId === "string" &&
-    CASE_ID.test(value.caseId) &&
-    typeof value.sourceSha === "string" &&
-    SHA.test(value.sourceSha) &&
-    typeof value.reviewDepth === "string" &&
-    REVIEW_DEPTHS.has(value.reviewDepth)
+    REVIEW_ID.test(value.reviewId)
   );
 }
 
@@ -579,9 +651,9 @@ async function approveReview(request, bucket, session, nowMs) {
   if (input.error === 415) return text("Expected JSON approval request.", 415);
   if (input.error) return text("Approval request is invalid.", 400);
 
-  const manifest = await loadCurrentManifest(bucket, nowMs);
-  if (!manifest || !sameReview(input.value, manifest) || input.value.caseId !== manifest.caseId) {
-    return text("Review is stale or no longer current.", 409);
+  const manifest = await loadReviewManifestById(bucket, input.value.reviewId, nowMs);
+  if (!manifest) {
+    return text("Review is stale, expired, or unavailable.", 409);
   }
 
   const loadedState = await loadCaseState(bucket, manifest.caseId);
@@ -590,13 +662,13 @@ async function approveReview(request, bucket, session, nowMs) {
     !loadedState.object ||
     typeof loadedState.object.etag !== "string" ||
     !loadedState.state.current ||
-    !sameReview(input.value, loadedState.state.current)
+    !sameReviewId(manifest, loadedState.state.current)
   ) {
     return text("Review is stale or no longer current.", 409);
   }
 
   const existingBaseline = loadedState.state.baseline;
-  if (existingBaseline && sameReview(input.value, existingBaseline)) {
+  if (existingBaseline && sameReviewId(manifest, existingBaseline)) {
     return json(publicBaseline(existingBaseline), 200);
   }
 

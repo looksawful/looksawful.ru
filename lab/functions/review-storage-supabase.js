@@ -168,6 +168,10 @@ export function createSupabaseReviewStorage(env, fetchImpl = fetch) {
           ? options.customMetadata
           : {};
       const expectedEtag = stringValue(options?.onlyIf?.etagMatches);
+      const createOnly = options?.onlyIfAbsent === true;
+      if (expectedEtag && createOnly) {
+        throw new TypeError("Review storage write cannot combine CAS and create-only semantics.");
+      }
       const isJson = contentType.toLowerCase().startsWith("application/json");
 
       let kind;
@@ -192,7 +196,7 @@ export function createSupabaseReviewStorage(env, fetchImpl = fetch) {
               ...apiHeaders(config.secretKey),
               "Content-Type": contentType,
               "cache-control": "max-age=0",
-              "x-upsert": "true",
+              "x-upsert": createOnly ? "false" : "true",
             },
             body: value,
           },
@@ -210,6 +214,7 @@ export function createSupabaseReviewStorage(env, fetchImpl = fetch) {
           p_content_type: contentType,
           p_custom_metadata: customMetadata,
           p_expected_etag: expectedEtag,
+          p_create_only: createOnly,
         });
       } catch (error) {
         if (storagePath) {

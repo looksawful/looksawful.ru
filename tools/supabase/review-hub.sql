@@ -42,7 +42,8 @@ create or replace function public.review_hub_put_object(
   p_storage_path text,
   p_content_type text,
   p_custom_metadata jsonb default '{}'::jsonb,
-  p_expected_etag text default null
+  p_expected_etag text default null,
+  p_create_only boolean default false
 )
 returns jsonb
 language plpgsql
@@ -73,7 +74,37 @@ begin
     v_expires_at := (p_custom_metadata ->> 'expiresAt')::timestamptz;
   end if;
 
-  if p_expected_etag is not null then
+  if p_expected_etag is not null and p_create_only then
+    raise exception 'review object write cannot be both CAS and create-only';
+  end if;
+
+  if p_create_only then
+    insert into public.review_hub_objects (
+      key,
+      kind,
+      body_text,
+      storage_path,
+      content_type,
+      custom_metadata,
+      expires_at,
+      etag
+    )
+    values (
+      p_key,
+      p_kind,
+      p_body_text,
+      p_storage_path,
+      p_content_type,
+      coalesce(p_custom_metadata, '{}'::jsonb),
+      v_expires_at,
+      v_etag
+    )
+    on conflict (key) do nothing;
+
+    if not found then
+      return jsonb_build_object('stored', false, 'etag', null);
+    end if;
+  elsif p_expected_etag is not null then
     update public.review_hub_objects
     set
       kind = p_kind,
@@ -128,10 +159,10 @@ end;
 $$;
 
 revoke all on function public.review_hub_put_object(
-  text, text, text, text, text, jsonb, text
+  text, text, text, text, text, jsonb, text, boolean
 ) from public, anon, authenticated;
 grant execute on function public.review_hub_put_object(
-  text, text, text, text, text, jsonb, text
+  text, text, text, text, text, jsonb, text, boolean
 ) to service_role;
 
 create or replace function public.review_hub_delete_object_rows(p_keys text[])
