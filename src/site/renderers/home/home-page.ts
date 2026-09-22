@@ -12,6 +12,10 @@ import {
   type HomepagePreviewSectionConfig,
 } from "../../pages/homepage.ts";
 import { getPageByPath } from "../../pages/manifest.ts";
+import {
+  portfolioPresentation,
+  type PortfolioPresentation,
+} from "../../pages/portfolio-presentation.ts";
 import { homeSearchPresentation } from "../../pages/search-presentation.ts";
 import type { EntityPageId } from "../../pages/types.ts";
 import { replaceRequiredSlot } from "../../rendering/html.ts";
@@ -169,10 +173,13 @@ function excludeUtilityTextFromSnippets(html: string): string {
   return output;
 }
 
-export function renderHomepagePage(html: string): string {
+export function renderHomepagePage(
+  html: string,
+  portfolioState: PortfolioPresentation = portfolioPresentation,
+): string {
   const page = getHomePage();
   const rendered = replaceRequiredSlot(
-    renderHomepage(html),
+    renderHomepage(html, portfolioState),
     homeEntitiesMount,
     renderCanonicalHomepageEntities(),
   );
