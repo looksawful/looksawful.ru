@@ -148,6 +148,40 @@ test("dynamic review state contracts reject implicit canvas/WebGL/gallery stabil
 
   assert.deepEqual(
     validateDynamicReviewState({
+      id: "hero-canvas",
+      kind: "canvas",
+      selector: "[data-review-canvas]",
+      ready: { attribute: "data-review-ready", value: "ready" },
+      stable: { attribute: "data-review-stable", value: "stable" },
+    }),
+    {
+      id: "hero-canvas",
+      kind: "canvas",
+      selector: "[data-review-canvas]",
+      ready: { attribute: "data-review-ready", value: "ready" },
+      stable: { attribute: "data-review-stable", value: "stable" },
+    },
+  );
+
+  assert.deepEqual(
+    validateDynamicReviewState({
+      id: "logo-reel",
+      kind: "infinite-gallery",
+      selector: "[data-review-gallery]",
+      ready: { attribute: "data-review-ready", value: "ready" },
+      stable: { attribute: "data-review-stable", value: "stable" },
+    }),
+    {
+      id: "logo-reel",
+      kind: "infinite-gallery",
+      selector: "[data-review-gallery]",
+      ready: { attribute: "data-review-ready", value: "ready" },
+      stable: { attribute: "data-review-stable", value: "stable" },
+    },
+  );
+
+  assert.deepEqual(
+    validateDynamicReviewState({
       id: "intro-video",
       kind: "video",
       selector: "video[data-review-intro]",
