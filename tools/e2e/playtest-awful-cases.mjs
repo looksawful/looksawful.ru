@@ -188,7 +188,6 @@ async function exerciseExamDeath(page) {
   );
   assert.equal(await page.locator("[data-awful-cases-restart]").isVisible(), true);
   const restartButton = page.locator("[data-awful-cases-restart-button]");
-  await page.keyboard.press("Tab");
   const restartFocus = await restartButton.evaluate((button) => {
     const style = getComputedStyle(button);
     return {
