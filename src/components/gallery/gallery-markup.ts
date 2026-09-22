@@ -37,7 +37,12 @@ function cropAttributes(
 
 function renderCardMedia(media: GalleryResolvedMedia): string {
   const srcset = media.srcset ? ` srcset="${escapeHtml(media.srcset)}"` : "";
-  return `<img class="gallery-card__image" src="${escapeHtml(media.posterSrc)}"${srcset} sizes="(max-width: 720px) 50vw, (max-width: 1100px) 33vw, (max-width: 1500px) 25vw, 20vw"${dimensionAttributes(media)} alt="${escapeHtml(media.alt)}" loading="lazy" decoding="async">`;
+  const poster = `<img class="gallery-card__image" src="${escapeHtml(media.posterSrc)}"${srcset} sizes="(max-width: 720px) 50vw, (max-width: 1100px) 33vw, (max-width: 1500px) 25vw, 20vw"${dimensionAttributes(media)} alt="${escapeHtml(media.alt)}" loading="lazy" decoding="async">`;
+  if (media.kind !== "video") return poster;
+
+  return `${poster}
+  <video class="gallery-card__preview-video" data-gallery-video-preview src="${escapeHtml(media.src)}" muted playsinline preload="metadata" aria-hidden="true" tabindex="-1"></video>
+  <span class="gallery-card__play-indicator" aria-hidden="true"></span>`;
 }
 
 export function renderGalleryResolvedPlacement(
@@ -50,7 +55,7 @@ export function renderGalleryResolvedPlacement(
 
   const featuredAttribute = placement.featured ? " data-gallery-featured" : "";
   const cropAttribute = cropAttributes(placement);
-  const kindClass = primary.kind === "image" ? "" : ` gallery-card--${primary.kind}`;
+  const kindClass = primary.kind === "image" ? "" : primary.kind === "model" ? " gallery-card--model-preview" : " gallery-card--video";
   const label = primary.alt.trim() || primary.title.trim() || placement.itemId;
   const primaryCredits = creditsAttribute(primary.credits);
   const primaryDimensions = `${primary.width ? ` data-gallery-width="${primary.width}"` : ""}${primary.height ? ` data-gallery-height="${primary.height}"` : ""}`;
