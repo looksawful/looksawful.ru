@@ -71,6 +71,17 @@ test("capture runtime contains no arbitrary sleep primitive", async () => {
 });
 
 
+test("deterministic capture leaves production global reveals in their settled visible state", async () => {
+  const motion = await readFile(new URL("../src/motion.ts", import.meta.url), "utf8");
+
+  assert.match(motion, /data-review-capture/);
+  assert.match(motion, /deterministic/);
+  assert.match(
+    motion,
+    /createGlobalReveals[\s\S]*review-capture[\s\S]*return noop/,
+  );
+});
+
 test("review browser smoke stays affected-only and never publishes visual evidence", async () => {
   const [smoke, workflow] = await Promise.all([
     readFile(new URL("../tools/review/smoke-runtime-matrix.mjs", import.meta.url), "utf8"),
