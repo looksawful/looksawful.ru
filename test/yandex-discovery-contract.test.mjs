@@ -38,12 +38,7 @@ test("sitemap canonical set is derived from enabled indexable SitePages", async 
     "https://www.looksawful.ru/privacy/",
     "https://www.looksawful.ru/shootings/",
     "https://www.looksawful.ru/work/",
-    "https://www.looksawful.ru/work/awful-3d-mockups/",
-    "https://www.looksawful.ru/work/awful-cases/",
-    "https://www.looksawful.ru/work/awful-studio/",
-    "https://www.looksawful.ru/work/berry-social-content-2020/",
     "https://www.looksawful.ru/work/jestei-pool/",
-    "https://www.looksawful.ru/work/moves-awful/",
     "https://www.looksawful.ru/work/sensetique/",
     "https://www.looksawful.ru/work/styx/",
   ]);
