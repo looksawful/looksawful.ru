@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="referrer" content="no-referrer">
+<title>Text Review</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;font:15px/1.45 Inter,system-ui,-apple-system,Segoe UI,sans-serif;background:#f4f4f1;color:#111}
+button,input,textarea{font:inherit}button{cursor:pointer}
+main{max-width:1180px;margin:auto;padding:18px 14px 100px}
+.login{max-width:420px;margin:16vh auto 0;background:#fff;border:1px solid #d6d6d0;border-radius:16px;padding:22px}
+.login h1{font-size:22px;margin:0 0 8px}.login p{margin:0 0 16px;color:#666}
+.login input{width:100%;padding:13px 14px;border:1px solid #ccc;border-radius:11px;outline:none}
+.login input:focus{border-color:#111;box-shadow:0 0 0 1px #111}
+.login button{width:100%;margin-top:9px;padding:13px;border:0;border-radius:11px;background:#111;color:#fff}
+.error{min-height:20px;margin-top:9px;color:#a00;font-size:13px}
+.top{position:sticky;top:0;z-index:5;background:#f4f4f1ee;backdrop-filter:blur(12px);display:grid;grid-template-columns:1fr auto;gap:8px 18px;padding:12px 0}
+.meta{font-size:13px;color:#666;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.meta b{color:#111}.count{font-size:13px;color:#666}
+.progress{grid-column:1/-1;height:2px;background:#d8d8d3}.progress i{display:block;height:100%;background:#111}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+.card{display:flex;flex-direction:column;min-height:360px;background:#fff;border:1px solid #d6d6d0;border-radius:16px;padding:20px}
+.card.selected{border-color:#111;box-shadow:0 0 0 1px #111}
+.head{display:flex;justify-content:space-between;color:#777;font-size:12px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:20px}
+.copy{font-size:clamp(18px,2vw,27px);line-height:1.35;white-space:pre-wrap;overflow-wrap:anywhere;flex:1}
+.choose{margin-top:24px;padding:13px;border:1px solid #ccc;border-radius:11px;background:#fff;color:#111}.choose.primary{background:#111;color:#fff;border-color:#111}
+.custom-toggle{border:0;background:transparent;padding:12px 0;color:#666;text-decoration:underline;text-underline-offset:4px}
+.custom-panel{display:none}.custom-panel.open{display:block}
+textarea{width:100%;min-height:140px;padding:14px;border:1px solid #ccc;border-radius:12px;resize:vertical;background:#fff;outline:none}
+textarea:focus{border-color:#111;box-shadow:0 0 0 1px #111}
+.save-custom{margin-top:8px;padding:12px 14px;border:0;border-radius:10px;background:#111;color:#fff}
+.footer{position:fixed;left:50%;bottom:max(12px,env(safe-area-inset-bottom));transform:translateX(-50%);display:grid;grid-template-columns:44px minmax(180px,auto) 44px;gap:8px;align-items:center;background:#fff;border:1px solid #d6d6d0;border-radius:15px;padding:7px;box-shadow:0 8px 30px #0001}
+.nav{width:44px;height:40px;border:0;border-radius:9px;background:#efefec;font-size:20px}.nav:disabled{opacity:.3}
+.status{text-align:center;font-size:12px;color:#666;padding:0 8px}
+@media(max-width:700px){main{padding:10px 10px 96px}.compare{grid-template-columns:1fr;gap:9px}.card{min-height:0;padding:16px}.copy{font-size:18px}.footer{width:calc(100% - 20px);grid-template-columns:44px 1fr 44px}.login{margin-top:10vh}}
+</style>
+</head>
+<body>
+<main id="root"></main>
+<script>
+const API='https://japsjwgnoeaeetlhshje.supabase.co/functions/v1/text-review';
+const root=document.getElementById('root');
+let key=localStorage.getItem('looksawful-text-review-key')||'';
+let items=[],answers={},index=0,customOpen=false,saving=false;
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+async function call(method,body){
+  const r=await fetch(API,{method,headers:{'content-type':'application/json','x-review-key':key},body:body?JSON.stringify(body):undefined});
+  if(r.status===401)throw new Error('auth');
+  if(!r.ok)throw new Error(await r.text());
+  return r.json();
+}
+function login(msg=''){
+  root.innerHTML='<section class="login"><h1>Тексты looksawful.ru</h1><p>Введи код доступа. GitHub и другие логины больше не нужны.</p><input id="pin" type="password" autocomplete="current-password" placeholder="Код доступа"><button id="go">Открыть</button><div class="error">'+esc(msg)+'</div></section>';
+  const go=async()=>{
+    key=document.getElementById('pin').value.trim();
+    try{
+      const s=await call('GET');
+      localStorage.setItem('looksawful-text-review-key',key);
+      items=s.items||[];answers=s.answers||{};
+      const first=items.findIndex(x=>!answers[x[0]]?.choice);
+      index=first>=0?first:Math.max(0,items.length-1);
+      render();
+    }catch(e){
+      key='';localStorage.removeItem('looksawful-text-review-key');login(e.message==='auth'?'Неверный код.':'Ошибка соединения.');
+    }
+  };
+  document.getElementById('go').onclick=go;
+  document.getElementById('pin').onkeydown=e=>{if(e.key==='Enter')go()};
+}
+const answered=()=>Object.values(answers).filter(x=>x?.choice).length;
+function nextUnanswered(from){
+  for(let n=1;n<=items.length;n++){const i=(from+n)%items.length;if(!answers[items[i][0]]?.choice)return i}
+  return Math.min(from+1,items.length-1);
+}
+function render(){
+  if(!items.length){root.textContent='Нет пунктов.';return}
+  const [id,label,before,after]=items[index],v=answers[id]||{},done=answered(),pct=Math.round(done/items.length*100);
+  root.innerHTML='<header class="top"><div class="meta"><b>'+esc(label)+'</b></div><div class="count">'+(index+1)+' / '+items.length+'</div><div class="progress"><i style="width:'+pct+'%"></i></div></header>'+
+  '<section class="compare">'+
+    '<article class="card '+(v.choice==='b'?'selected':'')+'"><div class="head"><span>Сейчас</span><span>B</span></div><div class="copy">'+esc(before)+'</div><button class="choose" data-choice="b">B · не трогаем</button></article>'+
+    '<article class="card '+(v.choice==='a'?'selected':'')+'"><div class="head"><span>После</span><span>A</span></div><div class="copy">'+esc(after)+'</div><button class="choose primary" data-choice="a">A · меняем</button></article>'+
+  '</section>'+
+  '<button class="custom-toggle" id="custom-toggle">Свой текст</button>'+
+  '<div class="custom-panel '+(customOpen||v.choice==='custom'?'open':'')+'"><textarea id="custom-text" placeholder="Напиши свой вариант…">'+esc(v.custom_text||'')+'</textarea><button class="save-custom" id="save-custom">Сохранить свой текст</button></div>'+
+  '<footer class="footer"><button class="nav" id="prev" '+(index===0?'disabled':'')+'>←</button><div class="status" id="status">'+(v.choice?'Сохранено':'Не решено')+' · '+done+'/'+items.length+'</div><button class="nav" id="next" '+(index===items.length-1?'disabled':'')+'>→</button></footer>';
+  document.querySelectorAll('.choose').forEach(b=>b.onclick=()=>save(b.dataset.choice));
+  document.getElementById('custom-toggle').onclick=()=>{customOpen=!customOpen;render();if(customOpen)setTimeout(()=>document.getElementById('custom-text')?.focus(),0)};
+  document.getElementById('save-custom').onclick=saveCustom;
+  document.getElementById('prev').onclick=()=>{if(index>0){index--;customOpen=false;render()}};
+  document.getElementById('next').onclick=()=>{if(index<items.length-1){index++;customOpen=false;render()}};
+}
+async function save(choice){
+  if(saving)return;saving=true;
+  const id=items[index][0],status=document.getElementById('status');
+  if(status)status.textContent='Сохраняю…';
+  try{
+    await call('POST',{item_id:id,choice,custom_text:''});
+    answers[id]={choice,custom_text:''};
+    const cur=index;if(answered()<items.length)index=nextUnanswered(cur);
+    customOpen=false;render();
+  }catch(e){if(e.message==='auth')return login('Код устарел.');if(status)status.textContent='Ошибка сохранения';}
+  finally{saving=false}
+}
+async function saveCustom(){
+  const ta=document.getElementById('custom-text'),text=ta?.value.trim()||'';
+  if(!text)return ta?.focus();
+  if(saving)return;saving=true;
+  const id=items[index][0];
+  try{
+    await call('POST',{item_id:id,choice:'custom',custom_text:text});
+    answers[id]={choice:'custom',custom_text:text};
+    const cur=index;if(answered()<items.length)index=nextUnanswered(cur);
+    customOpen=false;render();
+  }finally{saving=false}
+}
+document.addEventListener('keydown',e=>{
+  if(!key||['TEXTAREA','INPUT'].includes(e.target?.tagName))return;
+  if(e.key.toLowerCase()==='a')save('a');
+  if(e.key.toLowerCase()==='b')save('b');
+  if(e.key==='ArrowLeft'&&index>0){index--;render()}
+  if(e.key==='ArrowRight'&&index<items.length-1){index++;render()}
+});
+(async()=>{if(!key)return login();try{const s=await call('GET');items=s.items||[];answers=s.answers||{};const first=items.findIndex(x=>!answers[x[0]]?.choice);index=first>=0?first:Math.max(0,items.length-1);render()}catch{login()}})();
+</script>
+</body>
+</html>
