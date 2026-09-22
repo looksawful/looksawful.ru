@@ -33,6 +33,16 @@
 
   grid-column: 2;
   min-inline-size: 0;
+  justify-content: space-between;
+}
+
+.expertise__head > :first-child {
+  flex-grow: 0;
+}
+
+.expertise__head > :last-child {
+  flex-basis: min(62.5%, 62ch);
+  flex-grow: 0;
 }
 
 .expertise .expertise__title {
