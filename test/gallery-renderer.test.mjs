@@ -44,26 +44,28 @@ test("Gallery renderer has one photo stream and no retired layer/filter UI", () 
   assert.doesNotMatch(html, /data-gallery-sort|data-gallery-search/);
 });
 
-test("Gallery output exposes quiet series headings, captions, and intrinsic image geometry", () => {
+test("Gallery keeps series boundaries non-editorial until curation is approved, while exposing captions", () => {
   assert.match(html, /data-gallery-series=/);
   assert.match(html, /data-gallery-item-id=/);
   assert.match(html, /<img[^>]*\bwidth="\d+"[^>]*\bheight="\d+"/);
-  assert.match(html, /gallery-series__title/);
+  assert.doesNotMatch(html, /gallery-series__title/);
   assert.match(html, /gallery-card__caption/);
   assert.match(html, /aria-label="Открыть: [^"]+"/);
 });
 
-test("Gallery renders exactly three curated Jestei symbols as interactive model cards", () => {
+test("Gallery keeps the existing five Jestei symbols until the curation decision is approved", () => {
   const modelCards = [...html.matchAll(/<figure class="gallery-card gallery-card--model"[\s\S]*?<\/figure>/g)]
     .map((match) => match[0]);
 
-  assert.equal(modelCards.length, 3);
+  assert.equal(modelCards.length, 5);
   assert.deepEqual(
     modelCards.map((card) => card.match(/data-model-src="([^"]+)"/)?.[1]),
     [
+      "/media/logo-3d/jestei/jestei-symbol-metal.glb",
       "/media/logo-3d/jestei/jestei-symbol-pear.glb",
       "/media/logo-3d/jestei/jestei-symbol-orange.glb",
       "/media/logo-3d/jestei/jestei-symbol-blue.glb",
+      "/media/logo-3d/jestei/jestei-symbol-biloba.glb",
     ],
   );
 
@@ -85,6 +87,22 @@ test("Gallery cards never expose an empty accessible image label when canonical 
     if (title.trim()) {
       assert.ok(alt.trim(), `Gallery card with title ${title} must have a non-empty image alt`);
     }
+  }
+});
+
+test("Gallery photo controls expose item-specific accessible names", () => {
+  const cards = [...html.matchAll(/<figure class="gallery-card"[\s\S]*?<\/figure>/g)]
+    .map((match) => match[0]);
+  assert.ok(cards.length > 0, "Gallery must render photo controls");
+
+  for (const card of cards) {
+    const label = card.match(/\baria-label="([^"]*)"/)?.[1] ?? "";
+    const title = card.match(/\bdata-gallery-title="([^"]*)"/)?.[1] ?? "";
+    const alt = card.match(/\bdata-gallery-alt="([^"]*)"/)?.[1] ?? "";
+    const identity = alt.trim() || title.trim();
+
+    assert.ok(identity, "Gallery photo control must expose authored identity");
+    assert.equal(label, `Открыть: ${identity}`);
   }
 });
 
@@ -111,10 +129,10 @@ test("Gallery PhotoSwipe credits inherit a high-contrast lightbox surface", () =
   assert.match(captionRule, /position:\s*absolute/);
 });
 
-test("Gallery CSS keeps visible hierarchy and explicitly avoids masonry mechanics", () => {
+test("Gallery CSS keeps visible page hierarchy and avoids unapproved series heading styles", () => {
   assert.doesNotMatch(galleryCss, /\.gallery__header\b/);
   assert.match(galleryCss, /\.gallery__title\b/);
-  assert.match(galleryCss, /\.gallery-series__title\b/);
+  assert.doesNotMatch(galleryCss, /\.gallery-series__title\b/);
   assert.match(galleryCss, /\.gallery-card__caption\b/);
   assert.doesNotMatch(galleryCss, /column-count\s*:/);
   assert.doesNotMatch(galleryCss, /grid-auto-rows\s*:/);
