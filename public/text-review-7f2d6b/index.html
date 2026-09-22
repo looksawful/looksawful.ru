@@ -146,7 +146,7 @@ function render(){
   '<section class="sheet"><div class="kicker">'+badges+'</div><h1>'+esc(item.section)+'</h1>'+
   renderCurrent(item)+
   '<div class="options">'+options+'</div>'+
-  (item.allowCustom?'<button class="custom-toggle" id="custom-toggle">Свой вариант</button><div class="custom-panel '+(customOpen||answer?.option_id==='custom'?'open':'')+'"><textarea id="custom-text" placeholder="Напиши свой вариант…">'+esc(customText)+'</textarea><button class="save-custom" id="save-custom">Сохранить свой вариант</button></div>':'')+
+  '<button class="custom-toggle" id="custom-toggle">Свой вариант</button><div class="custom-panel '+(customOpen||answer?.option_id==='custom'?'open':'')+'"><textarea id="custom-text" placeholder="Напиши свой вариант…">'+esc(customText)+'</textarea><button class="save-custom" id="save-custom">Сохранить свой вариант</button></div>'+
   '</section>'+
   '<footer class="footer"><button class="nav" id="prev" '+(index===0?'disabled':'')+'>←</button><div class="status" id="status">'+(answer?'Сохранено':'Не решено')+' · '+done+'/'+total+'</div><button class="nav" id="next" '+(index===items.length-1?'disabled':'')+'>→</button></footer>';
 
