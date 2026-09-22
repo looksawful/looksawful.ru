@@ -1,4 +1,3 @@
-import { projects } from "../../data/catalog/projects/index.ts";
 import {
   getGalleryItems,
   getGalleryModelItems,
@@ -26,12 +25,6 @@ function groupBySeries(
   return [...groups].map(([id, seriesItems]) => ({ id, items: seriesItems }));
 }
 
-function seriesTitle(id: string, items: readonly GalleryItem[]): string {
-  return projects.find((project) => project.id === id)?.name
-    ?? items[0]?.title
-    ?? "Серия";
-}
-
 function renderGalleryCard(item: GalleryItem): string {
   const srcset = responsiveImageSrcSet(item.asset);
   const srcsetAttribute = srcset ? ` srcset="${escapeHtml(srcset)}"` : "";
@@ -57,23 +50,18 @@ function renderGalleryModelCard(item: GalleryModelItem): string {
 
 function renderGallerySeries(items: readonly GalleryItem[]): string {
   return groupBySeries(items)
-    .map(({ id, items: seriesItems }, index) => {
-      const headingId = `gallery-series-${index + 1}`;
-      return `<section class="gallery-series" data-gallery-series="${escapeHtml(id)}" aria-labelledby="${headingId}">
-  <h2 class="gallery-series__title" id="${headingId}">${escapeHtml(seriesTitle(id, seriesItems))}</h2>
+    .map(({ id, items: seriesItems }) => `<section class="gallery-series" data-gallery-series="${escapeHtml(id)}">
   <div class="gallery-series__grid" data-gallery-series-grid>
     ${seriesItems.map(renderGalleryCard).join("\n    ")}
   </div>
-</section>`;
-    })
+</section>`)
     .join("\n");
 }
 
 function renderGalleryModelSeries(items: readonly GalleryModelItem[]): string {
   if (!items.length) return "";
 
-  return `<section class="gallery-series gallery-series--models" data-gallery-series="${escapeHtml(items[0].seriesId)}" aria-labelledby="gallery-series-models">
-  <h2 class="gallery-series__title" id="gallery-series-models">Jestei Pool 3D symbols</h2>
+  return `<section class="gallery-series gallery-series--models" data-gallery-series="${escapeHtml(items[0].seriesId)}">
   <div class="gallery-series__grid" data-gallery-series-grid>
     ${items.map(renderGalleryModelCard).join("\n    ")}
   </div>
