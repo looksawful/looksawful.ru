@@ -294,6 +294,14 @@ function decisionForPath(
     );
   }
 
+  if (/^src\//u.test(path) && interactivePattern.test(path)) {
+    return allCasesDecision(
+      "interactive",
+      "Interactive",
+      `Interactive/runtime source changed without narrower Case ownership: ${path}`,
+    );
+  }
+
   if (change.userVisibleText === true) {
     return allCasesDecision("ambiguous", "Quick", `User-visible text changed without narrower Case ownership: ${path}`);
   }
