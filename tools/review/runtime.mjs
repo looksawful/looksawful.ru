@@ -207,22 +207,13 @@ async function primeLazyMedia(page) {
 
     document.querySelectorAll("video").forEach((video) => {
       video.preload = "auto";
-      let sourceChanged = false;
 
-      if (!video.getAttribute("src") && video.dataset.src) {
-        video.setAttribute("src", video.dataset.src);
-        sourceChanged = true;
-      }
-
-      video.querySelectorAll("source[data-src]").forEach((source) => {
-        if (source.getAttribute("src")) return;
-        const deferredSource = source.getAttribute("data-src");
-        if (!deferredSource) return;
-        source.setAttribute("src", deferredSource);
-        sourceChanged = true;
-      });
-
-      if (sourceChanged || video.readyState === HTMLMediaElement.HAVE_NOTHING) {
+      // Review capture must observe the production-authored media URL state,
+      // never promote untrusted data-* values into active URL attributes.
+      const hasAuthoredSource =
+        Boolean(video.getAttribute("src")) ||
+        Boolean(video.querySelector("source[src]"));
+      if (hasAuthoredSource && video.readyState === HTMLMediaElement.HAVE_NOTHING) {
         video.load();
       }
     });
