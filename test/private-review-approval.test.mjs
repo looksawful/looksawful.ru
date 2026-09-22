@@ -137,17 +137,17 @@ async function createReview(bucket, sourceSha = SOURCE_SHA, now = NOW) {
 
 test("approval is owner-only and promotes an exact Case+SHA baseline", async () => {
   const bucket = new MemoryReviewStorage();
-  await createReview(bucket);
+  const review = await createReview(bucket);
 
   const forbidden = await handleReviewRequest({
-    request: approvalRequest(),
+    request: approvalRequest(SOURCE_SHA, review.reviewId),
     env: { REVIEW_STORAGE: bucket },
     now: () => NOW,
   });
   assert.equal(forbidden.status, 403);
 
   const approved = await handleReviewRequest({
-    request: approvalRequest(),
+    request: approvalRequest(SOURCE_SHA, review.reviewId),
     env: { REVIEW_STORAGE: bucket },
     session: OWNER_SESSION,
     now: () => NOW,
@@ -157,12 +157,14 @@ test("approval is owner-only and promotes an exact Case+SHA baseline", async () 
   assert.equal(payload.promotionId, undefined, "private promotion identifiers must not leak");
   assert.deepEqual(
     {
+      reviewId: payload.reviewId,
       caseId: payload.caseId,
       sourceSha: payload.sourceSha,
       reviewDepth: payload.reviewDepth,
       approvedAt: payload.approvedAt,
     },
     {
+      reviewId: review.reviewId,
       caseId: CASE_ID,
       sourceSha: SOURCE_SHA,
       reviewDepth: "quick",
@@ -173,7 +175,9 @@ test("approval is owner-only and promotes an exact Case+SHA baseline", async () 
   const state = bucket.object(`review-hub/v1/state/${CASE_ID}.json`);
   assert.ok(state, "Case state must persist");
   const statePayload = JSON.parse(new TextDecoder().decode(state.bytes));
+  assert.equal(statePayload.current.reviewId, review.reviewId);
   assert.equal(statePayload.current.sourceSha, SOURCE_SHA);
+  assert.equal(statePayload.baseline.reviewId, review.reviewId);
   assert.equal(statePayload.baseline.sourceSha, SOURCE_SHA);
   assert.equal(statePayload.baseline.reviewDepth, "quick");
   assert.equal(
@@ -218,10 +222,10 @@ test("approval is owner-only and promotes an exact Case+SHA baseline", async () 
 
 test("stale SHA approval fails closed and cannot replace the Case baseline", async () => {
   const bucket = new MemoryReviewStorage();
-  await createReview(bucket);
+  const review = await createReview(bucket);
 
   const stale = await handleReviewRequest({
-    request: approvalRequest(STALE_SHA),
+    request: approvalRequest(STALE_SHA, review.reviewId),
     env: { REVIEW_STORAGE: bucket },
     session: OWNER_SESSION,
     now: () => NOW,
@@ -240,15 +244,15 @@ test("stale SHA approval fails closed and cannot replace the Case baseline", asy
 
 test("temporary review evidence carries four-day retention while approved copies do not", async () => {
   const bucket = new MemoryReviewStorage();
-  await createReview(bucket);
+  const review = await createReview(bucket);
 
   const temporaryEvidence = bucket.object(
-    `review-hub/v1/cases/${CASE_ID}/${SOURCE_SHA}/evidence/desktop`,
+    `review-hub/v1/cases/${CASE_ID}/${SOURCE_SHA}/reviews/${review.reviewId}/evidence/desktop`,
   );
   assert.equal(temporaryEvidence?.customMetadata?.expiresAt, FOUR_DAYS_LATER);
 
   await handleReviewRequest({
-    request: approvalRequest(),
+    request: approvalRequest(SOURCE_SHA, review.reviewId),
     env: { REVIEW_STORAGE: bucket },
     session: OWNER_SESSION,
     now: () => NOW,
@@ -268,7 +272,9 @@ test("temporary review evidence carries four-day retention while approved copies
   });
   assert.equal(expiredReview.status, 404);
   assert.equal(
-    bucket.object(`review-hub/v1/cases/${CASE_ID}/${SOURCE_SHA}/evidence/desktop`),
+    bucket.object(
+      `review-hub/v1/cases/${CASE_ID}/${SOURCE_SHA}/reviews/${review.reviewId}/evidence/desktop`,
+    ),
     null,
   );
   assert.equal(
@@ -296,6 +302,7 @@ test("Review Hub approval UI binds the displayed review and handles stale approv
   assert.match(html, /id="review-approve"/);
   assert.match(html, /id="review-approval-status"/);
   assert.match(client, /\/lab\/review\/approval/);
+  assert.match(client, /reviewId:\s*manifest\.reviewId/);
   assert.match(client, /caseId:\s*manifest\.caseId/);
   assert.match(client, /sourceSha:\s*manifest\.sourceSha/);
   assert.match(client, /reviewDepth:\s*manifest\.reviewDepth/);
@@ -305,11 +312,11 @@ test("Review Hub approval UI binds the displayed review and handles stale approv
 
 test("failed final baseline promotion rolls back durable copies and approval record", async () => {
   const bucket = new MemoryReviewStorage();
-  await createReview(bucket);
+  const review = await createReview(bucket);
   bucket.failNextPutFor(`review-hub/v1/state/${CASE_ID}.json`);
 
   const response = await handleReviewRequest({
-    request: approvalRequest(),
+    request: approvalRequest(SOURCE_SHA, review.reviewId),
     env: { REVIEW_STORAGE: bucket },
     session: OWNER_SESSION,
     now: () => NOW,
@@ -334,10 +341,10 @@ test("failed final baseline promotion rolls back durable copies and approval rec
 
 test("failed re-approval never destroys the previously visible Case baseline", async () => {
   const bucket = new MemoryReviewStorage();
-  await createReview(bucket);
+  const review = await createReview(bucket);
 
   const first = await handleReviewRequest({
-    request: approvalRequest(),
+    request: approvalRequest(SOURCE_SHA, review.reviewId),
     env: { REVIEW_STORAGE: bucket },
     session: OWNER_SESSION,
     now: () => NOW,
@@ -346,7 +353,7 @@ test("failed re-approval never destroys the previously visible Case baseline", a
 
   bucket.failNextPutFor(`review-hub/v1/state/${CASE_ID}.json`);
   const second = await handleReviewRequest({
-    request: approvalRequest(),
+    request: approvalRequest(SOURCE_SHA, review.reviewId),
     env: { REVIEW_STORAGE: bucket },
     session: OWNER_SESSION,
     now: () => NOW + 1_000,
@@ -368,7 +375,7 @@ test("failed re-approval never destroys the previously visible Case baseline", a
 
 test("superseding review during the final Case promotion makes approval fail closed", async () => {
   const bucket = new MemoryReviewStorage();
-  await createReview(bucket);
+  const review = await createReview(bucket);
 
   bucket.beforeNextPutFor(
     `review-hub/v1/state/${CASE_ID}.json`,
@@ -378,7 +385,7 @@ test("superseding review during the final Case promotion makes approval fail clo
   );
 
   const response = await handleReviewRequest({
-    request: approvalRequest(),
+    request: approvalRequest(SOURCE_SHA, review.reviewId),
     env: { REVIEW_STORAGE: bucket },
     session: OWNER_SESSION,
     now: () => NOW + 1_000,
