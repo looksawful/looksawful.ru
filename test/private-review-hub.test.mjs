@@ -33,6 +33,10 @@ class MemoryReviewStorage {
       text: async () => new TextDecoder().decode(object.bytes),
     };
   }
+
+  keysWithPrefix(prefix) {
+    return [...this.#objects.keys()].filter((key) => key.startsWith(prefix));
+  }
 }
 
 function manifest() {
@@ -162,4 +166,41 @@ test("Review Hub is inside the authenticated Lab boundary and renders Case revie
   assert.match(styles, /focus-visible/);
   assert.match(styles, /overflow-wrap:\s*anywhere/);
   assert.doesNotMatch(client, /localStorage|sessionStorage/);
+});
+
+
+test("recapturing the same Case SHA creates a distinct immutable Review", async () => {
+  const bucket = new MemoryReviewStorage();
+
+  const firstResponse = await handleReviewRequest({
+    request: uploadRequest(),
+    env: { REVIEW_STORAGE: bucket },
+  });
+  assert.equal(firstResponse.status, 201);
+  const first = await firstResponse.json();
+
+  const secondResponse = await handleReviewRequest({
+    request: uploadRequest(),
+    env: { REVIEW_STORAGE: bucket },
+  });
+  assert.equal(secondResponse.status, 201);
+  const second = await secondResponse.json();
+
+  assert.match(first.reviewId, /^[0-9a-f-]{36}$/u);
+  assert.match(second.reviewId, /^[0-9a-f-]{36}$/u);
+  assert.notEqual(second.reviewId, first.reviewId);
+
+  const reviewObjects = bucket.keysWithPrefix(
+    `review-hub/v1/cases/awful-mockups/${SOURCE_SHA}/reviews/`,
+  );
+  assert.equal(
+    reviewObjects.filter((key) => key.endsWith("/manifest.json")).length,
+    2,
+    "each capture keeps its own immutable manifest",
+  );
+  assert.equal(
+    reviewObjects.filter((key) => key.endsWith("/evidence/desktop")).length,
+    2,
+    "each capture keeps its own immutable evidence",
+  );
 });
