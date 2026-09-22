@@ -30,7 +30,7 @@ const html = renderGalleryPage(galleryPage);
 test("Gallery renderer exposes one visible page heading inside the shared page shell", () => {
   assert.match(html, /<body[^>]*data-page-type="gallery"[^>]*>/);
   assert.match(html, /data-site-navigation/);
-  assert.match(html, /<main>/);
+  assert.match(html, /<main\b[^>]*>/);
   assert.match(html, /<section[^>]*data-gallery/);
   assert.match(html, /<h1 class="gallery__title">Gallery<\/h1>/);
   assert.equal((html.match(/<h1\b/g) ?? []).length, 1);
