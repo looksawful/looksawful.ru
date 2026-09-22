@@ -11,6 +11,7 @@ type ReviewEvidence = {
 
 type ReviewManifest = {
   version: 1;
+  reviewId: string;
   caseId: string;
   sourceSha: string;
   reviewDepth: ReviewDepth;
@@ -20,6 +21,7 @@ type ReviewManifest = {
 
 type ApprovalRecord = {
   version: 1;
+  reviewId: string;
   caseId: string;
   sourceSha: string;
   reviewDepth: ReviewDepth;
@@ -27,6 +29,7 @@ type ApprovalRecord = {
   approvedBy: string;
 };
 
+const REVIEW_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/u;
 const CASE_ID = /^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$/u;
 const SOURCE_SHA = /^[0-9a-f]{40}$/u;
 const EVIDENCE_ID = /^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$/u;
@@ -118,6 +121,8 @@ function isManifest(value: unknown): value is ReviewManifest {
   const candidate = value as Record<string, unknown>;
   return (
     candidate.version === 1 &&
+    typeof candidate.reviewId === "string" &&
+    REVIEW_ID.test(candidate.reviewId) &&
     typeof candidate.caseId === "string" &&
     CASE_ID.test(candidate.caseId) &&
     typeof candidate.sourceSha === "string" &&
@@ -138,6 +143,8 @@ function isApprovalRecord(value: unknown): value is ApprovalRecord {
   const candidate = value as Record<string, unknown>;
   return (
     candidate.version === 1 &&
+    typeof candidate.reviewId === "string" &&
+    REVIEW_ID.test(candidate.reviewId) &&
     typeof candidate.caseId === "string" &&
     CASE_ID.test(candidate.caseId) &&
     typeof candidate.sourceSha === "string" &&
@@ -199,6 +206,7 @@ function renderEvidence(manifest: ReviewManifest): void {
 
 function sameApproval(record: ApprovalRecord, manifest: ReviewManifest): boolean {
   return (
+    record.reviewId === manifest.reviewId &&
     record.caseId === manifest.caseId &&
     record.sourceSha === manifest.sourceSha &&
     record.reviewDepth === manifest.reviewDepth
@@ -256,7 +264,7 @@ async function loadBaselineStatus(manifest: ReviewManifest): Promise<void> {
       button.textContent = "Approved";
     }
     setApprovalStatus(
-      `Approved ${approvalTimestamp(payload.approvedAt)} for this exact Case, SHA and depth.`,
+      `Approved ${approvalTimestamp(payload.approvedAt)} for this exact Review.`,
       "ready",
     );
     return;
@@ -287,6 +295,7 @@ async function approveCurrentReview(): Promise<void> {
       },
       cache: "no-store",
       body: JSON.stringify({
+        reviewId: manifest.reviewId,
         caseId: manifest.caseId,
         sourceSha: manifest.sourceSha,
         reviewDepth: manifest.reviewDepth,
@@ -331,7 +340,7 @@ async function approveCurrentReview(): Promise<void> {
 
   button.textContent = "Approved";
   setApprovalStatus(
-    `Approved ${approvalTimestamp(payload.approvedAt)} for this exact Case, SHA and depth.`,
+    `Approved ${approvalTimestamp(payload.approvedAt)} for this exact Review.`,
     "ready",
   );
 }
