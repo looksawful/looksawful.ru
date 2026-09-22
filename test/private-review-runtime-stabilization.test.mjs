@@ -51,6 +51,7 @@ test("deterministic CSS freezes visual motion without hiding content", () => {
   const style = createDeterministicCaptureStyle();
 
   assert.match(style, /animation-play-state:\s*paused/i);
+  assert.match(style, /animation-duration:\s*0s/i);
   assert.match(style, /transition-duration:\s*0s/i);
   assert.match(style, /scroll-behavior:\s*auto/i);
   assert.match(style, /caret-color:\s*transparent/i);
