@@ -208,8 +208,11 @@ function normalizedDeclarationMatch(
     };
   }
 
-  const normalized = normalizeRepositoryPath(declaration.pathPrefix);
-  const prefix = normalized.path.endsWith("/") ? normalized.path : `${normalized.path}/`;
+  const prefixInput = declaration.pathPrefix
+    .replaceAll("\\", "/")
+    .replace(/\/+$/u, "");
+  const normalized = normalizeRepositoryPath(prefixInput);
+  const prefix = `${normalized.path}/`;
   return {
     matches: !normalized.unsafe && path.startsWith(prefix),
     specificity: prefix.length,
