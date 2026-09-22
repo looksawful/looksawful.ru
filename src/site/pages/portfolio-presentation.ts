@@ -9,7 +9,7 @@ export interface PortfolioPresentation {
   flagship: readonly PortfolioEntityPageId[];
   featured: readonly PortfolioEntityPageId[];
   archive: readonly PortfolioEntityPageId[];
-  projectIndex: readonly PortfolioEntityPageId[];
+  projectIndexExtras: readonly PortfolioEntityPageId[];
   workShortcuts: readonly PortfolioEntityPageId[];
 }
 
@@ -19,24 +19,11 @@ export const portfolioPresentation = {
     "case:styx",
     "case:sensetique",
   ],
-  featured: [
-    "project:awful-cases",
-    "project:moves-awful",
-    "project:awful-studio",
-    "project:awful-3d-mockups",
-  ],
-  archive: [
-    "project:berry-social-content-2020",
-  ],
-  projectIndex: [
-    "case:jestei-pool",
-    "case:styx",
-    "case:sensetique",
+  // Editorial membership is deliberately empty until Wayfinder #1143 is resolved.
+  featured: [],
+  archive: [],
+  projectIndexExtras: [
     "collection:music-photography",
-    "project:awful-cases",
-    "project:moves-awful",
-    "project:awful-studio",
-    "project:awful-3d-mockups",
   ],
   workShortcuts: [
     "case:jestei-pool",
@@ -45,6 +32,16 @@ export const portfolioPresentation = {
     "collection:music-photography",
   ],
 } as const satisfies PortfolioPresentation;
+
+export function getProjectIndexPageIds(
+  presentation: PortfolioPresentation = portfolioPresentation,
+): readonly PortfolioEntityPageId[] {
+  return [
+    ...presentation.flagship,
+    ...presentation.featured,
+    ...presentation.projectIndexExtras,
+  ];
+}
 
 function requireEntityPage(
   id: PortfolioEntityPageId | string,
@@ -83,7 +80,7 @@ export function validatePortfolioPresentation(
   for (const id of [
     ...presentation.featured,
     ...presentation.archive,
-    ...presentation.projectIndex,
+    ...presentation.projectIndexExtras,
     ...presentation.workShortcuts,
   ]) {
     requireEntityPage(id, pages);
@@ -92,11 +89,10 @@ export function validatePortfolioPresentation(
   assertUnique("Flagship", presentation.flagship);
   assertUnique("Featured", presentation.featured);
   assertUnique("Archive", presentation.archive);
-  assertUnique("Project index", presentation.projectIndex);
+  assertUnique("Project index", getProjectIndexPageIds(presentation));
   assertUnique("Work shortcut", presentation.workShortcuts);
 
-  const mainTier = new Set<string>();
-  for (const id of presentation.flagship) mainTier.add(id);
+  const mainTier = new Set<string>(presentation.flagship);
   for (const id of presentation.featured) {
     if (mainTier.has(id)) throw new Error(`Duplicate portfolio main-tier page id: ${id}`);
     mainTier.add(id);
