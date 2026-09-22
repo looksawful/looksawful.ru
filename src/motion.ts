@@ -193,6 +193,17 @@ function removePendingTargets(
 }
 
 function createGlobalReveals(root: MotionRoot): () => void {
+  const documentElement =
+    root instanceof Document
+      ? root.documentElement
+      : root instanceof Element
+        ? root.ownerDocument.documentElement
+        : document.documentElement;
+
+  if (documentElement.getAttribute("data-review-capture") === "deterministic") {
+    return noop;
+  }
+
   const targets = [...root.querySelectorAll<HTMLElement>(`[${REVEAL_ATTRIBUTE}]`)].filter(
     (element) => !isAuthoredHidden(element) && revealKindFor(element),
   );
