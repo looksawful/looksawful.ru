@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { execFileSync } from "node:child_process";
+import { spawnSync } from "node:child_process";
 import { access, readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -10,30 +10,39 @@ const workflowsDir = path.join(root, ".github/workflows");
 const legacyWorkflow = path.join(workflowsDir, "pr-preview.yml");
 const legacyCaptionWorkflow = path.join(workflowsDir, "caption-qa.yml");
 const policyPath = path.join(root, "docs/agents/public-reporting.md");
-const trackedTextPattern = /\.(?:cjs|conf|css|csv|gql|graphql|html|ini|js|json|md|mjs|ps1|sh|svg|toml|ts|tsx|txt|xml|ya?ml)$/iu;
-const scanAllowlist = new Set([
-  // This contract contains synthetic forbidden literals by definition.
-  "test/public-review-privacy-policy.test.mjs",
-]);
-
 const forbidden = [
-  ["legacy public preview project", /looksawful-ru-preview/iu],
-  ["public Pages preview hostname", /pages\.dev/iu],
-  ["legacy public preview comment marker", /looksawful-cloudflare-pr-preview/iu],
+  { label: "legacy public preview project", literal: "looksawful-ru-preview" },
+  { label: "public Pages preview hostname", literal: "pages.dev" },
+  { label: "legacy public preview comment marker", literal: "looksawful-cloudflare-pr-preview" },
 ];
 
-function trackedTextFiles() {
-  const tracked = execFileSync("git", ["ls-files", "-z"], {
-    cwd: root,
-    encoding: "utf8",
-  });
+function trackedMatches(literal) {
+  const result = spawnSync(
+    "git",
+    [
+      "grep",
+      "-I",
+      "-l",
+      "-F",
+      literal,
+      "--",
+      ".",
+      ":(exclude)test/public-review-privacy-policy.test.mjs",
+    ],
+    {
+      cwd: root,
+      encoding: "utf8",
+    },
+  );
 
-  return tracked
-    .split("\0")
-    .filter(Boolean)
-    .filter((relative) => trackedTextPattern.test(relative))
-    .filter((relative) => !scanAllowlist.has(relative))
-    .map((relative) => path.join(root, relative));
+  assert.ok(
+    result.status === 0 || result.status === 1,
+    `git grep failed while scanning public repository text: ${result.stderr}`,
+  );
+
+  return result.status === 0
+    ? result.stdout.split(/\r?\n/u).filter(Boolean)
+    : [];
 }
 
 function topLevelBlock(source, key) {
@@ -252,13 +261,9 @@ test("public automation has no pre-production review publication path", async ()
   await assert.rejects(access(legacyWorkflow), (error) => error?.code === "ENOENT");
   await assert.rejects(access(legacyCaptionWorkflow), (error) => error?.code === "ENOENT");
 
-  const files = trackedTextFiles();
-  for (const file of files) {
-    const source = await readFile(file, "utf8");
-    const relative = path.relative(root, file).replaceAll(path.sep, "/");
-    for (const [label, pattern] of forbidden) {
-      assert.doesNotMatch(source, pattern, `${relative} reintroduces ${label}`);
-    }
+  for (const { label, literal } of forbidden) {
+    const matches = trackedMatches(literal);
+    assert.deepEqual(matches, [], `${matches.join(", ")} reintroduces ${label}`);
   }
 });
 
