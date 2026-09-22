@@ -101,11 +101,11 @@ test("motion material-difference rules are derived from component declarations",
 });
 
 test("runtime matrix accepts only the exact #1091 review-depth values", () => {
-  for (const depth of ["Quick", "Interactive", "Full"]) {
+  for (const depth of ["quick", "interactive", "full"]) {
     assert.doesNotThrow(() => buildReviewRuntimeMatrix({ reviewDepth: depth }));
   }
 
-  for (const depth of ["quick", "interactive", "full"]) {
+  for (const depth of ["Quick", "Interactive", "Full"]) {
     assert.throws(
       () => buildReviewRuntimeMatrix({ reviewDepth: depth }),
       /Unsupported review depth/,
