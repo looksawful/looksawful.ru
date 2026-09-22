@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { contextualMediaCatalogItems } from "../src/data/media/catalog-view.ts";
+import { resolveGalleryCuration } from "../src/data/media/gallery-curation.ts";
 import { catalogDirectionIdsForTaxonomy } from "../src/data/media/public-catalog.ts";
 import { getPageByPath, sitePages } from "../src/site/pages/manifest.ts";
 import { PRIMARY_NAVIGATION_PAGE_IDS } from "../src/site/navigation/primary.ts";
@@ -182,6 +183,128 @@ test("Gallery projection keeps intrinsic dimensions and stable series", async ()
     assert.ok(item.seriesId.length > 0, `${item.id} has no stable series id`);
     assert.ok(Number.isInteger(item.seriesOrder) && item.seriesOrder >= 0, `${item.id} has invalid series order`);
   }
+});
+
+test("Gallery typed curation resolves canonical mixed media and preserves editorial boundaries", () => {
+  const placements = resolveGalleryCuration([
+    {
+      id: "jestei-track-filter-proof",
+      projectId: "jestei-track-filter",
+      placements: [
+        {
+          assetId: "jestei-08-source-05-407x425",
+          featured: true,
+          crop: { aspectRatio: 1.5, positionX: 40, positionY: 65 },
+        },
+        { assetId: "jestei-13-source-01-16x9" },
+        {
+          assetId: "jestei-08-source-11-637x419",
+          slideAssetIds: ["jestei-10-source-09-449x337"],
+        },
+      ],
+    },
+    {
+      id: "jestei-brand-model-proof",
+      projectId: "jestei-brand-system",
+      placements: [{
+        assetId: "jestei-theme-organism-model",
+        posterAssetId: "jestei-logo-source-logo-jestei-pool",
+      }],
+    },
+  ], contextualMediaCatalogItems);
+
+  assert.deepEqual(
+    placements.map(({ itemId, seriesId, seriesOrder, itemOrder, featured }) => ({
+      itemId,
+      seriesId,
+      seriesOrder,
+      itemOrder,
+      featured,
+    })),
+    [
+      {
+        itemId: "jestei-08-source-05-407x425",
+        seriesId: "jestei-track-filter-proof",
+        seriesOrder: 0,
+        itemOrder: 0,
+        featured: true,
+      },
+      {
+        itemId: "jestei-13-source-01-16x9",
+        seriesId: "jestei-track-filter-proof",
+        seriesOrder: 0,
+        itemOrder: 1,
+        featured: false,
+      },
+      {
+        itemId: "jestei-08-source-11-637x419",
+        seriesId: "jestei-track-filter-proof",
+        seriesOrder: 0,
+        itemOrder: 2,
+        featured: false,
+      },
+      {
+        itemId: "jestei-theme-organism-model",
+        seriesId: "jestei-brand-model-proof",
+        seriesOrder: 1,
+        itemOrder: 0,
+        featured: false,
+      },
+    ],
+  );
+  assert.deepEqual(placements[0].crop, {
+    aspectRatio: 1.5,
+    positionX: 40,
+    positionY: 65,
+  });
+  assert.equal(placements[1].media[0].kind, "video");
+  assert.ok(placements[1].media[0].posterSrc);
+  assert.deepEqual(
+    placements[2].media.map(({ assetId }) => assetId),
+    ["jestei-08-source-11-637x419", "jestei-10-source-09-449x337"],
+  );
+  assert.equal(placements[3].media[0].kind, "model");
+});
+
+test("Gallery typed curation fails closed on ambiguous or invalid editorial identity", () => {
+  assert.throws(
+    () => resolveGalleryCuration([
+      {
+        id: "duplicate",
+        projectId: "jestei-track-filter",
+        placements: [
+          { assetId: "jestei-08-source-05-407x425" },
+          { assetId: "jestei-08-source-05-407x425" },
+        ],
+      },
+    ], contextualMediaCatalogItems),
+    /duplicate canonical asset/i,
+  );
+
+  assert.throws(
+    () => resolveGalleryCuration([
+      {
+        id: "wrong-owner",
+        projectId: "jestei-brand-system",
+        placements: [{ assetId: "jestei-13-source-01-16x9" }],
+      },
+    ], contextualMediaCatalogItems),
+    /not owned by project/i,
+  );
+
+  assert.throws(
+    () => resolveGalleryCuration([
+      {
+        id: "crop-without-featured",
+        projectId: "jestei-track-filter",
+        placements: [{
+          assetId: "jestei-08-source-05-407x425",
+          crop: { aspectRatio: 1.5, positionX: 50, positionY: 50 },
+        }],
+      },
+    ], contextualMediaCatalogItems),
+    /crop.*featured/i,
+  );
 });
 
 test("Gallery URL state owns canonical item id plus optional 1-based slide", async () => {
