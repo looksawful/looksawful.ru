@@ -7,6 +7,7 @@ import {
   homepageEntries,
 } from "../src/site/pages/homepage.ts";
 import { getPageByPath } from "../src/site/pages/manifest.ts";
+import { portfolioPresentation } from "../src/site/pages/portfolio-presentation.ts";
 import { renderStandaloneEntityPage } from "../src/site/renderers/entity-page.ts";
 import { renderHomepagePage } from "../src/site/renderers/home/home-page.ts";
 
@@ -109,8 +110,21 @@ test("project preview CTA uses compact desktop sizing and full-width mobile sizi
 });
 
 
-test("homepage keeps the existing lower-priority project section after the three Flagship previews", () => {
+test("homepage keeps unresolved Featured membership fail-closed", () => {
   const homepage = renderHomepagePage(indexSource);
+  assert.doesNotMatch(homepage, /class="pet-projects"/);
+});
+
+test("homepage Featured section is driven only by portfolio presentation membership", () => {
+  const homepage = renderHomepagePage(indexSource, {
+    ...portfolioPresentation,
+    featured: [
+      "project:awful-cases",
+      "project:moves-awful",
+      "collection:music-photography",
+    ],
+  });
+
   const positions = [
     homepage.indexOf('class="hero"'),
     homepage.indexOf('class="projects-grid"'),
@@ -122,4 +136,9 @@ test("homepage keeps the existing lower-priority project section after the three
 
   assert.ok(positions.every((position) => position >= 0), `missing homepage layer: ${positions.join(", ")}`);
   assert.deepEqual([...positions].sort((a, b) => a - b), positions);
+  assert.match(homepage, /class="pet-projects"[^>]*aria-labelledby="featured-projects-title"/);
+  assert.match(homepage, /href="\/work\/awful-cases\/"/);
+  assert.match(homepage, /href="\/work\/moves-awful\/"/);
+  assert.match(homepage, /href="\/shootings\/"/);
+  assert.doesNotMatch(homepage, /href="\/work\/berserk-timer\/"/);
 });
