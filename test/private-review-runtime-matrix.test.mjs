@@ -146,6 +146,17 @@ test("dynamic review state contracts reject implicit canvas/WebGL/gallery stabil
     /stable/i,
   );
 
+  assert.throws(
+    () => validateDynamicReviewState({
+      id: "unsafe-canvas",
+      kind: "canvas",
+      selector: "[data-review-canvas]",
+      ready: { attribute: "src", value: "ready" },
+      stable: { attribute: "style", value: "stable" },
+    }),
+    /data-/i,
+  );
+
   assert.deepEqual(
     validateDynamicReviewState({
       id: "device-model",
