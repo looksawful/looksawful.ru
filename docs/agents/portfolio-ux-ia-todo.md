@@ -1,7 +1,7 @@
 # Portfolio UX / IA rollout
 
 Source spec: `docs/superpowers/specs/2026-09-21-portfolio-ux-ia.md`
-Detailed plan: `tasks/plan.md`
+Detailed plan: `docs/superpowers/plans/2026-09-21-portfolio-ux-ia-rollout.md`
 
 ## Phase 1 — Portfolio model + Work
 
