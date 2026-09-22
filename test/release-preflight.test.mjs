@@ -209,6 +209,321 @@ test("release preflight rejects a touched file that drops clean prod-only change
   }
 });
 
+test("release preflight ignores unrelated merge conflicts when approved overlap reconciles cleanly", () => {
+  const cwd = createRepo();
+  try {
+    writeFileSync(path.join(cwd, "src/index.ts"), [
+      "export const value = 1;",
+      "export const stable = true;",
+      "",
+    ].join("\n"));
+    writeFileSync(path.join(cwd, "notes.txt"), "shared\n");
+    git(cwd, "add", ".");
+    git(cwd, "commit", "-qm", "shared ancestor");
+    const shared = git(cwd, "rev-parse", "HEAD");
+
+    git(cwd, "switch", "-qc", "approved-base");
+    writeFileSync(path.join(cwd, "notes.txt"), "dev-base\n");
+    git(cwd, "add", "notes.txt");
+    git(cwd, "commit", "-qm", "dev base diverges in unrelated file");
+    const approvedBase = git(cwd, "rev-parse", "HEAD");
+
+    writeFileSync(path.join(cwd, "src/index.ts"), [
+      "export const value = 2;",
+      "export const stable = true;",
+      "",
+    ].join("\n"));
+    git(cwd, "add", "src/index.ts");
+    git(cwd, "commit", "-qm", "approved product change");
+    const approvedHead = git(cwd, "rev-parse", "HEAD");
+
+    git(cwd, "switch", "-qc", "prod", shared);
+    writeFileSync(path.join(cwd, "notes.txt"), "prod\n");
+    writeFileSync(path.join(cwd, "src/index.ts"), [
+      "export const value = 1;",
+      "export const stable = true;",
+      "export const prodOnly = true;",
+      "",
+    ].join("\n"));
+    git(cwd, "add", ".");
+    git(cwd, "commit", "-qm", "prod diverges independently");
+    const prod = git(cwd, "rev-parse", "HEAD");
+
+    writeFileSync(path.join(cwd, "src/index.ts"), [
+      "export const value = 2;",
+      "export const stable = true;",
+      "export const prodOnly = true;",
+      "",
+    ].join("\n"));
+    git(cwd, "add", "src/index.ts");
+    git(cwd, "commit", "-qm", "candidate reconciles approved product change");
+    const candidate = git(cwd, "rev-parse", "HEAD");
+
+    const result = spawnSync(process.execPath, [
+      preflightPath,
+      "--repo", cwd,
+      "--prod-base", prod,
+      "--candidate", candidate,
+      "--approved-base", approvedBase,
+      "--approved-head", approvedHead,
+    ], { encoding: "utf8" });
+
+    assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`);
+    assert.match(result.stdout, /RELEASE_PREFLIGHT_OK/);
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test("release preflight uses the approved base when approved work intentionally removes prior state", () => {
+  const cwd = createRepo();
+  try {
+    const shared = git(cwd, "rev-parse", "HEAD");
+
+    git(cwd, "switch", "-qc", "approved-base");
+    writeFileSync(path.join(cwd, "src/index.ts"), [
+      "export const value = 1;",
+      "export const legacy = true;",
+      "export const stableA = true;",
+      "export const stableB = true;",
+      "export const stableC = true;",
+      "",
+    ].join("\n"));
+    git(cwd, "add", "src/index.ts");
+    git(cwd, "commit", "-qm", "approved base contains legacy state");
+    const approvedBase = git(cwd, "rev-parse", "HEAD");
+
+    writeFileSync(path.join(cwd, "src/index.ts"), [
+      "export const value = 2;",
+      "export const stableA = true;",
+      "export const stableB = true;",
+      "export const stableC = true;",
+      "",
+    ].join("\n"));
+    git(cwd, "add", "src/index.ts");
+    git(cwd, "commit", "-qm", "approved work removes legacy state");
+    const approvedHead = git(cwd, "rev-parse", "HEAD");
+
+    git(cwd, "switch", "-qc", "prod", shared);
+    writeFileSync(path.join(cwd, "src/index.ts"), [
+      "export const value = 1;",
+      "export const legacy = true;",
+      "export const stableA = true;",
+      "export const stableB = true;",
+      "export const stableC = true;",
+      "export const prodOnly = true;",
+      "",
+    ].join("\n"));
+    git(cwd, "add", "src/index.ts");
+    git(cwd, "commit", "-qm", "prod retains legacy and adds independent state");
+    const prod = git(cwd, "rev-parse", "HEAD");
+
+    writeFileSync(path.join(cwd, "src/index.ts"), [
+      "export const value = 2;",
+      "export const stableA = true;",
+      "export const stableB = true;",
+      "export const stableC = true;",
+      "export const prodOnly = true;",
+      "",
+    ].join("\n"));
+    git(cwd, "add", "src/index.ts");
+    git(cwd, "commit", "-qm", "candidate applies approved change on prod");
+    const candidate = git(cwd, "rev-parse", "HEAD");
+
+    const result = spawnSync(process.execPath, [
+      preflightPath,
+      "--repo", cwd,
+      "--prod-base", prod,
+      "--candidate", candidate,
+      "--approved-base", approvedBase,
+      "--approved-head", approvedHead,
+    ], { encoding: "utf8" });
+
+    assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`);
+    assert.match(result.stdout, /RELEASE_PREFLIGHT_OK/);
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test("release preflight requires an explicit path for manually reconciled overlap conflicts", () => {
+  const cwd = createRepo();
+  try {
+    const base = git(cwd, "rev-parse", "HEAD");
+
+    git(cwd, "switch", "-qc", "approved");
+    writeFileSync(path.join(cwd, "src/index.ts"), [
+      "export const value = 2;",
+      "",
+    ].join("\n"));
+    git(cwd, "add", "src/index.ts");
+    git(cwd, "commit", "-qm", "approved changes conflicting value");
+    const approved = git(cwd, "rev-parse", "HEAD");
+
+    git(cwd, "switch", "-qc", "prod", base);
+    writeFileSync(path.join(cwd, "src/index.ts"), [
+      "export const value = 3;",
+      "export const prodOnly = true;",
+      "",
+    ].join("\n"));
+    git(cwd, "add", "src/index.ts");
+    git(cwd, "commit", "-qm", "prod changes same value and adds independent state");
+    const prod = git(cwd, "rev-parse", "HEAD");
+
+    writeFileSync(path.join(cwd, "src/index.ts"), [
+      "export const value = 2;",
+      "export const prodOnly = true;",
+      "",
+    ].join("\n"));
+    git(cwd, "add", "src/index.ts");
+    git(cwd, "commit", "-qm", "candidate manually reconciles conflict");
+    const candidate = git(cwd, "rev-parse", "HEAD");
+
+    const blocked = spawnSync(process.execPath, [
+      preflightPath,
+      "--repo", cwd,
+      "--prod-base", prod,
+      "--candidate", candidate,
+      "--approved-base", base,
+      "--approved-head", approved,
+    ], { encoding: "utf8" });
+    assert.equal(blocked.status, 1);
+    assert.match(`${blocked.stdout}\n${blocked.stderr}`, /PROD_OVERLAP_REQUIRES_RECONCILIATION src\/index\.ts/);
+
+    const invalid = spawnSync(process.execPath, [
+      preflightPath,
+      "--repo", cwd,
+      "--prod-base", prod,
+      "--candidate", candidate,
+      "--approved-base", base,
+      "--approved-head", approved,
+      "--reconcile", "notes.txt",
+    ], { encoding: "utf8" });
+    assert.equal(invalid.status, 1);
+    assert.match(`${invalid.stdout}\n${invalid.stderr}`, /INVALID_RECONCILIATION_PATH notes\.txt/);
+
+    const reconciled = spawnSync(process.execPath, [
+      preflightPath,
+      "--repo", cwd,
+      "--prod-base", prod,
+      "--candidate", candidate,
+      "--approved-base", base,
+      "--approved-head", approved,
+      "--reconcile", "src/index.ts",
+    ], { encoding: "utf8" });
+    assert.equal(reconciled.status, 0, `${reconciled.stdout}\n${reconciled.stderr}`);
+    assert.match(reconciled.stdout, /RELEASE_PREFLIGHT_OK/);
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+
+test("release preflight preserves clean prod-only hunks inside an explicitly reconciled file", () => {
+  const cwd = createRepo();
+  try {
+    writeFileSync(path.join(cwd, "src/index.ts"), [
+      "export const conflict = 1;",
+      "export const stableA = true;",
+      "export const stableB = true;",
+      "",
+    ].join("\n"));
+    git(cwd, "add", "src/index.ts");
+    git(cwd, "commit", "-qm", "shared overlap base");
+    const base = git(cwd, "rev-parse", "HEAD");
+
+    git(cwd, "switch", "-qc", "approved");
+    writeFileSync(path.join(cwd, "src/index.ts"), [
+      "export const conflict = 2;",
+      "export const stableA = true;",
+      "export const stableB = true;",
+      "",
+    ].join("\n"));
+    git(cwd, "add", "src/index.ts");
+    git(cwd, "commit", "-qm", "approved changes conflicting line");
+    const approved = git(cwd, "rev-parse", "HEAD");
+
+    git(cwd, "switch", "-qc", "prod", base);
+    writeFileSync(path.join(cwd, "src/index.ts"), [
+      "export const conflict = 3;",
+      "export const stableA = true;",
+      "export const stableB = true;",
+      "export const prodOnly = true;",
+      "",
+    ].join("\n"));
+    git(cwd, "add", "src/index.ts");
+    git(cwd, "commit", "-qm", "prod changes conflict and adds clean hunk");
+    const prod = git(cwd, "rev-parse", "HEAD");
+
+    writeFileSync(path.join(cwd, "src/index.ts"), [
+      "export const conflict = 2;",
+      "export const stableA = true;",
+      "export const stableB = true;",
+      "",
+    ].join("\n"));
+    git(cwd, "add", "src/index.ts");
+    git(cwd, "commit", "-qm", "candidate resolves conflict but drops clean prod hunk");
+    const candidate = git(cwd, "rev-parse", "HEAD");
+
+    const result = spawnSync(process.execPath, [
+      preflightPath,
+      "--repo", cwd,
+      "--prod-base", prod,
+      "--candidate", candidate,
+      "--approved-base", base,
+      "--approved-head", approved,
+      "--reconcile", "src/index.ts",
+    ], { encoding: "utf8" });
+
+    assert.equal(result.status, 1);
+    assert.match(`${result.stdout}\n${result.stderr}`, /PROD_ONLY_CHANGE_DROPPED src\/index\.ts/);
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test("release preflight recognizes overlap conflicts on non-ASCII paths", () => {
+  const cwd = createRepo();
+  try {
+    const file = "src/данные.ts";
+    writeFileSync(path.join(cwd, file), "export const value = 1;\n");
+    git(cwd, "add", file);
+    git(cwd, "commit", "-qm", "shared unicode path");
+    const base = git(cwd, "rev-parse", "HEAD");
+
+    git(cwd, "switch", "-qc", "approved");
+    writeFileSync(path.join(cwd, file), "export const value = 2;\n");
+    git(cwd, "add", file);
+    git(cwd, "commit", "-qm", "approved unicode conflict");
+    const approved = git(cwd, "rev-parse", "HEAD");
+
+    git(cwd, "switch", "-qc", "prod", base);
+    writeFileSync(path.join(cwd, file), "export const value = 3;\n");
+    git(cwd, "add", file);
+    git(cwd, "commit", "-qm", "prod unicode conflict");
+    const prod = git(cwd, "rev-parse", "HEAD");
+
+    writeFileSync(path.join(cwd, file), "export const value = 2;\n");
+    git(cwd, "add", file);
+    git(cwd, "commit", "-qm", "candidate resolves unicode conflict");
+    const candidate = git(cwd, "rev-parse", "HEAD");
+
+    const result = spawnSync(process.execPath, [
+      preflightPath,
+      "--repo", cwd,
+      "--prod-base", prod,
+      "--candidate", candidate,
+      "--approved-base", base,
+      "--approved-head", approved,
+    ], { encoding: "utf8" });
+
+    assert.equal(result.status, 1);
+    assert.match(`${result.stdout}\n${result.stderr}`, /PROD_OVERLAP_REQUIRES_RECONCILIATION src\/данные\.ts/);
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
 test("release preflight rejects a Lab-only file renamed into a product path", () => {
   const cwd = createRepo();
   try {
