@@ -48,7 +48,8 @@ export function renderGalleryResolvedPlacement(
     throw new Error(`Gallery placement "${placement.itemId}" has no media`);
   }
 
-  const featuredAttribute = placement.featured ? " data-gallery-featured" : "";\n  const cropAttribute = cropAttributes(placement);
+  const featuredAttribute = placement.featured ? " data-gallery-featured" : "";
+  const cropAttribute = cropAttributes(placement);
   const kindClass = primary.kind === "image" ? "" : ` gallery-card--${primary.kind}`;
   const label = primary.alt.trim() || primary.title.trim() || placement.itemId;
   const primaryCredits = creditsAttribute(primary.credits);
