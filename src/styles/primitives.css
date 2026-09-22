@@ -1,0 +1,194 @@
+:where(.control, .chip) {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.control {
+  --control-bg: transparent;
+  --control-fg: var(--clr-text);
+  --control-border: var(--clr-border);
+  --control-hover-bg: color-mix(in srgb, var(--clr-text), transparent 94%);
+  --control-active-bg: color-mix(in srgb, var(--clr-text), transparent 88%);
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--size-100);
+  min-block-size: var(--control-size-md);
+  padding-inline: var(--size-300);
+  border: var(--border-width-100) solid var(--control-border);
+  border-radius: var(--radius-100);
+  color: var(--control-fg);
+  background: var(--control-bg);
+  font: inherit;
+  font-size: var(--fs-300);
+  font-weight: var(--fw-600);
+  line-height: var(--lh-ui);
+  text-align: center;
+  text-decoration: none;
+  user-select: none;
+  cursor: pointer;
+  transition:
+    color var(--control-transition-duration) var(--control-ease),
+    background-color var(--control-transition-duration) var(--control-ease),
+    border-color var(--control-transition-duration) var(--control-ease),
+    box-shadow var(--control-transition-duration) var(--control-ease);
+}
+
+.control[data-variant="primary"] {
+  --control-bg: var(--clr-accent);
+  --control-fg: var(--clr-on-accent);
+  --control-border: var(--clr-accent);
+  --control-hover-bg: color-mix(in srgb, var(--clr-accent), var(--clr-text) 12%);
+  --control-active-bg: color-mix(in srgb, var(--clr-accent), var(--clr-text) 20%);
+}
+
+.control[data-variant="secondary"] {
+  --control-bg: var(--clr-surface-raised);
+  --control-border: var(--clr-border-strong);
+}
+
+.control[data-variant="quiet"] {
+  --control-bg: transparent;
+  --control-border: transparent;
+}
+
+.control[data-variant="danger"] {
+  --control-bg: var(--clr-danger);
+  --control-fg: var(--clr-on-danger);
+  --control-border: var(--clr-danger);
+  --control-hover-bg: color-mix(in srgb, var(--clr-danger), var(--clr-text) 12%);
+  --control-active-bg: color-mix(in srgb, var(--clr-danger), var(--clr-text) 20%);
+}
+
+.control[data-size="sm"] {
+  min-block-size: var(--control-size-sm);
+  padding-inline: var(--size-200);
+  font-size: var(--fs-200);
+}
+
+.control[data-size="lg"] {
+  min-block-size: var(--control-size-lg);
+  padding-inline: var(--size-400);
+  font-size: var(--fs-400);
+}
+
+.control[data-shape="round"] {
+  inline-size: var(--control-size-md);
+  padding-inline: 0;
+  border-radius: 999rem;
+}
+
+.control[data-shape="round"][data-size="sm"] {
+  inline-size: var(--control-size-sm);
+}
+
+.control[data-shape="round"][data-size="lg"] {
+  inline-size: var(--control-size-lg);
+}
+
+:where(.control, .chip):focus-visible {
+  outline: var(--border-width-200) solid
+    color-mix(in srgb, var(--clr-accent), transparent 24%);
+  outline-offset: var(--border-width-200);
+}
+
+:where(.control, .chip):is(:disabled, [aria-disabled="true"]) {
+  opacity: 0.46;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.control:active {
+  background: var(--control-active-bg);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--size-100);
+  min-block-size: 2rem;
+  padding-inline: var(--size-200);
+  border: var(--border-width-100) solid var(--clr-border);
+  border-radius: 999rem;
+  color: var(--clr-text-muted);
+  background: var(--clr-surface-raised);
+  font: inherit;
+  font-size: var(--fs-200);
+  font-weight: var(--fw-500);
+  line-height: var(--lh-ui);
+  text-decoration: none;
+  user-select: none;
+  cursor: pointer;
+  transition:
+    color var(--control-transition-duration) var(--control-ease),
+    background-color var(--control-transition-duration) var(--control-ease),
+    border-color var(--control-transition-duration) var(--control-ease);
+}
+
+:where(.control, .chip)[aria-pressed="true"] {
+  color: var(--clr-text);
+  border-color: var(--clr-accent);
+  background: color-mix(in srgb, var(--clr-accent), transparent 88%);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--size-100);
+  min-block-size: 1.75rem;
+  padding-inline: var(--size-200);
+  border: var(--border-width-100) solid var(--clr-border);
+  border-radius: 999rem;
+  color: var(--clr-text-muted);
+  background: var(--clr-surface-raised);
+  font-size: var(--fs-200);
+  font-weight: var(--fw-500);
+  line-height: var(--lh-ui);
+}
+
+.panel {
+  padding: var(--panel-padding, var(--size-300));
+  border: var(--border-width-100) solid var(--clr-border);
+  border-radius: var(--radius-contained);
+  color: inherit;
+  background: var(--clr-bg);
+}
+
+.panel[data-level="plain"] {
+  background: var(--clr-bg);
+}
+
+.panel[data-level="raised"] {
+  background: var(--clr-surface-raised);
+}
+
+.panel[data-level="elevated"] {
+  background: var(--clr-surface-elevated);
+  box-shadow: var(--shadow-surface-elevated);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .control:hover {
+    background: var(--control-hover-bg);
+  }
+
+  .chip:hover {
+    color: var(--clr-text);
+    border-color: var(--clr-border-strong);
+    background: color-mix(in srgb, var(--clr-text), transparent 94%);
+  }
+}
+
+@media (pointer: coarse) {
+  .chip {
+    min-block-size: var(--control-size-sm);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :where(.control, .chip) {
+    transition: none;
+  }
+}
