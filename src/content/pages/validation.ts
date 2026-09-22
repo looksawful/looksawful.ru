@@ -31,7 +31,19 @@ function validateSection(section: Section): void {
   }
 }
 
+function validatePortfolioIntroKind(content: EntityPageContent): void {
+  if (!content.portfolioIntro) return;
+
+  const expectedKind = content.pageId.split(":", 1)[0];
+  if (content.portfolioIntro.kind !== expectedKind) {
+    throw new Error(
+      `Portfolio intro kind must match canonical entity type in ${content.pageId}: expected ${expectedKind}, got ${content.portfolioIntro.kind}`,
+    );
+  }
+}
+
 export function validateEntityPageContent(content: EntityPageContent): void {
+  validatePortfolioIntroKind(content);
   const sectionIds = new Set<string>();
 
   for (const section of content.sections) {
