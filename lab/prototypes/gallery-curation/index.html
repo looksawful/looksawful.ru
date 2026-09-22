@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex,nofollow,noarchive" />
+    <meta name="referrer" content="no-referrer" />
+    <title>Gallery curation prototype</title>
+    <link rel="stylesheet" href="/src/lab/gallery-curation-prototype.css" />
+  </head>
+  <body data-environment="non-production">
+    <main class="prototype" aria-labelledby="prototype-title">
+      <header class="prototype__header">
+        <div>
+          <p class="prototype__kicker">THROWAWAY PROTOTYPE · Gallery decision #1146</p>
+          <h1 id="prototype-title">Gallery curation</h1>
+          <p class="prototype__lede">Один и тот же кандидатный набор в четырёх подачах. Клик по работе включает/исключает её. Никакого сохранения, потому что человечеству иногда полезно не тащить эксперимент в вечность.</p>
+        </div>
+        <a class="prototype__back" href="/lab/">lab</a>
+      </header>
+
+      <section class="prototype__summary" aria-label="Prototype state">
+        <div><span>variant</span><strong data-state-variant></strong></div>
+        <div><span>selected</span><strong data-state-selected></strong></div>
+        <div><span>series</span><strong data-state-series></strong></div>
+      </section>
+
+      <section class="prototype__canvas" data-prototype-canvas></section>
+
+      <aside class="prototype__state" aria-label="Full prototype state">
+        <details>
+          <summary>full state</summary>
+          <pre data-state-json></pre>
+        </details>
+      </aside>
+    </main>
+
+    <nav class="variant-switcher" aria-label="Prototype variants">
+      <button type="button" data-variant="continuous">A continuous</button>
+      <button type="button" data-variant="chapters">B chapters</button>
+      <button type="button" data-variant="editorial">C editorial</button>
+      <button type="button" data-variant="contact">D contact sheet</button>
+      <button type="button" data-reset>reset selection</button>
+    </nav>
+
+    <script type="module" src="/src/lab/gallery-curation-prototype.ts"></script>
+  </body>
+</html>
