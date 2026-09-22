@@ -8,6 +8,7 @@ const REVIEW_DEPTHS = new Map([
 ]);
 const MOTION_VALUES = new Set(["no-preference", "reduce"]);
 const DYNAMIC_KINDS = new Set(["video", "canvas", "webgl", "infinite-gallery"]);
+const REVIEW_STATE_ATTRIBUTE = /^data-[a-z0-9][a-z0-9-]*$/u;
 
 function freezeProfile(profile) {
   return Object.freeze(profile);
@@ -223,8 +224,13 @@ function attributeState(value, label) {
     throw new TypeError(`${label} must declare attribute and value`);
   }
 
+  const attribute = nonEmptyString(value.attribute, `${label}.attribute`);
+  if (!REVIEW_STATE_ATTRIBUTE.test(attribute)) {
+    throw new TypeError(`${label}.attribute must be a data-* review-state attribute`);
+  }
+
   return Object.freeze({
-    attribute: nonEmptyString(value.attribute, `${label}.attribute`),
+    attribute,
     value: nonEmptyString(value.value, `${label}.value`),
   });
 }
