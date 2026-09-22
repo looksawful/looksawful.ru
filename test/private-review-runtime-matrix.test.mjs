@@ -5,7 +5,9 @@ import {
   CANONICAL_REVIEW_PROFILES,
   REVIEW_BROWSER_ROLES,
   buildReviewRuntimeMatrix,
+  resolveMotionDifference,
   validateDynamicReviewState,
+  validateDynamicReviewStateCoverage,
 } from "../tools/review/runtime-matrix.mjs";
 
 const profileIds = CANONICAL_REVIEW_PROFILES.map((profile) => profile.id);
@@ -53,10 +55,13 @@ test("motion evidence duplicates only the capture kind with material difference"
   const matrix = buildReviewRuntimeMatrix({
     reviewDepth: "quick",
     affectedProfiles: ["desktop-1440"],
-    motionDifference: {
-      viewport: true,
-      fullPage: false,
-    },
+    motionStates: [
+      {
+        id: "hero-motion",
+        scope: "viewport",
+        materialDifference: true,
+      },
+    ],
   });
 
   const captures = matrix.filter((row) => row.phase === "capture");
@@ -68,6 +73,30 @@ test("motion evidence duplicates only the capture kind with material difference"
   assert.equal(
     captures.some((row) => row.motion === "reduce" && row.captureKinds.includes("full-page")),
     false,
+  );
+});
+
+test("motion material-difference rules are derived from component declarations", () => {
+  assert.deepEqual(
+    resolveMotionDifference([
+      { id: "hero-motion", scope: "viewport", materialDifference: true },
+      { id: "footer-marquee", scope: "below-fold", materialDifference: false },
+    ]),
+    { viewport: true, fullPage: true },
+  );
+
+  assert.deepEqual(
+    resolveMotionDifference([
+      { id: "footer-marquee", scope: "below-fold", materialDifference: true },
+    ]),
+    { viewport: false, fullPage: true },
+  );
+
+  assert.deepEqual(
+    resolveMotionDifference([
+      { id: "hero-motion", scope: "viewport", materialDifference: false },
+    ]),
+    { viewport: false, fullPage: false },
   );
 });
 
@@ -218,5 +247,57 @@ test("dynamic review state contracts reject implicit canvas/WebGL/gallery stabil
       selector: "video[data-review-intro]",
       time: 0,
     },
+  );
+});
+
+test("dynamic capture requires exact declaration/state coverage", () => {
+  const states = [
+    {
+      id: "intro-video",
+      kind: "video",
+      selector: "video[data-review-intro]",
+      time: 0,
+    },
+    {
+      id: "hero-canvas",
+      kind: "canvas",
+      selector: "[data-review-canvas]",
+      ready: { attribute: "data-review-ready", value: "ready" },
+      stable: { attribute: "data-review-stable", value: "stable" },
+    },
+  ];
+
+  assert.deepEqual(
+    validateDynamicReviewStateCoverage(
+      [
+        { id: "intro-video", kind: "video" },
+        { id: "hero-canvas", kind: "canvas" },
+      ],
+      states,
+    ),
+    states.map(validateDynamicReviewState),
+  );
+
+  assert.throws(
+    () =>
+      validateDynamicReviewStateCoverage(
+        [{ id: "intro-video", kind: "video" }],
+        [],
+      ),
+    /missing.*state/i,
+  );
+
+  assert.throws(
+    () =>
+      validateDynamicReviewStateCoverage(
+        [{ id: "intro-video", kind: "video" }],
+        [{ ...states[0], kind: "canvas", ready: states[1].ready, stable: states[1].stable }],
+      ),
+    /kind/i,
+  );
+
+  assert.throws(
+    () => validateDynamicReviewStateCoverage([], [states[0]]),
+    /declaration/i,
   );
 });
