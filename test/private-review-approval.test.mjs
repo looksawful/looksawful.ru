@@ -220,6 +220,61 @@ test("approval is owner-only and promotes an exact Case+SHA baseline", async () 
   assert.equal(await baselineEvidence.text(), "private-image");
 });
 
+test("repeating approval for the same exact Review is idempotent", async () => {
+  const bucket = new MemoryReviewStorage();
+  const review = await createReview(bucket);
+
+  const first = await handleReviewRequest({
+    request: approvalRequest(SOURCE_SHA, review.reviewId),
+    env: { REVIEW_STORAGE: bucket },
+    session: OWNER_SESSION,
+    now: () => NOW,
+  });
+  assert.equal(first.status, 201);
+  const firstPayload = await first.json();
+
+  const firstState = JSON.parse(
+    new TextDecoder().decode(bucket.object(`review-hub/v1/state/${CASE_ID}.json`).bytes),
+  );
+  const firstApprovalKeys = bucket
+    .objectsWithPrefix(`review-hub/v1/approvals/${CASE_ID}/${SOURCE_SHA}/quick/`)
+    .map(({ key }) => key)
+    .sort();
+  const firstBaselineKeys = bucket
+    .objectsWithPrefix(`review-hub/v1/baselines/${CASE_ID}/objects/`)
+    .map(({ key }) => key)
+    .sort();
+
+  const second = await handleReviewRequest({
+    request: approvalRequest(SOURCE_SHA, review.reviewId),
+    env: { REVIEW_STORAGE: bucket },
+    session: OWNER_SESSION,
+    now: () => NOW + 60_000,
+  });
+  assert.equal(second.status, 200);
+  assert.deepEqual(await second.json(), firstPayload);
+
+  const secondState = JSON.parse(
+    new TextDecoder().decode(bucket.object(`review-hub/v1/state/${CASE_ID}.json`).bytes),
+  );
+  assert.equal(secondState.baseline.promotionId, firstState.baseline.promotionId);
+  assert.equal(secondState.baseline.approvedAt, firstState.baseline.approvedAt);
+  assert.deepEqual(
+    bucket
+      .objectsWithPrefix(`review-hub/v1/approvals/${CASE_ID}/${SOURCE_SHA}/quick/`)
+      .map(({ key }) => key)
+      .sort(),
+    firstApprovalKeys,
+  );
+  assert.deepEqual(
+    bucket
+      .objectsWithPrefix(`review-hub/v1/baselines/${CASE_ID}/objects/`)
+      .map(({ key }) => key)
+      .sort(),
+    firstBaselineKeys,
+  );
+});
+
 test("stale SHA approval fails closed and cannot replace the Case baseline", async () => {
   const bucket = new MemoryReviewStorage();
   const review = await createReview(bucket);
