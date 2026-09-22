@@ -94,6 +94,51 @@
   font-weight: var(--fw-500);
 }
 
+.project__portfolio-intro {
+  padding-block: 0 clamp(2rem, 4cqi, 4rem);
+}
+
+.project__portfolio-intro-list {
+  display: grid;
+  gap: var(--size-300);
+  margin: 0;
+  padding: var(--size-400) 0 0;
+  border-block-start: var(--border-width-100) solid var(--clr-border);
+}
+
+.project__portfolio-intro-item {
+  display: grid;
+  grid-template-columns: minmax(6.5rem, 0.8fr) minmax(0, 1.2fr);
+  gap: var(--size-300);
+}
+
+.project__portfolio-intro-item dt {
+  color: var(--clr-text-muted);
+  font-size: var(--fs-200);
+  font-weight: var(--fw-500);
+}
+
+.project__portfolio-intro-item dd {
+  margin: 0;
+  font-size: var(--fs-300);
+  line-height: var(--lh-copy);
+}
+
+@container project (width > 50rem) {
+  .project__portfolio-intro-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .project__portfolio-intro[data-portfolio-intro-kind="case"] .project__portfolio-intro-list {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .project__portfolio-intro-item {
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+  }
+}
+
 .project :where(a) {
   color: inherit;
   text-decoration-color: currentColor;
