@@ -62,3 +62,12 @@ The durable comparison reference for a Case, derived from the evidence of its mo
 
 **Superseded Review**:
 A historical Review that stopped being Current because a newer Review for the same Case became Current. It remains auditable but is no longer eligible for approval.
+
+**Approved Review**:
+A Current Review explicitly accepted by the owner after all mandatory structural and runtime checks for its Review depth are green. Approval is idempotent: an Approved Review remains Current until superseded, but cannot produce duplicate Approval records.
+
+**Expired Review**:
+A Review whose temporary evidence retention window ended before approval. It is no longer eligible for approval, while its compact audit history remains.
+
+**Review lifecycle**:
+The system may automatically create a Review, make it Current, supersede it, or mark it Expired. Only the owner may perform Visual approval. Objective mandatory checks cannot be overridden by Visual approval.
