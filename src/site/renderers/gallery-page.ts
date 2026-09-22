@@ -45,6 +45,7 @@ function toResolvedPhotoPlacement(
     seriesId: item.seriesId,
     seriesOrder,
     itemOrder: item.seriesOrder,
+    projectId: item.projectIds[0] ?? item.seriesId,
     featured: false,
     media: [{
       assetId: item.id,
