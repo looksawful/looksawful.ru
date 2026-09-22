@@ -22,7 +22,7 @@
     "toolchain:doctor": "node tools/ci/toolchain-doctor.mjs",
     "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.tools.json",
     "lint": "npx --yes oxlint@1.80.0 src tools",
-    "lint:style": "npx --yes stylelint@17.15.0 \"src/**/*.css\"",
+    "lint:style": "npx --yes stylelint@17.15.0 \"src/**/*.css\" \"public/pets/awful-cases/awful-cases.css\"",
     "css:check": "node tools/css/check.mjs",
     "format": "node tools/quality/format.mjs",
     "format:check": "node tools/quality/format.mjs --check",
