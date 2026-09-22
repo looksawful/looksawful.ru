@@ -184,6 +184,33 @@ export const MixedMedia = {
   },
 };
 
+export const MixedVideoFocusedPreview = {
+  render: () => mixedMediaMarkup,
+  play: async (context) => {
+    registerCleanup(initialize(context));
+    const card = context.canvasElement.querySelector('[data-gallery-item-id="jestei-13-source-01-16x9"]');
+    if (!(card instanceof HTMLElement)) throw new Error("Mixed Gallery story has no video card");
+
+    card.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", bubbles: true }));
+    card.focus();
+    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+
+    const preview = card.querySelector("[data-gallery-video-preview]");
+    if (!(preview instanceof HTMLVideoElement)) throw new Error("Mixed Gallery story has no preview video");
+    if (!card.hasAttribute("data-gallery-video-previewing")) {
+      throw new Error("Keyboard focus did not start Gallery video preview");
+    }
+    if (!preview.muted) throw new Error("Gallery video preview must stay muted");
+  },
+  parameters: {
+    looksawful: {
+      state: "gallery-mixed-video-focus-preview",
+      interaction: ["focus-visible", "selected"],
+      data: ["video"],
+    },
+  },
+};
+
 export const MixedVideoOpen = {
   render: () => mixedMediaMarkup,
   play: (context) => {
