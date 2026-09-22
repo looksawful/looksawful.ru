@@ -37,6 +37,10 @@ test("expertise restores space-between alignment between titles and copy", () =>
   );
   assert.match(
     expertiseCss,
-    /\.expertise__head\s*>\s*:last-child\s*\{[\s\S]*?flex-grow:\s*0;[\s\S]*?flex-basis:\s*min\(62\.5%,\s*62ch\);/,
+    /\.expertise__head\s*>\s*:last-child\s*\{[\s\S]*?flex-grow:\s*0;/,
+  );
+  assert.match(
+    expertiseCss,
+    /\.expertise__head\s*>\s*:last-child\s*\{[\s\S]*?flex-basis:\s*min\(62\.5%,\s*62ch\);/,
   );
 });
