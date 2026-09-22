@@ -42,3 +42,14 @@ A browser-facing optimized media file used for site delivery while the source ma
 
 **Editorial copy**:
 Authored human-facing text that can be edited where an explicit editorial/CMS model exposes it.
+
+
+**Review**:
+An immutable private visual-review attempt for one Case at one exact source SHA and one Review depth. A Case may retain many historical Reviews, but only one Review is Current at a time.
+_Avoid_: Treating Case + SHA + depth as the Review identity; repeated capture creates a new Review.
+
+**Current Review**:
+The single Review for a Case that is presently authoritative for inspection and possible approval. Creating a newer Review for that Case supersedes the previous Current Review without deleting its history.
+
+**Review depth**:
+The evidence contract applied to an entire Review: Quick, Interactive or Full. It describes the breadth of review required, not the class of an individual evidence item.
