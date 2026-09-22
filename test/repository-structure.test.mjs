@@ -40,7 +40,7 @@ async function collectFiles(directory, prefix = "") {
   for (const entry of entries) {
     const relative = prefix ? `${prefix}/${entry.name}` : entry.name;
     if (entry.isDirectory()) {
-      files.push(...await collectFiles(path.join(directory, entry.name), relative));
+      files.push(...(await collectFiles(path.join(directory, entry.name), relative)));
     } else if (entry.isFile()) {
       files.push(relative);
     }
@@ -52,7 +52,7 @@ async function collectFiles(directory, prefix = "") {
 async function collectRepositorySourceFiles() {
   const files = ["vite.config.ts"];
   for (const directory of [".github", "src", "test", "tools"]) {
-    files.push(...await collectFiles(path.join(root, directory), directory));
+    files.push(...(await collectFiles(path.join(root, directory), directory)));
   }
   return files.filter((file) => sourceExtensions.has(path.extname(file)));
 }
@@ -111,7 +111,10 @@ test("the obsolete interactive JavaScript compatibility shim is retired", async 
 test("authored production JavaScript under src is limited to explicitly tracked legacy migrations and the still-consumed main entry shim", async () => {
   const allowed = [
     "components/animated-canvas-gallery.js",
+    "components/awful-cases-content.js",
+    "components/awful-cases-core.js",
     "components/awful-cases-game.js",
+    "components/awful-cases-runtime.js",
     "components/jestei-theme-organism/jestei-theme-organism.js",
     "main.js",
   ];

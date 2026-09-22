@@ -13,6 +13,9 @@ const derivativeTests = new Set([
 export const fastTests = new Set([
   "test/agent-verification-workflow.test.mjs",
   "test/awful-cases-cms-editorial.test.mjs",
+  "test/awful-cases-content.test.mjs",
+  "test/awful-cases-core.test.mjs",
+  "test/awful-cases-game.test.mjs",
   "test/ci-fast-concurrency.test.mjs",
   "test/code-block-contract.test.mjs",
   "test/cms-authoring-topology.test.mjs",
