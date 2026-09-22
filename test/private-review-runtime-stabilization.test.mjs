@@ -71,6 +71,7 @@ test("capture runtime contains no arbitrary sleep primitive", async () => {
 });
 
 
+// RED/GREEN contract for production global reveal settling during private capture.
 test("deterministic capture leaves production global reveals in their settled visible state", async () => {
   const motion = await readFile(new URL("../src/motion.ts", import.meta.url), "utf8");
 
