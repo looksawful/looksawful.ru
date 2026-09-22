@@ -142,7 +142,10 @@ test("missing profile routing fails safe to all canonical Chromium profiles", ()
 test("normal runtime smoke stays separate from deterministic capture", () => {
   const matrix = buildReviewRuntimeMatrix({
     reviewDepth: "full",
-    motionDifference: { viewport: true, fullPage: true },
+    motionStates: [
+      { id: "hero-motion", scope: "viewport", materialDifference: true },
+      { id: "footer-motion", scope: "below-fold", materialDifference: true },
+    ],
   });
 
   const runtimeSmoke = matrix.filter((row) => row.phase === "runtime-smoke");
