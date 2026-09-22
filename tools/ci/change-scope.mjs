@@ -3,6 +3,115 @@ import { appendFileSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { sitePages } from "../../src/site/pages/manifest.ts";
+
+const REVIEW_DEPTHS = Object.freeze(["quick", "interactive", "full"]);
+const REVIEW_DEPTH_RANK = new Map(REVIEW_DEPTHS.map((depth, index) => [depth, index]));
+// Review Cases come from the canonical site-page registry; routing must not invent a second page list.
+const reviewCases = sitePages
+  .filter((page) => page.enabled && page.build.kind === "vite" && page.type !== "not-found")
+  .map((page) => ({
+    id: page.id,
+    path: page.path,
+    entityId: "entityId" in page ? page.entityId : null,
+  }));
+const ALL_REVIEW_CASE_IDS = Object.freeze(reviewCases.map((item) => item.id).sort());
+
+const CLEARLY_NON_VISUAL_REVIEW_PATH = /^(docs\/|test\/|\.agents\/|\.github\/|tools\/ci\/|tools\/supabase\/|tools\/lab\/|lab\/|src\/lab\/|AGENTS\.md$|README[^/]*$|LICENSE$|CONTENT_RIGHTS\.md$|\.editorconfig$|\.gitignore$|\.gitattributes$)/;
+const SHARED_VISUAL_REVIEW_PATH = /^(src\/content\/navigation\.json$|src\/data\/navigation\.ts$|src\/(main\.|interactive\.|motion\/|components\/|templates\/|site\/(shell|renderers)\/)|src\/styles\/|index\.html$|404\.html$)/;
+const INTERACTIVE_VISUAL_REVIEW_PATH = /^(work\/|gallery\/|shootings\/|src\/(components\/|templates\/|motion\/|site\/renderers\/|styles\/))/;
+
+function normalizeChangedFiles(files) {
+  return [...new Set(files.map((file) => file.replaceAll("\\", "/")).filter(Boolean))].sort();
+}
+
+function ownedReviewCases(file) {
+  const basename = file.split("/").at(-1) ?? file;
+  const owned = [];
+  for (const reviewCase of reviewCases) {
+    const routePath = reviewCase.path.replace(/^\/+|\/+$/g, "");
+    if (routePath && (file === routePath || file.startsWith(`${routePath}/`))) {
+      owned.push(reviewCase.id);
+      continue;
+    }
+
+    const entityId = reviewCase.entityId;
+    if (!entityId) continue;
+    if (
+      file.includes(`/${entityId}.`) ||
+      file.includes(`/${entityId}/`) ||
+      basename.startsWith(`${entityId}-`)
+    ) {
+      owned.push(reviewCase.id);
+    }
+  }
+  return [...new Set(owned)].sort();
+}
+
+function deeperReviewDepth(current, candidate) {
+  if (!current) return candidate;
+  return REVIEW_DEPTH_RANK.get(candidate) > REVIEW_DEPTH_RANK.get(current) ? candidate : current;
+}
+
+function validateEscalation({ escalateDepth, escalateCases }) {
+  if (escalateDepth !== undefined && !REVIEW_DEPTH_RANK.has(escalateDepth)) {
+    throw new Error(`Unknown visual review depth: ${escalateDepth}`);
+  }
+  for (const caseId of escalateCases ?? []) {
+    if (!ALL_REVIEW_CASE_IDS.includes(caseId)) {
+      throw new Error(`Unknown visual review Case: ${caseId}`);
+    }
+  }
+}
+
+export function classifyVisualReview(files, { escalateDepth, escalateCases = [] } = {}) {
+  validateEscalation({ escalateDepth, escalateCases });
+  const changedFiles = normalizeChangedFiles(files);
+  const visualFiles = changedFiles.filter((file) => !CLEARLY_NON_VISUAL_REVIEW_PATH.test(file));
+  const affectedCases = new Set();
+  let reviewDepth = null;
+
+  for (const file of visualFiles) {
+    const ownedCases = ownedReviewCases(file);
+    if (SHARED_VISUAL_REVIEW_PATH.test(file)) {
+      for (const caseId of ALL_REVIEW_CASE_IDS) affectedCases.add(caseId);
+      reviewDepth = deeperReviewDepth(reviewDepth, "full");
+      continue;
+    }
+
+    if (ownedCases.length > 0) {
+      for (const caseId of ownedCases) affectedCases.add(caseId);
+      reviewDepth = deeperReviewDepth(
+        reviewDepth,
+        INTERACTIVE_VISUAL_REVIEW_PATH.test(file) ? "interactive" : "quick",
+      );
+      continue;
+    }
+
+    for (const caseId of ALL_REVIEW_CASE_IDS) affectedCases.add(caseId);
+    reviewDepth = deeperReviewDepth(
+      reviewDepth,
+      INTERACTIVE_VISUAL_REVIEW_PATH.test(file) ? "full" : "quick",
+    );
+  }
+
+  const explicitlyEscalated = escalateDepth !== undefined || escalateCases.length > 0;
+  if (explicitlyEscalated && reviewDepth === null) reviewDepth = "quick";
+  if (reviewDepth !== null && affectedCases.size === 0) {
+    for (const caseId of ALL_REVIEW_CASE_IDS) affectedCases.add(caseId);
+  }
+  for (const caseId of escalateCases) affectedCases.add(caseId);
+  if (escalateDepth !== undefined) {
+    reviewDepth = deeperReviewDepth(reviewDepth ?? "quick", escalateDepth);
+  }
+
+  return {
+    visual: reviewDepth !== null,
+    affectedCases: [...affectedCases].sort(),
+    reviewDepth,
+  };
+}
+
 // Specific ownership precedes broad runtime rules. Unknown files fail closed.
 const rules = [
   ["cv", /^(public\/cv\/|src\/(content\/cv[^/]*|data\/cv[^/]*)|tools\/(apply-cv-content|prepare-cv-production|smoke-cv)\.mjs$|tools\/lib\/cv-content\.mjs$|test\/cv-)/],
@@ -19,14 +128,18 @@ const rules = [
   ["ci", /^(\.github\/|\.agents\/|tools\/ci\/|test\/(ci-pipeline|change-scope|e2e-concurrency|tooling-pipeline)\.test\.mjs$|docs\/|AGENTS\.md$|README[^/]*$|\.editorconfig$|\.gitignore$|\.gitattributes$)/],
 ];
 
-export function classifyChangedFiles(files, { full = false } = {}) {
-  const changedFiles = [...new Set(files.map((file) => file.replaceAll("\\", "/")).filter(Boolean))].sort();
+export function classifyChangedFiles(files, { full = false, review = {} } = {}) {
+  const changedFiles = normalizeChangedFiles(files);
   const groups = [...new Set(changedFiles.map((file) => rules.find(([, pattern]) => pattern.test(file))?.[0] ?? "unknown"))].sort();
   const broad = full || groups.some((group) => ["shared-runtime", "build-config", "dependencies", "unknown"].includes(group));
   const mediaChanged = full || groups.some((group) => ["media", "media-tooling", "dependencies", "unknown"].includes(group));
   const mediaDeskChanged = broad || groups.includes("media-desk") || groups.includes("media");
   const mediaToolingOnly = groups.includes("media-tooling") && groups.every((group) => ["ci", "media-tooling"].includes(group));
   const suites = new Set(mediaToolingOnly ? [] : ["smoke"]);
+  const visualReview = classifyVisualReview(
+    changedFiles,
+    full ? { ...review, escalateDepth: "full" } : review,
+  );
   if (groups.includes("cv")) suites.add("cv");
   if (groups.includes("navigation")) suites.add("navigation");
   if (groups.includes("project-pages")) suites.add("project-pages");
@@ -38,6 +151,7 @@ export function classifyChangedFiles(files, { full = false } = {}) {
     groups,
     mediaChanged,
     mediaDeskChanged,
+    visualReview,
     suites: broad ? ["full"] : [...suites],
     scope: broad ? "full" : "affected",
   };
@@ -90,7 +204,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.a
   if (process.env.GITHUB_OUTPUT) {
     appendFileSync(
       process.env.GITHUB_OUTPUT,
-      `media_inputs_changed=${scope.mediaChanged}\nmedia_desk_changed=${scope.mediaDeskChanged}\ne2e_scope=${scope.scope}\naffected_suites=${scope.suites.join(",")}\ngroups=${scope.groups.join(",")}\nchanged_count=${scope.changedFiles.length}\n`,
+      `media_inputs_changed=${scope.mediaChanged}\nmedia_desk_changed=${scope.mediaDeskChanged}\ne2e_scope=${scope.scope}\naffected_suites=${scope.suites.join(",")}\ngroups=${scope.groups.join(",")}\nchanged_count=${scope.changedFiles.length}\nvisual_impact=${scope.visualReview.visual}\nvisual_cases=${scope.visualReview.affectedCases.join(",")}\nvisual_review_depth=${scope.visualReview.reviewDepth ?? "none"}\n`,
     );
   }
 }
