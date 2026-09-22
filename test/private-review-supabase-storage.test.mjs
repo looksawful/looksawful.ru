@@ -313,3 +313,14 @@ test("Supabase SQL exposes a create-only path for immutable review objects", asy
   assert.match(sql, /if p_create_only then/u);
   assert.match(sql, /on conflict \(key\) do nothing/u);
 });
+
+
+test("Supabase SQL removes the legacy seven-argument put RPC before defining create-only writes", async () => {
+  const { readFile } = await import("node:fs/promises");
+  const sql = await readFile(new URL("../tools/supabase/review-hub.sql", import.meta.url), "utf8");
+
+  assert.match(
+    sql,
+    /drop function if exists public\.review_hub_put_object\(\s*text,\s*text,\s*text,\s*text,\s*text,\s*jsonb,\s*text\s*\);/su,
+  );
+});

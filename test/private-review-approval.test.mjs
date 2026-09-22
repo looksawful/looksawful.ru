@@ -388,6 +388,11 @@ test("Review Hub approval UI binds the displayed review and handles stale approv
   assert.match(client, /sourceSha:\s*manifest\.sourceSha/);
   assert.match(client, /reviewDepth:\s*manifest\.reviewDepth/);
   assert.match(client, /response\.status === 409/);
+  assert.match(client, /response\.status === 410/);
+  assert.match(client, /Superseded Review/);
+  assert.match(client, /Stale Review/);
+  assert.match(client, /Expired Review/);
+  assert.match(client, /payload\.valid/);
 });
 
 
