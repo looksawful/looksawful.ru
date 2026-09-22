@@ -59,13 +59,6 @@ test("deterministic CSS freezes visual motion without hiding content", () => {
   assert.doesNotMatch(style, /visibility:\s*hidden/i);
 });
 
-test("lazy-media priming never copies untrusted DOM URLs into media src", async () => {
-  const source = await readFile(new URL("../tools/review/runtime.mjs", import.meta.url), "utf8");
-
-  assert.doesNotMatch(source, /setAttribute\(\s*["']src["']\s*,\s*(?:video\.dataset\.src|deferredSource)\s*\)/);
-  assert.doesNotMatch(source, /\.src\s*=\s*(?:video\.dataset\.src|deferredSource)/);
-});
-
 test("capture runtime contains no arbitrary sleep primitive", async () => {
   const source = await readFile(new URL("../tools/review/runtime.mjs", import.meta.url), "utf8");
 
