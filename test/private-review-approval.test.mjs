@@ -112,7 +112,7 @@ function uploadRequest(sourceSha = SOURCE_SHA) {
   });
 }
 
-function approvalRequest(sourceSha = SOURCE_SHA) {
+function approvalRequest(sourceSha = SOURCE_SHA, reviewId = undefined) {
   return new Request("https://admin.looksawful.ru/lab/review/approval", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -120,6 +120,7 @@ function approvalRequest(sourceSha = SOURCE_SHA) {
       caseId: CASE_ID,
       sourceSha,
       reviewDepth: "quick",
+      ...(reviewId === undefined ? {} : { reviewId }),
     }),
   });
 }
@@ -131,6 +132,7 @@ async function createReview(bucket, sourceSha = SOURCE_SHA, now = NOW) {
     now: () => now,
   });
   assert.equal(response.status, 201);
+  return response.json();
 }
 
 test("approval is owner-only and promotes an exact Case+SHA baseline", async () => {
@@ -402,4 +404,33 @@ test("superseding review during the final Case promotion makes approval fail clo
     now: () => NOW + 1_000,
   });
   assert.equal(baseline.status, 404);
+});
+
+
+test("approval binds to the exact Review ID even when Case SHA and depth are unchanged", async () => {
+  const bucket = new MemoryReviewStorage();
+  const first = await createReview(bucket, SOURCE_SHA, NOW);
+  const second = await createReview(bucket, SOURCE_SHA, NOW + 500);
+
+  assert.match(first.reviewId, /^[0-9a-f-]{36}$/u);
+  assert.match(second.reviewId, /^[0-9a-f-]{36}$/u);
+  assert.notEqual(first.reviewId, second.reviewId);
+
+  const stale = await handleReviewRequest({
+    request: approvalRequest(SOURCE_SHA, first.reviewId),
+    env: { REVIEW_STORAGE: bucket },
+    session: OWNER_SESSION,
+    now: () => NOW + 1_000,
+  });
+  assert.equal(stale.status, 409);
+
+  const approved = await handleReviewRequest({
+    request: approvalRequest(SOURCE_SHA, second.reviewId),
+    env: { REVIEW_STORAGE: bucket },
+    session: OWNER_SESSION,
+    now: () => NOW + 1_000,
+  });
+  assert.equal(approved.status, 201);
+  const payload = await approved.json();
+  assert.equal(payload.reviewId, second.reviewId);
 });
