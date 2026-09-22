@@ -53,10 +53,17 @@ export function enhanceAwfulCases(root, { locale = "en" } = {}) {
   const onboardingTip = root.querySelector("[data-awful-cases-onboarding-tip]");
   const actionButtons = [...root.querySelectorAll("[data-awful-cases-action]")];
   const ctx = canvas.getContext("2d", { alpha: false });
+
+  function redrawStaticDemoIfNeeded() {
+    if (!active || destroyed || !reducedMotion || game.mode !== "demo") return;
+    resize();
+    draw();
+  }
   const atlas = new Image();
   let atlasReady = false;
   atlas.onload = () => {
     atlasReady = true;
+    redrawStaticDemoIfNeeded();
   };
   atlas.src = ATLAS_SRC;
 
@@ -64,6 +71,7 @@ export function enhanceAwfulCases(root, { locale = "en" } = {}) {
   let groundReady = false;
   groundTile.onload = () => {
     groundReady = true;
+    redrawStaticDemoIfNeeded();
   };
   groundTile.src = GROUND_SRC;
 
@@ -71,6 +79,7 @@ export function enhanceAwfulCases(root, { locale = "en" } = {}) {
   let pitReady = false;
   pitTile.onload = () => {
     pitReady = true;
+    redrawStaticDemoIfNeeded();
   };
   pitTile.src = PIT_SRC;
 
@@ -79,6 +88,7 @@ export function enhanceAwfulCases(root, { locale = "en" } = {}) {
     image.ready = false;
     image.onload = () => {
       image.ready = true;
+      redrawStaticDemoIfNeeded();
     };
     image.src = src;
     return image;
