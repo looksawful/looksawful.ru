@@ -47,8 +47,8 @@ textarea:focus{border-color:#111;box-shadow:0 0 0 1px #111}
 .save-custom{margin-top:8px;padding:12px 14px;border:0;border-radius:10px;background:#111;color:#fff}
 .footer{position:fixed;left:50%;bottom:max(12px,env(safe-area-inset-bottom));transform:translateX(-50%);display:grid;grid-template-columns:44px minmax(190px,auto) 44px;gap:8px;align-items:center;background:#fff;border:1px solid #d6d6d0;border-radius:15px;padding:7px;box-shadow:0 8px 30px #0001}
 .nav{width:44px;height:40px;border:0;border-radius:9px;background:#efefec;font-size:20px}.nav:disabled{opacity:.3}
-.status{text-align:center;font-size:12px;color:#666;padding:0 8px}
-@media(max-width:700px){main{padding:10px 10px 100px}.sheet{padding:16px;border-radius:14px}.compare-source,.evidence-grid{grid-template-columns:1fr}.footer{width:calc(100% - 20px);grid-template-columns:44px 1fr 44px}.login{margin-top:10vh}.option-copy{font-size:16px}}
+.status{text-align:center;font-size:12px;color:#666;padding:0 8px}.gesture-hint{display:none}
+@media(max-width:700px){main{padding:10px 10px 100px}.sheet{padding:16px;border-radius:14px}.compare-source,.evidence-grid{grid-template-columns:1fr}.footer{width:calc(100% - 20px);grid-template-columns:44px 1fr 44px}.login{margin-top:10vh}.option-copy{font-size:16px}.status{touch-action:none;user-select:none}.gesture-hint{display:block;font-size:10px;line-height:1.25;color:#999;margin-top:2px}}
 </style>
 </head>
 <body>
@@ -58,7 +58,7 @@ const API='https://japsjwgnoeaeetlhshje.supabase.co/functions/v1/text-review-v2'
 const root=document.getElementById('root');
 let key=localStorage.getItem('looksawful-text-review-key')||'';
 let state={items:[],answers:{},progress:{answered:0,total:0},round:null};
-let index=0,customOpen=false,saving=false;
+let index=0,customOpen=false,saving=false,gestureStart=null;
 
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
@@ -148,7 +148,7 @@ function render(){
   '<div class="options">'+options+'</div>'+
   '<button class="custom-toggle" id="custom-toggle">Свой вариант</button><div class="custom-panel '+(customOpen||answer?.option_id==='custom'?'open':'')+'"><textarea id="custom-text" placeholder="Напиши свой вариант…">'+esc(customText)+'</textarea><button class="save-custom" id="save-custom">Сохранить свой вариант</button></div>'+
   '</section>'+
-  '<footer class="footer"><button class="nav" id="prev" '+(index===0?'disabled':'')+'>←</button><div class="status" id="status">'+(answer?'Сохранено':'Не решено')+' · '+done+'/'+total+'</div><button class="nav" id="next" '+(index===items.length-1?'disabled':'')+'>→</button></footer>';
+  '<footer class="footer"><button class="nav" id="prev" '+(index===0?'disabled':'')+'>←</button><div class="status" id="status" aria-label="Жесты: влево оставить, вправо минимально, вверх сильно, вниз свой вариант">'+(answer?'Сохранено':'Не решено')+' · '+done+'/'+total+'<span class="gesture-hint">← оставить · → минимум · ↑ сильно · ↓ свой</span></div><button class="nav" id="next" '+(index===items.length-1?'disabled':'')+'>→</button></footer>';
 
   document.querySelectorAll('.option').forEach(b=>b.onclick=()=>saveOption(b.dataset.option));
   const toggle=document.getElementById('custom-toggle');
@@ -157,6 +157,39 @@ function render(){
   if(custom)custom.onclick=saveCustom;
   document.getElementById('prev').onclick=()=>{if(index>0){index--;customOpen=false;render()}};
   document.getElementById('next').onclick=()=>{if(index<items.length-1){index++;customOpen=false;render()}};
+
+  const status=document.getElementById('status');
+  if(status){
+    status.ontouchstart=e=>{
+      if(e.touches.length!==1)return;
+      const t=e.touches[0];
+      gestureStart={x:t.clientX,y:t.clientY};
+    };
+    status.ontouchcancel=()=>{gestureStart=null};
+    status.ontouchend=e=>{
+      if(!gestureStart||e.changedTouches.length!==1)return;
+      const t=e.changedTouches[0];
+      const dx=t.clientX-gestureStart.x,dy=t.clientY-gestureStart.y;
+      const ax=Math.abs(dx),ay=Math.abs(dy);
+      gestureStart=null;
+      if(Math.max(ax,ay)<46)return;
+
+      if(ax>ay*1.2){
+        const optionId=dx<0?'keep':'minimal';
+        if(item.options.some(option=>option.id===optionId))saveOption(optionId);
+        return;
+      }
+      if(ay>ax*1.2){
+        if(dy<0){
+          if(item.options.some(option=>option.id==='strong'))saveOption('strong');
+          return;
+        }
+        customOpen=true;
+        render();
+        setTimeout(()=>document.getElementById('custom-text')?.focus(),0);
+      }
+    };
+  }
 }
 
 async function reloadAfterSave(currentIndex){
