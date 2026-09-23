@@ -2,7 +2,7 @@
 
 Status: OAUTH SECURITY CANDIDATE / non-production internal tooling foundation.
 
-Private Lab is read-only with respect to site/CMS state. The Private Review Hub may write isolated visual-review evidence to its private Supabase backend; it is not a CMS branch, not a source of truth, not a deployment authority and not a shortcut around Media/Content Desk write policy.
+Private Lab is read-only with respect to site/CMS state. The Private Review Hub may write isolated visual-review authority state to Cloudflare D1 and private binary evidence to Cloudinary; it is not a CMS branch, not a deployment authority and not a shortcut around Media/Content Desk write policy.
 
 ## Build
 
@@ -24,9 +24,10 @@ Runtime bindings required by the candidate:
 ADMIN_GITHUB_CLIENT_ID
 ADMIN_GITHUB_CLIENT_SECRET
 ADMIN_SESSION_SECRET
-SUPABASE_URL             # backend-only Supabase project URL
-SUPABASE_SECRET_KEY      # backend-only secret key; never browser/public source
-REVIEW_EVIDENCE_BUCKET  # dedicated private Storage bucket id
+REVIEW_DB                # Cloudflare D1 binding; Review authority/control plane
+CLOUDINARY_CLOUD_NAME    # backend-only Cloudinary product environment
+CLOUDINARY_API_KEY       # backend-only Cloudinary API key
+CLOUDINARY_API_SECRET    # backend-only Cloudinary API secret; never browser/public source
 ```
 
 Accepted application origins are deliberately narrow:
@@ -61,7 +62,7 @@ Security contract:
 
 Repository code alone does **not** prove that the remote Admin is deployed or protected. `ADMIN_GITHUB_CLIENT_ID`, `ADMIN_GITHUB_CLIENT_SECRET`, `ADMIN_SESSION_SECRET`, the GitHub OAuth application callback and the `admin.looksawful.ru` runtime/custom-domain configuration must exist in the actual deployment environment before remote access can be claimed operational.
 
-Trusted deployment credentials must never be exposed to feature/candidate build steps. Unreviewed branch code, package scripts, media tooling and Lab builds run without Cloudflare/OAuth/session/Supabase production secrets; privileged deployment is a separate trusted step or workflow operating on already-validated output.
+Trusted deployment credentials must never be exposed to feature/candidate build steps. Unreviewed branch code, package scripts, media tooling and Lab builds run without Cloudflare/OAuth/session/Cloudinary production secrets; privileged deployment is a separate trusted step or workflow operating on already-validated output.
 
 ## Read-only rule
 
@@ -114,9 +115,11 @@ The Lab shell links to `/lab/system/` and `/lab/system/inventory.html`. Storyboo
 
 ## Private Review Hub
 
-The first Review Hub slice lives at `/lab/review/` behind the existing GitHub OAuth boundary.
+The Review Hub thin slice lives at `/lab/review/` behind the existing GitHub OAuth boundary.
 
-Private review data uses a server-only Supabase adapter: JSON control/state records live behind RLS in Postgres and image evidence lives in a private Storage bucket. The repository does not contain captured review screenshots, runtime Review manifests, private object identifiers, private review URLs or Supabase secret keys. Missing backend configuration fails closed with `503`. The control table intentionally has RLS enabled with no `anon` or `authenticated` policies; only backend service-role RPCs may mutate Review Hub state. The reproducible Postgres schema/RPC contract lives in `tools/supabase/review-hub.sql`; the private Storage bucket id, Vault values and scheduled maintenance credentials remain deployment-specific and stay outside the public repository.
+Review authority/control data is server-side in Cloudflare D1. Binary image evidence is stored as Cloudinary `authenticated` assets under the dedicated `looksawful/review-hub` namespace. Cloudinary is not authoritative for Review state. The browser never receives raw Cloudinary delivery URLs or asset identifiers; authenticated Worker endpoints proxy evidence after Private Lab authorization.
+
+The reproducible D1 schema lives in `tools/cloudflare/review-hub.sql`. Deployment-specific D1 database identity and Cloudinary credentials stay outside the public repository. Missing D1 or Cloudinary backend configuration fails closed with `503`.
 
 The authenticated runtime exposes:
 
@@ -126,16 +129,10 @@ POST /lab/review/api
 GET  /lab/review/evidence/<evidence-id>
 ```
 
-`POST /lab/review/api` accepts multipart form data containing a JSON `manifest` field and one image part per evidence id. The v1 manifest binds one Case to an exact 40-character source SHA, a review depth (`quick`, `interactive` or `full`), capture time and image evidence descriptors. Storage paths are derived server-side and are never returned to the browser.
+`POST /lab/review/api` accepts multipart form data containing a JSON `manifest` field and one image part per evidence id. The v1 manifest binds one Review Target to an exact 40-character source SHA, a review depth (`quick`, `interactive` or `full`), capture time and image evidence descriptors. A Review Target is anchored to canonical `SitePage.id`; it is not a synonym for the domain entity Case.
 
-The initial Review Hub slice intentionally left approval, stale-SHA rejection, retention, affected-Case routing and viewport matrices to follow-up work.
+Each capture receives a fresh immutable Review ID, including recaptures of the same Review Target + SHA + depth. Server-side object keys are derived from the Review Target and Review ID. The Review Hub returns only the authenticated application evidence route, never Cloudinary storage identity. Image evidence above 10 MB fails closed.
 
-## Visual approval and retention
+The existing approval/lifecycle code in draft PR #1122 is implementation evidence for the follow-up **Exact Review approval, lifecycle and Baseline** work package. Its old baseline-copy/retention assumptions are not the final authority model and must be reconciled there before merge.
 
-Visual approval is an explicit owner-only mutation at `POST /lab/review/approval`. The request carries the exact displayed `caseId`, 40-character `sourceSha` and `reviewDepth`; the server rejects a mismatch with `409 Conflict`. Browser-facing approval and baseline responses expose approval facts only; private promotion/storage identifiers remain server-side.
-
-Approved evidence is staged into a unique durable bundle under `review-hub/v1/baselines/`. The Case-scoped state record at `review-hub/v1/state/<case>.json` carries both the current review identity and the active baseline pointer; approval updates that record through a service-role-only Postgres RPC with an exact opaque-etag compare-and-swap, so a superseding review makes promotion fail closed instead of publishing a stale baseline. Compact approval records persist separately under `review-hub/v1/approvals/<case>/<sha>/<review-depth>/<promotion-id>.json`; the promotion id remains private and is never returned to the browser.
-
-Temporary capture objects under `review-hub/v1/cases/` receive an application `expiresAt` exactly four days after ingestion. The Review Hub stops serving them at that deadline. The production Supabase project runs an hourly `pg_cron` → `pg_net` maintenance call whose authentication token lives only in Vault; the maintenance Edge Function deletes expired binary objects through the Storage API before removing their metadata rows. The adapter also performs the same bounded cleanup opportunistically during Review Hub requests. The cleanup RPC is hard-scoped to `review-hub/v1/cases/`, so durable `baselines/`, `approvals/` and Case state are excluded.
-
-The repository verifies the adapter and application contracts. Deployment still must provide the backend-only Supabase URL, secret key and private bucket id; none of those values belongs in browser code or the public repository.
+The repository verifies the D1/Cloudinary adapter and application contracts. Deployment still must provide the `REVIEW_DB` binding plus backend-only Cloudinary credentials; none of those values belongs in browser code or public GitHub output.
