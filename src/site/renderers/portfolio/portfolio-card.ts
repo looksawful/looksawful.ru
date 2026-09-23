@@ -10,6 +10,11 @@ function requirePortfolioPage(pageId: PortfolioEntityPageId) {
   if (!page || (page.type !== "case" && page.type !== "project" && page.type !== "collection")) {
     throw new Error(`Portfolio card page is unavailable: ${pageId}`);
   }
+  if (!page.discovery.listed || !page.discovery.indexable) {
+    throw new Error(
+      `Portfolio card page must be listed and indexable before Featured/Work/Archive rendering: ${pageId}`,
+    );
+  }
   return page;
 }
 
