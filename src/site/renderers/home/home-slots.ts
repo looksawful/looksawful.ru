@@ -24,7 +24,6 @@ import {
 import { portfolioSensetiqueStrip } from "../../../data/content/sensetique.ts";
 import { portfolioShootingsStrip } from "../../../data/content/shootings.ts";
 import { portfolioScanographyStrip } from "../../../data/content/styx.ts";
-import { getVisibleProjectCardPresentations } from "../../../data/projects.ts";
 
 import { renderAnimatedCanvasGallery } from "../../../templates/animated-canvas-gallery.ts";
 import { renderClientLogo } from "../../../templates/client-logo.ts";
@@ -32,7 +31,6 @@ import { renderMediaFigure } from "../../../templates/media-figure.ts";
 import { renderMediaGroup } from "../../../templates/media-group.ts";
 import { renderMockup } from "../../../templates/mockup.ts";
 import { renderMockupDeck } from "../../../templates/mockup-deck.ts";
-import { renderProjectCard } from "../../../templates/project-card.ts";
 import { renderProjectIntro } from "../../../templates/project-intro.ts";
 import { renderSectionIntro } from "../../../templates/section-intro.ts";
 import {
@@ -40,7 +38,10 @@ import {
   replaceRequiredSlots,
   type HtmlSlot,
 } from "../../rendering/html.ts";
-import type { PortfolioPresentation } from "../../pages/portfolio-presentation.ts";
+import {
+  getProjectIndexPageIds,
+  type PortfolioPresentation,
+} from "../../pages/portfolio-presentation.ts";
 import { renderPortfolioCardListItem } from "../portfolio/portfolio-card.ts";
 
 const petProjectsStyles = `
@@ -193,8 +194,12 @@ function injectFeaturedProjectsSection(
   );
 }
 
-export function createHomepageSlots(): readonly HtmlSlot[] {
-  const projectCards = getVisibleProjectCardPresentations().map(renderProjectCard).join("\n");
+export function createHomepageSlots(
+  presentation: PortfolioPresentation,
+): readonly HtmlSlot[] {
+  const projectCards = getProjectIndexPageIds(presentation)
+    .map(renderPortfolioCardListItem)
+    .join("\n");
   const logos = clientLogos.map(renderClientLogo).join("\n");
 
   return [
@@ -247,7 +252,7 @@ export function renderHomepage(
   html: string,
   presentation: PortfolioPresentation,
 ): string {
-  const rendered = replaceRequiredSlots(html, createHomepageSlots());
+  const rendered = replaceRequiredSlots(html, createHomepageSlots(presentation));
   const withFeatured = injectFeaturedProjectsSection(rendered, presentation);
   return applyClientLogoWallVisibility(
     withFeatured,
