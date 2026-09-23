@@ -141,4 +141,8 @@ test("homepage Featured section is driven only by portfolio presentation members
   assert.match(homepage, /href="\/work\/moves-awful\/"/);
   assert.match(homepage, /href="\/shootings\/"/);
   assert.doesNotMatch(homepage, /href="\/work\/berserk-timer\/"/);
+  assert.match(homepage, /class="subproject-card"/);
+  assert.match(homepage, /class="project-card"/);
+  assert.match(homepage, /\.pet-projects \.project-card\b/);
+  assert.match(homepage, /\.pet-projects__grid > li\b/);
 });
