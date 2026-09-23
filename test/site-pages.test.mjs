@@ -321,6 +321,16 @@ test("Project index de-duplicates an entity that is both Featured and an index e
   ]);
 });
 
+test("Archive cannot duplicate any entity in the main Project index", () => {
+  assert.throws(
+    () => validatePortfolioPresentation({
+      ...portfolioPresentation,
+      archive: ["collection:music-photography"],
+    }, sitePages),
+    /Archive.*Project index|project index.*Archive|duplicate portfolio tier/i,
+  );
+});
+
 test("portfolio presentation validates manual next-Case routes", () => {
   assert.doesNotThrow(() => validatePortfolioPresentation({
     ...portfolioPresentation,
