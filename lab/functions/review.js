@@ -1,4 +1,4 @@
-import { createSupabaseReviewStorage } from "./review-storage-supabase.js";
+import { createCloudflareReviewStorage } from "./review-storage-cloudflare.js";
 
 const CURRENT_POINTER_KEY = "review-hub/v1/current.json";
 const ADMIN_REPOSITORY = "looksawful/looksawful.ru";
@@ -44,7 +44,7 @@ function reviewStorage(env) {
   ) {
     return injected;
   }
-  return createSupabaseReviewStorage(env);
+  return createCloudflareReviewStorage(env);
 }
 
 async function cleanupExpired(storage) {
@@ -708,7 +708,13 @@ async function getBaselineEvidence(pathname, bucket) {
     return text("Baseline evidence not found.", 404);
   }
 
-  const [reviewTargetId, , evidenceId] = parts;
+  const [encodedReviewTargetId, , evidenceId] = parts;
+  let reviewTargetId;
+  try {
+    reviewTargetId = decodeURIComponent(encodedReviewTargetId);
+  } catch {
+    return text("Baseline evidence not found.", 404);
+  }
   if (!REVIEW_TARGET_ID.test(reviewTargetId) || !EVIDENCE_ID.test(evidenceId)) {
     return text("Baseline evidence not found.", 404);
   }
