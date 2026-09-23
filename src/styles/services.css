@@ -63,8 +63,17 @@
   margin-block-start: auto;
 }
 
-.services-contact {
-  padding-block-start: 1rem;
+.services-page .services-contact {
+  --section-inline: 0;
+
+  padding: 1rem 0 0;
+  border: 0;
+}
+
+.services-page .services-contact a {
+  font: inherit;
+  line-height: inherit;
+  letter-spacing: inherit;
 }
 
 .services-contact a,
