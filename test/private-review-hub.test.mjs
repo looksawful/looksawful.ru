@@ -136,6 +136,28 @@ test("private review rejects a Review Target that is not the canonical thin-slic
   assert.equal(bucket.keysWithPrefix("review-hub/v1/targets/").length, 0);
 });
 
+test("private review thin slice rejects a different canonical SitePage target", async () => {
+  const bucket = new MemoryReviewStorage();
+  const otherManifest = {
+    ...manifest(),
+    reviewTargetId: "home",
+  };
+  const form = new FormData();
+  form.set("manifest", JSON.stringify(otherManifest));
+  form.set("desktop", new File(["private-image"], "desktop.png", { type: "image/png" }));
+
+  const response = await handleReviewRequest({
+    request: new Request("https://admin.looksawful.ru/lab/review/api", {
+      method: "POST",
+      body: form,
+    }),
+    env: { REVIEW_STORAGE: bucket },
+  });
+
+  assert.equal(response.status, 400);
+  assert.equal(bucket.keysWithPrefix("review-hub/v1/targets/").length, 0);
+});
+
 test("private review evidence is served through the private application path and fails closed without backend configuration", async () => {
   const bucket = new MemoryReviewStorage();
   await handleReviewRequest({
