@@ -4,6 +4,7 @@ import { createCloudflareReviewStorage } from "./review-storage-cloudflare.js";
 const CURRENT_POINTER_KEY = "review-hub/v1/current.json";
 const TEMP_RETENTION_MS = 4 * 24 * 60 * 60 * 1000;
 const REVIEW_TARGET_ID = /^[a-z][a-z0-9-]*(?::[a-z0-9][a-z0-9-]{0,95})?$/u;
+const THIN_SLICE_REVIEW_TARGET_ID = "project:awful-mockups";
 const CANONICAL_REVIEW_TARGET_IDS = new Set(
   sitePages.filter((page) => page.enabled).map((page) => page.id),
 );
@@ -80,7 +81,8 @@ export function validateReviewManifest(value) {
   if (
     typeof value.reviewTargetId !== "string" ||
     !REVIEW_TARGET_ID.test(value.reviewTargetId) ||
-    !CANONICAL_REVIEW_TARGET_IDS.has(value.reviewTargetId)
+    !CANONICAL_REVIEW_TARGET_IDS.has(value.reviewTargetId) ||
+    value.reviewTargetId !== THIN_SLICE_REVIEW_TARGET_ID
   ) {
     return null;
   }
