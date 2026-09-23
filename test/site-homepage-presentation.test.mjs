@@ -116,54 +116,16 @@ test("homepage keeps unresolved Featured membership fail-closed", () => {
   assert.doesNotMatch(homepage, /class="pet-projects"/);
 });
 
-test("homepage Featured section is driven only by portfolio presentation membership", () => {
-  const homepage = renderHomepagePage(indexSource, {
-    ...portfolioPresentation,
-    featured: [
-      "project:awful-cases",
-      "project:moves-awful",
-      "collection:music-photography",
-    ],
-  });
-
-  const positions = [
-    homepage.indexOf('class="hero"'),
-    homepage.indexOf('class="projects-grid"'),
-    homepage.indexOf('id="project-jestei"'),
-    homepage.indexOf('id="project-styx"'),
-    homepage.indexOf('id="project-sensetique"'),
-    homepage.indexOf('class="pet-projects"'),
-  ];
-
-  assert.ok(positions.every((position) => position >= 0), `missing homepage layer: ${positions.join(", ")}`);
-  assert.deepEqual([...positions].sort((a, b) => a - b), positions);
-  assert.match(homepage, /class="pet-projects"[^>]*aria-labelledby="featured-projects-title"/);
-
-  const projectIndex = extractElementContainingMarker(
-    homepage,
-    "section",
-    'id="projects-grid-title"',
+test("homepage refuses Featured Projects until their pages are public", () => {
+  assert.throws(
+    () => renderHomepagePage(indexSource, {
+      ...portfolioPresentation,
+      featured: [
+        "project:awful-cases",
+        "project:moves-awful",
+        "project:awful-studio",
+      ],
+    }),
+    /listed.*indexable.*Featured|Featured.*listed.*indexable|listed.*indexable.*portfolio/i,
   );
-  const featured = extractElementContainingMarker(
-    homepage,
-    "section",
-    'id="featured-projects-title"',
-  );
-
-  for (const href of [
-    "/work/awful-cases/",
-    "/work/moves-awful/",
-    "/shootings/",
-  ]) {
-    const linkPattern = new RegExp(`href="${href}"`, "g");
-    assert.equal((projectIndex.match(linkPattern) ?? []).length, 1, `Project index: ${href}`);
-    assert.equal((featured.match(linkPattern) ?? []).length, 1, `Featured: ${href}`);
-  }
-
-  assert.doesNotMatch(projectIndex, /href="\/work\/berserk-timer\//);
-  assert.doesNotMatch(featured, /href="\/work\/berserk-timer\//);
-  assert.match(homepage, /class="subproject-card"/);
-  assert.match(homepage, /class="project-card"/);
-  assert.match(homepage, /\.pet-projects \.project-card\b/);
-  assert.match(homepage, /\.pet-projects__grid > li\b/);
 });
