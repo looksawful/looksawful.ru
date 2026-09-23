@@ -139,6 +139,17 @@ export function validatePortfolioPresentation(
   }
 
   const nextCaseEntries = Object.entries(presentation.nextCase);
+  for (const [sourceId, targetId] of nextCaseEntries) {
+    const source = requireEntityPage(sourceId, pages);
+    const target = requireEntityPage(targetId, pages);
+    if (source.type !== "case" || target.type !== "case") {
+      throw new Error(`Next-case routing must connect Case pages: ${sourceId} -> ${targetId}`);
+    }
+    if (sourceId === targetId) {
+      throw new Error(`Next-case routing cannot point to itself: ${sourceId}`);
+    }
+  }
+
   if (nextCaseEntries.length !== 0 && nextCaseEntries.length !== presentation.flagship.length) {
     throw new Error("Resolved next-Case routing must cover every Flagship exactly once");
   }
@@ -148,17 +159,6 @@ export function validatePortfolioPresentation(
       if (!(flagshipId in presentation.nextCase)) {
         throw new Error(`Resolved next-Case routing must cover every Flagship exactly once: missing ${flagshipId}`);
       }
-    }
-  }
-
-  for (const [sourceId, targetId] of nextCaseEntries) {
-    const source = requireEntityPage(sourceId, pages);
-    const target = requireEntityPage(targetId, pages);
-    if (source.type !== "case" || target.type !== "case") {
-      throw new Error(`Next-case routing must connect Case pages: ${sourceId} -> ${targetId}`);
-    }
-    if (sourceId === targetId) {
-      throw new Error(`Next-case routing cannot point to itself: ${sourceId}`);
     }
   }
 }
