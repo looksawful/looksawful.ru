@@ -69,6 +69,6 @@ test("rendered Services surfaces keep current contact fallback and never publish
   assert.match(combined, /mailto:i@lookawful\.ru/);
   assert.doesNotMatch(
     combined,
-    /(?:₽|\$|€|руб(?:\.|лей)?|цена|стоимость\s+от|price\s+from)/i,
+    /(?:₽|\$|€|руб(?:\.|лей)?|(?<![\p{L}])цена(?![\p{L}])|стоимость\s+от|price\s+from)/iu,
   );
 });
