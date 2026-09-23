@@ -57,10 +57,23 @@ try {
   for (const [viewportName, viewport] of viewports) {
     const context = await browser.newContext({ viewport });
     const page = await context.newPage();
+    const diagnostics = [];
+    page.on("console", (message) => {
+      if (message.type() === "error") diagnostics.push(`console:error ${message.text()}`);
+    });
+    page.on("pageerror", (error) => diagnostics.push(`pageerror ${error.message}`));
+    page.on("requestfailed", (request) => {
+      diagnostics.push(`requestfailed ${request.method()} ${request.url()} ${request.failure()?.errorText ?? "unknown"}`);
+    });
     for (const [name, id, selector] of cases) {
-      await page.goto(`${baseUrl}/iframe.html?id=${id}&viewMode=story`, { waitUntil: "networkidle" });
-      const canvas = page.locator("#storybook-root");
-      await canvas.waitFor({ state: "attached" });
+      diagnostics.length = 0;
+      console.log(`[lab-storybook-smoke] start viewport=${viewportName} story=${name} id=${id}`);
+      try {
+        const response = await page.goto(`${baseUrl}/iframe.html?id=${id}&viewMode=story`, { waitUntil: "networkidle" });
+        assert(response, `${viewportName}/${name}: iframe navigation returned no response`);
+        assert.equal(response.status(), 200, `${viewportName}/${name}: iframe navigation returned ${response.status()}`);
+        const canvas = page.locator("#storybook-root");
+        await canvas.waitFor({ state: "attached" });
       await page.locator(selector).first().waitFor({ state: "attached", timeout: 10000 });
       const errorSurfaces = page.locator("#error-message, .sb-errordisplay");
       const errorCount = await errorSurfaces.count();
@@ -106,7 +119,13 @@ try {
           `${viewportName}/${name}: focus was not restored to the opening card`,
         );
       }
-      results.push({ viewport: viewportName, story: name, status: "passed" });
+        results.push({ viewport: viewportName, story: name, status: "passed" });
+      } catch (error) {
+        console.error(
+          `[lab-storybook-smoke] fail viewport=${viewportName} story=${name} id=${id} url=${page.url()} diagnostics=${JSON.stringify(diagnostics.slice(-20))}`,
+        );
+        throw error;
+      }
     }
     await context.close();
   }
