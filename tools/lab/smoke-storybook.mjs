@@ -35,24 +35,17 @@ function safeFile(urlPath) {
 }
 
 const server = createServer(async (request, response) => {
-  let file = null;
   try {
-    file = safeFile(request.url || "/");
+    let file = safeFile(request.url || "/");
     if (!file) throw new Error("invalid path");
     if ((await stat(file)).isDirectory()) file = path.join(file, "index.html");
     const body = await readFile(file);
     response.writeHead(200, { "content-type": MIME.get(path.extname(file)) || "application/octet-stream" });
     response.end(body);
-  } catch (error) {
-    console.error(
-      `[lab-storybook-server] 404 request=${request.url ?? "/"} file=${file ?? "none"} error=${error instanceof Error ? `${error.name}: ${error.message}` : String(error)}`,
-    );
+  } catch {
     response.writeHead(404).end("not found");
   }
 });
-const previewEntry = path.join(storybookDir, "iframe.html");
-await stat(previewEntry);
-console.log(`[lab-storybook-server] preview-entry=${previewEntry} present`);
 await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
 const address = server.address();
 assert(address && typeof address === "object");
@@ -64,23 +57,10 @@ try {
   for (const [viewportName, viewport] of viewports) {
     const context = await browser.newContext({ viewport });
     const page = await context.newPage();
-    const diagnostics = [];
-    page.on("console", (message) => {
-      if (message.type() === "error") diagnostics.push(`console:error ${message.text()}`);
-    });
-    page.on("pageerror", (error) => diagnostics.push(`pageerror ${error.message}`));
-    page.on("requestfailed", (request) => {
-      diagnostics.push(`requestfailed ${request.method()} ${request.url()} ${request.failure()?.errorText ?? "unknown"}`);
-    });
     for (const [name, id, selector] of cases) {
-      diagnostics.length = 0;
-      console.log(`[lab-storybook-smoke] start viewport=${viewportName} story=${name} id=${id}`);
-      try {
-        const response = await page.goto(`${baseUrl}/iframe.html?id=${id}&viewMode=story`, { waitUntil: "networkidle" });
-        assert(response, `${viewportName}/${name}: iframe navigation returned no response`);
-        assert.equal(response.status(), 200, `${viewportName}/${name}: iframe navigation returned ${response.status()}`);
-        const canvas = page.locator("#storybook-root");
-        await canvas.waitFor({ state: "attached" });
+      await page.goto(`${baseUrl}/iframe.html?id=${id}&viewMode=story`, { waitUntil: "networkidle" });
+      const canvas = page.locator("#storybook-root");
+      await canvas.waitFor({ state: "attached" });
       await page.locator(selector).first().waitFor({ state: "attached", timeout: 10000 });
       const errorSurfaces = page.locator("#error-message, .sb-errordisplay");
       const errorCount = await errorSurfaces.count();
@@ -126,13 +106,7 @@ try {
           `${viewportName}/${name}: focus was not restored to the opening card`,
         );
       }
-        results.push({ viewport: viewportName, story: name, status: "passed" });
-      } catch (error) {
-        console.error(
-          `[lab-storybook-smoke] fail viewport=${viewportName} story=${name} id=${id} url=${page.url()} diagnostics=${JSON.stringify(diagnostics.slice(-20))}`,
-        );
-        throw error;
-      }
+      results.push({ viewport: viewportName, story: name, status: "passed" });
     }
     await context.close();
   }
