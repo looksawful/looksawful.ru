@@ -139,7 +139,7 @@ async function uploadEvidence(config, fetchImpl, value, contentType) {
 
   form.set("file", new Blob([bytes], { type: contentType }), "evidence");
   form.set("type", "authenticated");
-  form.set("folder", CLOUDINARY_FOLDER);
+  form.set("asset_folder", CLOUDINARY_FOLDER);
 
   const response = await fetchImpl(
     `https://api.cloudinary.com/v1_1/${encodeURIComponent(config.cloudName)}/image/upload`,
