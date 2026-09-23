@@ -57,12 +57,13 @@ test("Storybook launcher bounds a stalled install phase and reports the phase", 
   );
   await chmod(fakeNpm, 0o755);
 
-  const repoRoot = fileURLToPath(new URL("../", import.meta.url));
+  const fixtureRoot = await mkdtemp(path.join(tmpdir(), "lab-storybook-fixture-"));
+  const launcher = fileURLToPath(new URL("../tools/lab/build-storybook.mjs", import.meta.url));
 
   try {
     const result = await new Promise((resolve, reject) => {
-      const child = spawn(process.execPath, ["tools/lab/build-storybook.mjs"], {
-        cwd: repoRoot,
+      const child = spawn(process.execPath, [launcher], {
+        cwd: fixtureRoot,
         env: {
           ...process.env,
           PATH: `${binDir}${path.delimiter}${process.env.PATH ?? ""}`,
@@ -88,6 +89,9 @@ test("Storybook launcher bounds a stalled install phase and reports the phase", 
       /\[lab-storybook\][^\n]*phase=install[^\n]*timed out[^\n]*75ms/i,
     );
   } finally {
-    await rm(binDir, { recursive: true, force: true });
+    await Promise.all([
+      rm(binDir, { recursive: true, force: true }),
+      rm(fixtureRoot, { recursive: true, force: true }),
+    ]);
   }
 });
