@@ -31,7 +31,6 @@ The classification is deliberately conservative: ambiguity stays **active**, not
 ## High-confidence reconciliation findings
 
 - **#884 is stale.** #987 establishes that the CV file is tracked source and the old failure came from an incomplete sparse checkout.
-- **#863 is superseded by #972.** The latter owns the complete Media Lightbox overlay/focus/browser evidence package.
 - **#682 is superseded by #679.** The newer storage contract preserves Git-backed Media Catalog authority and treats Object Storage as a delivery/heavy-binary layer.
 - **#680 duplicates #676.** Both specify the Yandex managed MCP Gateway; #676 is the broader/current package.
 - **#733 is superseded at medium confidence by #1087.** The newer program requires production to be the only public rendered site and moves pre-production visual review into the authenticated Private Lab.
