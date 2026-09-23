@@ -54,7 +54,6 @@ interface DragSession {
   pointerId: number;
   startX: number;
   startY: number;
-  lastX: number;
   startTime: number;
   startRect: DOMRect;
   moved: boolean;
@@ -524,7 +523,6 @@ export function mountPortfolioPet(
       pointerId: event.pointerId,
       startX: event.clientX,
       startY: event.clientY,
-      lastX: event.clientX,
       startTime: performance.now(),
       startRect: rect,
       moved: false,
@@ -536,11 +534,9 @@ export function mountPortfolioPet(
     if (!dragSession || dragSession.pointerId !== event.pointerId) return;
     const dx = event.clientX - dragSession.startX;
     const dy = event.clientY - dragSession.startY;
-    const stepDx = event.clientX - dragSession.lastX;
-    dragSession.lastX = event.clientX;
     if (!dragSession.moved && Math.hypot(dx, dy) < DRAG_THRESHOLD) return;
 
-    setFacingFromDelta(Math.abs(stepDx) >= 0.5 ? stepDx : dx);
+    setFacingFromDelta(dx);
     dragSession.moved = true;
     launcher.dataset.dragging = "true";
     launcher.dataset.state = "dragging";
