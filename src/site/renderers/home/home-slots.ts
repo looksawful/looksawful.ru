@@ -40,6 +40,7 @@ import {
 } from "../../rendering/html.ts";
 import {
   getProjectIndexPageIds,
+  portfolioPresentation,
   type PortfolioPresentation,
 } from "../../pages/portfolio-presentation.ts";
 import { renderPortfolioCardListItem } from "../portfolio/portfolio-card.ts";
@@ -195,7 +196,7 @@ function injectFeaturedProjectsSection(
 }
 
 export function createHomepageSlots(
-  presentation: PortfolioPresentation,
+  presentation: PortfolioPresentation = portfolioPresentation,
 ): readonly HtmlSlot[] {
   const projectCards = getProjectIndexPageIds(presentation)
     .map(renderPortfolioCardListItem)
