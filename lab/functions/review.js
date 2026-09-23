@@ -1,8 +1,12 @@
+import { sitePages } from "../../src/site/pages/manifest.ts";
 import { createCloudflareReviewStorage } from "./review-storage-cloudflare.js";
 
 const CURRENT_POINTER_KEY = "review-hub/v1/current.json";
 const TEMP_RETENTION_MS = 4 * 24 * 60 * 60 * 1000;
 const REVIEW_TARGET_ID = /^[a-z][a-z0-9-]*(?::[a-z0-9][a-z0-9-]{0,95})?$/u;
+const CANONICAL_REVIEW_TARGET_IDS = new Set(
+  sitePages.filter((page) => page.enabled).map((page) => page.id),
+);
 const EVIDENCE_ID = /^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$/u;
 const SHA = /^[0-9a-f]{40}$/u;
 const REVIEW_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/u;
@@ -75,7 +79,8 @@ export function validateReviewManifest(value) {
   if (value.version !== 1) return null;
   if (
     typeof value.reviewTargetId !== "string" ||
-    !REVIEW_TARGET_ID.test(value.reviewTargetId)
+    !REVIEW_TARGET_ID.test(value.reviewTargetId) ||
+    !CANONICAL_REVIEW_TARGET_IDS.has(value.reviewTargetId)
   ) {
     return null;
   }
