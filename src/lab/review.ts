@@ -19,16 +19,6 @@ type ReviewManifest = {
   evidence: ReviewEvidence[];
 };
 
-type ApprovalRecord = {
-  version: 1;
-  reviewId: string;
-  reviewTargetId: string;
-  sourceSha: string;
-  reviewDepth: ReviewDepth;
-  approvedAt: string;
-  approvedBy: string;
-};
-
 const REVIEW_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/u;
 const REVIEW_TARGET_ID = /^[a-z][a-z0-9-]*(?::[a-z0-9][a-z0-9-]{0,95})?$/u;
 const SOURCE_SHA = /^[0-9a-f]{40}$/u;
@@ -36,8 +26,6 @@ const EVIDENCE_ID = /^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$/u;
 const EVIDENCE_KINDS = new Set(["viewport", "full-page", "component", "diff"]);
 const IMAGE_TYPES = new Set(["image/png", "image/jpeg", "image/webp"]);
 const PLACEHOLDER = "—";
-
-let currentReview: ReviewManifest | null = null;
 
 function setText(id: string, value: string): void {
   const node = document.getElementById(id);
@@ -49,26 +37,6 @@ function setStatus(message: string, state: "loading" | "ready" | "empty" | "erro
   if (node === null) return;
   node.textContent = message;
   node.dataset.state = state;
-}
-
-function setApprovalStatus(message: string, state: "idle" | "loading" | "ready" | "error"): void {
-  const node = document.getElementById("review-approval-status");
-  if (node === null) return;
-  node.textContent = message;
-  node.dataset.state = state;
-}
-
-function approvalButton(): HTMLButtonElement | null {
-  const node = document.getElementById("review-approve");
-  return node instanceof HTMLButtonElement ? node : null;
-}
-
-function setApprovalAvailable(available: boolean): void {
-  const button = approvalButton();
-  if (button === null) return;
-  button.hidden = !available;
-  button.disabled = !available;
-  button.textContent = "Approve exact review";
 }
 
 function setBusy(busy: boolean): void {
@@ -85,13 +53,10 @@ function setReloadVisible(visible: boolean): void {
 }
 
 function clearReview(): void {
-  currentReview = null;
   setText("review-target", PLACEHOLDER);
   setText("review-sha", PLACEHOLDER);
   setText("review-depth", PLACEHOLDER);
   document.getElementById("review-evidence")?.replaceChildren();
-  setApprovalAvailable(false);
-  setApprovalStatus("Load a review before approval.", "idle");
 }
 
 function failReview(message: string): void {
@@ -138,27 +103,6 @@ function isManifest(value: unknown): value is ReviewManifest {
   );
 }
 
-function isApprovalRecord(value: unknown): value is ApprovalRecord {
-  if (typeof value !== "object" || value === null) return false;
-  const candidate = value as Record<string, unknown>;
-  return (
-    candidate.version === 1 &&
-    typeof candidate.reviewId === "string" &&
-    REVIEW_ID.test(candidate.reviewId) &&
-    typeof candidate.reviewTargetId === "string" &&
-    REVIEW_TARGET_ID.test(candidate.reviewTargetId) &&
-    typeof candidate.sourceSha === "string" &&
-    SOURCE_SHA.test(candidate.sourceSha) &&
-    (candidate.reviewDepth === "quick" ||
-      candidate.reviewDepth === "interactive" ||
-      candidate.reviewDepth === "full") &&
-    typeof candidate.approvedAt === "string" &&
-    Number.isFinite(Date.parse(candidate.approvedAt)) &&
-    typeof candidate.approvedBy === "string" &&
-    candidate.approvedBy.length > 0
-  );
-}
-
 function renderEvidence(manifest: ReviewManifest): void {
   const root = document.getElementById("review-evidence");
   if (root === null) return;
@@ -179,9 +123,7 @@ function renderEvidence(manifest: ReviewManifest): void {
 
     image.addEventListener(
       "load",
-      () => {
-        figure.setAttribute("aria-busy", "false");
-      },
+      () => figure.setAttribute("aria-busy", "false"),
       { once: true },
     );
     image.addEventListener(
@@ -202,147 +144,6 @@ function renderEvidence(manifest: ReviewManifest): void {
     root.append(figure);
     image.src = item.url;
   }
-}
-
-function sameApproval(record: ApprovalRecord, manifest: ReviewManifest): boolean {
-  return (
-    record.reviewId === manifest.reviewId &&
-    record.reviewTargetId === manifest.reviewTargetId &&
-    record.sourceSha === manifest.sourceSha &&
-    record.reviewDepth === manifest.reviewDepth
-  );
-}
-
-function approvalTimestamp(value: string): string {
-  return new Intl.DateTimeFormat(undefined, {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(new Date(value));
-}
-
-async function loadBaselineStatus(manifest: ReviewManifest): Promise<void> {
-  let response: Response;
-  try {
-    response = await fetch(
-      `/lab/review/baseline?reviewTargetId=${encodeURIComponent(manifest.reviewTargetId)}`,
-      {
-        credentials: "same-origin",
-        headers: { Accept: "application/json" },
-        cache: "no-store",
-      },
-    );
-  } catch {
-    setApprovalStatus("Baseline status could not be loaded. Approval remains available.", "error");
-    return;
-  }
-
-  if (response.status === 404) {
-    setApprovalStatus("No approved baseline for this Review Target.", "idle");
-    return;
-  }
-  if (!response.ok) {
-    setApprovalStatus(`Baseline status unavailable (HTTP ${response.status}).`, "error");
-    return;
-  }
-
-  let payload: unknown;
-  try {
-    payload = await response.json();
-  } catch {
-    setApprovalStatus("Baseline status response is invalid.", "error");
-    return;
-  }
-  if (!isApprovalRecord(payload)) {
-    setApprovalStatus("Baseline status response is invalid.", "error");
-    return;
-  }
-
-  if (sameApproval(payload, manifest)) {
-    const button = approvalButton();
-    if (button !== null) {
-      button.disabled = true;
-      button.textContent = "Approved";
-    }
-    setApprovalStatus(
-      `Approved ${approvalTimestamp(payload.approvedAt)} for this exact Review.`,
-      "ready",
-    );
-    return;
-  }
-
-  setApprovalStatus(
-    `Approved baseline is ${payload.sourceSha} (${payload.reviewDepth}); current review is not approved.`,
-    "idle",
-  );
-}
-
-async function approveCurrentReview(): Promise<void> {
-  const manifest = currentReview;
-  const button = approvalButton();
-  if (manifest === null || button === null || button.disabled) return;
-
-  button.disabled = true;
-  setApprovalStatus("Approving the exact Review Target, SHA and review depth shown above.", "loading");
-
-  let response: Response;
-  try {
-    response = await fetch("/lab/review/approval", {
-      method: "POST",
-      credentials: "same-origin",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      cache: "no-store",
-      body: JSON.stringify({
-        reviewId: manifest.reviewId,
-        reviewTargetId: manifest.reviewTargetId,
-        sourceSha: manifest.sourceSha,
-        reviewDepth: manifest.reviewDepth,
-      }),
-    });
-  } catch {
-    button.disabled = false;
-    setApprovalStatus("Approval could not reach the private review service.", "error");
-    return;
-  }
-
-  if (response.status === 409) {
-    setReloadVisible(true);
-    setApprovalStatus("Review changed or expired before approval. Reload before approving.", "error");
-    return;
-  }
-  if (response.status === 403) {
-    setReloadVisible(true);
-    setApprovalStatus("Approval requires the repository owner session.", "error");
-    return;
-  }
-  if (!response.ok) {
-    button.disabled = false;
-    setApprovalStatus(`Approval failed (HTTP ${response.status}).`, "error");
-    return;
-  }
-
-  let payload: unknown;
-  try {
-    payload = await response.json();
-  } catch {
-    button.disabled = false;
-    setApprovalStatus("Approval response could not be read.", "error");
-    return;
-  }
-
-  if (!isApprovalRecord(payload) || !sameApproval(payload, manifest)) {
-    button.disabled = false;
-    setApprovalStatus("Approval response does not match the displayed review.", "error");
-    return;
-  }
-
-  button.textContent = "Approved";
-  setApprovalStatus(
-    `Approved ${approvalTimestamp(payload.approvedAt)} for this exact Review.`,
-    "ready",
-  );
 }
 
 async function loadReview(): Promise<void> {
@@ -388,36 +189,23 @@ async function loadReview(): Promise<void> {
     return;
   }
 
-  currentReview = payload;
-  setText(
-    "review-status",
+  setStatus(
     `Captured ${new Intl.DateTimeFormat(undefined, {
       dateStyle: "medium",
       timeStyle: "short",
     }).format(new Date(payload.capturedAt))}.`,
+    "ready",
   );
-  const status = document.getElementById("review-status");
-  if (status !== null) status.dataset.state = "ready";
-
   setText("review-target", payload.reviewTargetId);
   setText("review-sha", payload.sourceSha);
   setText("review-depth", payload.reviewDepth);
   renderEvidence(payload);
-  setApprovalAvailable(true);
   setBusy(false);
-  await loadBaselineStatus(payload);
 }
 
 const reload = document.getElementById("review-reload");
 if (reload instanceof HTMLButtonElement) {
   reload.addEventListener("click", () => window.location.reload());
-}
-
-const approve = approvalButton();
-if (approve !== null) {
-  approve.addEventListener("click", () => {
-    void approveCurrentReview();
-  });
 }
 
 void loadReview();
