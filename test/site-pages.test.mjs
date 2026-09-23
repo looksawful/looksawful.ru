@@ -315,9 +315,9 @@ test("Project index de-duplicates an entity that is both Featured and an index e
     "case:jestei-pool",
     "case:styx",
     "case:sensetique",
+    "collection:music-photography",
     "project:awful-cases",
     "project:moves-awful",
-    "collection:music-photography",
   ]);
 });
 
