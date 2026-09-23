@@ -331,6 +331,42 @@ test("Archive cannot duplicate any entity in the main Project index", () => {
   );
 });
 
+test("Work shortcuts stay exactly Flagships plus Shootings", () => {
+  assert.deepEqual(portfolioPresentation.workShortcuts, [
+    ...portfolioPresentation.flagship,
+    "collection:music-photography",
+  ]);
+
+  assert.throws(
+    () => validatePortfolioPresentation({
+      ...portfolioPresentation,
+      workShortcuts: portfolioPresentation.flagship,
+    }, sitePages),
+    /Work shortcuts/i,
+  );
+});
+
+test("A resolved next-Case map must cover every Flagship exactly once", () => {
+  assert.doesNotThrow(() => validatePortfolioPresentation({
+    ...portfolioPresentation,
+    nextCase: {
+      "case:jestei-pool": "case:styx",
+      "case:styx": "case:sensetique",
+      "case:sensetique": "case:jestei-pool",
+    },
+  }, sitePages));
+
+  assert.throws(
+    () => validatePortfolioPresentation({
+      ...portfolioPresentation,
+      nextCase: {
+        "case:jestei-pool": "case:styx",
+      },
+    }, sitePages),
+    /every Flagship/i,
+  );
+});
+
 test("portfolio presentation validates manual next-Case routes", () => {
   assert.doesNotThrow(() => validatePortfolioPresentation({
     ...portfolioPresentation,
