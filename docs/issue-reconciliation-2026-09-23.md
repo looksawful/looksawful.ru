@@ -41,6 +41,17 @@ The classification is deliberately conservative: ambiguity stays **active**, not
 - **#552/#556 remain active**, but their old "wait for #397" blocker text is stale because the CSS program is already recorded as closed/completed elsewhere.
 - **#746 remains active**; its old session-specific workstation blocker should not be treated as a current repository blocker.
 
+## Mutation wave applied — 2026-09-23
+
+The nine terminal issues from this reconciliation were closed with evidence before building the execution frontier:
+
+- completed: #932, #988, #1033, #1034, #1121;
+- duplicate: #680 → #676;
+- superseded: #682 → #679, #733 → #1087;
+- stale/not planned: #884 → corrected sparse-checkout diagnosis in #987/#971.
+
+Current live open set after this mutation wave: **199 issues** = **167 active + 32 blocked**.
+
 ## Mutation policy
 
 This pass **does not mass-close or relabel issues**. It produces the evidence ledger first. Terminal buckets are closure/rewrite candidates, not silent destructive mutations. Applying GitHub state changes should use this ledger so each closure can name its canonical successor/evidence.
