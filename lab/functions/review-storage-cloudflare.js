@@ -22,22 +22,6 @@ function basicAuthorization(config) {
   return `Basic ${btoa(`${config.apiKey}:${config.apiSecret}`)}`;
 }
 
-function hex(bytes) {
-  return [...new Uint8Array(bytes)]
-    .map((value) => value.toString(16).padStart(2, "0"))
-    .join("");
-}
-
-async function sign(config, params) {
-  const serialized = Object.entries(params)
-    .filter(([, value]) => value !== undefined && value !== null && value !== "")
-    .sort(([left], [right]) => left.localeCompare(right))
-    .map(([key, value]) => `${key}=${Array.isArray(value) ? value.join(",") : value}`)
-    .join("&");
-  const payload = new TextEncoder().encode(`${serialized}${config.apiSecret}`);
-  return hex(await crypto.subtle.digest("SHA-1", payload));
-}
-
 async function responseJson(response, label) {
   if (!response.ok) {
     const detail = await response.text().catch(() => "");
@@ -144,16 +128,6 @@ async function writeRow(config, row, expectedEtag) {
   return true;
 }
 
-async function signedForm(config, params) {
-  const timestamp = Math.floor(Date.now() / 1000).toString();
-  const signed = { ...params, timestamp };
-  const body = new URLSearchParams();
-  for (const [key, value] of Object.entries(signed)) body.set(key, String(value));
-  body.set("api_key", config.apiKey);
-  body.set("signature", await sign(config, signed));
-  return body;
-}
-
 async function uploadEvidence(config, fetchImpl, value, contentType) {
   const form = new FormData();
   const bytes =
@@ -193,13 +167,15 @@ async function uploadEvidence(config, fetchImpl, value, contentType) {
 }
 
 async function downloadEvidence(config, fetchImpl, assetId) {
-  const body = await signedForm(config, { asset_id: assetId });
+  const form = new FormData();
+  form.set("asset_id", assetId);
+
   const response = await fetchImpl(
     `https://api.cloudinary.com/v1_1/${encodeURIComponent(config.cloudName)}/asset/download`,
     {
       method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body,
+      headers: { Authorization: basicAuthorization(config) },
+      body: form,
       cache: "no-store",
     },
   );
@@ -213,13 +189,15 @@ async function downloadEvidence(config, fetchImpl, assetId) {
 }
 
 async function destroyEvidence(config, fetchImpl, assetId) {
-  const body = await signedForm(config, { asset_id: assetId });
+  const form = new FormData();
+  form.set("asset_id", assetId);
+
   const response = await fetchImpl(
     `https://api.cloudinary.com/v1_1/${encodeURIComponent(config.cloudName)}/destroy`,
     {
       method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body,
+      headers: { Authorization: basicAuthorization(config) },
+      body: form,
     },
   );
   const result = await responseJson(response, "Cloudinary review evidence delete");
