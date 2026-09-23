@@ -107,13 +107,18 @@ export function validatePortfolioPresentation(
   assertUnique("Project index", getProjectIndexPageIds(presentation));
   assertUnique("Work shortcut", presentation.workShortcuts);
 
-  const mainTier = new Set<string>(presentation.flagship);
+  const mainTier = new Set<string>([
+    ...getProjectIndexPageIds(presentation),
+  ]);
   for (const id of presentation.featured) {
-    if (mainTier.has(id)) throw new Error(`Duplicate portfolio main-tier page id: ${id}`);
-    mainTier.add(id);
+    if (presentation.flagship.includes(id)) {
+      throw new Error(`Duplicate portfolio main-tier page id: ${id}`);
+    }
   }
   for (const id of presentation.archive) {
-    if (mainTier.has(id)) throw new Error(`Duplicate portfolio tier page id: ${id}`);
+    if (mainTier.has(id)) {
+      throw new Error(`Duplicate portfolio tier page id: Archive overlaps Project index at ${id}`);
+    }
   }
 
   if (presentation.featured.length !== 0 && (
