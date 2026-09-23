@@ -107,6 +107,17 @@ export function validatePortfolioPresentation(
   assertUnique("Project index", getProjectIndexPageIds(presentation));
   assertUnique("Work shortcut", presentation.workShortcuts);
 
+  const expectedWorkShortcuts = [
+    ...presentation.flagship,
+    "collection:music-photography",
+  ];
+  if (
+    presentation.workShortcuts.length !== expectedWorkShortcuts.length
+    || presentation.workShortcuts.some((id, index) => id !== expectedWorkShortcuts[index])
+  ) {
+    throw new Error("Work shortcuts must be exactly the current Flagships followed by Shootings");
+  }
+
   const mainTier = new Set<string>([
     ...getProjectIndexPageIds(presentation),
   ]);
@@ -127,7 +138,20 @@ export function validatePortfolioPresentation(
     throw new Error("Featured portfolio selection must be empty while unapproved or contain 3–5 entities");
   }
 
-  for (const [sourceId, targetId] of Object.entries(presentation.nextCase)) {
+  const nextCaseEntries = Object.entries(presentation.nextCase);
+  if (nextCaseEntries.length !== 0 && nextCaseEntries.length !== presentation.flagship.length) {
+    throw new Error("Resolved next-Case routing must cover every Flagship exactly once");
+  }
+
+  if (nextCaseEntries.length !== 0) {
+    for (const flagshipId of presentation.flagship) {
+      if (!(flagshipId in presentation.nextCase)) {
+        throw new Error(`Resolved next-Case routing must cover every Flagship exactly once: missing ${flagshipId}`);
+      }
+    }
+  }
+
+  for (const [sourceId, targetId] of nextCaseEntries) {
     const source = requireEntityPage(sourceId, pages);
     const target = requireEntityPage(targetId, pages);
     if (source.type !== "case" || target.type !== "case") {
