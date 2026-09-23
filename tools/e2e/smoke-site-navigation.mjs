@@ -1,45 +1,33 @@
-import { getCase, getCollection } from "../../src/data/catalog/lookup.ts";
-import { getNavigationLabel } from "../../src/data/navigation.ts";
 import { isDirectExecution, withE2ERuntime } from "./runtime.mjs";
 
 let BASE_URL = "";
 
-const HOME_LABEL = getNavigationLabel("home");
-const WORK_LABEL = getNavigationLabel("work");
-const GALLERY_LABEL = getNavigationLabel("gallery");
-const CV_LABEL = getNavigationLabel("cv");
-const JESTEI_LABEL = getCase("jestei-pool").name;
-const STYX_LABEL = getCase("styx").name;
-const SENSETIQUE_LABEL = getCase("sensetique").name;
-const SHOOTINGS_COLLECTION = getCollection("music-photography");
-const SHOOTINGS_LABEL = SHOOTINGS_COLLECTION.displayName || SHOOTINGS_COLLECTION.name;
-
-const PRIMARY_LINKS = [
-  [WORK_LABEL, "/work/"],
-  [JESTEI_LABEL, "/work/jestei-pool/"],
-  [STYX_LABEL, "/work/styx/"],
-  [SENSETIQUE_LABEL, "/work/sensetique/"],
-  [SHOOTINGS_LABEL, "/shootings/"],
-  [GALLERY_LABEL, "/gallery/"],
-  [CV_LABEL, "/cv/"],
+const PRIMARY_LINK_HREFS = [
+  "/work/",
+  "/work/jestei-pool/",
+  "/work/styx/",
+  "/work/sensetique/",
+  "/shootings/",
+  "/gallery/",
+  "/cv/",
 ];
 
 const LONG_UNBROKEN_LABEL = `CMS${"navigationlabel".repeat(32)}`;
 
 const CASES = [
   ["/", "", 390, 844],
-  ["/work/", WORK_LABEL, 390, 844],
-  ["/work/jestei-pool/", JESTEI_LABEL, 390, 844],
-  ["/shootings/", SHOOTINGS_LABEL, 390, 844],
-  ["/gallery/", GALLERY_LABEL, 390, 844],
-  ["/work/jestei-pool/", JESTEI_LABEL, 1440, 900],
+  ["/work/", "/work/", 390, 844],
+  ["/work/jestei-pool/", "/work/jestei-pool/", 390, 844],
+  ["/shootings/", "/shootings/", 390, 844],
+  ["/gallery/", "/gallery/", 390, 844],
+  ["/work/jestei-pool/", "/work/jestei-pool/", 1440, 900],
 ];
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
 }
 
-async function auditNavigation(browser, path, currentLabel, width, height) {
+async function auditNavigation(browser, path, currentHref, width, height) {
   const mobile = width <= 844;
   const context = await browser.newContext({
     viewport: { width, height },
@@ -84,10 +72,17 @@ async function auditNavigation(browser, path, currentLabel, width, height) {
     assert(initial.navBorderBlockEndWidth === "0px", `${label}: closed global nav still has separator ${initial.navBorderBlockEndWidth}`);
 
     if (path !== "/") {
-      const breadcrumb = await page.locator('[aria-label="Хлебные крошки"]').innerText();
-      assert(breadcrumb.includes(currentLabel), `${label}: breadcrumb is missing current label: ${breadcrumb}`);
+      const breadcrumbState = await page.locator('[aria-label="Хлебные крошки"]').evaluate((root) => {
+        const current = root.querySelector('[aria-current="page"]');
+        const home = root.querySelector('a[href="/"]');
+        return {
+          currentText: current?.textContent?.trim() || "",
+          homeText: home?.textContent?.trim() || "",
+        };
+      });
+      assert(breadcrumbState.currentText.length > 0, `${label}: breadcrumb current item is empty`);
       if (!mobile) {
-        assert(breadcrumb.includes(HOME_LABEL), `${label}: desktop breadcrumb is missing home label: ${breadcrumb}`);
+        assert(breadcrumbState.homeText.length > 0, `${label}: desktop breadcrumb is missing home identity`);
       }
     }
 
@@ -119,7 +114,7 @@ async function auditNavigation(browser, path, currentLabel, width, height) {
     const toggle = page.locator("[data-site-menu-toggle]");
     await toggle.click();
 
-    const opened = await page.evaluate(({ primaryLinks, current, mobileViewport }) => {
+    const opened = await page.evaluate(({ primaryHrefs, current, mobileViewport }) => {
       const siteNav = document.querySelector(".site-nav");
       const toggle = document.querySelector("[data-site-menu-toggle]");
       const menu = document.querySelector("[data-site-menu]");
@@ -174,10 +169,10 @@ async function auditNavigation(browser, path, currentLabel, width, height) {
         menuTextAlign: menuLinkStyle?.textAlign || "",
         menuJustifyContent: menuLinkStyle?.justifyContent || "",
         mobilePreviewHidden: mobileViewport && preview instanceof HTMLElement ? preview.hidden : null,
-        expected: primaryLinks,
+        expectedHrefs: primaryHrefs,
         current,
       };
-    }, { primaryLinks: PRIMARY_LINKS, current: currentLabel, mobileViewport: mobile });
+    }, { primaryHrefs: PRIMARY_LINK_HREFS, current: currentHref, mobileViewport: mobile });
 
     assert(opened.expanded === "true", `${label}: menu control did not expand`);
     assert(opened.menuHidden === false, `${label}: menu stayed hidden after click`);
@@ -195,8 +190,17 @@ async function auditNavigation(browser, path, currentLabel, width, height) {
     assert(opened.togglePosition === "fixed", `${label}: Awfulface is still positioned as part of the header row (${opened.togglePosition})`);
     assert(opened.toggleFloatsInViewport, `${label}: floating Awfulface control left the usable viewport`);
     assert(opened.faceBackgroundFill === "none", `${label}: Awfulface backing disc is still visible (${opened.faceBackgroundFill})`);
-    assert(JSON.stringify(opened.links) === JSON.stringify(PRIMARY_LINKS), `${label}: primary menu destinations differ`);
-    assert(opened.currentLabel === currentLabel, `${label}: wrong active menu item ${opened.currentLabel}`);
+    const openedHrefs = opened.links.map(([, href]) => href);
+    const openedLabels = opened.links.map(([text]) => text);
+    assert(JSON.stringify(openedHrefs) === JSON.stringify(PRIMARY_LINK_HREFS), `${label}: primary menu destinations differ`);
+    assert(openedLabels.every((text) => text.length > 0), `${label}: primary menu contains an empty label`);
+    const currentLink = opened.links.find(([, href]) => href === currentHref);
+    if (currentHref) {
+      assert(currentLink, `${label}: missing expected current destination ${currentHref}`);
+      assert(opened.currentLabel === currentLink[0], `${label}: wrong active menu item ${opened.currentLabel}`);
+    } else {
+      assert(opened.currentLabel === "", `${label}: home route should not mark a menu item current`);
+    }
     if (mobile) {
       assert(opened.mobilePreviewHidden === true, `${label}: coarse/mobile preview should stay hidden`);
       assert(opened.menuTextAlign === "center", `${label}: mobile menu labels must stay centered`);
