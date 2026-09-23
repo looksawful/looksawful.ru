@@ -24,14 +24,14 @@ Tasks are tracked in GitHub Issues under parent #1166.
 - #1172 Shootings + existing hidden project pages
 
 ### Phase 2: heavy/new surfaces
-- new ticket: Jestei product/UI/filter/subscription/promo
-- new ticket: newly enabled hidden routes
+- #1180 Jestei product/UI/filter/subscription/promo
+- #1181 newly enabled hidden routes
 - #1173 CV profile + skills + education
-- new ticket: CV experience
-- new ticket: Privacy
+- #1182 CV experience
+- #1183 Privacy
 
 ### Phase 3: cross-site validation
-- new ticket: Metadata + site-wide fact consistency
+- #1184 Metadata + site-wide fact consistency
 
 ### Final gate
 - #1174 complete questionnaire integration and review-state verification
