@@ -405,6 +405,20 @@ test("portfolio presentation keeps editorial tiers unresolved until owner approv
 });
 
 
+test("Work page fails closed when Archive contains a non-public entity", () => {
+  const page = sitePages.find((candidate) => candidate.id === "work");
+  assert.ok(page && page.type === "work");
+
+  assert.throws(
+    () => renderWorkPage(page, {
+      ...portfolioPresentation,
+      projectIndexExtras: [],
+      archive: ["project:awful-cases"],
+    }),
+    /Archive.*listed.*indexable|listed.*indexable.*Archive/i,
+  );
+});
+
 test("Work page renders the resolved main index and keeps unresolved Archive out of production output", () => {
   const page = sitePages.find((candidate) => candidate.id === "work");
   assert.ok(page && page.type === "work");
