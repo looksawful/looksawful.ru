@@ -5,6 +5,7 @@ import test from "node:test";
 import { handleReviewRequest } from "../lab/functions/review.js";
 
 const SOURCE_SHA = "0123456789abcdef0123456789abcdef01234567";
+const REVIEW_TARGET_ID = "project:awful-mockups";
 
 class MemoryReviewStorage {
   #objects = new Map();
@@ -56,7 +57,7 @@ class MemoryReviewStorage {
 function manifest() {
   return {
     version: 1,
-    caseId: "awful-mockups",
+    reviewTargetId: REVIEW_TARGET_ID,
     sourceSha: SOURCE_SHA,
     reviewDepth: "quick",
     capturedAt: "2026-09-21T14:00:00.000Z",
@@ -70,17 +71,17 @@ function manifest() {
   };
 }
 
-function uploadRequest() {
+function uploadRequest(file = new File(["private-image"], "desktop.png", { type: "image/png" })) {
   const form = new FormData();
   form.set("manifest", JSON.stringify(manifest()));
-  form.set("desktop", new File(["private-image"], "desktop.png", { type: "image/png" }));
+  form.set("desktop", file);
   return new Request("https://admin.looksawful.ru/lab/review/api", {
     method: "POST",
     body: form,
   });
 }
 
-test("private review stores one Case evidence and returns only sanitized manifest data", async () => {
+test("private review stores one Review Target evidence and returns only sanitized manifest data", async () => {
   const bucket = new MemoryReviewStorage();
 
   const created = await handleReviewRequest({
@@ -97,7 +98,7 @@ test("private review stores one Case evidence and returns only sanitized manifes
   assert.equal(response.headers.get("Cache-Control"), "private, no-store");
 
   const payload = await response.json();
-  assert.equal(payload.caseId, "awful-mockups");
+  assert.equal(payload.reviewTargetId, REVIEW_TARGET_ID);
   assert.equal(payload.sourceSha, SOURCE_SHA);
   assert.equal(payload.reviewDepth, "quick");
   assert.deepEqual(payload.evidence, [
@@ -109,10 +110,11 @@ test("private review stores one Case evidence and returns only sanitized manifes
     },
   ]);
   assert.equal(JSON.stringify(payload).includes("reviews/"), false);
-  assert.equal(JSON.stringify(payload).includes("objectKey"), false);
+  assert.equal(JSON.stringify(payload).includes("assetId"), false);
+  assert.equal(JSON.stringify(payload).includes("cloudinary"), false);
 });
 
-test("private review evidence is served from private storage and fails closed without backend configuration", async () => {
+test("private review evidence is served through the private application path and fails closed without backend configuration", async () => {
   const bucket = new MemoryReviewStorage();
   await handleReviewRequest({
     request: uploadRequest(),
@@ -126,6 +128,7 @@ test("private review evidence is served from private storage and fails closed wi
   assert.equal(evidence.status, 200);
   assert.equal(evidence.headers.get("Content-Type"), "image/png");
   assert.equal(evidence.headers.get("Cache-Control"), "private, no-store");
+  assert.equal(evidence.headers.get("X-Content-Type-Options"), "nosniff");
   assert.equal(await evidence.text(), "private-image");
 
   const unavailable = await handleReviewRequest({
@@ -135,7 +138,7 @@ test("private review evidence is served from private storage and fails closed wi
   assert.equal(unavailable.status, 503);
 });
 
-test("Review Hub is inside the authenticated Lab boundary and renders Case review fields", async () => {
+test("Review Hub is inside the authenticated Lab boundary and renders Review Target fields", async () => {
   const [middleware, config, html, client, styles] = await Promise.all([
     readFile(new URL("../lab/functions/_middleware.js", import.meta.url), "utf8"),
     readFile(new URL("../vite.lab.config.ts", import.meta.url), "utf8"),
@@ -166,13 +169,14 @@ test("Review Hub is inside the authenticated Lab boundary and renders Case revie
 
   assert.match(config, /lab\/review\/index\.html/);
   assert.match(html, /noindex,nofollow,noarchive/);
-  assert.match(html, /id="review-case"/);
+  assert.match(html, /id="review-target"/);
   assert.match(html, /id="review-sha"/);
   assert.match(html, /id="review-depth"/);
   assert.match(html, /id="review-evidence"/);
   assert.match(html, /aria-live="polite"/);
   assert.match(html, /id="review-reload"/);
   assert.match(html, /aria-busy="true"/);
+  assert.match(client, /reviewTargetId/);
   assert.match(client, /\/lab\/review\/api/);
   assert.match(client, /Number\.isFinite\(Date\.parse/);
   assert.match(client, /Evidence image unavailable/);
@@ -182,8 +186,7 @@ test("Review Hub is inside the authenticated Lab boundary and renders Case revie
   assert.doesNotMatch(client, /localStorage|sessionStorage/);
 });
 
-
-test("recapturing the same Case SHA creates a distinct immutable Review", async () => {
+test("recapturing the same Review Target SHA creates a distinct immutable Review", async () => {
   const bucket = new MemoryReviewStorage();
 
   const firstResponse = await handleReviewRequest({
@@ -205,7 +208,7 @@ test("recapturing the same Case SHA creates a distinct immutable Review", async 
   assert.notEqual(second.reviewId, first.reviewId);
 
   const reviewObjects = bucket.keysWithPrefix(
-    `review-hub/v1/cases/awful-mockups/${SOURCE_SHA}/reviews/`,
+    `review-hub/v1/targets/${encodeURIComponent(REVIEW_TARGET_ID)}/${SOURCE_SHA}/reviews/`,
   );
   assert.equal(
     reviewObjects.filter((key) => key.endsWith("/manifest.json")).length,
@@ -217,4 +220,21 @@ test("recapturing the same Case SHA creates a distinct immutable Review", async 
     2,
     "each capture keeps its own immutable evidence",
   );
+});
+
+test("review image evidence fails closed above 10 MB", async () => {
+  const bucket = new MemoryReviewStorage();
+  const tooLarge = new File(
+    [new Uint8Array(10 * 1024 * 1024 + 1)],
+    "desktop.png",
+    { type: "image/png" },
+  );
+
+  const response = await handleReviewRequest({
+    request: uploadRequest(tooLarge),
+    env: { REVIEW_STORAGE: bucket },
+  });
+
+  assert.equal(response.status, 400);
+  assert.equal(bucket.keysWithPrefix("review-hub/v1/targets/").length, 0);
 });
