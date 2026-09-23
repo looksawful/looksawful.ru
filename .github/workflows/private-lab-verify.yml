@@ -64,6 +64,7 @@ jobs:
         run: npm run media:ensure
 
       - name: Build private Storybook design system
+        timeout-minutes: 12
         run: npm run lab:system
 
       - name: Generate Storybook inventory
