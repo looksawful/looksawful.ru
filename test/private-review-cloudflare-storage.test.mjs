@@ -164,10 +164,8 @@ test("Cloudflare review storage puts binary evidence in Cloudinary authenticated
       }
 
       if (href.endsWith("/asset/download")) {
-        const body = new URLSearchParams(init.body);
-        assert.equal(body.get("asset_id"), "asset-immutable-1");
-        assert.equal(body.get("api_key"), ENV.CLOUDINARY_API_KEY);
-        assert.ok(body.get("signature"));
+        assert.match(String(init.headers?.Authorization ?? ""), /^Basic /u);
+        assert.equal(init.body.get("asset_id"), "asset-immutable-1");
         return new Response(new Uint8Array([1, 2, 3]), {
           status: 200,
           headers: { "Content-Type": "image/png" },
@@ -175,9 +173,8 @@ test("Cloudflare review storage puts binary evidence in Cloudinary authenticated
       }
 
       if (href.endsWith("/destroy")) {
-        const body = new URLSearchParams(init.body);
-        assert.equal(body.get("asset_id"), "asset-immutable-1");
-        assert.ok(body.get("signature"));
+        assert.match(String(init.headers?.Authorization ?? ""), /^Basic /u);
+        assert.equal(init.body.get("asset_id"), "asset-immutable-1");
         return new Response(JSON.stringify({ result: "ok" }), {
           status: 200,
           headers: { "Content-Type": "application/json" },
