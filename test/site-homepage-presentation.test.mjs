@@ -137,9 +137,9 @@ test("homepage Featured section is driven only by portfolio presentation members
   assert.ok(positions.every((position) => position >= 0), `missing homepage layer: ${positions.join(", ")}`);
   assert.deepEqual([...positions].sort((a, b) => a - b), positions);
   assert.match(homepage, /class="pet-projects"[^>]*aria-labelledby="featured-projects-title"/);
-  assert.match(homepage, /href="\/work\/awful-cases\/"/);
-  assert.match(homepage, /href="\/work\/moves-awful\/"/);
-  assert.match(homepage, /href="\/shootings\/"/);
+  assert.equal((homepage.match(/href="\/work\/awful-cases\/"/g) ?? []).length, 2);
+  assert.equal((homepage.match(/href="\/work\/moves-awful\/"/g) ?? []).length, 2);
+  assert.equal((homepage.match(/href="\/shootings\/"/g) ?? []).length, 2);
   assert.doesNotMatch(homepage, /href="\/work\/berserk-timer\/"/);
   assert.match(homepage, /class="subproject-card"/);
   assert.match(homepage, /class="project-card"/);
