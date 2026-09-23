@@ -151,7 +151,8 @@ test("Cloudflare review storage puts binary evidence in Cloudinary authenticated
       if (href.endsWith("/image/upload")) {
         assert.match(String(init.headers?.Authorization ?? ""), /^Basic /u);
         assert.equal(init.body.get("type"), "authenticated");
-        assert.equal(init.body.get("folder"), "looksawful/review-hub");
+        assert.equal(init.body.get("asset_folder"), "looksawful/review-hub");
+        assert.equal(init.body.get("folder"), null);
         return new Response(JSON.stringify({
           asset_id: "asset-immutable-1",
           public_id: "looksawful/review-hub/random",
