@@ -12,7 +12,7 @@ type ReviewEvidence = {
 type ReviewManifest = {
   version: 1;
   reviewId: string;
-  caseId: string;
+  reviewTargetId: string;
   sourceSha: string;
   reviewDepth: ReviewDepth;
   capturedAt: string;
@@ -22,7 +22,7 @@ type ReviewManifest = {
 type ApprovalRecord = {
   version: 1;
   reviewId: string;
-  caseId: string;
+  reviewTargetId: string;
   sourceSha: string;
   reviewDepth: ReviewDepth;
   approvedAt: string;
@@ -30,7 +30,7 @@ type ApprovalRecord = {
 };
 
 const REVIEW_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/u;
-const CASE_ID = /^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$/u;
+const REVIEW_TARGET_ID = /^[a-z][a-z0-9-]*(?::[a-z0-9][a-z0-9-]{0,95})?$/u;
 const SOURCE_SHA = /^[0-9a-f]{40}$/u;
 const EVIDENCE_ID = /^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$/u;
 const EVIDENCE_KINDS = new Set(["viewport", "full-page", "component", "diff"]);
@@ -86,7 +86,7 @@ function setReloadVisible(visible: boolean): void {
 
 function clearReview(): void {
   currentReview = null;
-  setText("review-case", PLACEHOLDER);
+  setText("review-target", PLACEHOLDER);
   setText("review-sha", PLACEHOLDER);
   setText("review-depth", PLACEHOLDER);
   document.getElementById("review-evidence")?.replaceChildren();
@@ -123,8 +123,8 @@ function isManifest(value: unknown): value is ReviewManifest {
     candidate.version === 1 &&
     typeof candidate.reviewId === "string" &&
     REVIEW_ID.test(candidate.reviewId) &&
-    typeof candidate.caseId === "string" &&
-    CASE_ID.test(candidate.caseId) &&
+    typeof candidate.reviewTargetId === "string" &&
+    REVIEW_TARGET_ID.test(candidate.reviewTargetId) &&
     typeof candidate.sourceSha === "string" &&
     SOURCE_SHA.test(candidate.sourceSha) &&
     (candidate.reviewDepth === "quick" ||
@@ -145,8 +145,8 @@ function isApprovalRecord(value: unknown): value is ApprovalRecord {
     candidate.version === 1 &&
     typeof candidate.reviewId === "string" &&
     REVIEW_ID.test(candidate.reviewId) &&
-    typeof candidate.caseId === "string" &&
-    CASE_ID.test(candidate.caseId) &&
+    typeof candidate.reviewTargetId === "string" &&
+    REVIEW_TARGET_ID.test(candidate.reviewTargetId) &&
     typeof candidate.sourceSha === "string" &&
     SOURCE_SHA.test(candidate.sourceSha) &&
     (candidate.reviewDepth === "quick" ||
@@ -170,7 +170,7 @@ function renderEvidence(manifest: ReviewManifest): void {
     figure.setAttribute("aria-busy", "true");
 
     const image = document.createElement("img");
-    image.alt = `${manifest.caseId} ${item.kind} review evidence ${item.id}`;
+    image.alt = `${manifest.reviewTargetId} ${item.kind} review evidence ${item.id}`;
     image.loading = "eager";
     image.decoding = "async";
 
@@ -207,7 +207,7 @@ function renderEvidence(manifest: ReviewManifest): void {
 function sameApproval(record: ApprovalRecord, manifest: ReviewManifest): boolean {
   return (
     record.reviewId === manifest.reviewId &&
-    record.caseId === manifest.caseId &&
+    record.reviewTargetId === manifest.reviewTargetId &&
     record.sourceSha === manifest.sourceSha &&
     record.reviewDepth === manifest.reviewDepth
   );
@@ -224,7 +224,7 @@ async function loadBaselineStatus(manifest: ReviewManifest): Promise<void> {
   let response: Response;
   try {
     response = await fetch(
-      `/lab/review/baseline?caseId=${encodeURIComponent(manifest.caseId)}`,
+      `/lab/review/baseline?reviewTargetId=${encodeURIComponent(manifest.reviewTargetId)}`,
       {
         credentials: "same-origin",
         headers: { Accept: "application/json" },
@@ -237,7 +237,7 @@ async function loadBaselineStatus(manifest: ReviewManifest): Promise<void> {
   }
 
   if (response.status === 404) {
-    setApprovalStatus("No approved baseline for this Case.", "idle");
+    setApprovalStatus("No approved baseline for this Review Target.", "idle");
     return;
   }
   if (!response.ok) {
@@ -282,7 +282,7 @@ async function approveCurrentReview(): Promise<void> {
   if (manifest === null || button === null || button.disabled) return;
 
   button.disabled = true;
-  setApprovalStatus("Approving the exact Case, SHA and review depth shown above.", "loading");
+  setApprovalStatus("Approving the exact Review Target, SHA and review depth shown above.", "loading");
 
   let response: Response;
   try {
@@ -296,7 +296,7 @@ async function approveCurrentReview(): Promise<void> {
       cache: "no-store",
       body: JSON.stringify({
         reviewId: manifest.reviewId,
-        caseId: manifest.caseId,
+        reviewTargetId: manifest.reviewTargetId,
         sourceSha: manifest.sourceSha,
         reviewDepth: manifest.reviewDepth,
       }),
@@ -399,7 +399,7 @@ async function loadReview(): Promise<void> {
   const status = document.getElementById("review-status");
   if (status !== null) status.dataset.state = "ready";
 
-  setText("review-case", payload.caseId);
+  setText("review-target", payload.reviewTargetId);
   setText("review-sha", payload.sourceSha);
   setText("review-depth", payload.reviewDepth);
   renderEvidence(payload);
