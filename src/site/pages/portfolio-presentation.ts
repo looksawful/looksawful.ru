@@ -46,8 +46,8 @@ export function getProjectIndexPageIds(
 ): readonly PortfolioEntityPageId[] {
   return [...new Set<PortfolioEntityPageId>([
     ...presentation.flagship,
-    ...presentation.featured,
     ...presentation.projectIndexExtras,
+    ...presentation.featured,
   ])];
 }
 
