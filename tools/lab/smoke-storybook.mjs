@@ -35,17 +35,24 @@ function safeFile(urlPath) {
 }
 
 const server = createServer(async (request, response) => {
+  let file = null;
   try {
-    let file = safeFile(request.url || "/");
+    file = safeFile(request.url || "/");
     if (!file) throw new Error("invalid path");
     if ((await stat(file)).isDirectory()) file = path.join(file, "index.html");
     const body = await readFile(file);
     response.writeHead(200, { "content-type": MIME.get(path.extname(file)) || "application/octet-stream" });
     response.end(body);
-  } catch {
+  } catch (error) {
+    console.error(
+      `[lab-storybook-server] 404 request=${request.url ?? "/"} file=${file ?? "none"} error=${error instanceof Error ? `${error.name}: ${error.message}` : String(error)}`,
+    );
     response.writeHead(404).end("not found");
   }
 });
+const previewEntry = path.join(storybookDir, "iframe.html");
+await stat(previewEntry);
+console.log(`[lab-storybook-server] preview-entry=${previewEntry} present`);
 await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
 const address = server.address();
 assert(address && typeof address === "object");
