@@ -42,3 +42,12 @@ A browser-facing optimized media file used for site delivery while the source ma
 
 **Editorial copy**:
 Authored human-facing text that can be edited where an explicit editorial/CMS model exposes it.
+
+**Text review item**:
+One exact human-facing text occurrence bound to a Site page, section, role and provenance. A repeated string may share a decision only when its context is materially equivalent.
+
+**Text review option**:
+One explicit editorial choice for a Text review item. The supported editorial categories are Keep, Minimal correction, Strong improvement and Custom; unavailable variants are omitted rather than synthesized.
+
+**Fact check**:
+A separate review item for resolving conflicting or unverified factual claims. Editorial options that depend on an unresolved Fact check remain reviewable but blocked from final application.
