@@ -7,6 +7,7 @@ import {
   homepageEntries,
 } from "../src/site/pages/homepage.ts";
 import { getPageByPath } from "../src/site/pages/manifest.ts";
+import { extractElementContainingMarker } from "../src/site/rendering/html.ts";
 import { portfolioPresentation } from "../src/site/pages/portfolio-presentation.ts";
 import { renderStandaloneEntityPage } from "../src/site/renderers/entity-page.ts";
 import { renderHomepagePage } from "../src/site/renderers/home/home-page.ts";
@@ -137,10 +138,30 @@ test("homepage Featured section is driven only by portfolio presentation members
   assert.ok(positions.every((position) => position >= 0), `missing homepage layer: ${positions.join(", ")}`);
   assert.deepEqual([...positions].sort((a, b) => a - b), positions);
   assert.match(homepage, /class="pet-projects"[^>]*aria-labelledby="featured-projects-title"/);
-  assert.equal((homepage.match(/href="\/work\/awful-cases\/"/g) ?? []).length, 2);
-  assert.equal((homepage.match(/href="\/work\/moves-awful\/"/g) ?? []).length, 2);
-  assert.equal((homepage.match(/href="\/shootings\/"/g) ?? []).length, 2);
-  assert.doesNotMatch(homepage, /href="\/work\/berserk-timer\/"/);
+
+  const projectIndex = extractElementContainingMarker(
+    homepage,
+    "section",
+    'id="projects-grid-title"',
+  );
+  const featured = extractElementContainingMarker(
+    homepage,
+    "section",
+    'id="featured-projects-title"',
+  );
+
+  for (const href of [
+    "/work/awful-cases/",
+    "/work/moves-awful/",
+    "/shootings/",
+  ]) {
+    const linkPattern = new RegExp(`href="${href}"`, "g");
+    assert.equal((projectIndex.match(linkPattern) ?? []).length, 1, `Project index: ${href}`);
+    assert.equal((featured.match(linkPattern) ?? []).length, 1, `Featured: ${href}`);
+  }
+
+  assert.doesNotMatch(projectIndex, /href="\/work\/berserk-timer\//);
+  assert.doesNotMatch(featured, /href="\/work\/berserk-timer\//);
   assert.match(homepage, /class="subproject-card"/);
   assert.match(homepage, /class="project-card"/);
   assert.match(homepage, /\.pet-projects \.project-card\b/);
