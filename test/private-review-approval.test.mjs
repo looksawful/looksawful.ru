@@ -3,7 +3,7 @@ import test from "node:test";
 
 import { handleReviewRequest } from "../lab/functions/review.js";
 
-const CASE_ID = "awful-mockups";
+const REVIEW_TARGET_ID = "project:awful-mockups";
 const SOURCE_SHA = "0123456789abcdef0123456789abcdef01234567";
 const STALE_SHA = "1111111111111111111111111111111111111111";
 const SUPERSEDED_SHA = "2222222222222222222222222222222222222222";
@@ -94,7 +94,7 @@ class MemoryReviewStorage {
 function reviewManifest(sourceSha = SOURCE_SHA) {
   return {
     version: 1,
-    caseId: CASE_ID,
+    reviewTargetId: REVIEW_TARGET_ID,
     sourceSha,
     reviewDepth: "quick",
     capturedAt: "2026-09-21T14:59:00.000Z",
@@ -117,7 +117,7 @@ function approvalRequest(sourceSha = SOURCE_SHA, reviewId = undefined) {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      caseId: CASE_ID,
+      reviewTargetId: REVIEW_TARGET_ID,
       sourceSha,
       reviewDepth: "quick",
       ...(reviewId === undefined ? {} : { reviewId }),
@@ -158,21 +158,21 @@ test("approval is owner-only and promotes an exact Case+SHA baseline", async () 
   assert.deepEqual(
     {
       reviewId: payload.reviewId,
-      caseId: payload.caseId,
+      reviewTargetId: payload.reviewTargetId,
       sourceSha: payload.sourceSha,
       reviewDepth: payload.reviewDepth,
       approvedAt: payload.approvedAt,
     },
     {
       reviewId: review.reviewId,
-      caseId: CASE_ID,
+      reviewTargetId: REVIEW_TARGET_ID,
       sourceSha: SOURCE_SHA,
       reviewDepth: "quick",
       approvedAt: "2026-09-21T15:00:00.000Z",
     },
   );
 
-  const state = bucket.object(`review-hub/v1/state/${CASE_ID}.json`);
+  const state = bucket.object(`review-hub/v1/state/${encodeURIComponent(REVIEW_TARGET_ID)}.json`);
   assert.ok(state, "Case state must persist");
   const statePayload = JSON.parse(new TextDecoder().decode(state.bytes));
   assert.equal(statePayload.current.reviewId, review.reviewId);
@@ -182,23 +182,23 @@ test("approval is owner-only and promotes an exact Case+SHA baseline", async () 
   assert.equal(statePayload.baseline.reviewDepth, "quick");
   assert.equal(
     statePayload.baseline.evidence[0].url,
-    `/lab/review/baseline/${CASE_ID}/evidence/desktop`,
+    `/lab/review/baseline/${encodeURIComponent(REVIEW_TARGET_ID)}/evidence/desktop`,
   );
 
   const durableEvidence = bucket.objectsWithPrefix(
-    `review-hub/v1/baselines/${CASE_ID}/objects/`,
+    `review-hub/v1/baselines/${encodeURIComponent(REVIEW_TARGET_ID)}/objects/`,
   );
   assert.equal(durableEvidence.length, 1, "approved baseline evidence must be durable");
   assert.equal(new TextDecoder().decode(durableEvidence[0].bytes), "private-image");
 
   const approvals = bucket.objectsWithPrefix(
-    `review-hub/v1/approvals/${CASE_ID}/${SOURCE_SHA}/quick/`,
+    `review-hub/v1/approvals/${encodeURIComponent(REVIEW_TARGET_ID)}/${SOURCE_SHA}/quick/`,
   );
   assert.equal(approvals.length, 1, "compact approval record must persist separately");
 
   const baselineResponse = await handleReviewRequest({
     request: new Request(
-      `https://admin.looksawful.ru/lab/review/baseline?caseId=${CASE_ID}`,
+      `https://admin.looksawful.ru/lab/review/baseline?reviewTargetId=${REVIEW_TARGET_ID}`,
     ),
     env: { REVIEW_STORAGE: bucket },
     session: OWNER_SESSION,
@@ -210,7 +210,7 @@ test("approval is owner-only and promotes an exact Case+SHA baseline", async () 
 
   const baselineEvidence = await handleReviewRequest({
     request: new Request(
-      `https://admin.looksawful.ru/lab/review/baseline/${CASE_ID}/evidence/desktop`,
+      `https://admin.looksawful.ru/lab/review/baseline/${encodeURIComponent(REVIEW_TARGET_ID)}/evidence/desktop`,
     ),
     env: { REVIEW_STORAGE: bucket },
     session: OWNER_SESSION,
@@ -234,18 +234,18 @@ test("repeating approval for the same exact Review is idempotent", async () => {
   const firstPayload = await first.json();
 
   const firstState = JSON.parse(
-    new TextDecoder().decode(bucket.object(`review-hub/v1/state/${CASE_ID}.json`).bytes),
+    new TextDecoder().decode(bucket.object(`review-hub/v1/state/${encodeURIComponent(REVIEW_TARGET_ID)}.json`).bytes),
   );
   const firstApprovalKeys = bucket
-    .objectsWithPrefix(`review-hub/v1/approvals/${CASE_ID}/${SOURCE_SHA}/quick/`)
+    .objectsWithPrefix(`review-hub/v1/approvals/${encodeURIComponent(REVIEW_TARGET_ID)}/${SOURCE_SHA}/quick/`)
     .map(({ key }) => key)
     .sort();
   const firstBaselineKeys = bucket
-    .objectsWithPrefix(`review-hub/v1/baselines/${CASE_ID}/objects/`)
+    .objectsWithPrefix(`review-hub/v1/baselines/${encodeURIComponent(REVIEW_TARGET_ID)}/objects/`)
     .map(({ key }) => key)
     .sort();
 
-  bucket.failNextPutFor(`review-hub/v1/state/${CASE_ID}.json`);
+  bucket.failNextPutFor(`review-hub/v1/state/${encodeURIComponent(REVIEW_TARGET_ID)}.json`);
   const second = await handleReviewRequest({
     request: approvalRequest(SOURCE_SHA, review.reviewId),
     env: { REVIEW_STORAGE: bucket },
@@ -256,20 +256,20 @@ test("repeating approval for the same exact Review is idempotent", async () => {
   assert.deepEqual(await second.json(), firstPayload);
 
   const secondState = JSON.parse(
-    new TextDecoder().decode(bucket.object(`review-hub/v1/state/${CASE_ID}.json`).bytes),
+    new TextDecoder().decode(bucket.object(`review-hub/v1/state/${encodeURIComponent(REVIEW_TARGET_ID)}.json`).bytes),
   );
   assert.equal(secondState.baseline.promotionId, firstState.baseline.promotionId);
   assert.equal(secondState.baseline.approvedAt, firstState.baseline.approvedAt);
   assert.deepEqual(
     bucket
-      .objectsWithPrefix(`review-hub/v1/approvals/${CASE_ID}/${SOURCE_SHA}/quick/`)
+      .objectsWithPrefix(`review-hub/v1/approvals/${encodeURIComponent(REVIEW_TARGET_ID)}/${SOURCE_SHA}/quick/`)
       .map(({ key }) => key)
       .sort(),
     firstApprovalKeys,
   );
   assert.deepEqual(
     bucket
-      .objectsWithPrefix(`review-hub/v1/baselines/${CASE_ID}/objects/`)
+      .objectsWithPrefix(`review-hub/v1/baselines/${encodeURIComponent(REVIEW_TARGET_ID)}/objects/`)
       .map(({ key }) => key)
       .sort(),
     firstBaselineKeys,
@@ -287,12 +287,12 @@ test("stale SHA approval fails closed and cannot replace the Case baseline", asy
     now: () => NOW,
   });
   assert.equal(stale.status, 409);
-  const state = bucket.object(`review-hub/v1/state/${CASE_ID}.json`);
+  const state = bucket.object(`review-hub/v1/state/${encodeURIComponent(REVIEW_TARGET_ID)}.json`);
   assert.ok(state);
   assert.equal(JSON.parse(new TextDecoder().decode(state.bytes)).baseline, null);
   assert.equal(
     bucket.objectsWithPrefix(
-      `review-hub/v1/approvals/${CASE_ID}/${STALE_SHA}/quick/`,
+      `review-hub/v1/approvals/${encodeURIComponent(REVIEW_TARGET_ID)}/${STALE_SHA}/quick/`,
     ).length,
     0,
   );
@@ -303,7 +303,7 @@ test("temporary review evidence carries four-day retention while approved copies
   const review = await createReview(bucket);
 
   const temporaryEvidence = bucket.object(
-    `review-hub/v1/cases/${CASE_ID}/${SOURCE_SHA}/reviews/${review.reviewId}/evidence/desktop`,
+    `review-hub/v1/targets/${encodeURIComponent(REVIEW_TARGET_ID)}/${SOURCE_SHA}/reviews/${review.reviewId}/evidence/desktop`,
   );
   assert.equal(temporaryEvidence?.customMetadata?.expiresAt, FOUR_DAYS_LATER);
 
@@ -315,7 +315,7 @@ test("temporary review evidence carries four-day retention while approved copies
   });
 
   const durableEvidence = bucket.objectsWithPrefix(
-    `review-hub/v1/baselines/${CASE_ID}/objects/`,
+    `review-hub/v1/baselines/${encodeURIComponent(REVIEW_TARGET_ID)}/objects/`,
   );
   assert.equal(durableEvidence.length, 1);
   assert.deepEqual(durableEvidence[0]?.customMetadata ?? {}, {});
@@ -329,19 +329,19 @@ test("temporary review evidence carries four-day retention while approved copies
   assert.equal(expiredReview.status, 404);
   assert.equal(
     bucket.object(
-      `review-hub/v1/cases/${CASE_ID}/${SOURCE_SHA}/reviews/${review.reviewId}/evidence/desktop`,
+      `review-hub/v1/targets/${encodeURIComponent(REVIEW_TARGET_ID)}/${SOURCE_SHA}/reviews/${review.reviewId}/evidence/desktop`,
     ),
     null,
   );
   assert.equal(
     bucket.objectsWithPrefix(
-      `review-hub/v1/approvals/${CASE_ID}/${SOURCE_SHA}/quick/`,
+      `review-hub/v1/approvals/${encodeURIComponent(REVIEW_TARGET_ID)}/${SOURCE_SHA}/quick/`,
     ).length,
     1,
     "compact approval record must outlive temporary evidence",
   );
   assert.equal(
-    bucket.objectsWithPrefix(`review-hub/v1/baselines/${CASE_ID}/objects/`).length,
+    bucket.objectsWithPrefix(`review-hub/v1/baselines/${encodeURIComponent(REVIEW_TARGET_ID)}/objects/`).length,
     1,
     "approved baseline evidence must outlive temporary evidence",
   );
@@ -359,7 +359,7 @@ test("Review Hub approval UI binds the displayed review and handles stale approv
   assert.match(html, /id="review-approval-status"/);
   assert.match(client, /\/lab\/review\/approval/);
   assert.match(client, /reviewId:\s*manifest\.reviewId/);
-  assert.match(client, /caseId:\s*manifest\.caseId/);
+  assert.match(client, /reviewTargetId:\s*manifest\.reviewTargetId/);
   assert.match(client, /sourceSha:\s*manifest\.sourceSha/);
   assert.match(client, /reviewDepth:\s*manifest\.reviewDepth/);
   assert.match(client, /response\.status === 409/);
@@ -369,7 +369,7 @@ test("Review Hub approval UI binds the displayed review and handles stale approv
 test("failed final baseline promotion rolls back durable copies and approval record", async () => {
   const bucket = new MemoryReviewStorage();
   const review = await createReview(bucket);
-  bucket.failNextPutFor(`review-hub/v1/state/${CASE_ID}.json`);
+  bucket.failNextPutFor(`review-hub/v1/state/${encodeURIComponent(REVIEW_TARGET_ID)}.json`);
 
   const response = await handleReviewRequest({
     request: approvalRequest(SOURCE_SHA, review.reviewId),
@@ -379,17 +379,17 @@ test("failed final baseline promotion rolls back durable copies and approval rec
   });
 
   assert.equal(response.status, 503);
-  const failedState = bucket.object(`review-hub/v1/state/${CASE_ID}.json`);
+  const failedState = bucket.object(`review-hub/v1/state/${encodeURIComponent(REVIEW_TARGET_ID)}.json`);
   assert.ok(failedState);
   assert.equal(JSON.parse(new TextDecoder().decode(failedState.bytes)).baseline, null);
   assert.equal(
     bucket.objectsWithPrefix(
-      `review-hub/v1/approvals/${CASE_ID}/${SOURCE_SHA}/quick/`,
+      `review-hub/v1/approvals/${encodeURIComponent(REVIEW_TARGET_ID)}/${SOURCE_SHA}/quick/`,
     ).length,
     0,
   );
   assert.equal(
-    bucket.objectsWithPrefix(`review-hub/v1/baselines/${CASE_ID}/objects/`).length,
+    bucket.objectsWithPrefix(`review-hub/v1/baselines/${encodeURIComponent(REVIEW_TARGET_ID)}/objects/`).length,
     0,
   );
 });
@@ -400,7 +400,7 @@ test("superseding review during the final Case promotion makes approval fail clo
   const review = await createReview(bucket);
 
   bucket.beforeNextPutFor(
-    `review-hub/v1/state/${CASE_ID}.json`,
+    `review-hub/v1/state/${encodeURIComponent(REVIEW_TARGET_ID)}.json`,
     async () => {
       await createReview(bucket, SUPERSEDED_SHA, NOW + 500);
     },
@@ -426,7 +426,7 @@ test("superseding review during the final Case promotion makes approval fail clo
 
   const baseline = await handleReviewRequest({
     request: new Request(
-      `https://admin.looksawful.ru/lab/review/baseline?caseId=${CASE_ID}`,
+      `https://admin.looksawful.ru/lab/review/baseline?reviewTargetId=${REVIEW_TARGET_ID}`,
     ),
     env: { REVIEW_STORAGE: bucket },
     session: OWNER_SESSION,
