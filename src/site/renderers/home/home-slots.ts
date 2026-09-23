@@ -74,8 +74,30 @@ const petProjectsStyles = `
     padding: var(--size-200) var(--pet-edge-space) var(--size-400);
   }
 
-  .pet-projects .subproject-card { display: block; min-inline-size: 0; color: inherit; text-decoration: none; }
-  .pet-projects .subproject-card__figure { display: grid; min-inline-size: 0; margin: 0; transform-origin: center; }
+  .pet-projects__grid > li { min-inline-size: 0; list-style: none; scroll-snap-align: center; }
+  .pet-projects .subproject-card,
+  .pet-projects .project-card { display: block; min-inline-size: 0; color: inherit; text-decoration: none; }
+  .pet-projects .subproject-card__figure,
+  .pet-projects .project-card__figure { display: grid; min-inline-size: 0; margin: 0; transform-origin: center; }
+  .pet-projects .project-card__media {
+    aspect-ratio: 4 / 5;
+    border-radius: clamp(0.875rem, 2.2cqi, 1.375rem);
+  }
+  .pet-projects .project-card__caption {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--size-100);
+    min-block-size: 6rem;
+    padding: var(--size-200) 0 0;
+    font-size: var(--fs-200);
+  }
+  .pet-projects .project-card__focus {
+    display: -webkit-box;
+    max-inline-size: 32ch;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+  .pet-projects .subproject-card__figure {
   .pet-projects .subproject-card__media {
     position: relative;
     display: grid;
@@ -111,7 +133,7 @@ const petProjectsStyles = `
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 3;
   }
-  .pet-projects a.subproject-card:focus-visible { outline: var(--border-width-200) solid currentColor; outline-offset: var(--size-100); border-radius: clamp(0.875rem, 2.2cqi, 1.375rem); }
+  .pet-projects :is(a.subproject-card, a.project-card):focus-visible { outline: var(--border-width-200) solid currentColor; outline-offset: var(--size-100); border-radius: clamp(0.875rem, 2.2cqi, 1.375rem); }
 
   @keyframes pet-project-card-focus {
     from, to { scale: 0.94; }
@@ -121,7 +143,7 @@ const petProjectsStyles = `
   }
   @supports (animation-timeline: view(inline)) {
     @media (prefers-reduced-motion: no-preference) {
-      .pet-projects .subproject-card__figure {
+      .pet-projects :is(.subproject-card__figure, .project-card__figure) {
         animation: pet-project-card-focus linear both;
         animation-timeline: view(inline);
         animation-range: cover 20% cover 80%;
@@ -130,7 +152,7 @@ const petProjectsStyles = `
     }
   }
   @media (prefers-reduced-motion: reduce) {
-    .pet-projects .subproject-card__figure { animation: none; scale: 1; translate: none; }
+    .pet-projects :is(.subproject-card__figure, .project-card__figure) { animation: none; scale: 1; translate: none; }
   }
 `;
 
