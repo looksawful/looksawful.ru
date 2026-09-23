@@ -54,7 +54,7 @@ test("Gallery keeps series boundaries non-editorial until curation is approved, 
   assert.match(html, /<img[^>]*\bwidth="\d+"[^>]*\bheight="\d+"/);
   assert.doesNotMatch(html, /gallery-series__title/);
   assert.match(html, /gallery-card__caption/);
-  assert.match(html, /aria-label="Открыть: [^"]+"/);
+  assert.match(html, /aria-label="Открыть изображение: [^"]+"/);
 });
 
 test("Gallery keeps the existing five Jestei symbols until the curation decision is approved", () => {
