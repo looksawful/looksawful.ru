@@ -485,3 +485,49 @@
 .model-viewer[data-model-state="loading"] > [data-model-viewer-canvas] {
   opacity: 0;
 }
+
+[data-model-viewer-runtime] > .model-viewer__controls {
+  position: absolute;
+  z-index: 2;
+  inset-inline-end: var(--size-100);
+  inset-block-end: var(--size-100);
+  display: flex;
+  gap: var(--size-100);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 120ms ease;
+}
+
+[data-model-viewer-runtime]:focus-visible > .model-viewer__controls,
+[data-model-viewer-runtime] > .model-viewer__controls:focus-within {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.model-viewer__control {
+  display: grid;
+  place-items: center;
+  min-inline-size: 2.75rem;
+  min-block-size: 2.75rem;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, currentColor 22%, transparent);
+  border-radius: var(--radius-100);
+  background: var(--clr-surface-raised);
+  color: var(--clr-text);
+  font: inherit;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.model-viewer__control:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-model-viewer-runtime] > .model-viewer__controls {
+    transition: none;
+  }
+}
