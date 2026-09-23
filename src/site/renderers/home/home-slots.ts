@@ -97,7 +97,6 @@ const petProjectsStyles = `
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 3;
   }
-  .pet-projects .subproject-card__figure {
   .pet-projects .subproject-card__media {
     position: relative;
     display: grid;
