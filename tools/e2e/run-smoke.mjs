@@ -297,6 +297,30 @@ async function verifyCanvas(page) {
   assert.notEqual(await page.locator("[data-animated-canvas-gallery]").first().getAttribute("data-gallery-state"), "error");
 }
 
+async function verifyPortfolioPet(page) {
+  const pet = page.locator("[data-portfolio-pet-launcher]");
+  assert.equal(await pet.count(), 1, "home must mount exactly one Awful mascot");
+  await pet.waitFor({ state: "visible" });
+
+  const image = pet.locator(".portfolio-pet__image");
+  await image.evaluate(async (node) => {
+    await node.decode();
+    if (!node.naturalWidth) throw new Error("Awful mascot sprite did not decode");
+  });
+
+  const initialFrame = await image.getAttribute("data-frame");
+  await page.waitForFunction(
+    (frame) => document.querySelector(".portfolio-pet__image")?.getAttribute("data-frame") !== frame,
+    initialFrame,
+  );
+
+  await pet.click();
+  const contactHub = page.locator("[data-contact-form-hub]");
+  await contactHub.waitFor({ state: "visible" });
+  assert.equal(await contactHub.getAttribute("data-visibility"), "open");
+  await contactHub.locator("[data-contact-form-hub-close]").click();
+}
+
 export async function runQuickSmoke({ browser, baseUrl, cvMode = "authored" }) {
   const runtime = { browser, baseUrl };
   // These are the only parallel contexts; callers run quick smoke before deep suites.
@@ -304,6 +328,7 @@ export async function runQuickSmoke({ browser, baseUrl, cvMode = "authored" }) {
     await verifyBuiltAssets(page);
     await verifyNavigation(page);
     await verifyImage(page);
+    if (viewport.width === 390) await verifyPortfolioPet(page);
   }));
   await mapWithConcurrency([
     ["/gallery/", verifyGalleryAccessibilityBaseline],

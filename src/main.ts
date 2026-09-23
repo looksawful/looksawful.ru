@@ -1,4 +1,6 @@
 import "./styles/site-analytics-consent.css";
+import "./styles/portfolio-pet.css";
+import "./styles/contact-form-hub.css";
 
 import { createMediaRuntimeHealth } from "./components/media-runtime-health.ts";
 import { hydrateDeferredVideoSource } from "./components/deferred-video-source.ts";
@@ -12,6 +14,8 @@ import { createPageFlips } from "./components/page-flip.ts";
 import { createBerserkAudioPlayers } from "./components/berserk-audio-player.ts";
 import { mountExpertise } from "./components/expertise.ts";
 import { mountExperience } from "./components/experience.ts";
+import { mountPortfolioPet } from "./components/portfolio-pet.ts";
+import { mountContactFormHub } from "./components/contact-form-hub.ts";
 import { mountSiteAnalyticsConsent } from "./components/site-analytics-consent.ts";
 import {
   mountSiteAnalytics,
@@ -136,6 +140,8 @@ const destroys: Destroy[] = [
   destroySiteAnalyticsCaseEndTracking,
   destroySiteAnalyticsConsent,
 ];
+destroys.push(mountPortfolioPet(document, { enabled: true }));
+destroys.push(mountContactFormHub(document));
 let destroyed = false;
 
 numberMediaCaptions(document);
