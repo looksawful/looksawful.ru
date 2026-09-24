@@ -30,7 +30,7 @@ function resolvePhaseTimeoutMs() {
 
 const phaseTimeoutMs = resolvePhaseTimeoutMs();
 
-function terminateProcessTree(child, isWindows) {
+async function terminateProcessTree(child, isWindows) {
   if (!child.pid) {
     child.kill("SIGKILL");
     child.unref();
@@ -38,26 +38,30 @@ function terminateProcessTree(child, isWindows) {
   }
 
   if (isWindows) {
-    const killer = spawn("taskkill", ["/pid", String(child.pid), "/t", "/f"], {
-      stdio: "ignore",
-      windowsHide: true,
-    });
-    let finished = false;
-    const finish = (fallbackToChildKill) => {
-      if (finished) return;
-      finished = true;
-      clearTimeout(killerTimer);
-      if (fallbackToChildKill) child.kill("SIGKILL");
-      child.unref();
-      killer.unref();
-    };
-    const killerTimer = setTimeout(() => {
-      killer.kill("SIGKILL");
-      finish(true);
-    }, WINDOWS_TERMINATION_TIMEOUT_MS);
+    await new Promise((resolve) => {
+      const killer = spawn("taskkill", ["/pid", String(child.pid), "/t", "/f"], {
+        stdio: "ignore",
+        windowsHide: true,
+      });
+      let finished = false;
+      let killerTimer;
+      const finish = (fallbackToChildKill) => {
+        if (finished) return;
+        finished = true;
+        if (killerTimer) clearTimeout(killerTimer);
+        if (fallbackToChildKill) child.kill("SIGKILL");
+        child.unref();
+        killer.unref();
+        resolve();
+      };
 
-    killer.once("error", () => finish(true));
-    killer.once("close", (code) => finish(code !== 0));
+      killer.once("error", () => finish(true));
+      killer.once("close", (code) => finish(code !== 0));
+      killerTimer = setTimeout(() => {
+        killer.kill("SIGKILL");
+        finish(true);
+      }, WINDOWS_TERMINATION_TIMEOUT_MS);
+    });
     return;
   }
 
@@ -122,10 +126,11 @@ function run(phase, command, args) {
 
     timer = setTimeout(() => {
       if (settled) return;
+      settled = true;
+      clearTimeout(timer);
       const message = `[lab-storybook] phase=${phase} timed out after ${phaseTimeoutMs}ms`;
       console.error(message);
-      terminateProcessTree(child, isWindows);
-      finish(() => reject(new Error(message)));
+      void terminateProcessTree(child, isWindows).finally(() => reject(new Error(message)));
     }, phaseTimeoutMs);
   });
 }
