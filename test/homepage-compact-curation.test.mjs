@@ -17,7 +17,7 @@ function articleSlice(articleId) {
   const marker = `id="${articleId}"`;
   const start = homepage.lastIndexOf("<article", homepage.indexOf(marker));
   assert.ok(start >= 0, `${articleId} must render`);
-  const callout = homepage.indexOf('class="project-preview-entry"', start);
+  const callout = homepage.indexOf('class="project-preview-entry wrapper"', start);
   assert.ok(callout > start, `${articleId} must expose its terminal CTA`);
   const end = homepage.indexOf("</article>", callout);
   assert.ok(end > callout, `${articleId} must close after its CTA`);
@@ -69,7 +69,7 @@ test("homepage renders only the approved visual-only compact cases", () => {
     assert.doesNotMatch(article, /class="media__caption\b/);
     assert.doesNotMatch(article, /class="credits\b/);
     assert.doesNotMatch(article, /class="project__links\b/);
-    assert.match(article, new RegExp(`class="project-preview-entry"[\\s\\S]*href="${href.replaceAll("/", "\\/")}"[\\s\\S]*Подробнее о проекте`));
+    assert.match(article, new RegExp(`class="project-preview-entry wrapper"[\\s\\S]*href="${href.replaceAll("/", "\\/")}"[\\s\\S]*Подробнее о проекте`));
   }
 });
 test("standalone Styx temporarily omits social instructions without deleting canonical data", () => {
