@@ -69,11 +69,18 @@ test("Storybook launcher bounds a stalled install phase and reports the phase", 
           PATH: `${binDir}${path.delimiter}${process.env.PATH ?? ""}`,
           LAB_STORYBOOK_PHASE_TIMEOUT_MS: "75",
         },
-        stdio: "ignore",
+        stdio: ["ignore", "pipe", "pipe"],
       });
 
+      let output = "";
+      child.stdout.on("data", (chunk) => {
+        output += chunk;
+      });
+      child.stderr.on("data", (chunk) => {
+        output += chunk;
+      });
       child.on("error", reject);
-      child.on("close", (code, signal) => resolve({ code, signal }));
+      child.on("close", (code, signal) => resolve({ code, signal, output }));
     });
 
     assert.notEqual(result.code, 0, "stalled install must fail instead of continuing");
@@ -141,18 +148,11 @@ exec sleep 600
           LAB_STORYBOOK_PHASE_TIMEOUT_MS: "75",
           LAB_STORYBOOK_FAKE_CHILD_PID_FILE: childPidFile,
         },
-        stdio: ["ignore", "pipe", "pipe"],
+        stdio: "ignore",
       });
 
-      let output = "";
-      child.stdout.on("data", (chunk) => {
-        output += chunk;
-      });
-      child.stderr.on("data", (chunk) => {
-        output += chunk;
-      });
       child.on("error", reject);
-      child.on("close", (code, signal) => resolve({ code, signal, output }));
+      child.on("close", (code, signal) => resolve({ code, signal }));
     });
 
     assert.notEqual(result.code, 0, "timed out launcher must fail");
