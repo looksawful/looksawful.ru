@@ -135,7 +135,7 @@ export const obladaetMediaEntries = [
     caption: {
         title: "Обложка для тура Obladaet.",
         meta: [
-            "Фотограф: Иван Крушинский, дизайн Shulya / 2020.",
+            "Фотограф: Иван Крушинский, дизайн: Shulya / 2020.",
         ],
     }
 },
@@ -149,7 +149,7 @@ export const obladaetMediaEntries = [
     caption: {
         title: "Обложка для тура Obladaet.",
         meta: [
-            "Фотограф: Иван Крушинский, дизайн Shulya / 2020.",
+            "Фотограф: Иван Крушинский, дизайн: Shulya / 2020.",
         ],
     }
 },
@@ -354,7 +354,7 @@ export const obladaetMediaEntries = [
         title: "Обложка для тура Obladaet.",
         index: 11,
         meta: [
-            "Фотограф: Иван Крушинский, дизайн Shulya / 2020.",
+            "Фотограф: Иван Крушинский, дизайн: Shulya / 2020.",
         ],
     }
 },
@@ -369,7 +369,7 @@ export const obladaetMediaEntries = [
         title: "Обложка для тура Obladaet.",
         index: 11,
         meta: [
-            "Фотограф: Иван Крушинский, дизайн Shulya / 2020.",
+            "Фотограф: Иван Крушинский, дизайн: Shulya / 2020.",
         ],
     }
 },

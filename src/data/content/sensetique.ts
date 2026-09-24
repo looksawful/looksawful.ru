@@ -1639,7 +1639,7 @@ export const sensetiqueStudioMockupDeck = {
         { entryId: "sensetique-11-source-47-853x1280-use-01", sourceIndex: 105 },
         { entryId: "sensetique-11-source-50-853x1280-use-01", sourceIndex: 106 },
         { entryId: "sensetique-11-source-55-853x1280-use-01", sourceIndex: 107 },
-        { entryId: "sensetique-11-source-56-5x4-use-01", sourceIndex: 108, mediaCredits: "Фотограф Андрей Рапуто,стилист Мария Жукова,продюсер Иван Крушинский" },
+        { entryId: "sensetique-11-source-56-5x4-use-01", sourceIndex: 108, mediaCredits: "Фотограф Андрей Рапуто, стилист Мария Жукова, продюсер Иван Крушинский" },
         { entryId: "sensetique-11-source-58-1280x799-use-01", sourceIndex: 109 },
         { entryId: "sensetique-11-source-60-1280x799-use-01", sourceIndex: 110 },
         { entryId: "sensetique-11-source-64-457x640-use-01", sourceIndex: 111 },
