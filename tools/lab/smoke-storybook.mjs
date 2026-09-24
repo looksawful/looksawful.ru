@@ -23,6 +23,9 @@ const cases = [
   ["gallery-runtime-keyboard", "03-organisms-gallery-controller--open-keyboard", ".pswp"],
   ["gallery-runtime-pointer", "03-organisms-gallery-controller--open-pointer", ".pswp"],
   ["gallery-runtime-deep-link", "03-organisms-gallery-controller--deep-linked", ".pswp"],
+  ["gallery-mixed-video-focus", "03-organisms-gallery-controller--mixed-video-focused-preview", "[data-gallery-video-previewing]"],
+  ["gallery-mixed-video-open", "03-organisms-gallery-controller--mixed-video-open", ".pswp [data-photoswipe-video]"],
+  ["gallery-deep-linked-slide", "03-organisms-gallery-controller--deep-linked-slide", ".pswp"],
   ["gallery-loading", "03-organisms-animated-canvas-gallery--loading", "[data-gallery-state=\"loading\"]"],
   ["gallery-error", "03-organisms-animated-canvas-gallery--error", "[data-gallery-state=\"error\"]"],
 ];
@@ -78,6 +81,21 @@ try {
       if (name.startsWith("gallery-runtime-")) {
         assert.match(page.url(), /\/gallery\/\?item=[^#&]+/);
         assert.equal(await page.locator("[data-gallery-card]").first().getAttribute("aria-haspopup"), "dialog");
+      }
+      if (name === "gallery-mixed-video-focus") {
+        const preview = page.locator("[data-gallery-video-preview]").first();
+        assert.equal(await preview.evaluate((video) => video instanceof HTMLVideoElement && video.muted), true);
+        assert.ok(await preview.getAttribute("src"), "focused Gallery preview must hydrate its video source");
+      }
+      if (name === "gallery-mixed-video-open") {
+        const video = page.locator("[data-photoswipe-video]").first();
+        assert.equal(await video.evaluate((node) => node instanceof HTMLVideoElement && node.muted), true);
+        assert.match(page.url(), /\/gallery\/\?item=jestei-13-source-01-16x9/);
+      }
+      if (name === "gallery-deep-linked-slide") {
+        const url = new URL(page.url());
+        assert.equal(url.searchParams.get("item"), "jestei-08-source-11-637x419");
+        assert.equal(url.searchParams.get("slide"), "2");
       }
       await page.addScriptTag({ content: axe.source });
       const a11y = await page.evaluate(async () => {
