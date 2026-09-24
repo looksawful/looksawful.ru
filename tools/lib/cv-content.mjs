@@ -443,12 +443,12 @@ function transformExperienceCases(article, entry) {
     (inner) => {
       const pattern = /(<(a|span)\b(?=[^>]*\bclass=["'][^"']*\bexperience-value\b[^"']*["'])[^>]*>)[\s\S]*?(<\/\2>)/gi;
       const matches = [...inner.matchAll(pattern)];
-      if (matches.length !== entry.cases.length) {
-        throw new Error(`CV experience ${entry.id} case markup count must remain ${entry.cases.length}; got ${matches.length}`);
+      if (matches.length < entry.cases.length) {
+        throw new Error(`CV experience ${entry.id} case markup must provide at least ${entry.cases.length} slots; got ${matches.length}`);
       }
       let index = 0;
       return inner.replace(pattern, (_match, open, _tag, close) => {
-        const value = entry.cases[index];
+        const value = entry.cases[index] ?? "";
         index += 1;
         return `${setOpeningHidden(open, !value)}${escapeHtml(value)}${close}`;
       });
