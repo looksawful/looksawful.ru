@@ -69,6 +69,17 @@ export function buildDecisionLockState(items=[],priorDecisions=[]){
     }
 
     const currentText=item.current.source;
+    if(currentText===decision.original_text&&decision.chosen_text===decision.original_text){
+      locked.push({
+        item,
+        decision,
+        status:"kept-current",
+        chosenText:decision.chosen_text,
+        chosenOption:decision.chosen_option
+      });
+      continue;
+    }
+
     if(currentText===decision.chosen_text){
       locked.push({
         item,
@@ -81,23 +92,13 @@ export function buildDecisionLockState(items=[],priorDecisions=[]){
     }
 
     if(currentText===decision.original_text){
-      if(decision.chosen_text===decision.original_text){
-        locked.push({
-          item,
-          decision,
-          status:"kept-current",
-          chosenText:decision.chosen_text,
-          chosenOption:decision.chosen_option
-        });
-      }else{
-        pendingApply.push({
-          item,
-          decision,
-          status:"approved-pending-apply",
-          chosenText:decision.chosen_text,
-          chosenOption:decision.chosen_option
-        });
-      }
+      pendingApply.push({
+        item,
+        decision,
+        status:"approved-pending-apply",
+        chosenText:decision.chosen_text,
+        chosenOption:decision.chosen_option
+      });
       continue;
     }
 
