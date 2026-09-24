@@ -342,6 +342,73 @@ test("expired Review cleanup cannot remove a newer Current Review", async () => 
   assert.equal(current.reviewId, second.reviewId);
 });
 
+test("review rejects a multipart request above the bounded Review payload before parsing form data", async () => {
+  let parsed = false;
+  const response = await handleReviewRequest({
+    request: {
+      url: "https://admin.looksawful.ru/lab/review/api",
+      method: "POST",
+      headers: new Headers({
+        "Content-Type": "multipart/form-data; boundary=test",
+        "Content-Length": String(34 * 1024 * 1024),
+      }),
+      formData: async () => {
+        parsed = true;
+        throw new Error("oversized request should be rejected before form parsing");
+      },
+    },
+    env: { REVIEW_STORAGE: new MemoryReviewStorage() },
+  });
+
+  assert.equal(response.status, 413);
+  assert.equal(parsed, false);
+});
+
+test("review rejects aggregate evidence above the bounded Review payload", async () => {
+  const bucket = new MemoryReviewStorage();
+  const evidence = ["a", "b", "c", "d"].map((id) => ({
+    id,
+    kind: "viewport",
+    contentType: "image/png",
+  }));
+  const files = new Map(
+    evidence.map(({ id }) => [
+      id,
+      {
+        type: "image/png",
+        size: 9 * 1024 * 1024,
+        arrayBuffer: async () => new Uint8Array([1]).buffer,
+      },
+    ]),
+  );
+  const form = {
+    get(name) {
+      if (name === "manifest") {
+        return JSON.stringify({
+          ...manifest(),
+          evidence,
+        });
+      }
+      return files.get(name) ?? null;
+    },
+  };
+
+  const response = await handleReviewRequest({
+    request: {
+      url: "https://admin.looksawful.ru/lab/review/api",
+      method: "POST",
+      headers: new Headers({
+        "Content-Type": "multipart/form-data; boundary=test",
+      }),
+      formData: async () => form,
+    },
+    env: { REVIEW_STORAGE: bucket },
+  });
+
+  assert.equal(response.status, 413);
+  assert.equal(bucket.keysWithPrefix("review-hub/v1/targets/").length, 0);
+});
+
 test("review image evidence fails closed above 10 MB", async () => {
   const bucket = new MemoryReviewStorage();
   const tooLarge = new File(
