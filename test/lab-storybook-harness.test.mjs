@@ -159,7 +159,10 @@ exec sleep 600
     childPid = Number((await readFile(childPidFile, "utf8")).trim());
     assert.ok(Number.isInteger(childPid) && childPid > 0, "fake Windows child must expose its PID");
 
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    const exitDeadline = Date.now() + 1_000;
+    while (processIsAlive(childPid) && Date.now() < exitDeadline) {
+      await new Promise((resolve) => setTimeout(resolve, 25));
+    }
     assert.equal(
       processIsAlive(childPid),
       false,
