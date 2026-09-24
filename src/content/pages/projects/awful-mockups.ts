@@ -3,6 +3,8 @@ import {
   awfulMockupsMockupDeck,
   awfulMockupsPhotoshopGroup,
   awfulMockupsPreviewGroup,
+  awfulMockupsSelectionIntro,
+  awfulMockupsShowcaseIntro,
   awfulMockupsStructureIntro,
 } from "../../../data/content/awful-mockups.ts";
 import type { EntityPageContent } from "../../contracts/page-content.ts";
@@ -14,10 +16,14 @@ export const awfulMockupsPageContent = {
     {
       type: "content",
       id: "awful-mockups-showcase",
-      blocks: [
-        { type: "mockup-deck", data: awfulMockupsMockupDeck },
-        { type: "media-group", data: awfulMockupsPreviewGroup },
-      ],
+      intro: awfulMockupsShowcaseIntro,
+      blocks: [{ type: "mockup-deck", data: awfulMockupsMockupDeck }],
+    },
+    {
+      type: "content",
+      id: "awful-mockups-selection",
+      intro: awfulMockupsSelectionIntro,
+      blocks: [{ type: "media-group", data: awfulMockupsPreviewGroup }],
     },
     {
       type: "content",
