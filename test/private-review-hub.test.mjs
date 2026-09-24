@@ -279,67 +279,25 @@ test("recapturing the same Review Target SHA creates a distinct immutable Review
   );
 });
 
-test("expired Review cleanup cannot remove a newer Current Review", async () => {
+test("Review Hub thin slice does not expire Reviews before lifecycle is implemented", async () => {
   const bucket = new MemoryReviewStorage();
-  const firstResponse = await handleReviewRequest({
+  const createdResponse = await handleReviewRequest({
     request: uploadRequest(),
     env: { REVIEW_STORAGE: bucket },
     now: () => 0,
   });
-  assert.equal(firstResponse.status, 201);
-  const first = await firstResponse.json();
+  assert.equal(createdResponse.status, 201);
+  const created = await createdResponse.json();
 
-  let signalStaleManifestRead;
-  let resumeStaleManifestRead;
-  const staleManifestRead = new Promise((resolve) => {
-    signalStaleManifestRead = resolve;
-  });
-  const staleManifestResume = new Promise((resolve) => {
-    resumeStaleManifestRead = resolve;
-  });
-
-  const racingStorage = {
-    put: (...args) => bucket.put(...args),
-    delete: (...args) => bucket.delete(...args),
-    deleteIfMatch: (...args) => bucket.deleteIfMatch(...args),
-    get: async (key) => {
-      const object = await bucket.get(key);
-      if (key.endsWith(`/reviews/${first.reviewId}/manifest.json`)) {
-        signalStaleManifestRead();
-        await staleManifestResume;
-      }
-      return object;
-    },
-  };
-
-  const staleRead = handleReviewRequest({
-    request: new Request("https://admin.looksawful.ru/lab/review/api"),
-    env: { REVIEW_STORAGE: racingStorage },
-    now: () => 5 * 24 * 60 * 60 * 1000,
-  });
-
-  await staleManifestRead;
-
-  const secondResponse = await handleReviewRequest({
-    request: uploadRequest(),
-    env: { REVIEW_STORAGE: bucket },
-    now: () => 5 * 24 * 60 * 60 * 1000,
-  });
-  assert.equal(secondResponse.status, 201);
-  const second = await secondResponse.json();
-
-  resumeStaleManifestRead();
-  const staleResponse = await staleRead;
-  assert.equal(staleResponse.status, 404);
-
-  const currentResponse = await handleReviewRequest({
+  const laterResponse = await handleReviewRequest({
     request: new Request("https://admin.looksawful.ru/lab/review/api"),
     env: { REVIEW_STORAGE: bucket },
     now: () => 5 * 24 * 60 * 60 * 1000,
   });
-  assert.equal(currentResponse.status, 200);
-  const current = await currentResponse.json();
-  assert.equal(current.reviewId, second.reviewId);
+
+  assert.equal(laterResponse.status, 200);
+  const later = await laterResponse.json();
+  assert.equal(later.reviewId, created.reviewId);
 });
 
 test("review rejects a multipart request above the bounded Review payload before parsing form data", async () => {
