@@ -148,11 +148,18 @@ exec sleep 600
           LAB_STORYBOOK_PHASE_TIMEOUT_MS: "75",
           LAB_STORYBOOK_FAKE_CHILD_PID_FILE: childPidFile,
         },
-        stdio: "ignore",
+        stdio: ["ignore", "pipe", "pipe"],
       });
 
+      let output = "";
+      child.stdout.on("data", (chunk) => {
+        output += chunk;
+      });
+      child.stderr.on("data", (chunk) => {
+        output += chunk;
+      });
       child.on("error", reject);
-      child.on("close", (code, signal) => resolve({ code, signal }));
+      child.on("close", (code, signal) => resolve({ code, signal, output }));
     });
 
     assert.notEqual(result.code, 0, "timed out launcher must fail");
