@@ -156,6 +156,11 @@ exec sleep 600
     });
 
     assert.notEqual(result.code, 0, "timed out launcher must fail");
+    assert.match(
+      result.output,
+      /\[lab-storybook\][^\n]*phase=install[^\n]*timed out/i,
+      `launcher must reach the Windows timeout path; output:\n${result.output}`,
+    );
     childPid = Number((await readFile(childPidFile, "utf8")).trim());
     assert.ok(Number.isInteger(childPid) && childPid > 0, "fake Windows child must expose its PID");
 
