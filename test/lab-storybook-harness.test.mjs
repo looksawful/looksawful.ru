@@ -120,13 +120,13 @@ test("Storybook launcher falls back when Windows taskkill exits non-zero", { ski
   await Promise.all([
     writeFile(
       fakeCmd,
-      `#!/usr/bin/env node
-await import("node:fs/promises").then(({ writeFile }) => writeFile(process.env.LAB_STORYBOOK_FAKE_CHILD_PID_FILE, String(process.pid)));
-setInterval(() => {}, 1000);
+      `#!/bin/sh
+printf '%s' "$" > "$LAB_STORYBOOK_FAKE_CHILD_PID_FILE"
+exec sleep 600
 `,
       "utf8",
     ),
-    writeFile(fakeTaskkill, "#!/usr/bin/env node\nprocess.exit(1);\n", "utf8"),
+    writeFile(fakeTaskkill, "#!/bin/sh\nexit 1\n", "utf8"),
     writeFile(
       platformShim,
       'Object.defineProperty(process, "platform", { value: "win32" });\n',
