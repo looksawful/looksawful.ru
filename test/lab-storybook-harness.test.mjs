@@ -176,3 +176,47 @@ exec sleep 600
     ]);
   }
 });
+
+
+test("Storybook launcher rejects fractional phase timeouts before spawning npm", { skip: process.platform === "win32" }, async () => {
+  const binDir = await mkdtemp(path.join(tmpdir(), "lab-storybook-timeout-validation-"));
+  const fixtureRoot = await mkdtemp(path.join(tmpdir(), "lab-storybook-timeout-validation-fixture-"));
+  const fakeNpm = path.join(binDir, "npm");
+  const launcher = fileURLToPath(new URL("../tools/lab/build-storybook.mjs", import.meta.url));
+
+  await writeFile(fakeNpm, "#!/bin/sh\nexec sleep 60\n", "utf8");
+  await chmod(fakeNpm, 0o755);
+
+  try {
+    const result = await new Promise((resolve, reject) => {
+      const child = spawn(process.execPath, [launcher], {
+        cwd: fixtureRoot,
+        env: {
+          ...process.env,
+          PATH: `${binDir}${path.delimiter}${process.env.PATH ?? ""}`,
+          LAB_STORYBOOK_PHASE_TIMEOUT_MS: "0.5",
+        },
+        stdio: ["ignore", "pipe", "pipe"],
+      });
+
+      let output = "";
+      child.stdout.on("data", (chunk) => {
+        output += chunk;
+      });
+      child.stderr.on("data", (chunk) => {
+        output += chunk;
+      });
+      child.on("error", reject);
+      child.on("close", (code, signal) => resolve({ code, signal, output }));
+    });
+
+    assert.notEqual(result.code, 0, "fractional timeout configuration must fail");
+    assert.match(result.output, /LAB_STORYBOOK_PHASE_TIMEOUT_MS must be a positive integer/);
+    assert.doesNotMatch(result.output, /phase=install start/);
+  } finally {
+    await Promise.all([
+      rm(binDir, { recursive: true, force: true }),
+      rm(fixtureRoot, { recursive: true, force: true }),
+    ]);
+  }
+});
