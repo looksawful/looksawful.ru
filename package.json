@@ -22,7 +22,7 @@
     "toolchain:doctor": "node tools/ci/toolchain-doctor.mjs",
     "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.tools.json",
     "lint": "npx --yes oxlint@1.80.0 src tools",
-    "lint:style": "npx --yes stylelint@17.15.0 \"src/**/*.css\"",
+    "lint:style": "npx --yes stylelint@17.15.0 \"src/**/*.css\" \"public/pets/awful-cases/awful-cases.css\"",
     "css:check": "node tools/css/check.mjs",
     "format": "node tools/quality/format.mjs",
     "format:check": "node tools/quality/format.mjs --check",
@@ -79,7 +79,10 @@
     "verify:full": "npm run media:sync && npm run verify:core",
     "cv:prod:verify": "node tools/verify-cv-production.mjs",
     "media-desk:page-usage:check": "node tools/media-desk/index-page-media.mjs --check",
-    "media-desk:static-usage:check": "node tools/media-desk/index-static-usage.mjs --check"
+    "media-desk:static-usage:check": "node tools/media-desk/index-static-usage.mjs --check",
+    "awful-cases:sync": "node tools/generate-awful-cases-runtime.mjs",
+    "awful-cases:check": "node tools/generate-awful-cases-runtime.mjs --check",
+    "awful-cases:playtest": "npm run build:vite && node tools/e2e/playtest-awful-cases.mjs"
   },
   "devDependencies": {
     "@lhci/cli": "^0.15.1",
