@@ -29,5 +29,5 @@ export const JESTEI_THEME_SETTINGS = Object.freeze({
 });
 
 export const JESTEI_THEME_MODEL_URL =
-  "/media/projects/jestei/theme-organism/jestei-theme-organism.glb";
+  "/media/logo-3d/jestei/jestei-symbol-metal.glb";
 export const JESTEI_THEME_DRACO_PATH = "/vendor/draco/gltf/";

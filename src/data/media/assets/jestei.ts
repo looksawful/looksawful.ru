@@ -739,9 +739,9 @@ export const jesteiMediaAssets = [
   {
     id: "jestei-theme-organism-model",
     type: "model",
-    src: "/media/projects/jestei/theme-organism/jestei-theme-organism.glb",
+    src: "/media/logo-3d/jestei/jestei-symbol-metal.glb",
     mimeType: "model/gltf-binary",
-    byteLength: 11404,
+    byteLength: 139596,
   },
   {
     id: "jestei-09-source-93-1x1",

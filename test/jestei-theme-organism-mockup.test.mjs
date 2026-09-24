@@ -17,7 +17,7 @@ test("Jestei theme organism model is registered as project media", () => {
   assert.equal(asset.type, "model");
   assert.equal(asset.src, "/media/logo-3d/jestei/jestei-symbol-metal.glb");
   assert.equal(asset.mimeType, "model/gltf-binary");
-  assert.equal(asset.byteLength, 11404);
+  assert.equal(asset.byteLength, 139596);
   assert.deepEqual(entry.projectIds, ["jestei-brand-system"]);
   assert.equal(entry.caption, undefined);
 });
