@@ -175,7 +175,7 @@ function isFileLike(value) {
   );
 }
 
-async function deleteReview(storage, manifest) {
+async function deleteReview(storage, manifest, currentPointerEtag) {
   if (typeof storage.delete !== "function") return;
   const keys = [
     ...manifest.evidence.map((item) =>
@@ -187,12 +187,22 @@ async function deleteReview(storage, manifest) {
       ),
     ),
     manifestKey(manifest.reviewTargetId, manifest.sourceSha, manifest.reviewId),
-    CURRENT_POINTER_KEY,
   ];
   try {
     await storage.delete(keys);
   } catch {
     // Cleanup is best effort; inaccessible evidence is safer than false success.
+  }
+
+  if (
+    typeof currentPointerEtag === "string" &&
+    typeof storage.deleteIfMatch === "function"
+  ) {
+    try {
+      await storage.deleteIfMatch(CURRENT_POINTER_KEY, currentPointerEtag);
+    } catch {
+      // A stale cleanup must never remove or invalidate a newer Current pointer.
+    }
   }
 }
 
@@ -229,7 +239,7 @@ async function loadCurrentManifest(storage, nowMs) {
   }
 
   if (objectExpired(object, nowMs)) {
-    await deleteReview(storage, manifest);
+    await deleteReview(storage, manifest, pointerObject.etag);
     return null;
   }
 
