@@ -6,7 +6,7 @@ import { CV_EXPERIENCE_IDS, cvContent, parseCvContent } from "../src/data/cv.ts"
 import { transformCvContent } from "../tools/lib/cv-content.mjs";
 
 const expectedCounts = {
-  jestei: { cases: 18, facts: 0, links: 2 }, styx: { cases: 8, facts: 1, links: 2 },
+  jestei: { cases: 9, facts: 0, links: 2 }, styx: { cases: 8, facts: 1, links: 2 },
   illumihand: { cases: 3, facts: 2, links: 0 }, madcow: { cases: 2, facts: 0, links: 2 },
   sensetique: { cases: 0, facts: 0, links: 1 }, line: { cases: 3, facts: 0, links: 1 },
   berry: { cases: 3, facts: 2, links: 0 }, ss: { cases: 5, facts: 1, links: 1 },
