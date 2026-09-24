@@ -121,7 +121,7 @@ test("Storybook launcher falls back when Windows taskkill exits non-zero", { ski
     writeFile(
       fakeCmd,
       `#!/bin/sh
-printf '%s' "$" > "$LAB_STORYBOOK_FAKE_CHILD_PID_FILE"
+printf '%s' "$$" > "$LAB_STORYBOOK_FAKE_CHILD_PID_FILE"
 exec sleep 600
 `,
       "utf8",
