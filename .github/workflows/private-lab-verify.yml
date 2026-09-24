@@ -12,6 +12,7 @@ on:
       - "vite.lab.config.ts"
       - "test/private-admin-github-oauth.test.mjs"
       - "test/private-lab-shell.test.mjs"
+      - "test/private-review-hub.test.mjs"
       - "test/lab-*.test.mjs"
       - "test/model-viewer-lab-media-shell.test.mjs"
       - "tools/ci/run-tests.mjs"
@@ -51,7 +52,7 @@ jobs:
         run: npm run typecheck
 
       - name: Protected Admin/Lab contracts
-        run: node --test test/private-lab-shell.test.mjs test/private-admin-github-oauth.test.mjs test/private-lab-storybook-integration.test.mjs
+        run: node --test test/private-lab-shell.test.mjs test/private-admin-github-oauth.test.mjs test/private-review-hub.test.mjs test/private-lab-storybook-integration.test.mjs
 
       - name: Build isolated Lab
         env:
@@ -87,6 +88,8 @@ jobs:
         run: |
           test -f dist-lab/lab/index.html
           grep -q 'noindex,nofollow,noarchive' dist-lab/lab/index.html
+          test -f dist-lab/lab/review/index.html
+          grep -q 'noindex,nofollow,noarchive' dist-lab/lab/review/index.html
           test -f dist-lab/lab/system/index.html
           test -f dist-lab/lab/system/inventory.html
           test -f dist-lab/lab/system-inventory.json

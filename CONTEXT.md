@@ -18,6 +18,10 @@ A homepage/navigation presentation that points to a Case or another project surf
 A canonical public page identity in the portfolio's routing/domain model.
 _Avoid_: Route, when discussing the page entity rather than its URL mechanism.
 
+**Review Target**:
+The operational identity reviewed by Private Visual Review, anchored to a canonical Site page identity. A Review Target may represent a Case, Project, Collection or another reviewable Site page without changing that entity's domain meaning.
+_Avoid_: Case, when referring to the generic visual-review unit.
+
 **Media asset**:
 A stable reusable visual or audiovisual item that can be placed in one or more portfolio surfaces.
 
