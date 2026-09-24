@@ -49,6 +49,12 @@ class MemoryReviewStorage {
     };
   }
 
+  async delete(keys) {
+    for (const key of Array.isArray(keys) ? keys : [keys]) {
+      this.#objects.delete(key);
+    }
+  }
+
   keysWithPrefix(prefix) {
     return [...this.#objects.keys()].filter((key) => key.startsWith(prefix));
   }
@@ -264,6 +270,68 @@ test("recapturing the same Review Target SHA creates a distinct immutable Review
     2,
     "each capture keeps its own immutable evidence",
   );
+});
+
+test("expired Review cleanup cannot remove a newer Current Review", async () => {
+  const bucket = new MemoryReviewStorage();
+  const firstResponse = await handleReviewRequest({
+    request: uploadRequest(),
+    env: { REVIEW_STORAGE: bucket },
+    now: () => 0,
+  });
+  assert.equal(firstResponse.status, 201);
+  const first = await firstResponse.json();
+
+  let signalStaleManifestRead;
+  let resumeStaleManifestRead;
+  const staleManifestRead = new Promise((resolve) => {
+    signalStaleManifestRead = resolve;
+  });
+  const staleManifestResume = new Promise((resolve) => {
+    resumeStaleManifestRead = resolve;
+  });
+
+  const racingStorage = {
+    put: (...args) => bucket.put(...args),
+    delete: (...args) => bucket.delete(...args),
+    get: async (key) => {
+      const object = await bucket.get(key);
+      if (key.endsWith(`/reviews/${first.reviewId}/manifest.json`)) {
+        signalStaleManifestRead();
+        await staleManifestResume;
+      }
+      return object;
+    },
+  };
+
+  const staleRead = handleReviewRequest({
+    request: new Request("https://admin.looksawful.ru/lab/review/api"),
+    env: { REVIEW_STORAGE: racingStorage },
+    now: () => 5 * 24 * 60 * 60 * 1000,
+  });
+
+  await staleManifestRead;
+
+  const secondResponse = await handleReviewRequest({
+    request: uploadRequest(),
+    env: { REVIEW_STORAGE: bucket },
+    now: () => 5 * 24 * 60 * 60 * 1000,
+  });
+  assert.equal(secondResponse.status, 201);
+  const second = await secondResponse.json();
+
+  resumeStaleManifestRead();
+  const staleResponse = await staleRead;
+  assert.equal(staleResponse.status, 404);
+
+  const currentResponse = await handleReviewRequest({
+    request: new Request("https://admin.looksawful.ru/lab/review/api"),
+    env: { REVIEW_STORAGE: bucket },
+    now: () => 5 * 24 * 60 * 60 * 1000,
+  });
+  assert.equal(currentResponse.status, 200);
+  const current = await currentResponse.json();
+  assert.equal(current.reviewId, second.reviewId);
 });
 
 test("review image evidence fails closed above 10 MB", async () => {
