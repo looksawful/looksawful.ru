@@ -55,6 +55,13 @@ class MemoryReviewStorage {
     }
   }
 
+  async deleteIfMatch(key, expectedEtag) {
+    const object = this.#objects.get(key);
+    if (!object || object.etag !== expectedEtag) return false;
+    this.#objects.delete(key);
+    return true;
+  }
+
   keysWithPrefix(prefix) {
     return [...this.#objects.keys()].filter((key) => key.startsWith(prefix));
   }
@@ -294,6 +301,7 @@ test("expired Review cleanup cannot remove a newer Current Review", async () => 
   const racingStorage = {
     put: (...args) => bucket.put(...args),
     delete: (...args) => bucket.delete(...args),
+    deleteIfMatch: (...args) => bucket.deleteIfMatch(...args),
     get: async (key) => {
       const object = await bucket.get(key);
       if (key.endsWith(`/reviews/${first.reviewId}/manifest.json`)) {
