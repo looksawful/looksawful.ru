@@ -206,11 +206,16 @@ async function destroyEvidence(config, fetchImpl, assetId) {
   }
 }
 
-async function deleteRow(config, key) {
-  await config.db
-    .prepare("DELETE FROM review_hub_objects WHERE key = ?")
-    .bind(key)
-    .run();
+async function deleteRow(config, key, expectedEtag = null) {
+  const statement = expectedEtag
+    ? config.db
+        .prepare("DELETE FROM review_hub_objects WHERE key = ? AND etag = ?")
+        .bind(key, expectedEtag)
+    : config.db
+        .prepare("DELETE FROM review_hub_objects WHERE key = ?")
+        .bind(key);
+  const result = await statement.run();
+  return Number(result?.meta?.changes ?? 0) === 1;
 }
 
 export function createCloudflareReviewStorage(env, fetchImpl = fetch) {
@@ -300,6 +305,18 @@ export function createCloudflareReviewStorage(env, fetchImpl = fetch) {
       }
 
       return { etag };
+    },
+
+    async deleteIfMatch(key, expectedEtag) {
+      if (typeof key !== "string" || !key.startsWith(REVIEW_PREFIX)) {
+        throw new TypeError("Invalid Review storage key.");
+      }
+      const etag = stringValue(expectedEtag);
+      if (!etag) return false;
+
+      const row = await readRow(config, key);
+      if (!row || row.kind !== "json" || row.etag !== etag) return false;
+      return deleteRow(config, key, etag);
     },
 
     async delete(keys) {
