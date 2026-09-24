@@ -5,15 +5,13 @@
   "description": "",
   "date": "2026",
   "workAreaIds": [
-    "production",
-    "motion"
+    "3d"
   ],
   "projectTypeIds": [
-    "catalog"
+    "3d-project"
   ],
   "deliverableIds": [
-    "advertising-creative",
-    "catalog"
+    "design-assets"
   ],
   "tags": [
     "продакшен",
