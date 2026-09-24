@@ -82,7 +82,7 @@ export const CV_EXPERIENCE_IDS = [
 ] as const;
 
 export const CV_EXPERIENCE_SHAPES = {
-  jestei: { cases: 18, facts: 0, links: 2, description: true },
+  jestei: { cases: 9, facts: 0, links: 2, description: true },
   styx: { cases: 8, facts: 1, links: 2, description: false },
   illumihand: { cases: 3, facts: 2, links: 0, description: false },
   madcow: { cases: 2, facts: 0, links: 2, description: true },

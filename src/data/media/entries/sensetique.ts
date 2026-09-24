@@ -920,7 +920,7 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-11-source-03-7x8-use-01",
     assetId: "sensetique-11-source-03-7x8",
     projectIds: ["sensetique-editorial-daniil-korotechenkov"],
-    alt: "Эдиториал фотосхемка",
+    alt: "Эдиториал фотосъёмка",
     caption: {
         title: "Эдиториал фотосъемка",
         meta: [
@@ -932,7 +932,7 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-11-source-04-1159x1280-use-01",
     assetId: "sensetique-11-source-04-1159x1280",
     projectIds: ["sensetique-editorial-daniil-korotechenkov"],
-    alt: "Эдиториал фотосхемка",
+    alt: "Эдиториал фотосъёмка",
     caption: {
         title: "Эдиториал фотосъемка",
         meta: [
@@ -944,7 +944,7 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-11-source-05-969x1280-use-01",
     assetId: "sensetique-11-source-05-969x1280",
     projectIds: ["sensetique-editorial-daniil-korotechenkov"],
-    alt: "Эдиториал фотосхемка",
+    alt: "Эдиториал фотосъёмка",
     caption: {
         title: "Эдиториал фотосъемка",
         meta: [
@@ -992,7 +992,7 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-13-source-34-985x1280-use-01",
     assetId: "sensetique-13-source-34-985x1280",
     projectIds: ["sensetique-editorial-daniil-korotechenkov"],
-    alt: "Эдиториал фотосхемка",
+    alt: "Эдиториал фотосъёмка",
     caption: {
         title: "Эдиториал фотосъемка",
         meta: [
@@ -3259,7 +3259,7 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-11-source-03-7x8-use-02",
     assetId: "sensetique-11-source-03-7x8",
     projectIds: ["sensetique-editorial-daniil-korotechenkov"],
-    alt: "Эдиториал фотосхемка",
+    alt: "Эдиториал фотосъёмка",
     caption: {
         title: "Эдиториал фотосъемка",
         index: 104,
@@ -3272,7 +3272,7 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-11-source-04-1159x1280-use-02",
     assetId: "sensetique-11-source-04-1159x1280",
     projectIds: ["sensetique-editorial-daniil-korotechenkov"],
-    alt: "Эдиториал фотосхемка",
+    alt: "Эдиториал фотосъёмка",
     caption: {
         title: "Эдиториал фотосъемка",
         index: 105,
@@ -3285,7 +3285,7 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-11-source-05-969x1280-use-02",
     assetId: "sensetique-11-source-05-969x1280",
     projectIds: ["sensetique-editorial-daniil-korotechenkov"],
-    alt: "Эдиториал фотосхемка",
+    alt: "Эдиториал фотосъёмка",
     caption: {
         title: "Эдиториал фотосъемка",
         index: 106,
@@ -3337,7 +3337,7 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-13-source-34-985x1280-use-02",
     assetId: "sensetique-13-source-34-985x1280",
     projectIds: ["sensetique-editorial-daniil-korotechenkov"],
-    alt: "Эдиториал фотосхемка",
+    alt: "Эдиториал фотосъёмка",
     caption: {
         title: "Эдиториал фотосъемка",
         index: 110,

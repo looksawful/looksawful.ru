@@ -21,7 +21,6 @@ import {
 import {
   jesteiCanonicalPromoSequence,
   jesteiEditorialResources,
-  jesteiLandingsNote,
 } from "../../../data/content/jestei-page-presentation.ts";
 import { jesteiThemeOrganismMockup } from "../../../data/content/jestei-theme-organism.ts";
 import type { EntityPageContent } from "../../contracts/page-content.ts";
@@ -96,7 +95,6 @@ export const jesteiPoolPageContent = {
       id: "jestei-landings",
       projectId: "jestei-landings",
       intro: jesteiLandingsIntro,
-      note: jesteiLandingsNote,
       blocks: [{ type: "mockup", data: jesteiLandingsMockup }],
     },
     {

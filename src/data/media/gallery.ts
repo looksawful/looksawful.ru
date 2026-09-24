@@ -115,6 +115,13 @@ export function getGalleryItems(): readonly GalleryItem[] {
  * makes Gallery opt-in deterministic instead of exposing every ready 3D asset.
  */
 export function getGalleryModelItems(): readonly GalleryModelItem[] {
+  const altByVariant: Record<(typeof GALLERY_JESTEI_SYMBOL_VARIANTS)[number], string> = {
+    metal: "3D-символ Jestei Pool, материал metal",
+    pear: "3D-символ Jestei Pool, цвет: pear",
+    orange: "3D-символ Jestei Pool, материал basic",
+    blue: "3D-символ Jestei Pool, цвет pro",
+    biloba: "3D-символ Jestei Pool, цвет biloba",
+  };
   return GALLERY_JESTEI_SYMBOL_VARIANTS.map((variant, seriesOrder) => {
     const id = `jestei-symbol-${variant}`;
     return {
@@ -127,7 +134,7 @@ export function getGalleryModelItems(): readonly GalleryModelItem[] {
       },
       posterSrc: `/media/logo-3d/jestei/preview/${id}.png`,
       title: `Jestei Pool 3D symbol — ${variant}`,
-      alt: `Jestei Pool 3D symbol, ${variant} material`,
+      alt: altByVariant[variant],
       seriesId: "jestei-3d-symbols",
       seriesOrder,
     };
