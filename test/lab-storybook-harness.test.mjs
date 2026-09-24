@@ -4,7 +4,7 @@ import test from "node:test";
 import { spawn } from "node:child_process";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
@@ -88,6 +88,143 @@ test("Storybook launcher bounds a stalled install phase and reports the phase", 
       result.output,
       /\[lab-storybook\][^\n]*phase=install[^\n]*timed out[^\n]*75ms/i,
     );
+  } finally {
+    await Promise.all([
+      rm(binDir, { recursive: true, force: true }),
+      rm(fixtureRoot, { recursive: true, force: true }),
+    ]);
+  }
+});
+
+
+test("Storybook launcher falls back when Windows taskkill exits non-zero", { skip: process.platform === "win32" }, async () => {
+  const binDir = await mkdtemp(path.join(tmpdir(), "lab-storybook-win32-"));
+  const fixtureRoot = await mkdtemp(path.join(tmpdir(), "lab-storybook-win32-fixture-"));
+  const fakeCmd = path.join(binDir, "cmd.exe");
+  const fakeTaskkill = path.join(binDir, "taskkill");
+  const platformShim = path.join(fixtureRoot, "force-win32.mjs");
+  const childPidFile = path.join(fixtureRoot, "child.pid");
+  const launcher = fileURLToPath(new URL("../tools/lab/build-storybook.mjs", import.meta.url));
+  let childPid = null;
+
+  const processIsAlive = (pid) => {
+    try {
+      process.kill(pid, 0);
+      return true;
+    } catch (error) {
+      if (error?.code === "ESRCH") return false;
+      throw error;
+    }
+  };
+
+  await Promise.all([
+    writeFile(
+      fakeCmd,
+      `#!/bin/sh
+printf '%s' "$$" > "$LAB_STORYBOOK_FAKE_CHILD_PID_FILE"
+exec sleep 600
+`,
+      "utf8",
+    ),
+    writeFile(fakeTaskkill, "#!/bin/sh\nexit 1\n", "utf8"),
+    writeFile(
+      platformShim,
+      'Object.defineProperty(process, "platform", { value: "win32" });\n',
+      "utf8",
+    ),
+  ]);
+  await Promise.all([chmod(fakeCmd, 0o755), chmod(fakeTaskkill, 0o755)]);
+
+  try {
+    const result = await new Promise((resolve, reject) => {
+      const child = spawn(process.execPath, [launcher], {
+        cwd: fixtureRoot,
+        env: {
+          ...process.env,
+          PATH: `${binDir}${path.delimiter}${process.env.PATH ?? ""}`,
+          NODE_OPTIONS: [process.env.NODE_OPTIONS, `--import=${pathToFileURL(platformShim).href}`]
+            .filter(Boolean)
+            .join(" "),
+          LAB_STORYBOOK_PHASE_TIMEOUT_MS: "75",
+          LAB_STORYBOOK_FAKE_CHILD_PID_FILE: childPidFile,
+        },
+        stdio: ["ignore", "pipe", "pipe"],
+      });
+
+      let output = "";
+      child.stdout.on("data", (chunk) => {
+        output += chunk;
+      });
+      child.stderr.on("data", (chunk) => {
+        output += chunk;
+      });
+      child.on("error", reject);
+      child.on("close", (code, signal) => resolve({ code, signal, output }));
+    });
+
+    assert.notEqual(result.code, 0, "timed out launcher must fail");
+    assert.match(
+      result.output,
+      /\[lab-storybook\][^\n]*phase=install[^\n]*timed out/i,
+      `launcher must reach the Windows timeout path; output:\n${result.output}`,
+    );
+    childPid = Number((await readFile(childPidFile, "utf8")).trim());
+    assert.ok(Number.isInteger(childPid) && childPid > 0, "fake Windows child must expose its PID");
+
+    const exitDeadline = Date.now() + 1_000;
+    while (processIsAlive(childPid) && Date.now() < exitDeadline) {
+      await new Promise((resolve) => setTimeout(resolve, 25));
+    }
+    assert.equal(
+      processIsAlive(childPid),
+      false,
+      "non-zero taskkill must fall back to direct child termination",
+    );
+  } finally {
+    if (childPid && processIsAlive(childPid)) process.kill(childPid, "SIGKILL");
+    await Promise.all([
+      rm(binDir, { recursive: true, force: true }),
+      rm(fixtureRoot, { recursive: true, force: true }),
+    ]);
+  }
+});
+
+
+test("Storybook launcher rejects fractional phase timeouts before spawning npm", { skip: process.platform === "win32" }, async () => {
+  const binDir = await mkdtemp(path.join(tmpdir(), "lab-storybook-timeout-validation-"));
+  const fixtureRoot = await mkdtemp(path.join(tmpdir(), "lab-storybook-timeout-validation-fixture-"));
+  const fakeNpm = path.join(binDir, "npm");
+  const launcher = fileURLToPath(new URL("../tools/lab/build-storybook.mjs", import.meta.url));
+
+  await writeFile(fakeNpm, "#!/bin/sh\nexec sleep 60\n", "utf8");
+  await chmod(fakeNpm, 0o755);
+
+  try {
+    const result = await new Promise((resolve, reject) => {
+      const child = spawn(process.execPath, [launcher], {
+        cwd: fixtureRoot,
+        env: {
+          ...process.env,
+          PATH: `${binDir}${path.delimiter}${process.env.PATH ?? ""}`,
+          LAB_STORYBOOK_PHASE_TIMEOUT_MS: "0.5",
+        },
+        stdio: ["ignore", "pipe", "pipe"],
+      });
+
+      let output = "";
+      child.stdout.on("data", (chunk) => {
+        output += chunk;
+      });
+      child.stderr.on("data", (chunk) => {
+        output += chunk;
+      });
+      child.on("error", reject);
+      child.on("close", (code, signal) => resolve({ code, signal, output }));
+    });
+
+    assert.notEqual(result.code, 0, "fractional timeout configuration must fail");
+    assert.match(result.output, /LAB_STORYBOOK_PHASE_TIMEOUT_MS must be a positive integer/);
+    assert.doesNotMatch(result.output, /phase=install start/);
   } finally {
     await Promise.all([
       rm(binDir, { recursive: true, force: true }),

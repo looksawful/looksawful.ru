@@ -7,6 +7,7 @@ const labOutputRoot = path.resolve(root, path.join("dist-lab", "lab"));
 const outputDir = path.join(labOutputRoot, "system");
 const npmCommand = process.platform === "win32" ? "npm.cmd" : "npm";
 const DEFAULT_PHASE_TIMEOUT_MS = 5 * 60 * 1000;
+const WINDOWS_TERMINATION_TIMEOUT_MS = 2_000;
 
 const packages = [
   "storybook@10.6.0",
@@ -21,15 +22,15 @@ function resolvePhaseTimeoutMs() {
   const raw = process.env.LAB_STORYBOOK_PHASE_TIMEOUT_MS?.trim();
   if (!raw) return DEFAULT_PHASE_TIMEOUT_MS;
   const parsed = Number(raw);
-  if (!Number.isFinite(parsed) || parsed <= 0) {
-    throw new Error(`LAB_STORYBOOK_PHASE_TIMEOUT_MS must be a positive number, got ${raw}`);
+  if (!Number.isFinite(parsed) || !Number.isInteger(parsed) || parsed < 1) {
+    throw new Error(`LAB_STORYBOOK_PHASE_TIMEOUT_MS must be a positive integer, got ${raw}`);
   }
-  return Math.floor(parsed);
+  return parsed;
 }
 
 const phaseTimeoutMs = resolvePhaseTimeoutMs();
 
-function terminateProcessTree(child, isWindows) {
+async function terminateProcessTree(child, isWindows) {
   if (!child.pid) {
     child.kill("SIGKILL");
     child.unref();
@@ -37,20 +38,38 @@ function terminateProcessTree(child, isWindows) {
   }
 
   if (isWindows) {
-    const killer = spawn("taskkill", ["/pid", String(child.pid), "/t", "/f"], {
-      stdio: "ignore",
-      windowsHide: true,
+    await new Promise((resolve) => {
+      const killer = spawn("taskkill", ["/pid", String(child.pid), "/t", "/f"], {
+        stdio: "ignore",
+        windowsHide: true,
+      });
+      let finished = false;
+      let killerTimer;
+      const finish = (fallbackToChildKill) => {
+        if (finished) return;
+        finished = true;
+        if (killerTimer) clearTimeout(killerTimer);
+        if (fallbackToChildKill) child.kill("SIGKILL");
+        child.unref();
+        killer.unref();
+        resolve();
+      };
+
+      killer.once("error", () => finish(true));
+      killer.once("close", (code) => finish(code !== 0));
+      killerTimer = setTimeout(() => {
+        killer.kill("SIGKILL");
+        finish(true);
+      }, WINDOWS_TERMINATION_TIMEOUT_MS);
     });
-    killer.once("error", () => child.kill("SIGKILL"));
-    killer.unref();
-  } else {
-    try {
-      process.kill(-child.pid, "SIGKILL");
-    } catch {
-      child.kill("SIGKILL");
-    }
+    return;
   }
 
+  try {
+    process.kill(-child.pid, "SIGKILL");
+  } catch {
+    child.kill("SIGKILL");
+  }
   child.unref();
 }
 
@@ -107,10 +126,11 @@ function run(phase, command, args) {
 
     timer = setTimeout(() => {
       if (settled) return;
+      settled = true;
+      clearTimeout(timer);
       const message = `[lab-storybook] phase=${phase} timed out after ${phaseTimeoutMs}ms`;
       console.error(message);
-      terminateProcessTree(child, isWindows);
-      finish(() => reject(new Error(message)));
+      void terminateProcessTree(child, isWindows).finally(() => reject(new Error(message)));
     }, phaseTimeoutMs);
   });
 }
