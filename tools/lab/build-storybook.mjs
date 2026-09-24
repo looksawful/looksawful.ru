@@ -7,6 +7,7 @@ const labOutputRoot = path.resolve(root, path.join("dist-lab", "lab"));
 const outputDir = path.join(labOutputRoot, "system");
 const npmCommand = process.platform === "win32" ? "npm.cmd" : "npm";
 const DEFAULT_PHASE_TIMEOUT_MS = 5 * 60 * 1000;
+const WINDOWS_TERMINATION_TIMEOUT_MS = 2_000;
 
 const packages = [
   "storybook@10.6.0",
@@ -41,16 +42,30 @@ function terminateProcessTree(child, isWindows) {
       stdio: "ignore",
       windowsHide: true,
     });
-    killer.once("error", () => child.kill("SIGKILL"));
-    killer.unref();
-  } else {
-    try {
-      process.kill(-child.pid, "SIGKILL");
-    } catch {
-      child.kill("SIGKILL");
-    }
+    let finished = false;
+    const finish = (fallbackToChildKill) => {
+      if (finished) return;
+      finished = true;
+      clearTimeout(killerTimer);
+      if (fallbackToChildKill) child.kill("SIGKILL");
+      child.unref();
+      killer.unref();
+    };
+    const killerTimer = setTimeout(() => {
+      killer.kill("SIGKILL");
+      finish(true);
+    }, WINDOWS_TERMINATION_TIMEOUT_MS);
+
+    killer.once("error", () => finish(true));
+    killer.once("close", (code) => finish(code !== 0));
+    return;
   }
 
+  try {
+    process.kill(-child.pid, "SIGKILL");
+  } catch {
+    child.kill("SIGKILL");
+  }
   child.unref();
 }
 
