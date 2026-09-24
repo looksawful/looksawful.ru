@@ -409,6 +409,23 @@ test("review rejects aggregate evidence above the bounded Review payload", async
   assert.equal(bucket.keysWithPrefix("review-hub/v1/targets/").length, 0);
 });
 
+test("ordinary Review requests do not run bulk retention cleanup in the foreground", async () => {
+  const bucket = new MemoryReviewStorage();
+  let cleanupCalls = 0;
+  bucket.cleanupExpired = async () => {
+    cleanupCalls += 1;
+    return { deleted: 0 };
+  };
+
+  const response = await handleReviewRequest({
+    request: new Request("https://admin.looksawful.ru/lab/review/api"),
+    env: { REVIEW_STORAGE: bucket },
+  });
+
+  assert.equal(response.status, 404);
+  assert.equal(cleanupCalls, 0);
+});
+
 test("review image evidence fails closed above 10 MB", async () => {
   const bucket = new MemoryReviewStorage();
   const tooLarge = new File(
