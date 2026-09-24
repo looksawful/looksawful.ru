@@ -22,10 +22,10 @@ function resolvePhaseTimeoutMs() {
   const raw = process.env.LAB_STORYBOOK_PHASE_TIMEOUT_MS?.trim();
   if (!raw) return DEFAULT_PHASE_TIMEOUT_MS;
   const parsed = Number(raw);
-  if (!Number.isFinite(parsed) || parsed <= 0) {
-    throw new Error(`LAB_STORYBOOK_PHASE_TIMEOUT_MS must be a positive number, got ${raw}`);
+  if (!Number.isFinite(parsed) || !Number.isInteger(parsed) || parsed < 1) {
+    throw new Error(`LAB_STORYBOOK_PHASE_TIMEOUT_MS must be a positive integer, got ${raw}`);
   }
-  return Math.floor(parsed);
+  return parsed;
 }
 
 const phaseTimeoutMs = resolvePhaseTimeoutMs();
