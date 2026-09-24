@@ -51,15 +51,6 @@ function reviewStorage(env) {
   return createCloudflareReviewStorage(env);
 }
 
-async function cleanupExpired(storage) {
-  if (typeof storage?.cleanupExpired !== "function") return;
-  try {
-    await storage.cleanupExpired(200);
-  } catch {
-    // Opportunistic cleanup never weakens request fail-closed behavior.
-  }
-}
-
 function validDate(value) {
   return typeof value === "string" && Number.isFinite(Date.parse(value));
 }
@@ -408,7 +399,6 @@ export async function handleReviewRequest({ request, env, now = Date.now }) {
   if (!storage) return text("Private review storage is not configured.", 503);
 
   const nowMs = typeof now === "function" ? now() : Date.now();
-  await cleanupExpired(storage);
 
   if (isApi && request.method === "GET") {
     return getCurrentReview(storage, nowMs);
