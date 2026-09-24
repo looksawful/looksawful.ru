@@ -15,9 +15,9 @@ test("Jestei theme organism model is registered as project media", () => {
   const asset = getMediaAsset(entry.assetId);
 
   assert.equal(asset.type, "model");
-  assert.equal(asset.src, "/media/projects/jestei/theme-organism/jestei-theme-organism.glb");
+  assert.equal(asset.src, "/media/logo-3d/jestei/jestei-symbol-metal.glb");
   assert.equal(asset.mimeType, "model/gltf-binary");
-  assert.equal(asset.byteLength, 11404);
+  assert.equal(asset.byteLength, 139596);
   assert.deepEqual(entry.projectIds, ["jestei-brand-system"]);
   assert.equal(entry.caption, undefined);
 });
@@ -33,7 +33,7 @@ test("Jestei theme organism renderer preserves mockup and runtime markup contrac
   assert.match(html, /aria-label="Цветовые темы Jestei Pool"/);
   assert.match(html, /data-jestei-theme-instance="inline"/);
   assert.match(html, /data-jestei-theme-organism=""/);
-  assert.match(html, /data-jestei-theme-model-src="\/media\/projects\/jestei\/theme-organism\/jestei-theme-organism\.glb"/);
+  assert.match(html, /data-jestei-theme-model-src="\/media\/logo-3d\/jestei\/jestei-symbol-metal\.glb"/);
   assert.match(html, /data-jestei-theme-draco-path="\/vendor\/draco\/gltf\/"/);
   assert.match(html, /data-motion-state="static"/);
   assert.match(html, /data-theme-track=""/);
