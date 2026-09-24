@@ -15,6 +15,8 @@ const REVIEW_DEPTHS = new Set(["quick", "interactive", "full"]);
 const EVIDENCE_KINDS = new Set(["viewport", "full-page", "component", "diff"]);
 const IMAGE_TYPES = new Set(["image/png", "image/jpeg", "image/webp"]);
 const MAX_EVIDENCE_BYTES = 10 * 1024 * 1024;
+const MAX_REVIEW_EVIDENCE_BYTES = 32 * 1024 * 1024;
+const MAX_REVIEW_REQUEST_BYTES = MAX_REVIEW_EVIDENCE_BYTES + 1024 * 1024;
 
 function json(value, status = 200) {
   return new Response(JSON.stringify(value), {
@@ -252,6 +254,14 @@ async function createReview(request, storage, nowMs) {
     return text("Expected multipart review evidence.", 415);
   }
 
+  const contentLengthHeader = request.headers.get("Content-Length");
+  if (contentLengthHeader !== null) {
+    const contentLength = Number(contentLengthHeader);
+    if (Number.isFinite(contentLength) && contentLength > MAX_REVIEW_REQUEST_BYTES) {
+      return text("Review payload is too large.", 413);
+    }
+  }
+
   let form;
   try {
     form = await request.formData();
@@ -280,6 +290,7 @@ async function createReview(request, storage, nowMs) {
   };
 
   const uploads = [];
+  let totalEvidenceBytes = 0;
   for (const item of manifest.evidence) {
     const file = form.get(item.id);
     if (!isFileLike(file)) return text(`Evidence ${item.id} is required.`, 400);
@@ -289,21 +300,27 @@ async function createReview(request, storage, nowMs) {
     if (file.size <= 0 || file.size > MAX_EVIDENCE_BYTES) {
       return text(`Evidence ${item.id} size is invalid.`, 400);
     }
-    uploads.push({ item, bytes: await file.arrayBuffer() });
+
+    totalEvidenceBytes += file.size;
+    if (totalEvidenceBytes > MAX_REVIEW_EVIDENCE_BYTES) {
+      return text("Review evidence payload is too large.", 413);
+    }
+
+    uploads.push({ item, file });
   }
 
   const expiresAt = new Date(nowMs + TEMP_RETENTION_MS).toISOString();
   const writtenKeys = [];
 
   try {
-    for (const { item, bytes } of uploads) {
+    for (const { item, file } of uploads) {
       const key = evidenceKey(
         manifest.reviewTargetId,
         manifest.sourceSha,
         manifest.reviewId,
         item.id,
       );
-      await storage.put(key, bytes, {
+      await storage.put(key, file, {
         httpMetadata: { contentType: item.contentType },
         customMetadata: { expiresAt },
       });
