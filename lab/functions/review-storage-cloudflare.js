@@ -330,26 +330,5 @@ export function createCloudflareReviewStorage(env, fetchImpl = fetch) {
         await deleteRow(config, key);
       }
     },
-
-    async cleanupExpired(limit = 200) {
-      const safeLimit = Math.max(1, Math.min(Number.isInteger(limit) ? limit : 200, 1000));
-      const nowIso = new Date().toISOString();
-      const result = await config.db
-        .prepare(
-          `SELECT key, kind, body_text, asset_id, public_id, resource_type, delivery_type,
-                  content_type, custom_metadata, expires_at, etag
-           FROM review_hub_objects
-           WHERE expires_at IS NOT NULL
-             AND expires_at <= ?
-             AND key LIKE 'review-hub/v1/targets/%'
-           ORDER BY expires_at ASC
-           LIMIT ?`,
-        )
-        .bind(nowIso, safeLimit)
-        .all();
-      const rows = Array.isArray(result?.results) ? result.results : [];
-      await this.delete(rows.map((row) => row.key));
-      return { deleted: rows.length };
-    },
   };
 }
