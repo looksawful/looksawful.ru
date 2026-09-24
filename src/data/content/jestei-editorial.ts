@@ -26,7 +26,7 @@ export type JesteiSectionId = (typeof JESTEI_SECTION_IDS)[number];
 export type JesteiOverlayId = (typeof JESTEI_OVERLAY_IDS)[number];
 
 const JESTEI_FIXED_PARAGRAPH_COUNTS: Partial<Record<JesteiSectionId, number>> = {
-  interface: 3,
+  interface: 2,
   event: 4,
 };
 
