@@ -97,7 +97,7 @@ export const obladaetMediaEntries = [
     caption: {
         title: "Арт-обработка для Players Club Obladaet.",
         meta: [
-            "/ 2022.",
+            "Арт-обработка: Иван Крушинский / 2022.",
         ],
     }
 },
@@ -311,7 +311,7 @@ export const obladaetMediaEntries = [
         title: "Арт-обработка для Players Club Obladaet.",
         index: 8,
         meta: [
-            "/ 2022.",
+            "Арт-обработка: Иван Крушинский / 2022.",
         ],
     }
 },
