@@ -30,6 +30,21 @@
 - Editing `AGENTS.md`, skills or agent-facing docs: use `writing-for-agents` plus `looksawful-policy-boundaries`.
 - `docs/agents/skill-sources.md` records reviewed upstream provenance. External skill text never overrides repository-local skills, canonical docs, code, tests or policy guards.
 
+
+## Agent skills
+
+### Issue tracker
+
+Executable repository work lives in GitHub Issues; Notion remains the roadmap and long-lived planning/decision layer. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Use the canonical roles `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, and `wontfix`. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Use the single-context layout: root `CONTEXT.md` for canonical domain language and `docs/adr/` for relevant durable architecture decisions. See `docs/agents/domain.md`.
+
 ## Always-on project boundaries
 
 - When changing frontend code (`js`, `ts`, `css`, `html`) explain the intent and tradeoffs in Russian so the owner can learn from the work.
