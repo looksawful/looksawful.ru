@@ -65,6 +65,20 @@ reviews:
         Respect the repository testing lifecycle: development-specific RED/GREEN tests may be temporary, while permanent tests should protect durable contracts or recurring risks.
         Flag tests that are nondeterministic, duplicate stronger existing contracts, or claim verification they do not actually perform.
 
+  finishing_touches:
+    autofix:
+      enabled: false
+    docstrings:
+      enabled: false
+    unit_tests:
+      enabled: false
+    fix_ci:
+      enabled: false
+    resolve_merge_conflict:
+      enabled: false
+    simplify:
+      enabled: false
+
   auto_review:
     enabled: true
     drafts: false
