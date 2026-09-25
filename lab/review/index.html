@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex,nofollow,noarchive" />
+    <meta name="referrer" content="no-referrer" />
+    <title>looksawful private review</title>
+  </head>
+  <body data-environment="non-production" data-mode="private-review">
+    <main class="lab-shell" aria-labelledby="review-title">
+      <header class="lab-header">
+        <div>
+          <p class="lab-kicker">internal tooling · private review</p>
+          <h1 id="review-title">review hub</h1>
+        </div>
+        <a class="lab-mode" href="/lab/">LAB</a>
+      </header>
+
+      <section class="lab-panel" aria-labelledby="review-subject-title">
+        <h2 id="review-subject-title">current review</h2>
+        <div class="review-status-row">
+          <p id="review-status" role="status" aria-live="polite" aria-atomic="true" data-state="loading">Loading private review evidence.</p>
+          <button id="review-reload" class="review-action" type="button" hidden>Reload</button>
+        </div>
+        <dl class="lab-provenance">
+          <div><dt>Case</dt><dd id="review-case">loading</dd></div>
+          <div><dt>source SHA</dt><dd id="review-sha">loading</dd></div>
+          <div><dt>review depth</dt><dd id="review-depth">loading</dd></div>
+        </dl>
+      </section>
+
+      <section class="lab-panel" aria-labelledby="review-approval-title">
+        <h2 id="review-approval-title">approval</h2>
+        <p class="review-approval__copy">Approval binds exactly the Case, source SHA and review depth shown above.</p>
+        <div class="review-status-row">
+          <button id="review-approve" class="review-action" type="button" hidden disabled>Approve exact review</button>
+          <p id="review-approval-status" role="status" aria-live="polite" aria-atomic="true">Load a review before approval.</p>
+        </div>
+      </section>
+
+      <section class="lab-panel" aria-labelledby="review-evidence-title">
+        <h2 id="review-evidence-title">evidence</h2>
+        <div id="review-evidence" class="review-evidence" aria-busy="true"></div>
+      </section>
+    </main>
+    <noscript>
+      <p class="lab-warning" role="note">JavaScript is required to load private review evidence.</p>
+    </noscript>
+    <script type="module" src="/src/lab/review.ts"></script>
+  </body>
+</html>
