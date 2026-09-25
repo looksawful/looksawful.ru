@@ -1,5 +1,7 @@
 # looksawful.ru
 
+![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/looksawful/looksawful.ru?utm_source=oss&utm_medium=github&utm_campaign=looksawful%2Flooksawful.ru&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
+
 Personal portfolio by Ivan Krushinsky / looksawful.
 
 Website: https://looksawful.ru
