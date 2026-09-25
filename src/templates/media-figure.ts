@@ -98,10 +98,8 @@ export function renderMediaElement(
 
   if (asset.type === "model") {
     const classes = ["model-viewer", options.className].filter(Boolean).join(" ");
-    const label = entry.alt?.trim() ?? "";
-    const accessibility = label
-      ? ` role="img" aria-label="${escapeHtml(label)}"`
-      : ` aria-hidden="true"`;
+    const label = entry.alt?.trim() || "3D-модель";
+    const accessibility = ` tabindex="0" role="group" aria-label="${escapeHtml(label)}" aria-keyshortcuts="ArrowLeft ArrowRight ArrowUp ArrowDown Home"`;
 
     return `<div class="${escapeHtml(classes)}" data-model-viewer-runtime="" data-model-src="${escapeHtml(
       asset.src,

@@ -31,15 +31,16 @@ function renderGalleryCard(item: GalleryItem): string {
   const title = item.title || item.alt || "";
   const accessibleAlt = item.alt.trim() || title;
   const credits = JSON.stringify([...new Set(item.credits.filter((credit) => credit.trim()))]);
+  const accessibleLabel = `Открыть изображение: ${title.trim() || accessibleAlt}`;
 
-  return `<figure class="gallery-card" data-gallery-card data-gallery-item-id="${escapeHtml(item.id)}" data-gallery-src="${escapeHtml(item.asset.src)}" data-gallery-width="${item.width}" data-gallery-height="${item.height}" data-gallery-alt="${escapeHtml(accessibleAlt)}" data-gallery-title="${escapeHtml(title)}" data-gallery-credits="${escapeHtml(credits)}" tabindex="0" role="button" aria-haspopup="dialog" aria-label="Открыть: ${escapeHtml(accessibleAlt)}">
+  return `<figure class="gallery-card" data-gallery-card data-gallery-item-id="${escapeHtml(item.id)}" data-gallery-src="${escapeHtml(item.asset.src)}" data-gallery-width="${item.width}" data-gallery-height="${item.height}" data-gallery-alt="${escapeHtml(accessibleAlt)}" data-gallery-title="${escapeHtml(title)}" data-gallery-credits="${escapeHtml(credits)}" tabindex="0" role="button" aria-haspopup="dialog" aria-label="${escapeHtml(accessibleLabel)}">
   <img class="gallery-card__image" src="${escapeHtml(item.asset.src)}"${srcsetAttribute} sizes="(max-width: 720px) 50vw, (max-width: 1100px) 33vw, (max-width: 1500px) 25vw, 20vw" width="${item.width}" height="${item.height}" alt="${escapeHtml(accessibleAlt)}" loading="lazy" decoding="async">
 </figure>`;
 }
 
 function renderGalleryModelCard(item: GalleryModelItem): string {
   return `<figure class="gallery-card gallery-card--model" data-gallery-model-card>
-  <div class="gallery-model" data-model-viewer-runtime data-model-src="${escapeHtml(item.asset.src)}" data-model-autorotate="false" role="img" aria-label="${escapeHtml(item.alt)}">
+  <div class="gallery-model" data-model-viewer-runtime data-model-src="${escapeHtml(item.asset.src)}" data-model-autorotate="false" tabindex="0" role="group" aria-label="${escapeHtml(item.alt)}" aria-keyshortcuts="ArrowLeft ArrowRight ArrowUp ArrowDown Home">
     <img class="gallery-model__poster" src="${escapeHtml(item.posterSrc)}" alt="" loading="lazy" decoding="async">
     <canvas class="gallery-model__canvas" data-model-viewer-canvas aria-hidden="true"></canvas>
   </div>

@@ -149,6 +149,79 @@ async function verifyNavigation(page) {
   await page.waitForFunction(() => document.querySelector("[data-site-menu-toggle]")?.getAttribute("aria-expanded") === "false" && document.querySelector("[data-site-menu]")?.hidden === true);
 }
 
+async function verifyGalleryModelKeyboardSurface(page) {
+  const viewer = page.locator("[data-model-viewer-runtime]").first();
+  assert.equal(await viewer.count(), 1, "Gallery must expose an interactive model viewer");
+
+  await viewer.scrollIntoViewIfNeeded();
+  await viewer.focus();
+  assert.equal(
+    await viewer.evaluate((node) => document.activeElement === node),
+    true,
+    "Gallery model viewer must retain keyboard focus",
+  );
+
+  await page.waitForFunction(() => {
+    const node = document.querySelector("[data-model-viewer-runtime]");
+    return node?.dataset.modelState === "error"
+      || Boolean(node?.querySelector("[data-model-viewer-controls]"));
+  }, undefined, { timeout: 12_000 });
+
+  assert.notEqual(
+    await viewer.getAttribute("data-model-state"),
+    "error",
+    "Gallery model viewer runtime must initialize",
+  );
+
+  const geometry = await viewer.evaluate((node) => {
+    const controls = node.querySelector("[data-model-viewer-controls]");
+    if (!(controls instanceof HTMLElement)) return null;
+    const viewerRect = node.getBoundingClientRect();
+    const controlsRect = controls.getBoundingClientRect();
+    const buttonRects = [...controls.querySelectorAll("button")].map((button) => {
+      const rect = button.getBoundingClientRect();
+      return { width: rect.width, height: rect.height };
+    });
+    return {
+      viewer: {
+        left: viewerRect.left,
+        right: viewerRect.right,
+        top: viewerRect.top,
+        bottom: viewerRect.bottom,
+      },
+      controls: {
+        left: controlsRect.left,
+        right: controlsRect.right,
+        top: controlsRect.top,
+        bottom: controlsRect.bottom,
+      },
+      buttonRects,
+    };
+  });
+
+  assert.ok(geometry, "Gallery model controls must mount");
+  assert.ok(
+    geometry.controls.left >= geometry.viewer.left - 1
+      && geometry.controls.right <= geometry.viewer.right + 1
+      && geometry.controls.top >= geometry.viewer.top - 1
+      && geometry.controls.bottom <= geometry.viewer.bottom + 1,
+    `Gallery model controls must stay inside the visible viewer: ${JSON.stringify(geometry)}`,
+  );
+  assert.ok(
+    geometry.buttonRects.every(({ width, height }) => width >= 44 && height >= 44),
+    `Gallery model controls must keep 44px targets: ${JSON.stringify(geometry.buttonRects)}`,
+  );
+
+  for (const key of ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "=", "-", "Home"]) {
+    await page.keyboard.press(key);
+  }
+  assert.equal(
+    await viewer.getAttribute("data-model-state"),
+    "ready",
+    "Gallery keyboard input must not destabilize the model viewer",
+  );
+}
+
 async function verifyGalleryAccessibilityBaseline(page) {
   assert.equal(await page.locator("body").getAttribute("data-page-type"), "gallery");
 
@@ -188,6 +261,8 @@ async function verifyGalleryAccessibilityBaseline(page) {
   );
   assert.ok(labels.length > 1, "Gallery must expose multiple named photo controls");
   assert.ok(new Set(labels).size > 1, "Gallery photo controls must not share one generic accessible name");
+
+  await verifyGalleryModelKeyboardSurface(page);
 }
 
 async function verifyImage(page) {
@@ -335,6 +410,7 @@ export async function runQuickSmoke({ browser, baseUrl, cvMode = "authored" }) {
     ["/work/jestei-pool/", verifyCase],
     ["/work/moves-awful/", verifyCanvas],
   ], 2, ([route, verify]) => audit(runtime, route, VIEWPORTS[1], verify));
+  await audit(runtime, "/gallery/", VIEWPORTS[0], verifyGalleryAccessibilityBaseline);
   await mapWithConcurrency(CAPTION_TOUCH_VIEWPORTS, 2, (viewport) => audit(
     runtime,
     "/work/jestei-pool/",
