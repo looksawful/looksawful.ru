@@ -11,6 +11,10 @@ _Avoid_: Project, when referring specifically to a Case entity.
 **Collection**:
 A curated set of related works presented as a grouped portfolio surface rather than one Case.
 
+**Gallery curation**:
+The explicit editorial selection of canonical Media Catalog assets for the public Gallery Collection. Curation changes Placement/publication intent, not the underlying Media Catalog identity or metadata ownership.
+_Avoid_: Gallery database, Gallery registry, or folder scan.
+
 **Project card**:
 A homepage/navigation presentation that points to a Case or another project surface; it is not the canonical identity of the destination.
 
@@ -33,6 +37,10 @@ A Media Catalog asset introduced through the validated CMS upload path.
 
 **Placement**:
 The use of a media asset in a specific page/case/collection context, where presentation-specific metadata can differ from catalog defaults.
+
+**UI primitive**:
+A reusable production-owned interface unit with a stable semantic contract, state model and shared token ownership. A visual treatment alone is not a separate primitive.
+_Avoid_: Component names that differ only by styling while representing the same semantic role.
 
 **Source master**:
 The preserved source-quality media file from which browser delivery derivatives may be produced.
