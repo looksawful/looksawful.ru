@@ -825,13 +825,6 @@
   font-size: var(--fs-300);
 }
 
-@container project-section (width <= 40rem) {
-  .project__section .code-block-grid,
-  .project__section > .grid {
-    --grid-columns: minmax(0, 1fr);
-  }
-}
-
 /* ==================================================
    Contact
    ================================================== */
