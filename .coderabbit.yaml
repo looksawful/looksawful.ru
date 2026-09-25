@@ -1,0 +1,81 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+# Repository-owned CodeRabbit configuration for looksawful.ru.
+# Keep durable project policy in AGENTS.md and canonical docs; this file only
+# adds review-specific routing and safety emphasis.
+
+language: "en-US"
+early_access: false
+tone_instructions: "Be concise, evidence-based, and actionable. Report concrete issues introduced by the current PR; avoid style-only noise."
+
+reviews:
+  profile: "chill"
+  request_changes_workflow: false
+  high_level_summary: true
+  poem: false
+  review_status: false
+  collapse_walkthrough: true
+  changed_files_summary: false
+  sequence_diagrams: false
+  suggested_labels: false
+  suggested_reviewers: false
+  auto_apply_labels: false
+
+  path_instructions:
+    - path: "**"
+      instructions: |
+        Treat AGENTS.md and the nearest repository-local agent/context guidance as mandatory project policy.
+        Review the current PR diff, not unrelated pre-existing problems.
+        Prefer executable current evidence over stale plans, handoffs, or historical snapshots.
+        Prioritize correctness, security, contract violations, data loss, accessibility, performance regressions, and unsafe lifecycle behavior.
+        Do not propose unrelated wording, visual-design, or architectural changes.
+
+    - path: "src/content/**"
+      instructions: |
+        Preserve authored copy, captions, credits, names, labels, and project text unless the PR explicitly owns editorial changes.
+        Flag technical refactors that silently change authored meaning or create a second editorial source of truth.
+
+    - path: "src/site/**"
+      instructions: |
+        Treat the page manifest, renderer ownership, discovery state, build inputs, and progressive-enhancement behavior as architectural contracts.
+        Flag duplicate route authority, client-only rendering that removes core built HTML, or changes that confuse listed, indexable, and accessible states.
+
+    - path: "src/data/media/**"
+      instructions: |
+        Preserve Media Catalog identity versus placement-specific usage semantics.
+        Do not interpret the internal reusable field as legal permission for external reuse.
+        Flag accidental exposure of all media where an existing projection is explicitly curated.
+
+    - path: ".github/workflows/**"
+      instructions: |
+        Review changes conservatively for permission broadening, secret exposure, unsafe checkout or SHA handling, weakened verification, and accidental changes to dev/prod release semantics.
+        CodeRabbit is advisory here and must not suggest bypassing protected release or publication gates.
+
+    - path: "tools/**"
+      instructions: |
+        Prefer deterministic fail-closed tooling with explicit provenance.
+        Flag hidden repository mutation, destructive Git behavior, hand-edited generated state, or tools that create a second source of truth.
+
+    - path: "src/lab/**"
+      instructions: |
+        Keep Private Lab and Storybook non-production and read-only with respect to production authority.
+        Flag changes that make Lab visibility imply public visibility or that duplicate production fixtures instead of deriving them from production data and renderers.
+
+    - path: "test/**"
+      instructions: |
+        Respect the repository testing lifecycle: development-specific RED/GREEN tests may be temporary, while permanent tests should protect durable contracts or recurring risks.
+        Flag tests that are nondeterministic, duplicate stronger existing contracts, or claim verification they do not actually perform.
+
+  auto_review:
+    enabled: true
+    drafts: false
+    auto_incremental_review: true
+    ignore_title_keywords:
+      - "WIP"
+      - "DO NOT MERGE"
+      - "[skip review]"
+    base_branches:
+      - "^dev$"
+      - "^prod$"
+
+chat:
+  auto_reply: true
