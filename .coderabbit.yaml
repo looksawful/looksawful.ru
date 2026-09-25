@@ -78,4 +78,5 @@ reviews:
       - "^prod$"
 
 chat:
-  auto_reply: true
+  # Keep paid/agentic chat surfaces disabled. This repository uses only the free public-repository review path.
+  auto_reply: false
