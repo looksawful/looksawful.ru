@@ -291,3 +291,22 @@ export const EditorialGridProjectIntro = {
     },
   },
 };
+
+
+export const WrapperContainer = {
+  render: () => `
+    <main style="padding-block:2rem;border-block:1px solid currentColor">
+      <div class="wrapper" style="--wrapper-max-width:48rem">
+        <p>Wrapper owns centered page/container width and gutters. Content semantics live inside it.</p>
+      </div>
+    </main>
+  `,
+  parameters: {
+    looksawful: { state: "wrapper-container" },
+    docs: {
+      description: {
+        story: "Wrapper owns centered maximum width plus inline gutters. It is a container boundary, not a typography measure.",
+      },
+    },
+  },
+};
