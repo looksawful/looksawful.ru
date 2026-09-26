@@ -490,6 +490,19 @@
 /* Jestei mobile integration: ordinary media stacks while authored rails keep
    horizontal swipe/scroll behavior until the project switches to desktop. */
 @container project (width <= 50rem) {
+  #project-jestei .media-group[data-layout="sequence"] > .media-group__items {
+    --reel-align: stretch;
+  }
+
+  #project-jestei
+    .media-group[data-layout="sequence"]
+    > .media-group__items
+    > .media[data-role="wide"]
+    .media__surface {
+    block-size: 100%;
+    aspect-ratio: auto;
+  }
+
   #project-jestei
     .media-group[data-layout="grid"]:not([data-compact-layout="reel"]):not([data-overflow="reel"])
     > .media-group__items {
