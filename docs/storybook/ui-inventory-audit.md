@@ -1,5 +1,8 @@
 # Storybook canonical UI inventory audit
 
+> **Historical audit snapshot.** This document describes `storybook/audit-inventory` at baseline `d2fa1a10cefda1be5d7f49e3adb1bfa334fb600c`; its story counts, route counts and “current” wording are current only for that audited baseline.
+> For live coverage, run the repository inventory on current `dev` and follow #973 / #976 / #977. The companion `ui-inventory.snapshot.json` is historical evidence, not current coverage truth.
+
 Audit target: `looksawful/looksawful.ru` branch `storybook/audit-inventory`, baseline `d2fa1a10cefda1be5d7f49e3adb1bfa334fb600c`.
 
 Machine-readable companion: `docs/storybook/ui-inventory.snapshot.json`.
