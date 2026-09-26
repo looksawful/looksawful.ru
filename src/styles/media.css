@@ -495,10 +495,7 @@
     > .media-group__items
     > .media[data-role="wide"]
     .media__surface {
-    block-size: calc(
-      (var(--sequence-cell) * var(--sequence-mobile-rows, 2)) +
-      (var(--group-gap) * (var(--sequence-mobile-rows, 2) - 1))
-    );
+    block-size: calc(var(--sequence-cell) + var(--sequence-cell) + var(--group-gap));
     aspect-ratio: auto;
   }
 
