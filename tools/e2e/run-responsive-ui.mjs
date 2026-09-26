@@ -405,13 +405,37 @@ async function readJesteiGeometry(page) {
         const leadingRect = leading.getBoundingClientRect();
         const middleRect = middle.getBoundingClientRect();
 
+        const leadingSurface = leading.querySelector(":scope > .media__surface");
+        const leadingSurfaceRect =
+          leadingSurface instanceof HTMLElement ? leadingSurface.getBoundingClientRect() : null;
+
+        const cells = [...middle.querySelectorAll(":scope > .media")].flatMap((cell) => {
+          if (!(cell instanceof HTMLElement)) return [];
+          const rect = cell.getBoundingClientRect();
+          const surface = cell.querySelector(":scope > .media__surface");
+          const surfaceRect = surface instanceof HTMLElement ? surface.getBoundingClientRect() : null;
+
+          return [{
+            top: rect.top,
+            bottom: rect.bottom,
+            height: rect.height,
+            surfaceTop: surfaceRect?.top ?? null,
+            surfaceBottom: surfaceRect?.bottom ?? null,
+            surfaceHeight: surfaceRect?.height ?? null,
+          }];
+        });
+
         return {
           leadingTop: leadingRect.top,
           leadingBottom: leadingRect.bottom,
           leadingHeight: leadingRect.height,
+          leadingSurfaceTop: leadingSurfaceRect?.top ?? null,
+          leadingSurfaceBottom: leadingSurfaceRect?.bottom ?? null,
+          leadingSurfaceHeight: leadingSurfaceRect?.height ?? null,
           middleTop: middleRect.top,
           middleBottom: middleRect.bottom,
           middleHeight: middleRect.height,
+          cells,
         };
       })(),
       horizontalOverflow:
@@ -459,7 +483,21 @@ async function checkJesteiMobile(browser, baseUrl) {
     );
     assert.ok(
       Math.abs(geometry.promoSequence.leadingBottom - geometry.promoSequence.middleBottom) <= ALIGNMENT_TOLERANCE,
-      `Jestei mobile: promo leading and middle bottoms differ by ${Math.abs(geometry.promoSequence.leadingBottom - geometry.promoSequence.middleBottom)}px`,
+      `Jestei mobile: promo leading and middle boxes differ by ${Math.abs(geometry.promoSequence.leadingBottom - geometry.promoSequence.middleBottom)}px`,
+    );
+
+    const visibleCellBottom = Math.max(
+      ...geometry.promoSequence.cells
+        .map((cell) => cell.surfaceBottom)
+        .filter((value) => Number.isFinite(value)),
+    );
+    assert.ok(
+      Number.isFinite(geometry.promoSequence.leadingSurfaceBottom),
+      "Jestei mobile: expected leading promo surface geometry",
+    );
+    assert.ok(
+      Math.abs(geometry.promoSequence.leadingSurfaceBottom - visibleCellBottom) <= ALIGNMENT_TOLERANCE,
+      `Jestei mobile: visible promo grid bottom differs from leading surface by ${Math.abs(geometry.promoSequence.leadingSurfaceBottom - visibleCellBottom)}px`,
     );
 
         assert.ok(geometry.rails.length >= 4, "Jestei mobile: expected authored horizontal rails");
