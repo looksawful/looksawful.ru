@@ -3,127 +3,122 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Illumihand — design system extraction prototype</title>
+<title>Illumihand — evidence review</title>
 <style>
 :root{
-  --heavy-dark:#0D0D0D;
-  --medium-dark:#0C0E17;
-  --light-dark:#151827;
-  --neutral-gray:#DADADA;
-  --light:#E7E7E7;
-  --white-bright:#FAFAFA;
-  --night-blue:#3A4AA2;
-  --ozon-blue:#3C66BA;
-  --accent-pink:#8D8CD7;
-  --full-moon-silver:#AFB7D2;
-  --sunset-golden:#C08375;
-  --radius:24px;
+  color-scheme:light;
+  --heavy:#0D0D0D;--medium:#0C0E17;--light-dark:#151827;
+  --gray:#DADADA;--light:#E7E7E7;--white:#FAFAFA;
+  --night:#3A4AA2;--ozon:#3C66BA;--pink:#8D8CD7;--silver:#AFB7D2;--gold:#C08375;
+  --border:#d8d8d8;--muted:#666;
 }
 *{box-sizing:border-box}
-html{background:var(--white-bright);color:var(--heavy-dark);font-family:Arial,Helvetica,sans-serif}
+html{font-family:Arial,Helvetica,sans-serif;background:#f3f3f1;color:#111}
 body{margin:0}
-main{max-width:1240px;margin:0 auto;padding:48px 24px 96px}
-header{display:grid;gap:16px;margin-bottom:48px}
-h1{font-size:clamp(40px,8vw,112px);line-height:.9;letter-spacing:-.06em;margin:0;text-transform:uppercase}
-p{margin:0;line-height:1.45}
-.meta{max-width:780px;font-size:18px;color:#4b4b4b}
-section{margin-top:64px}
-h2{font-size:14px;letter-spacing:.16em;text-transform:uppercase;margin:0 0 20px}
-.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}
-.swatch{grid-column:span 3;min-height:180px;border-radius:var(--radius);padding:16px;display:flex;flex-direction:column;justify-content:space-between;border:1px solid rgba(0,0,0,.08)}
-.swatch.dark{color:white}
-.swatch code{font-size:12px}
-.lockup{grid-column:span 4;min-height:240px;border:1px solid #d9d9d9;border-radius:var(--radius);padding:20px;display:flex;flex-direction:column;justify-content:space-between;background:white}
-.lockup strong{font-size:28px;text-transform:uppercase}
-.lockup small{color:#666}
-.rule{grid-column:span 6;border-top:1px solid #bbb;padding:18px 0 8px}
-.rule b{display:block;margin-bottom:6px}
-.status{display:inline-block;padding:4px 8px;border:1px solid #999;border-radius:999px;font-size:11px;text-transform:uppercase;letter-spacing:.08em}
-.evidence{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-figure{margin:0;border-radius:var(--radius);overflow:hidden;background:#111}
-figure img{display:block;width:100%;height:auto}
-figcaption{padding:12px 14px;background:#fff;border:1px solid #ddd;border-top:0;font-size:12px;color:#555}
-.phone-wrap{display:flex;justify-content:center;padding:24px 0}
-.phone{width:min(390px,100%);min-height:844px;background:var(--medium-dark);color:white;border-radius:34px;padding:28px 20px;display:flex;flex-direction:column;gap:28px;box-shadow:0 20px 60px rgba(0,0,0,.12)}
-.phone .brand{font-size:46px;line-height:.9;letter-spacing:-.05em;text-transform:uppercase}
-.phone .hero{aspect-ratio:4/5;border-radius:24px;background:linear-gradient(135deg,var(--night-blue),var(--accent-pink) 55%,var(--sunset-golden));display:flex;align-items:flex-end;padding:20px}
-.phone .chips{display:flex;gap:8px;flex-wrap:wrap}
-.phone .chip{border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:8px 10px;font-size:12px}
-.note{padding:16px 18px;border-left:4px solid var(--sunset-golden);background:#f7f2ef}
-@media(max-width:800px){
-  main{padding:32px 16px 72px}
-  .swatch{grid-column:span 6}
-  .lockup,.rule{grid-column:span 12}
-  .evidence{grid-template-columns:1fr}
+header,main{max-width:1440px;margin:auto}
+header{padding:44px 24px 24px}
+.eyebrow{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#666}
+h1{margin:8px 0 12px;font-size:clamp(42px,7vw,92px);line-height:.92;letter-spacing:-.055em}
+.lead{max-width:860px;font-size:18px;line-height:1.5}
+.notice{margin-top:24px;padding:14px 16px;background:#fff;border:1px solid var(--border);border-left:5px solid #111}
+main{padding:0 24px 80px}
+section{margin-top:52px}
+h2{font-size:14px;text-transform:uppercase;letter-spacing:.14em;margin:0 0 16px}
+.evidence{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}
+.tile{margin:0;background:#fff;border:1px solid var(--border);overflow:hidden}
+.tile.wide{grid-column:span 6}.tile.square{grid-column:span 3}
+.tile img{width:100%;height:auto;display:block;background:#ddd}
+.tile figcaption{padding:10px 12px;font-size:12px;color:#555}
+.palette{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
+.swatch{min-height:130px;padding:12px;display:flex;flex-direction:column;justify-content:space-between;border:1px solid rgba(0,0,0,.1)}
+.swatch.dark{color:#fff}.swatch code{font-size:11px}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.panel{background:#fff;border:1px solid var(--border);padding:20px}
+.panel ul{margin:10px 0 0;padding-left:18px}.panel li{margin:7px 0;line-height:1.45}
+.status{font-size:10px;letter-spacing:.11em;text-transform:uppercase;border:1px solid #999;border-radius:999px;padding:4px 7px;display:inline-block}
+.logo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.logo-item{background:#fff;border:1px solid var(--border);padding:18px;min-height:150px;display:flex;flex-direction:column;justify-content:space-between}
+.logo-item strong{font-size:28px;letter-spacing:-.03em}
+.review{background:#111;color:#fff;padding:24px;display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.review h3{margin:0 0 10px;font-size:18px}.review p{margin:0;line-height:1.5;color:#d7d7d7}
+a{color:inherit}
+@media(max-width:900px){
+ header,main{padding-left:16px;padding-right:16px}
+ .tile.wide,.tile.square{grid-column:span 12}
+ .palette{grid-template-columns:repeat(2,1fr)}
+ .cols,.review{grid-template-columns:1fr}
+ .logo-grid{grid-template-columns:1fr 1fr}
 }
+@media(max-width:520px){.logo-grid{grid-template-columns:1fr}.palette{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
-<main>
 <header>
-<h1>Illumihand</h1>
-<p class="meta">Throwaway extraction prototype. Это не новый брендбук и не production UI-kit. Он показывает только повторяющиеся правила, которые подтверждаются найденными материалами. Всё спорное явно помечено как inferred или unresolved.</p>
+<div class="eyebrow">Illumihand / design-system extraction / human review</div>
+<h1>Только то, что подтверждено источниками.</h1>
+<p class="lead">Это не новый брендбук и не редизайн. Страница нужна, чтобы глазами проверить реконструкцию Illumihand по существующим материалам: исходные изображения, повторяющиеся цветовые роли, семейства логотипов и границу между доказанным и пока неизвестным.</p>
+<div class="notice"><strong>Важно:</strong> никаких придуманных продуктов, слоганов, интерфейсов, шрифтов или новых знаков. Предыдущий генеративный концепт намеренно исключён из evidence.</div>
 </header>
+<main>
 
 <section>
-<h2>Observed color roles</h2>
-<div class="grid">
+<h2>01. Реальные материалы из репозитория</h2>
+<div class="evidence">
+<figure class="tile wide"><img src="https://raw.githubusercontent.com/looksawful/looksawful.ru/dev/public/media/projects/illumihand/03/source/01-3208x6072.webp" alt="Illumihand brandbook evidence 01"><figcaption>Brandbook-labelled evidence · 01-3208x6072.webp</figcaption></figure>
+<figure class="tile wide"><img src="https://raw.githubusercontent.com/looksawful/looksawful.ru/dev/public/media/projects/illumihand/03/source/02-5884x3116.webp" alt="Illumihand brandbook evidence 02"><figcaption>Brandbook-labelled evidence · 02-5884x3116.webp</figcaption></figure>
+<figure class="tile square"><img src="https://raw.githubusercontent.com/looksawful/looksawful.ru/dev/public/media/projects/illumihand/02/source/03-1x1.webp" alt="Illumihand project evidence 03"><figcaption>Project evidence · 03-1x1.webp</figcaption></figure>
+<figure class="tile square"><img src="https://raw.githubusercontent.com/looksawful/looksawful.ru/dev/public/media/projects/illumihand/02/source/04-1280x699.webp" alt="Illumihand project evidence 04"><figcaption>Project evidence · 04-1280x699.webp</figcaption></figure>
+<figure class="tile square"><img src="https://raw.githubusercontent.com/looksawful/looksawful.ru/dev/public/media/projects/illumihand/02/source/05-1x1.webp" alt="Illumihand project evidence 05"><figcaption>Project evidence · 05-1x1.webp</figcaption></figure>
+<figure class="tile square"><img src="https://raw.githubusercontent.com/looksawful/looksawful.ru/dev/public/media/projects/illumihand/02/source/06-2x1.webp" alt="Illumihand project evidence 06"><figcaption>Project evidence · 06-2x1.webp</figcaption></figure>
+</div>
+</section>
+
+<section>
+<h2>02. Reconstruction color roles</h2>
+<div class="palette">
 <div class="swatch dark" style="background:#0D0D0D"><strong>Heavy dark</strong><code>#0D0D0D</code></div><div class="swatch dark" style="background:#0C0E17"><strong>Medium dark</strong><code>#0C0E17</code></div><div class="swatch dark" style="background:#151827"><strong>Light dark</strong><code>#151827</code></div><div class="swatch " style="background:#DADADA"><strong>Neutral gray</strong><code>#DADADA</code></div><div class="swatch " style="background:#E7E7E7"><strong>Light</strong><code>#E7E7E7</code></div><div class="swatch " style="background:#FAFAFA"><strong>White Bright</strong><code>#FAFAFA</code></div><div class="swatch dark" style="background:#3A4AA2"><strong>Accent night blue</strong><code>#3A4AA2</code></div><div class="swatch dark" style="background:#3C66BA"><strong>Accent ozon blue</strong><code>#3C66BA</code></div><div class="swatch dark" style="background:#8D8CD7"><strong>Accent pink</strong><code>#8D8CD7</code></div><div class="swatch " style="background:#AFB7D2"><strong>Full moon silver</strong><code>#AFB7D2</code></div><div class="swatch " style="background:#C08375"><strong>Sunset Golden</strong><code>#C08375</code></div>
 </div>
-<p class="note" style="margin-top:16px">Статус: <b>observed reconstruction tokens</b>. Hex извлечены из существующих экспортов, но пока не доказано, что брендбук формально задаёт именно эти значения.</p>
+<div class="notice"><span class="status">observed reconstruction</span> Значения извлечены из существующих export assets. Это пока не утверждение, что официальный брендбук задаёт те же hex буквально.</div>
 </section>
 
 <section>
-<h2>Logo grammar</h2>
-<div class="grid">
-<article class="lockup"><strong>compact</strong><small>hand/eye emblem</small><span class="status">observed family</span></article><article class="lockup"><strong>arc</strong><small>wide arced Cyrillic wordmark</small><span class="status">observed family</span></article><article class="lockup"><strong>curve</strong><small>more compact curved lockup</small><span class="status">observed family</span></article><article class="lockup"><strong>radial</strong><small>circular composition</small><span class="status">observed family</span></article><article class="lockup"><strong>wear</strong><small>secondary lettering</small><span class="status">observed family</span></article><article class="lockup"><strong>full</strong><small>wordmark + emblem + wear</small><span class="status">observed family</span></article>
+<h2>03. Logo grammar</h2>
+<div class="logo-grid">
+<div class="logo-item"><strong>compact</strong><span>hand / eye emblem</span><span class="status">observed family</span></div><div class="logo-item"><strong>arc</strong><span>wide arced Cyrillic wordmark</span><span class="status">observed family</span></div><div class="logo-item"><strong>curve</strong><span>compact curved lockup</span><span class="status">observed family</span></div><div class="logo-item"><strong>radial</strong><span>circular composition</span><span class="status">observed family</span></div><div class="logo-item"><strong>wear</strong><span>secondary lettering</span><span class="status">observed family</span></div><div class="logo-item"><strong>full</strong><span>wordmark + emblem + wear</span><span class="status">observed family</span></div>
 </div>
+<div class="notice">Здесь показана <strong>таксономия</strong>, а не перерисованные логотипы. Пока canonical vector masters не восстановлены, рисовать «аккуратные» версии поверх исходников было бы подменой доказательств.</div>
 </section>
 
 <section>
-<h2>Working rules</h2>
-<div class="grid">
-<div class="rule"><b>Authored lettering stays authored.</b><span>Не заменяем фирменный lettering «похожим» blackletter-шрифтом.</span></div>
-<div class="rule"><b>Choose lockup by composition.</b><span>Не растягиваем один master на все случаи; выбираем семейство по aspect и задаче.</span></div>
-<div class="rule"><b>Historical color-role names stay intact.</b><span>Названия ролей сохраняются как часть provenance.</span></div>
-<div class="rule"><b>Raster-backed SVG is not canonical vector.</b><span>Текущие wrappers нельзя объявлять editable master.</span></div>
-<div class="rule"><b>Every rule has provenance state.</b><span>observed / inferred / unresolved.</span></div>
-<div class="rule"><b>Expressive variants stay separate.</b><span>Outline, fill и stylized/extruded слой не становится core grammar до восстановления do/don’t.</span></div>
-</div>
-</section>
-
-<section>
-<h2>Unresolved</h2>
-<div class="grid">
-<div class="rule"><b>Typography</b><span class="status">unresolved</span><p>Официальный text/display font не доказан.</p></div>
-<div class="rule"><b>Grid & spacing</b><span class="status">unresolved</span><p>Не выдумываем spacing scale по одному красивому макету.</p></div>
-<div class="rule"><b>Motion grammar</b><span class="status">unresolved</span><p>Нужна отдельная проверка video assets.</p></div>
-<div class="rule"><b>Canonical vectors</b><span class="status">unresolved</span><p>Repository audit не нашёл canonical SVG source.</p></div>
-</div>
-</section>
-
-<section>
-<h2>Primary evidence currently available in repo</h2>
-<div class="evidence">
-<figure><img src="/media/projects/illumihand/03/source/01-3208x6072.webp" alt="Illumihand brandbook evidence 01"><figcaption>Brandbook-labelled evidence image 01</figcaption></figure>
-<figure><img src="/media/projects/illumihand/03/source/02-5884x3116.webp" alt="Illumihand brandbook evidence 02"><figcaption>Brandbook-labelled evidence image 02</figcaption></figure>
+<h2>04. Правила, которые уже можно использовать</h2>
+<div class="cols">
+<div class="panel"><span class="status">observed / inferred</span><ul>
+<li>Brand lettering остаётся authored asset и не заменяется похожим blackletter-font.</li>
+<li>Lockup выбирается по композиции и aspect, а не масштабированием одного master.</li>
+<li>Исторические названия цветовых ролей сохраняются.</li>
+<li>Raster-backed SVG не считается canonical editable vector.</li>
+<li>Outline / fill / stylized варианты пока отделены как expressive layer.</li>
+</ul></div>
+<div class="panel"><span class="status">unresolved</span><ul>
+<li>Официальный text/display font.</li>
+<li>Grid и spacing tokens.</li>
+<li>Motion grammar из видео.</li>
+<li>Canonical vector masters.</li>
+<li>Formal pairing matrix для contour / fill treatments.</li>
+</ul></div>
 </div>
 </section>
 
 <section>
-<h2>Mobile sanity check</h2>
-<div class="phone-wrap">
-<div class="phone">
-<div class="brand">Illumihand</div>
-<div class="hero"><strong>Identity system<br>mobile application</strong></div>
-<div>
-<p style="font-size:20px;margin-bottom:14px">Проверка не продукта, а поведения восстановленных ролей на узком экране.</p>
-<div class="chips"><span class="chip">night blue</span><span class="chip">accent pink</span><span class="chip">sunset golden</span></div>
-</div>
-<p style="margin-top:auto;color:#bfc5dc">Никаких новых компонентов, токенов и «официального» шрифта здесь не вводится.</p>
-</div>
+<h2>05. Что именно ревьюить</h2>
+<div class="review">
+<div><h3>A. Узнаётся ли система?</h3><p>Смотри сначала на реальные изображения сверху, затем на palette и logo grammar. Проверяем соответствие, а не красоту этой служебной страницы.</p></div>
+<div><h3>B. Есть ли неверная классификация?</h3><p>Главные вопросы: правильно ли разделены compact / arc / curve / radial / wear / full и не смешали ли мы expressive-варианты с core.</p></div>
+<div><h3>C. Цветовые роли</h3><p>Проверяем названия и визуальную близость ролей. Hex пока считаются реконструкцией, поэтому расхождение с официальным числом не превращаем в драму мирового масштаба.</p></div>
+<div><h3>D. Чего не хватает?</h3><p>Typography, spacing, motion и canonical vectors намеренно оставлены unresolved. Они не должны выглядеть «закрытыми» только потому, что таблица выглядит убедительно.</p></div>
 </div>
 </section>
+
 </main>
 </body>
 </html>
