@@ -405,6 +405,19 @@ async function readJesteiGeometry(page) {
         const leadingRect = leading.getBoundingClientRect();
         const middleRect = middle.getBoundingClientRect();
 
+        const cells = [...middle.querySelectorAll(":scope > .media")].flatMap((cell) => {
+          if (!(cell instanceof HTMLElement)) return [];
+          const rect = cell.getBoundingClientRect();
+          return [{
+            left: rect.left,
+            right: rect.right,
+            top: rect.top,
+            bottom: rect.bottom,
+            width: rect.width,
+            height: rect.height,
+          }];
+        });
+
         return {
           leadingTop: leadingRect.top,
           leadingBottom: leadingRect.bottom,
@@ -412,6 +425,7 @@ async function readJesteiGeometry(page) {
           middleTop: middleRect.top,
           middleBottom: middleRect.bottom,
           middleHeight: middleRect.height,
+          cells,
         };
       })(),
       horizontalOverflow:
@@ -452,7 +466,8 @@ async function checkJesteiMobile(browser, baseUrl) {
       );
     }
 
-    assert.ok(geometry.promoSequence, "Jestei mobile: expected promo sequence geometry");
+    console.log("[DEBUG-jestei-promo-geometry]", JSON.stringify(geometry.promoSequence));
+        assert.ok(geometry.promoSequence, "Jestei mobile: expected promo sequence geometry");
     assert.ok(
       Math.abs(geometry.promoSequence.leadingTop - geometry.promoSequence.middleTop) <= ALIGNMENT_TOLERANCE,
       `Jestei mobile: promo leading and middle tops differ by ${Math.abs(geometry.promoSequence.leadingTop - geometry.promoSequence.middleTop)}px`,
