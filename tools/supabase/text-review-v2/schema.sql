@@ -37,3 +37,9 @@ create table if not exists public.temp_text_review_round_2_answers (
 alter table public.temp_text_review_round_2_answers enable row level security;
 revoke all on table public.temp_text_review_round_2_answers from anon, authenticated;
 grant select, insert, update, delete on table public.temp_text_review_round_2_answers to service_role;
+
+-- Round 1 snapshot history is also private runtime data.
+-- The text-review Edge Function reads it with service_role; browser roles do not need direct access.
+alter table public.temp_text_review_answer_snapshots enable row level security;
+revoke all on table public.temp_text_review_answer_snapshots from anon, authenticated;
+grant select, insert, update, delete on table public.temp_text_review_answer_snapshots to service_role;
