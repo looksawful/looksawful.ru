@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Illumihand — design system extraction prototype</title>
+<style>
+:root{
+  --heavy-dark:#0D0D0D;
+  --medium-dark:#0C0E17;
+  --light-dark:#151827;
+  --neutral-gray:#DADADA;
+  --light:#E7E7E7;
+  --white-bright:#FAFAFA;
+  --night-blue:#3A4AA2;
+  --ozon-blue:#3C66BA;
+  --accent-pink:#8D8CD7;
+  --full-moon-silver:#AFB7D2;
+  --sunset-golden:#C08375;
+  --radius:24px;
+}
+*{box-sizing:border-box}
+html{background:var(--white-bright);color:var(--heavy-dark);font-family:Arial,Helvetica,sans-serif}
+body{margin:0}
+main{max-width:1240px;margin:0 auto;padding:48px 24px 96px}
+header{display:grid;gap:16px;margin-bottom:48px}
+h1{font-size:clamp(40px,8vw,112px);line-height:.9;letter-spacing:-.06em;margin:0;text-transform:uppercase}
+p{margin:0;line-height:1.45}
+.meta{max-width:780px;font-size:18px;color:#4b4b4b}
+section{margin-top:64px}
+h2{font-size:14px;letter-spacing:.16em;text-transform:uppercase;margin:0 0 20px}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}
+.swatch{grid-column:span 3;min-height:180px;border-radius:var(--radius);padding:16px;display:flex;flex-direction:column;justify-content:space-between;border:1px solid rgba(0,0,0,.08)}
+.swatch.dark{color:white}
+.swatch code{font-size:12px}
+.lockup{grid-column:span 4;min-height:240px;border:1px solid #d9d9d9;border-radius:var(--radius);padding:20px;display:flex;flex-direction:column;justify-content:space-between;background:white}
+.lockup strong{font-size:28px;text-transform:uppercase}
+.lockup small{color:#666}
+.rule{grid-column:span 6;border-top:1px solid #bbb;padding:18px 0 8px}
+.rule b{display:block;margin-bottom:6px}
+.status{display:inline-block;padding:4px 8px;border:1px solid #999;border-radius:999px;font-size:11px;text-transform:uppercase;letter-spacing:.08em}
+.evidence{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+figure{margin:0;border-radius:var(--radius);overflow:hidden;background:#111}
+figure img{display:block;width:100%;height:auto}
+figcaption{padding:12px 14px;background:#fff;border:1px solid #ddd;border-top:0;font-size:12px;color:#555}
+.phone-wrap{display:flex;justify-content:center;padding:24px 0}
+.phone{width:min(390px,100%);min-height:844px;background:var(--medium-dark);color:white;border-radius:34px;padding:28px 20px;display:flex;flex-direction:column;gap:28px;box-shadow:0 20px 60px rgba(0,0,0,.12)}
+.phone .brand{font-size:46px;line-height:.9;letter-spacing:-.05em;text-transform:uppercase}
+.phone .hero{aspect-ratio:4/5;border-radius:24px;background:linear-gradient(135deg,var(--night-blue),var(--accent-pink) 55%,var(--sunset-golden));display:flex;align-items:flex-end;padding:20px}
+.phone .chips{display:flex;gap:8px;flex-wrap:wrap}
+.phone .chip{border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:8px 10px;font-size:12px}
+.note{padding:16px 18px;border-left:4px solid var(--sunset-golden);background:#f7f2ef}
+@media(max-width:800px){
+  main{padding:32px 16px 72px}
+  .swatch{grid-column:span 6}
+  .lockup,.rule{grid-column:span 12}
+  .evidence{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<main>
+<header>
+<h1>Illumihand</h1>
+<p class="meta">Throwaway extraction prototype. Это не новый брендбук и не production UI-kit. Он показывает только повторяющиеся правила, которые подтверждаются найденными материалами. Всё спорное явно помечено как inferred или unresolved.</p>
+</header>
+
+<section>
+<h2>Observed color roles</h2>
+<div class="grid">
+<div class="swatch dark" style="background:#0D0D0D"><strong>Heavy dark</strong><code>#0D0D0D</code></div><div class="swatch dark" style="background:#0C0E17"><strong>Medium dark</strong><code>#0C0E17</code></div><div class="swatch dark" style="background:#151827"><strong>Light dark</strong><code>#151827</code></div><div class="swatch " style="background:#DADADA"><strong>Neutral gray</strong><code>#DADADA</code></div><div class="swatch " style="background:#E7E7E7"><strong>Light</strong><code>#E7E7E7</code></div><div class="swatch " style="background:#FAFAFA"><strong>White Bright</strong><code>#FAFAFA</code></div><div class="swatch dark" style="background:#3A4AA2"><strong>Accent night blue</strong><code>#3A4AA2</code></div><div class="swatch dark" style="background:#3C66BA"><strong>Accent ozon blue</strong><code>#3C66BA</code></div><div class="swatch dark" style="background:#8D8CD7"><strong>Accent pink</strong><code>#8D8CD7</code></div><div class="swatch " style="background:#AFB7D2"><strong>Full moon silver</strong><code>#AFB7D2</code></div><div class="swatch " style="background:#C08375"><strong>Sunset Golden</strong><code>#C08375</code></div>
+</div>
+<p class="note" style="margin-top:16px">Статус: <b>observed reconstruction tokens</b>. Hex извлечены из существующих экспортов, но пока не доказано, что брендбук формально задаёт именно эти значения.</p>
+</section>
+
+<section>
+<h2>Logo grammar</h2>
+<div class="grid">
+<article class="lockup"><strong>compact</strong><small>hand/eye emblem</small><span class="status">observed family</span></article><article class="lockup"><strong>arc</strong><small>wide arced Cyrillic wordmark</small><span class="status">observed family</span></article><article class="lockup"><strong>curve</strong><small>more compact curved lockup</small><span class="status">observed family</span></article><article class="lockup"><strong>radial</strong><small>circular composition</small><span class="status">observed family</span></article><article class="lockup"><strong>wear</strong><small>secondary lettering</small><span class="status">observed family</span></article><article class="lockup"><strong>full</strong><small>wordmark + emblem + wear</small><span class="status">observed family</span></article>
+</div>
+</section>
+
+<section>
+<h2>Working rules</h2>
+<div class="grid">
+<div class="rule"><b>Authored lettering stays authored.</b><span>Не заменяем фирменный lettering «похожим» blackletter-шрифтом.</span></div>
+<div class="rule"><b>Choose lockup by composition.</b><span>Не растягиваем один master на все случаи; выбираем семейство по aspect и задаче.</span></div>
+<div class="rule"><b>Historical color-role names stay intact.</b><span>Названия ролей сохраняются как часть provenance.</span></div>
+<div class="rule"><b>Raster-backed SVG is not canonical vector.</b><span>Текущие wrappers нельзя объявлять editable master.</span></div>
+<div class="rule"><b>Every rule has provenance state.</b><span>observed / inferred / unresolved.</span></div>
+<div class="rule"><b>Expressive variants stay separate.</b><span>Outline, fill и stylized/extruded слой не становится core grammar до восстановления do/don’t.</span></div>
+</div>
+</section>
+
+<section>
+<h2>Unresolved</h2>
+<div class="grid">
+<div class="rule"><b>Typography</b><span class="status">unresolved</span><p>Официальный text/display font не доказан.</p></div>
+<div class="rule"><b>Grid & spacing</b><span class="status">unresolved</span><p>Не выдумываем spacing scale по одному красивому макету.</p></div>
+<div class="rule"><b>Motion grammar</b><span class="status">unresolved</span><p>Нужна отдельная проверка video assets.</p></div>
+<div class="rule"><b>Canonical vectors</b><span class="status">unresolved</span><p>Repository audit не нашёл canonical SVG source.</p></div>
+</div>
+</section>
+
+<section>
+<h2>Primary evidence currently available in repo</h2>
+<div class="evidence">
+<figure><img src="/media/projects/illumihand/03/source/01-3208x6072.webp" alt="Illumihand brandbook evidence 01"><figcaption>Brandbook-labelled evidence image 01</figcaption></figure>
+<figure><img src="/media/projects/illumihand/03/source/02-5884x3116.webp" alt="Illumihand brandbook evidence 02"><figcaption>Brandbook-labelled evidence image 02</figcaption></figure>
+</div>
+</section>
+
+<section>
+<h2>Mobile sanity check</h2>
+<div class="phone-wrap">
+<div class="phone">
+<div class="brand">Illumihand</div>
+<div class="hero"><strong>Identity system<br>mobile application</strong></div>
+<div>
+<p style="font-size:20px;margin-bottom:14px">Проверка не продукта, а поведения восстановленных ролей на узком экране.</p>
+<div class="chips"><span class="chip">night blue</span><span class="chip">accent pink</span><span class="chip">sunset golden</span></div>
+</div>
+<p style="margin-top:auto;color:#bfc5dc">Никаких новых компонентов, токенов и «официального» шрифта здесь не вводится.</p>
+</div>
+</div>
+</section>
+</main>
+</body>
+</html>
