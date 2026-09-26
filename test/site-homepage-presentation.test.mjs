@@ -7,6 +7,8 @@ import {
   homepageEntries,
 } from "../src/site/pages/homepage.ts";
 import { getPageByPath } from "../src/site/pages/manifest.ts";
+import { extractElementContainingMarker } from "../src/site/rendering/html.ts";
+import { portfolioPresentation } from "../src/site/pages/portfolio-presentation.ts";
 import { renderStandaloneEntityPage } from "../src/site/renderers/entity-page.ts";
 import { renderHomepagePage } from "../src/site/renderers/home/home-page.ts";
 
@@ -105,5 +107,25 @@ test("project preview CTA uses compact desktop sizing and full-width mobile sizi
   assert.match(
     css,
     /@container project \(width > 50rem\)[\s\S]*?\.project-preview-entry__link\s*\{[\s\S]*?inline-size:\s*fit-content;/,
+  );
+});
+
+
+test("homepage keeps unresolved Featured membership fail-closed", () => {
+  const homepage = renderHomepagePage(indexSource);
+  assert.doesNotMatch(homepage, /class="pet-projects"/);
+});
+
+test("homepage refuses Featured Projects until their pages are public", () => {
+  assert.throws(
+    () => renderHomepagePage(indexSource, {
+      ...portfolioPresentation,
+      featured: [
+        "project:awful-cases",
+        "project:moves-awful",
+        "project:awful-studio",
+      ],
+    }),
+    /listed.*indexable.*Featured|Featured.*listed.*indexable|listed.*indexable.*portfolio/i,
   );
 });

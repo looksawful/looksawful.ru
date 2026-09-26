@@ -2,7 +2,38 @@ import type { Material, Mesh, Object3D, Texture } from "three";
 
 const MODEL_VIEWER_SELECTOR = "[data-model-viewer-runtime]";
 const MODEL_VIEWER_ROOT_MARGIN = "320px 0px";
+const MODEL_VIEWER_ROTATION_STEP = Math.PI / 18;
+const MODEL_VIEWER_ZOOM_IN_FACTOR = 0.88;
+const MODEL_VIEWER_ZOOM_OUT_FACTOR = 1.12;
 const noop = () => {};
+
+const MODEL_VIEWER_ACTIONS = [
+  { action: "rotate-left", label: "Повернуть влево", text: "←" },
+  { action: "rotate-right", label: "Повернуть вправо", text: "→" },
+  { action: "zoom-in", label: "Приблизить", text: "+" },
+  { action: "zoom-out", label: "Отдалить", text: "−" },
+  { action: "reset", label: "Сбросить вид", text: "↺" },
+] as const;
+
+function createModelViewerControls(): HTMLDivElement {
+  const toolbar = document.createElement("div");
+  toolbar.className = "model-viewer__controls";
+  toolbar.setAttribute("data-model-viewer-controls", "");
+  toolbar.setAttribute("role", "toolbar");
+  toolbar.setAttribute("aria-label", "Управление 3D-моделью");
+
+  MODEL_VIEWER_ACTIONS.forEach(({ action, label, text }) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "model-viewer__control";
+    button.setAttribute("data-model-viewer-action", action);
+    button.setAttribute("aria-label", label);
+    button.textContent = text;
+    toolbar.append(button);
+  });
+
+  return toolbar;
+}
 
 type MotionPreference = {
   allowsMotion(): boolean;
@@ -161,6 +192,8 @@ async function mountModelViewer(
   controls.minDistance = radius * 1.05;
   controls.maxDistance = radius * 8;
   controls.update();
+  const initialCameraPosition = camera.position.clone();
+  const initialTarget = controls.target.clone();
 
   const replacedTextures = new Set<Texture>();
   const screenSrc = element.dataset.modelScreenSrc?.trim();
@@ -215,6 +248,82 @@ async function mountModelViewer(
   const renderOnce = () => {
     if (!destroyed) renderer.render(scene, camera);
   };
+
+  const rotateView = (thetaDelta: number, phiDelta: number) => {
+    const offset = camera.position.clone().sub(controls.target);
+    const spherical = new THREE.Spherical().setFromVector3(offset);
+    spherical.theta += thetaDelta;
+    spherical.phi = THREE.MathUtils.clamp(
+      spherical.phi + phiDelta,
+      0.05,
+      Math.PI - 0.05,
+    );
+    offset.setFromSpherical(spherical);
+    camera.position.copy(controls.target).add(offset);
+    controls.update();
+    renderOnce();
+  };
+
+  const zoomView = (factor: number) => {
+    const offset = camera.position.clone().sub(controls.target);
+    const currentDistance = offset.length();
+    if (!currentDistance) return;
+
+    const distance = THREE.MathUtils.clamp(
+      currentDistance * factor,
+      controls.minDistance,
+      controls.maxDistance,
+    );
+    offset.setLength(distance);
+    camera.position.copy(controls.target).add(offset);
+    controls.update();
+    renderOnce();
+  };
+
+  const resetView = () => {
+    camera.position.copy(initialCameraPosition);
+    controls.target.copy(initialTarget);
+    controls.update();
+    renderOnce();
+  };
+
+  const runModelViewerAction = (action: string) => {
+    if (action === "rotate-left") rotateView(-MODEL_VIEWER_ROTATION_STEP, 0);
+    else if (action === "rotate-right") rotateView(MODEL_VIEWER_ROTATION_STEP, 0);
+    else if (action === "zoom-in") zoomView(MODEL_VIEWER_ZOOM_IN_FACTOR);
+    else if (action === "zoom-out") zoomView(MODEL_VIEWER_ZOOM_OUT_FACTOR);
+    else if (action === "reset") resetView();
+  };
+
+  const viewerControls = createModelViewerControls();
+  element.append(viewerControls);
+
+  const handleKeyDown = (event: KeyboardEvent) => {
+    if (event.target !== element || event.altKey || event.ctrlKey || event.metaKey) return;
+
+    let handled = true;
+    if (event.key === "ArrowLeft") rotateView(-MODEL_VIEWER_ROTATION_STEP, 0);
+    else if (event.key === "ArrowRight") rotateView(MODEL_VIEWER_ROTATION_STEP, 0);
+    else if (event.key === "ArrowUp") rotateView(0, -MODEL_VIEWER_ROTATION_STEP);
+    else if (event.key === "ArrowDown") rotateView(0, MODEL_VIEWER_ROTATION_STEP);
+    else if (event.key === "+" || event.key === "=") zoomView(MODEL_VIEWER_ZOOM_IN_FACTOR);
+    else if (event.key === "-" || event.key === "_") zoomView(MODEL_VIEWER_ZOOM_OUT_FACTOR);
+    else if (event.key === "Home") resetView();
+    else handled = false;
+
+    if (handled) event.preventDefault();
+  };
+
+  const handleControlClick = (event: MouseEvent) => {
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+    const button = target.closest<HTMLButtonElement>("[data-model-viewer-action]");
+    if (!button || !viewerControls.contains(button)) return;
+    runModelViewerAction(button.getAttribute("data-model-viewer-action") ?? "");
+  };
+
+  element.addEventListener("keydown", handleKeyDown);
+  viewerControls.addEventListener("click", handleControlClick);
 
   const shouldAnimate = () => autoRotate && visible && documentVisible && motionAllowed;
 
@@ -288,6 +397,9 @@ async function mountModelViewer(
     visibilityObserver?.disconnect();
     resizeObserver?.disconnect();
     document.removeEventListener("visibilitychange", handleVisibilityChange);
+    element.removeEventListener("keydown", handleKeyDown);
+    viewerControls.removeEventListener("click", handleControlClick);
+    viewerControls.remove();
     controls.removeEventListener("change", renderOnce);
     controls.dispose();
     scene.remove(model);

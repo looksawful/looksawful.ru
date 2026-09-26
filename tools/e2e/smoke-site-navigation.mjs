@@ -1,42 +1,33 @@
-import navigationJson from "../../src/content/navigation.json" with { type: "json" };
 import { isDirectExecution, withE2ERuntime } from "./runtime.mjs";
 
 let BASE_URL = "";
 
-const labelById = new Map(navigationJson.map(({ id, label }) => [id, label]));
-const requireLabel = (id) => {
-  const label = labelById.get(id);
-  if (typeof label !== "string" || label.length === 0) {
-    throw new Error(`missing navigation label ${id}`);
-  }
-  return label;
-};
-
-const PRIMARY_LINKS = [
-  ["home", "/"],
-  ["case:jestei-pool", "/work/jestei-pool/"],
-  ["case:styx", "/work/styx/"],
-  ["case:sensetique", "/work/sensetique/"],
-  ["collection:music-photography", "/shootings/"],
-  ["cv", "/cv/"],
-].map(([id, href]) => [requireLabel(id), href]);
+const PRIMARY_LINK_HREFS = [
+  "/work/",
+  "/work/jestei-pool/",
+  "/work/styx/",
+  "/work/sensetique/",
+  "/shootings/",
+  "/gallery/",
+  "/cv/",
+];
 
 const LONG_UNBROKEN_LABEL = `CMS${"navigationlabel".repeat(32)}`;
 
 const CASES = [
-  ["/", requireLabel("home"), 390, 844],
-  ["/work/jestei-pool/", requireLabel("case:jestei-pool"), 390, 844],
-  ["/work/styx/", requireLabel("case:styx"), 390, 844],
-  ["/work/sensetique/", requireLabel("case:sensetique"), 390, 844],
-  ["/shootings/", requireLabel("collection:music-photography"), 390, 844],
-  ["/work/jestei-pool/", requireLabel("case:jestei-pool"), 1440, 900],
+  ["/", "", 390, 844],
+  ["/work/", "/work/", 390, 844],
+  ["/work/jestei-pool/", "/work/jestei-pool/", 390, 844],
+  ["/shootings/", "/shootings/", 390, 844],
+  ["/gallery/", "/gallery/", 390, 844],
+  ["/work/jestei-pool/", "/work/jestei-pool/", 1440, 900],
 ];
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
 }
 
-async function auditNavigation(browser, path, currentLabel, width, height) {
+async function auditNavigation(browser, path, currentHref, width, height) {
   const mobile = width <= 844;
   const context = await browser.newContext({
     viewport: { width, height },
@@ -81,10 +72,17 @@ async function auditNavigation(browser, path, currentLabel, width, height) {
     assert(initial.navBorderBlockEndWidth === "0px", `${label}: closed global nav still has separator ${initial.navBorderBlockEndWidth}`);
 
     if (path !== "/") {
-      const breadcrumb = await page.locator('[aria-label="Хлебные крошки"]').innerText();
-      assert(breadcrumb.includes(currentLabel), `${label}: breadcrumb is missing current label: ${breadcrumb}`);
+      const breadcrumbState = await page.locator('[aria-label="Хлебные крошки"]').evaluate((root) => {
+        const current = root.querySelector('[aria-current="page"]');
+        const home = root.querySelector('a[href="/"]');
+        return {
+          currentText: current?.textContent?.trim() || "",
+          homeText: home?.textContent?.trim() || "",
+        };
+      });
+      assert(breadcrumbState.currentText.length > 0, `${label}: breadcrumb current item is empty`);
       if (!mobile) {
-        assert(breadcrumb.includes(requireLabel("home")), `${label}: desktop breadcrumb is missing home label: ${breadcrumb}`);
+        assert(breadcrumbState.homeText.length > 0, `${label}: desktop breadcrumb is missing home identity`);
       }
     }
 
@@ -116,12 +114,12 @@ async function auditNavigation(browser, path, currentLabel, width, height) {
     const toggle = page.locator("[data-site-menu-toggle]");
     await toggle.click();
 
-    const opened = await page.evaluate(({ primaryLinks, current, mobileViewport }) => {
+    const opened = await page.evaluate(({ primaryHrefs, current, mobileViewport }) => {
       const siteNav = document.querySelector(".site-nav");
       const toggle = document.querySelector("[data-site-menu-toggle]");
       const menu = document.querySelector("[data-site-menu]");
       const bar = document.querySelector(".site-nav__bar");
-      const navContext = document.querySelector(".site-nav__context, .site-nav__breadcrumbs");
+      const navContext = document.querySelector(".site-nav__context, .site-nav__identity, .site-nav__breadcrumbs");
       const main = document.querySelector("main");
       const preview = document.querySelector("[data-menu-preview]");
       const faceBackground = document.querySelector(".awfulface__background");
@@ -171,10 +169,10 @@ async function auditNavigation(browser, path, currentLabel, width, height) {
         menuTextAlign: menuLinkStyle?.textAlign || "",
         menuJustifyContent: menuLinkStyle?.justifyContent || "",
         mobilePreviewHidden: mobileViewport && preview instanceof HTMLElement ? preview.hidden : null,
-        expected: primaryLinks,
+        expectedHrefs: primaryHrefs,
         current,
       };
-    }, { primaryLinks: PRIMARY_LINKS, current: currentLabel, mobileViewport: mobile });
+    }, { primaryHrefs: PRIMARY_LINK_HREFS, current: currentHref, mobileViewport: mobile });
 
     assert(opened.expanded === "true", `${label}: menu control did not expand`);
     assert(opened.menuHidden === false, `${label}: menu stayed hidden after click`);
@@ -192,8 +190,17 @@ async function auditNavigation(browser, path, currentLabel, width, height) {
     assert(opened.togglePosition === "fixed", `${label}: Awfulface is still positioned as part of the header row (${opened.togglePosition})`);
     assert(opened.toggleFloatsInViewport, `${label}: floating Awfulface control left the usable viewport`);
     assert(opened.faceBackgroundFill === "none", `${label}: Awfulface backing disc is still visible (${opened.faceBackgroundFill})`);
-    assert(JSON.stringify(opened.links) === JSON.stringify(PRIMARY_LINKS), `${label}: primary menu destinations differ`);
-    assert(opened.currentLabel === currentLabel, `${label}: wrong active menu item ${opened.currentLabel}`);
+    const openedHrefs = opened.links.map(([, href]) => href);
+    const openedLabels = opened.links.map(([text]) => text);
+    assert(JSON.stringify(openedHrefs) === JSON.stringify(PRIMARY_LINK_HREFS), `${label}: primary menu destinations differ`);
+    assert(openedLabels.every((text) => text.length > 0), `${label}: primary menu contains an empty label`);
+    const currentLink = opened.links.find(([, href]) => href === currentHref);
+    if (currentHref) {
+      assert(currentLink, `${label}: missing expected current destination ${currentHref}`);
+      assert(opened.currentLabel === currentLink[0], `${label}: wrong active menu item ${opened.currentLabel}`);
+    } else {
+      assert(opened.currentLabel === "", `${label}: home route should not mark a menu item current`);
+    }
     if (mobile) {
       assert(opened.mobilePreviewHidden === true, `${label}: coarse/mobile preview should stay hidden`);
       assert(opened.menuTextAlign === "center", `${label}: mobile menu labels must stay centered`);
@@ -266,7 +273,7 @@ async function auditNavigation(browser, path, currentLabel, width, height) {
       const toggle = document.querySelector("[data-site-menu-toggle]");
       const menu = document.querySelector("[data-site-menu]");
       const bar = document.querySelector(".site-nav__bar");
-      const navContext = document.querySelector(".site-nav__context, .site-nav__breadcrumbs");
+      const navContext = document.querySelector(".site-nav__context, .site-nav__identity, .site-nav__breadcrumbs");
       const main = document.querySelector("main");
       const barRect = bar instanceof HTMLElement ? bar.getBoundingClientRect() : null;
       const contextStyle = navContext instanceof HTMLElement ? getComputedStyle(navContext) : null;

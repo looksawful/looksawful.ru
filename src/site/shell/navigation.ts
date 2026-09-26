@@ -1,13 +1,17 @@
+import { getNavigationLabel } from "../../data/navigation.ts";
 import { escapeHtml } from "../../utils/html.ts";
 import {
   getBreadcrumbItems,
   getPrimaryNavigationItems,
+  getWorkNavigationItems,
 } from "../navigation/model.ts";
 import type { SitePageDefinition } from "../pages/types.ts";
 
 function renderBreadcrumbs(page: SitePageDefinition): string {
   const items = getBreadcrumbItems(page);
-  if (!items.length) return '<span class="site-nav__context" aria-hidden="true"></span>';
+  if (!items.length) {
+    return `<a class="site-nav__identity" href="/" aria-current="page">${escapeHtml(getNavigationLabel("home"))}</a>`;
+  }
 
   const content = items
     .map((item) => {
@@ -44,12 +48,46 @@ function renderAwfulface(): string {
       </svg>`;
 }
 
+function renderPrimaryNavigation(page: SitePageDefinition): string {
+  const links = getPrimaryNavigationItems()
+    .map((item) => {
+      const current = item.id === page.id ? ' aria-current="page"' : "";
+      return `<li><a class="site-nav__primary-link" href="${escapeHtml(item.href)}"${current}>${escapeHtml(item.label)}</a></li>`;
+    })
+    .join("");
+
+  return `<nav class="site-nav__primary" aria-label="Основная навигация">
+    <ul class="site-nav__primary-list cluster">${links}</ul>
+  </nav>`;
+}
+
+function renderWorkShortcuts(page: SitePageDefinition): string {
+  const links = getWorkNavigationItems()
+    .map((item) => {
+      const current = item.id === page.id ? ' aria-current="page"' : "";
+      return `<li><a class="site-nav__menu-link site-nav__menu-link--shortcut" href="${escapeHtml(item.href)}" data-preview="${escapeHtml(item.previewSrc)}"${current}>${escapeHtml(item.label)}</a></li>`;
+    })
+    .join("\n            ");
+
+  return `<ul class="site-nav__submenu" aria-label="Избранные работы">
+            ${links}
+          </ul>`;
+}
+
 function renderMenu(page: SitePageDefinition): string {
   const items = getPrimaryNavigationItems();
   const links = items
     .map((item) => {
       const current = item.id === page.id ? ' aria-current="page"' : "";
-      return `<li class="site-nav__menu-item"><a class="site-nav__menu-link" href="${escapeHtml(item.href)}" data-preview="${escapeHtml(item.previewSrc)}"${current}>${escapeHtml(item.label)}</a></li>`;
+      const shortcuts = item.id === "work" ? renderWorkShortcuts(page) : "";
+      const itemClass = item.id === "work"
+        ? "site-nav__menu-item site-nav__menu-item--work"
+        : "site-nav__menu-item";
+
+      return `<li class="${itemClass}">
+          <a class="site-nav__menu-link" href="${escapeHtml(item.href)}" data-preview="${escapeHtml(item.previewSrc)}"${current}>${escapeHtml(item.label)}</a>
+          ${shortcuts}
+        </li>`;
     })
     .join("\n        ");
 
@@ -69,6 +107,7 @@ export function renderSiteNavigation(page: SitePageDefinition): string {
   return `<header class="site-nav" data-site-navigation>
   <div class="site-nav__bar">
     ${renderBreadcrumbs(page)}
+    ${renderPrimaryNavigation(page)}
     <button class="site-nav__toggle" type="button" aria-label="Открыть меню" aria-expanded="false" aria-controls="site-menu" data-site-menu-toggle>
       ${renderAwfulface()}
     </button>

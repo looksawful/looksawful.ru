@@ -6,7 +6,6 @@ import {
 } from "../../../data/content/awful-cases.ts";
 import { berryIntro, berryStoryMockups } from "../../../data/content/berry.ts";
 import { isHomeSectionVisible } from "../../../data/content/home-visibility.ts";
-import { usefulProjectsContent } from "../../../data/content/useful-projects.ts";
 import { liNeAgencyIntro } from "../../../data/content/li-ne-agency.ts";
 import { madCowFilmsIntro } from "../../../data/content/mad-cow-films.ts";
 import { moskovskieNovostiIntro } from "../../../data/content/moskovskie-novosti.ts";
@@ -25,8 +24,6 @@ import {
 import { portfolioSensetiqueStrip } from "../../../data/content/sensetique.ts";
 import { portfolioShootingsStrip } from "../../../data/content/shootings.ts";
 import { portfolioScanographyStrip } from "../../../data/content/styx.ts";
-import { getVisibleProjectCardPresentations } from "../../../data/projects.ts";
-import { petProjectCards } from "../../../data/subproject-cards.ts";
 
 import { renderAnimatedCanvasGallery } from "../../../templates/animated-canvas-gallery.ts";
 import { renderClientLogo } from "../../../templates/client-logo.ts";
@@ -34,15 +31,19 @@ import { renderMediaFigure } from "../../../templates/media-figure.ts";
 import { renderMediaGroup } from "../../../templates/media-group.ts";
 import { renderMockup } from "../../../templates/mockup.ts";
 import { renderMockupDeck } from "../../../templates/mockup-deck.ts";
-import { renderProjectCard } from "../../../templates/project-card.ts";
 import { renderProjectIntro } from "../../../templates/project-intro.ts";
 import { renderSectionIntro } from "../../../templates/section-intro.ts";
-import { renderPetProjectCards } from "../../../templates/subproject-card.ts";
 import {
   extractElementContainingMarker,
   replaceRequiredSlots,
   type HtmlSlot,
 } from "../../rendering/html.ts";
+import {
+  getProjectIndexPageIds,
+  portfolioPresentation,
+  type PortfolioPresentation,
+} from "../../pages/portfolio-presentation.ts";
+import { renderPortfolioCardListItem } from "../portfolio/portfolio-card.ts";
 
 const petProjectsStyles = `
   .pet-projects {
@@ -75,8 +76,29 @@ const petProjectsStyles = `
     padding: var(--size-200) var(--pet-edge-space) var(--size-400);
   }
 
-  .pet-projects .subproject-card { display: block; min-inline-size: 0; color: inherit; text-decoration: none; }
-  .pet-projects .subproject-card__figure { display: grid; min-inline-size: 0; margin: 0; transform-origin: center; }
+  .pet-projects__grid > li { min-inline-size: 0; list-style: none; scroll-snap-align: center; }
+  .pet-projects .subproject-card,
+  .pet-projects .project-card { display: block; min-inline-size: 0; color: inherit; text-decoration: none; }
+  .pet-projects .subproject-card__figure,
+  .pet-projects .project-card__figure { display: grid; min-inline-size: 0; margin: 0; transform-origin: center; }
+  .pet-projects .project-card__media {
+    aspect-ratio: 4 / 5;
+    border-radius: clamp(0.875rem, 2.2cqi, 1.375rem);
+  }
+  .pet-projects .project-card__caption {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--size-100);
+    min-block-size: 6rem;
+    padding: var(--size-200) 0 0;
+    font-size: var(--fs-200);
+  }
+  .pet-projects .project-card__focus {
+    display: -webkit-box;
+    max-inline-size: 32ch;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
   .pet-projects .subproject-card__media {
     position: relative;
     display: grid;
@@ -112,7 +134,7 @@ const petProjectsStyles = `
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 3;
   }
-  .pet-projects a.subproject-card:focus-visible { outline: var(--border-width-200) solid currentColor; outline-offset: var(--size-100); border-radius: clamp(0.875rem, 2.2cqi, 1.375rem); }
+  .pet-projects :is(a.subproject-card, a.project-card):focus-visible { outline: var(--border-width-200) solid currentColor; outline-offset: var(--size-100); border-radius: clamp(0.875rem, 2.2cqi, 1.375rem); }
 
   @keyframes pet-project-card-focus {
     from, to { scale: 0.94; }
@@ -122,7 +144,7 @@ const petProjectsStyles = `
   }
   @supports (animation-timeline: view(inline)) {
     @media (prefers-reduced-motion: no-preference) {
-      .pet-projects .subproject-card__figure {
+      .pet-projects :is(.subproject-card__figure, .project-card__figure) {
         animation: pet-project-card-focus linear both;
         animation-timeline: view(inline);
         animation-range: cover 20% cover 80%;
@@ -131,38 +153,54 @@ const petProjectsStyles = `
     }
   }
   @media (prefers-reduced-motion: reduce) {
-    .pet-projects .subproject-card__figure { animation: none; scale: 1; translate: none; }
+    .pet-projects :is(.subproject-card__figure, .project-card__figure) { animation: none; scale: 1; translate: none; }
   }
 `;
 
-function renderPetProjectsSection(): string {
+function renderFeaturedProjectsSection(
+  presentation: PortfolioPresentation,
+): string {
+  if (presentation.featured.length === 0) return "";
+
+  const cards = presentation.featured
+    .map(renderPortfolioCardListItem)
+    .join("\n");
+
   return `
       <style>${petProjectsStyles}</style>
-      <section class="pet-projects" aria-labelledby="pet-projects-title" data-reveal-group>
-        <h2 id="pet-projects-title" data-reveal="copy">${usefulProjectsContent.section.title}</h2>
-        <p class="pet-projects__lead" data-reveal="copy">${usefulProjectsContent.section.description}</p>
-        <div class="pet-projects__grid reel" data-reveal-group>
-          ${renderPetProjectCards(petProjectCards)}
-        </div>
+      <section class="pet-projects" aria-labelledby="featured-projects-title" data-reveal-group>
+        <h2 id="featured-projects-title" class="visually-hidden">Featured</h2>
+        <ol class="pet-projects__grid reel" data-reveal-group>
+          ${cards}
+        </ol>
       </section>`;
 }
 
-function injectPetProjectsSection(html: string): string {
-  if (!isHomeSectionVisible("pet-projects")) return html;
+function injectFeaturedProjectsSection(
+  html: string,
+  presentation: PortfolioPresentation,
+): string {
+  if (!isHomeSectionVisible("pet-projects") || presentation.featured.length === 0) {
+    return html;
+  }
 
   const insertionPoint = '<section class="expertise" hidden>';
   if (!html.includes(insertionPoint)) {
-    throw new Error("Homepage Pet Projects insertion point is missing.");
+    throw new Error("Homepage Featured insertion point is missing.");
   }
 
   return html.replace(
     insertionPoint,
-    `${renderPetProjectsSection()}\n      ${insertionPoint}`,
+    `${renderFeaturedProjectsSection(presentation)}\n      ${insertionPoint}`,
   );
 }
 
-export function createHomepageSlots(): readonly HtmlSlot[] {
-  const projectCards = getVisibleProjectCardPresentations().map(renderProjectCard).join("\n");
+export function createHomepageSlots(
+  presentation: PortfolioPresentation = portfolioPresentation,
+): readonly HtmlSlot[] {
+  const projectCards = getProjectIndexPageIds(presentation)
+    .map(renderPortfolioCardListItem)
+    .join("\n");
   const logos = clientLogos.map(renderClientLogo).join("\n");
 
   return [
@@ -211,11 +249,14 @@ export function applyClientLogoWallVisibility(html: string, visible: boolean): s
   return html.replace(logoWallSection, "");
 }
 
-export function renderHomepage(html: string): string {
-  const rendered = replaceRequiredSlots(html, createHomepageSlots());
-  const withPetProjects = injectPetProjectsSection(rendered);
+export function renderHomepage(
+  html: string,
+  presentation: PortfolioPresentation,
+): string {
+  const rendered = replaceRequiredSlots(html, createHomepageSlots(presentation));
+  const withFeatured = injectFeaturedProjectsSection(rendered, presentation);
   return applyClientLogoWallVisibility(
-    withPetProjects,
+    withFeatured,
     isHomeSectionVisible("client-logo-wall"),
   );
 }

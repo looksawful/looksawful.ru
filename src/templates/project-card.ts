@@ -7,6 +7,7 @@ import { escapeHtml } from "../utils/html.ts";
 
 export interface ProjectCardRenderOptions {
   href?: string;
+  typeLabel?: string;
 }
 
 export function renderProjectCard(
@@ -30,8 +31,11 @@ export function renderProjectCard(
   const period = card.period
     ? `<span class="project-card__period">${escapeHtml(card.period)}</span>`
     : "";
+  const typeLabel = options.typeLabel
+    ? `<span class="project-card__type">${escapeHtml(options.typeLabel)}</span>`
+    : "";
   const title = card.title
-    ? `<span class="project-card__name">${escapeHtml(card.title)}</span>`
+    ? `<span class="project-card__name">${escapeHtml(card.title)}${typeLabel}</span>`
     : "";
   const focus = card.focus
     ? `<span class="project-card__focus">${escapeHtml(card.focus)}</span>`

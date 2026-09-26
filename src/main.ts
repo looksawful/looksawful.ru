@@ -24,6 +24,7 @@ import {
 } from "./components/site-analytics.ts";
 import { initBeforeAfter } from "./components/before-after.ts";
 import { initSiteNavigation } from "./components/site-navigation.ts";
+import { mountWorkArchive } from "./components/work-archive.ts";
 import { initSiteInteractive } from "./interactive.ts";
 import { initMotion } from "./motion.ts";
 
@@ -155,6 +156,7 @@ destroys.push(
   }),
 );
 destroys.push(initSiteNavigation(document, motion));
+destroys.push(mountWorkArchive(document));
 
 if (document.querySelector('[data-jestei-theme-organism][data-jestei-theme-instance="inline"]')) {
   void import("./components/jestei-theme-organism/jestei-theme-organism.js")

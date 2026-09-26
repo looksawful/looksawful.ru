@@ -17,6 +17,18 @@ export const sitePages = [
     },
   },
   {
+    id: "work",
+    type: "work",
+    path: "/work/",
+    enabled: true,
+    renderer: "work",
+    build: VITE_BUILD,
+    discovery: {
+      listed: true,
+      indexable: true,
+    },
+  },
+  {
     id: "gallery",
     type: "gallery",
     path: "/gallery/",

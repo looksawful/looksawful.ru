@@ -16,6 +16,12 @@ import {
   normalizePagePath,
   validateSitePages,
 } from "../src/site/pages/validation.ts";
+import { renderWorkPage } from "../src/site/renderers/work-page.ts";
+import {
+  getProjectIndexPageIds,
+  portfolioPresentation,
+  validatePortfolioPresentation,
+} from "../src/site/pages/portfolio-presentation.ts";
 
 const pluginSource = await readFile(
   new URL("../src/site/build/site-pages-plugin.ts", import.meta.url),
@@ -29,6 +35,7 @@ const homepageSource = await readFile(
 const expectedRoutes = new Map([
   ["home", "/"],
   ["gallery", "/gallery/"],
+  ["work", "/work/"],
   ["case:jestei-pool", "/work/jestei-pool/"],
   ["case:styx", "/work/styx/"],
   ["case:sensetique", "/work/sensetique/"],
@@ -63,6 +70,31 @@ test("managed SitePage routes are stable and unique", () => {
     assert.ok(page, `missing page ${id}`);
     assert.equal(page.path, path);
   }
+});
+
+test("Work is a canonical listed/indexable Vite SitePage", () => {
+  const work = sitePages.find((page) => page.id === "work");
+  assert.ok(work, "missing page work");
+  assert.deepEqual(
+    {
+      type: work.type,
+      path: work.path,
+      enabled: work.enabled,
+      listed: work.discovery.listed,
+      indexable: work.discovery.indexable,
+      renderer: work.renderer,
+      build: work.build,
+    },
+    {
+      type: "work",
+      path: "/work/",
+      enabled: true,
+      listed: true,
+      indexable: true,
+      renderer: "work",
+      build: { kind: "vite" },
+    },
+  );
 });
 
 test("CV and privacy are canonical static SitePages with explicit build ownership", () => {
@@ -200,16 +232,16 @@ test("only enabled pages are returned for build ownership decisions", () => {
   assert.ok(enabled.every((page) => page.enabled));
 });
 
-test("public Case, Collection, CV and privacy pages are listed and indexable while selected Project pages stay unlisted", () => {
+test("Project discovery remains fail-closed until owner approval", () => {
   for (const page of sitePages) {
-    if (page.type === "case" || page.type === "collection" || page.type === "gallery" || page.id === "cv" || page.id === "privacy") {
+    if (page.type === "case" || page.type === "collection" || page.type === "gallery" || page.type === "work" || page.id === "cv" || page.id === "privacy") {
       assert.equal(page.discovery.listed, true);
       assert.equal(page.discovery.indexable, true);
     }
 
     if (page.type === "project") {
-      assert.equal(page.discovery.listed, false);
-      assert.equal(page.discovery.indexable, false);
+      assert.equal(page.discovery.listed, false, page.id);
+      assert.equal(page.discovery.indexable, false, page.id);
     }
   }
 
@@ -228,4 +260,186 @@ test("central site-pages plugin is orchestration-only", () => {
 
 test("Homepage support is derived from executable architecture, not a duplicate allowlist", () => {
   assert.doesNotMatch(homepageSource, /implementedFullRenderers/);
+});
+
+
+test("portfolio presentation keeps exactly three Case-only Flagships", () => {
+  assert.doesNotThrow(() => validatePortfolioPresentation(portfolioPresentation, sitePages));
+  assert.equal(portfolioPresentation.flagship.length, 3);
+
+  for (const id of portfolioPresentation.flagship) {
+    const page = sitePages.find((candidate) => candidate.id === id);
+    assert.equal(page?.type, "case", `Flagship must resolve to a Case page: ${id}`);
+  }
+
+  assert.throws(
+    () => validatePortfolioPresentation(
+      { ...portfolioPresentation, flagship: portfolioPresentation.flagship.slice(0, 2) },
+      sitePages,
+    ),
+    /exactly 3 Flagship/i,
+  );
+});
+
+test("portfolio presentation rejects unknown and duplicate main-tier page ids", () => {
+  assert.throws(
+    () => validatePortfolioPresentation(
+      { ...portfolioPresentation, featured: ["gallery"] },
+      sitePages,
+    ),
+    /entity page/i,
+  );
+
+  assert.throws(
+    () => validatePortfolioPresentation(
+      { ...portfolioPresentation, featured: [portfolioPresentation.flagship[0]] },
+      sitePages,
+    ),
+    /duplicate/i,
+  );
+});
+
+
+test("Project index de-duplicates an entity that is both Featured and an index extra", () => {
+  const presentation = {
+    ...portfolioPresentation,
+    featured: [
+      "project:awful-cases",
+      "project:moves-awful",
+      "collection:music-photography",
+    ],
+  };
+
+  assert.doesNotThrow(() => validatePortfolioPresentation(presentation, sitePages));
+  assert.deepEqual(getProjectIndexPageIds(presentation), [
+    "case:jestei-pool",
+    "case:styx",
+    "case:sensetique",
+    "collection:music-photography",
+    "project:awful-cases",
+    "project:moves-awful",
+  ]);
+});
+
+test("Archive cannot duplicate any entity in the main Project index", () => {
+  assert.throws(
+    () => validatePortfolioPresentation({
+      ...portfolioPresentation,
+      archive: ["collection:music-photography"],
+    }, sitePages),
+    /Archive.*Project index|project index.*Archive|duplicate portfolio tier/i,
+  );
+});
+
+test("Work shortcuts stay exactly Flagships plus Shootings", () => {
+  assert.deepEqual(portfolioPresentation.workShortcuts, [
+    ...portfolioPresentation.flagship,
+    "collection:music-photography",
+  ]);
+
+  assert.throws(
+    () => validatePortfolioPresentation({
+      ...portfolioPresentation,
+      workShortcuts: portfolioPresentation.flagship,
+    }, sitePages),
+    /Work shortcuts/i,
+  );
+});
+
+test("A resolved next-Case map must cover every Flagship exactly once", () => {
+  assert.doesNotThrow(() => validatePortfolioPresentation({
+    ...portfolioPresentation,
+    nextCase: {
+      "case:jestei-pool": "case:styx",
+      "case:styx": "case:sensetique",
+      "case:sensetique": "case:jestei-pool",
+    },
+  }, sitePages));
+
+  assert.throws(
+    () => validatePortfolioPresentation({
+      ...portfolioPresentation,
+      nextCase: {
+        "case:jestei-pool": "case:styx",
+      },
+    }, sitePages),
+    /every Flagship/i,
+  );
+});
+
+test("portfolio presentation validates manual next-Case routes", () => {
+  assert.doesNotThrow(() => validatePortfolioPresentation({
+    ...portfolioPresentation,
+    nextCase: {
+      "case:jestei-pool": "case:styx",
+      "case:styx": "case:sensetique",
+      "case:sensetique": "case:jestei-pool",
+    },
+  }, sitePages));
+
+  assert.throws(
+    () => validatePortfolioPresentation({
+      ...portfolioPresentation,
+      nextCase: {
+        "case:jestei-pool": "case:jestei-pool",
+      },
+    }, sitePages),
+    /cannot point to itself/i,
+  );
+});
+
+test("portfolio presentation keeps editorial tiers unresolved until owner approval", () => {
+  assert.deepEqual(portfolioPresentation.flagship, [
+    "case:jestei-pool",
+    "case:styx",
+    "case:sensetique",
+  ]);
+  assert.deepEqual(portfolioPresentation.featured, []);
+  assert.deepEqual(portfolioPresentation.archive, []);
+  assert.deepEqual(getProjectIndexPageIds(portfolioPresentation), [
+    "case:jestei-pool",
+    "case:styx",
+    "case:sensetique",
+    "collection:music-photography",
+  ]);
+});
+
+
+test("Work page fails closed when Archive contains a non-public entity", () => {
+  const page = sitePages.find((candidate) => candidate.id === "work");
+  assert.ok(page && page.type === "work");
+
+  assert.throws(
+    () => renderWorkPage(page, {
+      ...portfolioPresentation,
+      projectIndexExtras: [],
+      archive: ["project:awful-cases"],
+    }),
+    /Archive.*listed.*indexable|listed.*indexable.*Archive/i,
+  );
+});
+
+test("Work page renders the resolved main index and keeps unresolved Archive out of production output", () => {
+  const page = sitePages.find((candidate) => candidate.id === "work");
+  assert.ok(page && page.type === "work");
+  const html = renderWorkPage(page);
+
+  for (const id of getProjectIndexPageIds(portfolioPresentation)) {
+    const target = sitePages.find((candidate) => candidate.id === id);
+    assert.ok(target);
+    assert.match(html, new RegExp(`href="${target.path.replace(/[.*+?^{}()|[\\]\\]/g, "\\$&")}"`));
+  }
+
+  assert.doesNotMatch(html, /data-work-archive/);
+
+  const archiveHtml = renderWorkPage(page, {
+    ...portfolioPresentation,
+    projectIndexExtras: [],
+    archive: ["collection:music-photography"],
+  });
+  assert.match(archiveHtml, /<details[^>]*data-work-archive/);
+  assert.doesNotMatch(archiveHtml, /<details[^>]*data-work-archive[^>]*\sopen(?:\s|>)/);
+  assert.match(archiveHtml, />Archive<\/summary>/);
+  assert.match(archiveHtml, /href="\/shootings\/"/);
+  assert.match(archiveHtml, /project-card__type">Collection/);
 });

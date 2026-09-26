@@ -21,19 +21,23 @@ const lightboxSource = await readFile(
   new URL("../src/components/gallery/gallery-lightbox.ts", import.meta.url),
   "utf8",
 );
+const modelViewerSource = await readFile(
+  new URL("../src/components/model-viewer.ts", import.meta.url),
+  "utf8",
+);
 
 const galleryPage = sitePages.find((page) => page.id === "gallery");
 assert.ok(galleryPage && galleryPage.type === "gallery");
 
 const html = renderGalleryPage(galleryPage);
 
-test("Gallery renderer emits semantic build-time content with a non-visual page heading", () => {
+test("Gallery renderer exposes one visible page heading inside the shared page shell", () => {
   assert.match(html, /<body[^>]*data-page-type="gallery"[^>]*>/);
   assert.match(html, /data-site-navigation/);
-  assert.match(html, /<main\b/);
+  assert.match(html, /<main\b[^>]*>/);
   assert.match(html, /<section[^>]*data-gallery/);
-  assert.match(html, /<h1 class="visually-hidden">Галерея<\/h1>/);
-  assert.doesNotMatch(html, /gallery__header|gallery__title/);
+  assert.match(html, /<h1 class="gallery__title">Gallery<\/h1>/);
+  assert.equal((html.match(/<h1\b/g) ?? []).length, 1);
 });
 
 test("Gallery renderer has one photo stream and no retired layer/filter UI", () => {
@@ -44,14 +48,16 @@ test("Gallery renderer has one photo stream and no retired layer/filter UI", () 
   assert.doesNotMatch(html, /data-gallery-sort|data-gallery-search/);
 });
 
-test("Gallery output keeps invisible series boundaries and intrinsic image geometry", () => {
+test("Gallery keeps series boundaries non-editorial until curation is approved, while exposing captions", () => {
   assert.match(html, /data-gallery-series=/);
   assert.match(html, /data-gallery-item-id=/);
   assert.match(html, /<img[^>]*\bwidth="\d+"[^>]*\bheight="\d+"/);
-  assert.doesNotMatch(html, /gallery-series__title|data-gallery-series-title/);
+  assert.doesNotMatch(html, /gallery-series__title/);
+  assert.match(html, /gallery-card__caption/);
+  assert.match(html, /aria-label="Открыть изображение: [^"]+"/);
 });
 
-test("Gallery renders exactly five approved Jestei symbols as interactive model cards", () => {
+test("Gallery keeps the existing five Jestei symbols until the curation decision is approved", () => {
   const modelCards = [...html.matchAll(/<figure class="gallery-card gallery-card--model"[\s\S]*?<\/figure>/g)]
     .map((match) => match[0]);
 
@@ -70,6 +76,8 @@ test("Gallery renders exactly five approved Jestei symbols as interactive model 
   for (const card of modelCards) {
     assert.match(card, /data-model-autorotate="false"/);
     assert.match(card, /data-model-viewer-runtime/);
+    assert.match(card, /data-model-viewer-runtime[^>]*tabindex="0"/);
+    assert.match(card, /data-model-viewer-runtime[^>]*role="group"/);
     assert.match(card, /data-model-viewer-canvas/);
     assert.doesNotMatch(card, /\bdata-gallery-card\b/, "3D models must not enter the PhotoSwipe stream");
   }
@@ -97,11 +105,22 @@ test("Gallery photo controls expose item-specific accessible names", () => {
     const label = card.match(/\baria-label="([^"]*)"/)?.[1] ?? "";
     const title = card.match(/\bdata-gallery-title="([^"]*)"/)?.[1] ?? "";
     const alt = card.match(/\bdata-gallery-alt="([^"]*)"/)?.[1] ?? "";
-    const identity = alt.trim() || title.trim();
+    const identity = title.trim() || alt.trim();
 
     assert.ok(identity, "Gallery photo control must expose authored identity");
-    assert.equal(label, `Открыть: ${identity}`);
+    assert.equal(label, `Открыть изображение: ${identity}`);
   }
+});
+
+test("Production model viewer exposes a keyboard rotate, zoom and reset path with cleanup", () => {
+  assert.match(modelViewerSource, /addEventListener\("keydown"/);
+  assert.match(modelViewerSource, /"ArrowLeft"/);
+  assert.match(modelViewerSource, /"ArrowRight"/);
+  assert.match(modelViewerSource, /"ArrowUp"/);
+  assert.match(modelViewerSource, /"ArrowDown"/);
+  assert.match(modelViewerSource, /"Home"/);
+  assert.match(modelViewerSource, /data-model-viewer-action/);
+  assert.match(modelViewerSource, /removeEventListener\("keydown"/);
 });
 
 test("Gallery exposes canonical credits to the PhotoSwipe caption adapter", () => {
@@ -127,9 +146,11 @@ test("Gallery PhotoSwipe credits inherit a high-contrast lightbox surface", () =
   assert.match(captionRule, /position:\s*absolute/);
 });
 
-test("Gallery CSS has no retired heading styles and explicitly avoids masonry mechanics", () => {
+test("Gallery CSS keeps visible page hierarchy and avoids unapproved series heading styles", () => {
   assert.doesNotMatch(galleryCss, /\.gallery__header\b/);
-  assert.doesNotMatch(galleryCss, /\.gallery__title\b/);
+  assert.match(galleryCss, /\.gallery__title\b/);
+  assert.doesNotMatch(galleryCss, /\.gallery-series__title\b/);
+  assert.match(galleryCss, /\.gallery-card__caption\b/);
   assert.doesNotMatch(galleryCss, /column-count\s*:/);
   assert.doesNotMatch(galleryCss, /grid-auto-rows\s*:/);
   assert.doesNotMatch(galleryCss, /grid-row-end\s*:/);

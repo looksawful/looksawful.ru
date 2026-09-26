@@ -33,9 +33,18 @@ test("components aggregate no longer owns global navigation presentation", () =>
   assert.doesNotMatch(componentsSource, /(?:^|\n)\.awfulface__(?:background|morph-targets)\b/);
 });
 
-test("site navigation keeps one two-column header over a continuous fullscreen menu", () => {
+test("site navigation keeps compact mobile chrome and adds a persistent desktop primary row", () => {
   assert.match(navigationSource, /\.site-nav__bar/);
   assert.match(navigationSource, /grid-template-columns:\s*minmax\(0,\s*1fr\)\s+max-content/);
+  assert.match(navigationSource, /\.site-nav__primary\b[\s\S]*?display:\s*none/);
+  assert.match(
+    navigationSource,
+    /@media\s*\(width\s*>\s*48rem\)[\s\S]*?\.site-nav__bar\b[\s\S]*?grid-template-columns:\s*minmax\(0,\s*1fr\)\s+auto\s+max-content/,
+  );
+  assert.match(
+    navigationSource,
+    /@media\s*\(width\s*>\s*48rem\)[\s\S]*?\.site-nav__primary\b[\s\S]*?display:\s*block/,
+  );
   assert.doesNotMatch(navigationSource, /\.site-nav__brand\b|\.site-nav__toggle-icon\b/);
   assert.match(navigationSource, /\.site-nav__toggle\b[\s\S]*?min-inline-size:\s*3\.5rem/);
   assert.match(navigationSource, /\.site-nav__toggle-face\b[\s\S]*?inline-size:\s*3rem/);
@@ -70,13 +79,15 @@ test("open menu removes the header band instead of only making it transparent", 
   );
 });
 
-test("Awfulface has no visible backing disc and desktop menu labels align from the start edge", () => {
+test("Awfulface has no visible backing disc and Work shortcuts remain visibly nested in the fullscreen menu", () => {
   assert.match(navigationSource, /\.awfulface__background\s*\{[\s\S]*?fill:\s*none/);
   assert.match(navigationSource, /\.site-nav__menu-nav\b[\s\S]*?inline-size:\s*100%/);
   assert.match(navigationSource, /\.site-nav__menu-nav\b[\s\S]*?margin-inline:\s*0/);
   assert.match(navigationSource, /\.site-nav__menu-list\b[\s\S]*?justify-items:\s*start/);
   assert.match(navigationSource, /\.site-nav__menu-link\b[\s\S]*?justify-content:\s*flex-start/);
   assert.match(navigationSource, /\.site-nav__menu-link\b[\s\S]*?text-align:\s*start/);
+  assert.match(navigationSource, /\.site-nav__submenu\b[\s\S]*?display:\s*grid/);
+  assert.match(navigationSource, /\.site-nav__menu-link--shortcut\b[\s\S]*?font-size:/);
 });
 
 test("mobile menu labels stay centered while coarse-pointer geometry remains capability-owned", () => {

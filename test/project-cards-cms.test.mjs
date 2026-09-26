@@ -160,3 +160,15 @@ test("CMS media workflow owns project-cover mutation and normalized metadata thr
   assert.match(mediaWorkflow, /git push origin HEAD:dev/);
   assert.doesNotMatch(mediaWorkflow, /git add -A/);
 });
+
+
+test("project card can expose an explicit entity type without changing default cards", () => {
+  const card = projectCardPresentations.find(({ id }) => id === "shootings");
+  assert.ok(card);
+
+  assert.doesNotMatch(renderProjectCard(card), /project-card__type/);
+  assert.match(
+    renderProjectCard(card, { typeLabel: "Collection" }),
+    /<span class="project-card__type">Collection<\/span>/,
+  );
+});

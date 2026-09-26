@@ -1,4 +1,5 @@
 ﻿import { renderEntityIntro } from "../../../components/composition/entity-intro.ts";
+import { renderEntityPortfolioIntro } from "../../../components/composition/entity-portfolio-intro.ts";
 import type { EntityPageContent } from "../../../content/contracts/page-content.ts";
 import type { EntityStandalonePresentation } from "../../pages/entity-presentation.ts";
 import { escapeHtml } from "../../../utils/html.ts";
@@ -11,6 +12,8 @@ export interface EntityShellOptions extends SectionRenderOptions {
   introHeadingLevel?: 1 | 2;
   visuallyHideIntroTitle?: boolean;
   standalonePresentation?: EntityStandalonePresentation;
+  footerHtml?: string;
+  includePortfolioIntro?: boolean;
 }
 
 function applyStandalonePresentation(
@@ -68,6 +71,9 @@ export function renderEntityShell(content: EntityPageContent, options: EntityShe
     headingLevel: options.introHeadingLevel ?? 1,
     visuallyHideTitle: options.visuallyHideIntroTitle === true,
   });
+  const portfolioIntro = options.includePortfolioIntro
+    ? renderEntityPortfolioIntro(presentedContent.portfolioIntro)
+    : "";
   const sections = renderSections(presentedContent.sections, {
     ...options,
     suppressCaptions: options.standalonePresentation?.suppressCaptions ?? options.suppressCaptions,
@@ -76,7 +82,9 @@ export function renderEntityShell(content: EntityPageContent, options: EntityShe
   return `
     <article ${attributes.join(" ")}>
       ${intro}
+      ${portfolioIntro}
       ${sections}
+      ${options.footerHtml ?? ""}
     </article>
   `;
 }
