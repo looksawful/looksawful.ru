@@ -322,12 +322,168 @@ async function checkWideViewport(browser, baseUrl) {
   }
 }
 
+async function openJesteiCase(browser, baseUrl, viewport, { mobile = false } = {}) {
+  const context = await browser.newContext({
+    viewport,
+    isMobile: mobile,
+    hasTouch: mobile,
+    deviceScaleFactor: 1,
+  });
+  const page = await context.newPage();
+  const response = await page.goto(`${baseUrl}/work/jestei-pool/`, { waitUntil: "domcontentloaded" });
+
+  assert.ok(response?.ok(), `Jestei request failed: ${response?.status() ?? "no response"}`);
+  await page.waitForSelector("#project-jestei");
+  await settle(page);
+
+  return { context, page };
+}
+
+async function readJesteiGeometry(page) {
+  return page.evaluate(() => {
+    const root = document.querySelector("#project-jestei");
+    if (!(root instanceof HTMLElement)) throw new Error("missing #project-jestei");
+
+    const copyPairs = [...root.querySelectorAll(".section-copy")].flatMap((pair) => {
+      if (!(pair instanceof HTMLElement)) return [];
+      const title = pair.querySelector(".section-copy__title");
+      const text = pair.querySelector(".section-copy__text");
+      if (!(title instanceof HTMLElement) || !(text instanceof HTMLElement)) return [];
+
+      const pairRect = pair.getBoundingClientRect();
+      const titleRect = title.getBoundingClientRect();
+      const textRect = text.getBoundingClientRect();
+
+      return [{
+        pairWidth: pairRect.width,
+        titleTop: titleRect.top,
+        titleBottom: titleRect.bottom,
+        titleLeft: titleRect.left,
+        titleRight: titleRect.right,
+        titleWidth: titleRect.width,
+        textTop: textRect.top,
+        textLeft: textRect.left,
+        textWidth: textRect.width,
+      }];
+    });
+
+    const rails = [
+      ...root.querySelectorAll(
+        '.media-group[data-compact-layout="reel"] > .media-group__items.reel, ' +
+        '.media-group[data-layout="sequence"] > .media-group__items.reel',
+      ),
+    ].flatMap((rail) => {
+      if (!(rail instanceof HTMLElement)) return [];
+      const styles = getComputedStyle(rail);
+      return [{
+        display: styles.display,
+        flexWrap: styles.flexWrap,
+        overflowX: styles.overflowX,
+        clientWidth: rail.clientWidth,
+        scrollWidth: rail.scrollWidth,
+        childCount: rail.children.length,
+      }];
+    });
+
+    return {
+      titles: [...root.querySelectorAll(".section-copy__title")]
+        .map((node) => node.textContent?.trim() ?? "")
+        .filter(Boolean),
+      copyPairs,
+      rails,
+      horizontalOverflow:
+        document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    };
+  });
+}
+
+async function checkJesteiMobile(browser, baseUrl) {
+  const viewport = MOBILE_VIEWPORTS[0];
+  const { context, page } = await openJesteiCase(browser, baseUrl, viewport, { mobile: true });
+
+  try {
+    const geometry = await readJesteiGeometry(page);
+
+    assert.ok(
+      geometry.titles.includes("Промо в соцсетях"),
+      "Jestei mobile: social promo heading must use the approved title",
+    );
+    assert.ok(
+      geometry.titles.includes("Промо и коммуникации"),
+      "Jestei mobile: promo section heading must use the approved title",
+    );
+    assert.ok(geometry.copyPairs.length > 0, "Jestei mobile: expected section-copy pairs");
+
+    for (const pair of geometry.copyPairs) {
+      assert.ok(
+        pair.textTop >= pair.titleBottom - ALIGNMENT_TOLERANCE,
+        "Jestei mobile: section title and copy must stack top-to-bottom",
+      );
+      assert.ok(
+        pair.titleWidth >= pair.pairWidth * 0.9,
+        "Jestei mobile: section title must occupy the mobile row",
+      );
+      assert.ok(
+        pair.textWidth >= pair.pairWidth * 0.9,
+        "Jestei mobile: section copy must occupy the mobile row",
+      );
+    }
+
+    assert.ok(geometry.rails.length >= 4, "Jestei mobile: expected authored horizontal rails");
+    for (const rail of geometry.rails) {
+      assert.equal(rail.display, "flex", "Jestei mobile: rail must render as flex");
+      assert.equal(rail.flexWrap, "nowrap", "Jestei mobile: rail must not wrap");
+      assert.ok(
+        rail.overflowX === "auto" || rail.overflowX === "scroll",
+        `Jestei mobile: rail overflow-x must scroll, got ${rail.overflowX}`,
+      );
+      assert.ok(rail.childCount > 1, "Jestei mobile: rail must contain multiple items");
+      assert.ok(
+        rail.scrollWidth > rail.clientWidth + ALIGNMENT_TOLERANCE,
+        "Jestei mobile: rail must have real horizontal overflow to swipe",
+      );
+    }
+
+    assert.ok(
+      geometry.horizontalOverflow <= 1,
+      `Jestei mobile: page itself must not horizontally overflow; got ${geometry.horizontalOverflow}px`,
+    );
+  } finally {
+    await context.close();
+  }
+}
+
+async function checkJesteiWide(browser, baseUrl) {
+  const { context, page } = await openJesteiCase(browser, baseUrl, WIDE_VIEWPORT);
+
+  try {
+    const geometry = await readJesteiGeometry(page);
+    assert.ok(geometry.copyPairs.length > 0, "Jestei wide: expected section-copy pairs");
+
+    for (const pair of geometry.copyPairs) {
+      assert.ok(
+        pair.textLeft >= pair.titleRight - ALIGNMENT_TOLERANCE,
+        "Jestei wide: section title and copy must retain the desktop side-by-side composition",
+      );
+    }
+
+    assert.ok(
+      geometry.horizontalOverflow <= 1,
+      `Jestei wide: page horizontal overflow is ${geometry.horizontalOverflow}px`,
+    );
+  } finally {
+    await context.close();
+  }
+}
+
 export async function runResponsiveUI({ browser, baseUrl }) {
   for (const viewport of MOBILE_VIEWPORTS) {
     await checkMobileViewport(browser, baseUrl, viewport);
   }
 
   await checkWideViewport(browser, baseUrl);
+  await checkJesteiMobile(browser, baseUrl);
+  await checkJesteiWide(browser, baseUrl);
   console.log("Responsive UI checks passed");
 }
 

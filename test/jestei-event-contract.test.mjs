@@ -66,7 +66,7 @@ test("Jestei Instagram player copy belongs to the section, not hover captions", 
     "player media must not expose repeated overlay captions",
   );
   assert.deepEqual(section.intro, {
-    title: "Промокоммуникация Jestei Pool",
+    title: "Промо в соцсетях",
     paragraphs: ["Интерактивный плеер для Instagram-постов."],
   });
 });

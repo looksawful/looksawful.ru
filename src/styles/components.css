@@ -442,6 +442,7 @@
   --group-compact-item-size: min(86cqi, 36rem);
 }
 
+
 :is(
   .jestei-interface-group,
   .jestei-event-group

@@ -485,3 +485,35 @@
 .model-viewer[data-model-state="loading"] > [data-model-viewer-canvas] {
   opacity: 0;
 }
+
+
+/* Jestei mobile integration: ordinary media stacks while authored rails keep
+   horizontal swipe/scroll behavior until the project switches to desktop. */
+@container project (width <= 50rem) {
+  #project-jestei
+    .media-group[data-layout="grid"]:not([data-compact-layout="reel"]):not([data-overflow="reel"])
+    > .media-group__items {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  #project-jestei .media-group[data-layout="editorial"] > .media-group__items {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  #project-jestei .media-group[data-layout="masonry"] > .media-group__items {
+    columns: 1;
+  }
+
+  #project-jestei
+    :is(
+      .media-group[data-compact-layout="reel"],
+      .media-group[data-layout="sequence"]
+    )
+    > .media-group__items.reel {
+    --reel-display: flex;
+    --reel-wrap: nowrap;
+    --reel-overflow-x: auto;
+    --reel-overflow-y: visible;
+    --reel-snap-type: inline proximity;
+  }
+}

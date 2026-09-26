@@ -249,3 +249,12 @@
     max-inline-size: none;
   }
 }
+
+
+/* Jestei mobile reading order stays stacked until the project desktop breakpoint. */
+@container project (width <= 50rem) {
+  #project-jestei .section-copy {
+    --text-pair-side-size: 100%;
+    --text-pair-content-min: 100%;
+  }
+}
