@@ -26,11 +26,11 @@ import { jesteiThemeOrganismMockup } from "../../../data/content/jestei-theme-or
 import type { EntityPageContent } from "../../contracts/page-content.ts";
 
 /**
- * Canonical target composition for Jestei Pool.
+ * Canonical composition for the registered Jestei Pool entity page.
  *
- * Deliberately not registered yet. The legacy page remains the runtime source
- * until the large playlist-filter workflow is moved out of index.html into the
- * specialized JesteiTrackFilter renderer without changing its DOM contract.
+ * Both the standalone case page and Home reuse this PageContent through the
+ * entity-page registry. The track filter remains a specialized renderer inside
+ * the canonical composition because its DOM/runtime contract is project-specific.
  */
 export const jesteiPoolPageContent = {
   pageId: "case:jestei-pool",
