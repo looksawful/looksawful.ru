@@ -391,6 +391,29 @@ async function readJesteiGeometry(page) {
         .filter(Boolean),
       copyPairs,
       rails,
+      promoSequence: (() => {
+        const sequence = root.querySelector('.media-group[data-layout="sequence"]');
+        if (!(sequence instanceof HTMLElement)) return null;
+
+        const items = sequence.querySelector(":scope > .media-group__items");
+        if (!(items instanceof HTMLElement)) return null;
+
+        const leading = items.querySelector(':scope > .media[data-role="wide"]');
+        const middle = items.querySelector(":scope > .media-group__middle");
+        if (!(leading instanceof HTMLElement) || !(middle instanceof HTMLElement)) return null;
+
+        const leadingRect = leading.getBoundingClientRect();
+        const middleRect = middle.getBoundingClientRect();
+
+        return {
+          leadingTop: leadingRect.top,
+          leadingBottom: leadingRect.bottom,
+          leadingHeight: leadingRect.height,
+          middleTop: middleRect.top,
+          middleBottom: middleRect.bottom,
+          middleHeight: middleRect.height,
+        };
+      })(),
       horizontalOverflow:
         document.documentElement.scrollWidth - document.documentElement.clientWidth,
     };
@@ -429,7 +452,17 @@ async function checkJesteiMobile(browser, baseUrl) {
       );
     }
 
-    assert.ok(geometry.rails.length >= 4, "Jestei mobile: expected authored horizontal rails");
+    assert.ok(geometry.promoSequence, "Jestei mobile: expected promo sequence geometry");
+    assert.ok(
+      Math.abs(geometry.promoSequence.leadingTop - geometry.promoSequence.middleTop) <= ALIGNMENT_TOLERANCE,
+      `Jestei mobile: promo leading and middle tops differ by ${Math.abs(geometry.promoSequence.leadingTop - geometry.promoSequence.middleTop)}px`,
+    );
+    assert.ok(
+      Math.abs(geometry.promoSequence.leadingBottom - geometry.promoSequence.middleBottom) <= ALIGNMENT_TOLERANCE,
+      `Jestei mobile: promo leading and middle bottoms differ by ${Math.abs(geometry.promoSequence.leadingBottom - geometry.promoSequence.middleBottom)}px`,
+    );
+
+        assert.ok(geometry.rails.length >= 4, "Jestei mobile: expected authored horizontal rails");
     for (const rail of geometry.rails) {
       assert.equal(rail.display, "flex", "Jestei mobile: rail must render as flex");
       assert.equal(rail.flexWrap, "nowrap", "Jestei mobile: rail must not wrap");
