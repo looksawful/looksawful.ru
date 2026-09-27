@@ -54,4 +54,4 @@ The public/prod Gallery still exposes the old credit variants and the same unres
 
 The private Round 3 corpus now contains 18 exact Gallery fact items, one per unresolved occurrence. Distribution: 2021 = 1, 2022 = 1, 2023 = 11, 2024 = 5. All 18 are `authorship_missing`, unresolved, and point back to the corresponding Round 2 fact decision. RLS remains enabled; `anon` and `authenticated` cannot select the table; `service_role` can.
 
-Content correction commit: `ebc392c6`.
+Content correction commit: `6da7e52c`.
