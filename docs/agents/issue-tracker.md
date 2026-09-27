@@ -65,3 +65,39 @@ Keep executable engineering requirements in the GitHub issue that owns the work;
 When material issue/program status, ownership, blockers or accepted direction change, reconcile the canonical Notion project in the same work cycle when that project is part of the task context. GitHub commits, PRs, workflow runs and runtime observations remain the implementation/CI evidence; do not replace exact repository evidence with a prose status copied into Notion.
 
 Before closing a work package, make the issue, PR/runtime evidence and relevant Notion project describe the same current state. If they disagree, resolve the disagreement explicitly rather than choosing whichever summary is most convenient.
+
+## Matt Flow operations
+
+These operations adapt Matt engineering skills to this repository's existing GitHub Issues + Notion model. They do not create a second tracker or workflow state machine.
+
+### Tool choice
+
+The tracker is the source of truth, not a specific client.
+
+- GPT/OpenClo should use an authenticated GitHub connector/API when available.
+- An authenticated `gh` CLI inside the repository clone is an equivalent operation surface.
+- If one operation surface lacks a capability, do not invent a parallel tracker. Use the documented GitHub fallback or surface the missing capability.
+
+### Spec and ticket publication
+
+- `to-spec`: publish a repository-facing implementation spec as a GitHub Issue when it is ready to become executable work. Broader unresolved roadmap/research may remain in Notion.
+- `to-tickets`: create one GitHub Issue per approved tracer-bullet work package, preserve the parent/spec reference, and record real blocking edges.
+- Apply the canonical triage role from `docs/agents/triage-labels.md` only when that label exists. Missing configured labels are SetupMatt debt, not permission to invent aliases.
+
+### Wayfinding operations
+
+Wayfinder is for decision work that is too large/foggy for one session. It is planning by default and does not grant implementation/merge/deploy authority.
+
+- **Map:** one GitHub Issue carrying the `wayfinder:map` label, with Destination / Notes / Decisions so far / Not yet specified / Out of scope.
+- **Child decision:** use a native GitHub sub-issue when the active GitHub operation surface supports it. Otherwise create a normal GitHub Issue, put `Part of <map link>` at the top, and link it from the map.
+- **Decision type labels:** `wayfinder:research`, `wayfinder:prototype`, `wayfinder:grilling`, `wayfinder:task`.
+- **Blocking:** prefer native GitHub issue dependencies when supported. Otherwise put a leading `Blocked by: <issue links>` line in the child and keep the same dependency visible from the map.
+- **Frontier:** the first open child in map order whose blockers are closed and which is unassigned.
+- **Claim:** assign the child before doing decision work. If assignment cannot be performed through the current operation surface, do not pretend the ticket is exclusively claimed.
+- **Resolve:** post the durable answer/evidence as a resolution comment, close the child, then append a one-line linked gist to Decisions so far on the map.
+- **Research decisions:** may be resolved in parallel when they are independent; human-in-the-loop Grill/Prototype decisions are never self-answered by the agent.
+
+### Wayfinder provisioning prerequisite
+
+The label names above are the configured vocabulary, but documentation is not proof the labels exist in GitHub. Before the first Wayfinder map is created, verify or provision the five `wayfinder:*` labels through an authorized GitHub label-management surface. The currently connected GitHub operation surface does not expose repository-label creation, so this remains an explicit provisioning prerequisite rather than a fake completed setup.
+

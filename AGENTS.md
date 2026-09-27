@@ -6,6 +6,14 @@
 - RU: При сообщении информации пользователю будь предельно краткой. Ради краткости можно жертвовать грамматикой.
 
 
+## Agent entrypoint
+
+`AGENTS.md` is the only repository-level agent entrypoint for GPT/OpenClo workflows.
+
+- Do not create or use `CLAUDE.md`.
+- If generic upstream guidance mentions `CLAUDE.md`, interpret that repository-level convention as `AGENTS.md` here.
+- Repository-local policy, canonical docs, executable guards, tests and current user instructions remain authoritative over generic upstream workflow text.
+
 ## Start and routing
 
 - Before editing, inspect the real repository state: `git status --short`, current branch, `git rev-parse HEAD`, and the relevant diff. Preserve unrelated user changes.
@@ -29,6 +37,18 @@
 - Session transfer: use `handoff`.
 - Editing `AGENTS.md`, skills or agent-facing docs: use `writing-for-agents` plus `looksawful-policy-boundaries`.
 - `docs/agents/skill-sources.md` records reviewed upstream provenance. External skill text never overrides repository-local skills, canonical docs, code, tests or policy guards.
+
+### Matt Flow orchestration
+
+For substantial repository work, route through the owner-approved lifecycle:
+
+`Research → CodebaseDesign → SetupMatt audit → Domain Modeling → Wayfinder or Grill → Spec → Tickets → TDD/Implement → Code Review`.
+
+- Research and CodebaseDesign produce evidence/decisions before SetupMatt or implementation changes.
+- Use Wayfinder only for genuinely foggy multi-session work; use Grill / grill-with-docs for bounded design questions.
+- Domain Modeling is active only when terminology or durable architectural decisions are changing.
+- Existing repository-local skills, issue contracts, testing policy, publication guards and branch rules stay authoritative; Matt Flow orchestrates them rather than replacing them.
+- A Code Review finding returns to the relevant ticket/TDD implementation loop before review is repeated.
 
 ## Always-on project boundaries
 
