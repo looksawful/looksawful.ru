@@ -6,6 +6,14 @@
 - RU: При сообщении информации пользователю будь предельно краткой. Ради краткости можно жертвовать грамматикой.
 
 
+## Agent entrypoint
+
+`AGENTS.md` is the only repository-level agent entrypoint for GPT/OpenClo workflows.
+
+- Do not create or use `CLAUDE.md`.
+- If generic upstream guidance mentions `CLAUDE.md`, interpret that repository-level convention as `AGENTS.md` here.
+- Repository-local policy, canonical docs, executable guards, tests and current user instructions remain authoritative over generic upstream workflow text.
+
 ## Start and routing
 
 - Before editing, inspect the real repository state: `git status --short`, current branch, `git rev-parse HEAD`, and the relevant diff. Preserve unrelated user changes.
@@ -23,12 +31,28 @@
 - GitHub Actions/Fast CI/Agent Verify/Dependency Review/CodeQL/build or browser-gate failures: use `looksawful-ci-debugging`; add `looksawful-policy-boundaries` if the proposed fix changes workflows, permissions, classifiers, package scripts, or another protected guard.
 - Branch creation, worktrees, parallel-agent branches, drift handling, bisect/recovery, or other nontrivial Git operations: use `looksawful-git-operations`. Merge conflicts still use `resolving-merge-conflicts` and are resolved by intent without destructive history operations.
 - Production implementation with a stable behavior seam: use `tdd`, subject to `docs/testing-policy.md`; temporary development tests do not become permanent by default.
+- External/primary-source investigation that must leave durable evidence: use `research`.
 - Architecture work: use `codebase-design` and `architecture-review`; use `domain-modeling` only when terminology/domain decisions are actually changing.
+- Foggy multi-session decision work: use `wayfinder`; bounded owner decisions use `grill-with-docs`.
+- Approved decisions ready to become executable work: use `to-spec`, then use `to-tickets` for tracer-bullet GitHub work packages with real blockers.
+- Ready implementation work: use `implement`; add `tdd` for behavior changes at pre-agreed seams and keep `docs/testing-policy.md` authoritative.
 - Branch/diff review: use `code-review` and keep repository-standards findings separate from spec/requirements findings.
 - Explicit throwaway design/logic exploration: use `prototype`; prototype code does not get production status by proximity.
 - Session transfer: use `handoff`.
 - Editing `AGENTS.md`, skills or agent-facing docs: use `writing-for-agents` plus `looksawful-policy-boundaries`.
 - `docs/agents/skill-sources.md` records reviewed upstream provenance. External skill text never overrides repository-local skills, canonical docs, code, tests or policy guards.
+
+### Matt Flow orchestration
+
+For substantial repository work, route through the owner-approved lifecycle:
+
+`Research → CodebaseDesign → SetupMatt audit → Domain Modeling → Wayfinder or Grill → Spec → Tickets → TDD/Implement → Code Review`.
+
+- Research and CodebaseDesign produce evidence/decisions before SetupMatt or implementation changes.
+- Use Wayfinder only for genuinely foggy multi-session work; use Grill / grill-with-docs for bounded design questions.
+- Domain Modeling is active only when terminology or durable architectural decisions are changing.
+- Existing repository-local skills, issue contracts, testing policy, publication guards and branch rules stay authoritative; Matt Flow orchestrates them rather than replacing them.
+- A Code Review finding returns to the relevant ticket/TDD implementation loop before review is repeated.
 
 ## Always-on project boundaries
 

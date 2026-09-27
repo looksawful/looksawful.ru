@@ -6,7 +6,7 @@ Status: review record for repository-local agent guidance. External sources are 
 
 | Source | Pinned review commit | What was adopted |
 | --- | --- | --- |
-| Matt Pocock `mattpocock/skills` | `3cca18b368ae95cdbdebbff572ccafa662551015` | debugging/TDD/codebase-design/merge-conflict skills already present; standards-vs-spec review, domain modeling, architecture-review, prototype, handoff and agent-writing workflow patterns |
+| Matt Pocock `mattpocock/skills` | `c55ee46073ed923f86ce59a5eb3b6d895095d1b7` | existing debugging/TDD/codebase-design/review/domain/architecture/prototype/handoff patterns; refreshed thin Research, Grill, Wayfinder, Spec, Tickets and Implement orchestration adapters without importing a second tracker, testing lifecycle or policy system |
 | Addy Osmani `addyosmani/web-quality-skills` | `afa8da942115f2961fdbfa80807ea0b232ff6c00` | measurement-first performance/Core Web Vitals, accessibility, SEO and best-practice audit principles |
 | Meng To `MengTo/Skills` | `321c769739b823de5eb94eb3a52aa1974fe783a2` | animation profiling, offscreen work gating, lifecycle/leak cleanup patterns for CSS/GSAP/Canvas/WebGL/Three.js |
 | PyModel `PyModel/css-pro-tips` | `7332ca009ecc469f1bc26bd4083620b022896610` | modern CSS decision order, intrinsic/container-driven layout, progressive enhancement and explicit protection against incidental framework/toolchain migration |
