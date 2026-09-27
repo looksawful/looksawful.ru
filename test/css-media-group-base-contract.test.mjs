@@ -6,7 +6,7 @@ const index = readFileSync(new URL("../src/styles/index.css", import.meta.url), 
 const media = readFileSync(new URL("../src/styles/media.css", import.meta.url), "utf8");
 const components = readFileSync(new URL("../src/styles/components.css", import.meta.url), "utf8");
 
-const genericBase = /(?:^|\n)\.media-group\s*\{[\s\S]*?--group-gap:\s*var\(--media-group-gap,\s*var\(--project-media-gap,\s*var\(--size-300\)\)\);[\s\S]*?--group-row-gap:\s*var\(--media-group-row-gap,\s*var\(--project-media-row-gap,\s*var\(--group-gap\)\)\);[\s\S]*?--group-columns:\s*2;[\s\S]*?--group-mobile-columns:\s*2;[\s\S]*?container:\s*media-group\s*\/\s*inline-size;[\s\S]*?display:\s*grid;[\s\S]*?gap:\s*clamp\(0\.9rem,\s*1\.6cqi,\s*1\.5rem\);[\s\S]*?inline-size:\s*min\(100%,\s*var\(--group-max,\s*var\(--project-media-max\)\)\);[\s\S]*?margin-inline:\s*auto;[\s\S]*?min-inline-size:\s*0;[\s\S]*?\}/;
+const genericBase = /(?:^|\n)\.media-group\s*\{[\s\S]*?--group-gap:\s*var\(--media-group-gap,\s*var\(--project-media-gap,\s*var\(--size-300\)\)\);[\s\S]*?--group-row-gap:\s*var\(--media-group-row-gap,\s*var\(--project-media-row-gap,\s*var\(--group-gap\)\)\);[\s\S]*?--group-columns:\s*2;[\s\S]*?container:\s*media-group\s*\/\s*inline-size;[\s\S]*?display:\s*grid;[\s\S]*?gap:\s*clamp\(0\.9rem,\s*1\.6cqi,\s*1\.5rem\);[\s\S]*?inline-size:\s*min\(100%,\s*var\(--group-max,\s*var\(--project-media-max\)\)\);[\s\S]*?margin-inline:\s*auto;[\s\S]*?min-inline-size:\s*0;[\s\S]*?\}/;
 
 test("media-group base moves the generic media-group base into the canonical media owner", () => {
   assert.match(
