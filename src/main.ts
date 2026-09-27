@@ -25,6 +25,7 @@ import {
 import { initBeforeAfter } from "./components/before-after.ts";
 import { initSiteNavigation } from "./components/site-navigation.ts";
 import { initSiteInteractive } from "./interactive.ts";
+import { mountPortfolioWebMcp } from "./site/webmcp.ts";
 import { initMotion } from "./motion.ts";
 
 type Destroy = () => void;
@@ -141,6 +142,7 @@ const destroys: Destroy[] = [
 ];
 destroys.push(mountPortfolioPet(document, { enabled: true }));
 destroys.push(mountContactFormHub(document));
+destroys.push(mountPortfolioWebMcp(document, window));
 let destroyed = false;
 
 numberMediaCaptions(document);
