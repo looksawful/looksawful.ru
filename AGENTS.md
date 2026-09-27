@@ -34,6 +34,8 @@
 - External/primary-source investigation that must leave durable evidence: use `research`.
 - Architecture work: use `codebase-design` and `architecture-review`; use `domain-modeling` only when terminology/domain decisions are actually changing.
 - Foggy multi-session decision work: use `wayfinder`; bounded owner decisions use `grill-with-docs`.
+- Approved decisions ready to become executable work: use `to-spec`, then `to-tickets` for tracer-bullet GitHub work packages with real blockers.
+- Ready implementation work: use `implement`; add `tdd` for behavior changes at pre-agreed seams and keep `docs/testing-policy.md` authoritative.
 - Branch/diff review: use `code-review` and keep repository-standards findings separate from spec/requirements findings.
 - Explicit throwaway design/logic exploration: use `prototype`; prototype code does not get production status by proximity.
 - Session transfer: use `handoff`.

@@ -5,13 +5,16 @@ import test from "node:test";
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
 test("Matt Flow decision-phase adapters remain locally routed and policy-bounded", async () => {
-  const [agents, tracker, sources, research, grill, wayfinder] = await Promise.all([
+  const [agents, tracker, sources, research, grill, wayfinder, toSpec, toTickets, implement] = await Promise.all([
     read("AGENTS.md"),
     read("docs/agents/issue-tracker.md"),
     read("docs/agents/skill-sources.md"),
     read(".agents/skills/research/SKILL.md"),
     read(".agents/skills/grill-with-docs/SKILL.md"),
     read(".agents/skills/wayfinder/SKILL.md"),
+    read(".agents/skills/to-spec/SKILL.md"),
+    read(".agents/skills/to-tickets/SKILL.md"),
+    read(".agents/skills/implement/SKILL.md"),
   ]);
 
   assert.match(
@@ -21,6 +24,9 @@ test("Matt Flow decision-phase adapters remain locally routed and policy-bounded
   assert.match(agents, /use `research`/);
   assert.match(agents, /use `wayfinder`/);
   assert.match(agents, /use `grill-with-docs`/);
+  assert.match(agents, /use `to-spec`/);
+  assert.match(agents, /use `to-tickets`/);
+  assert.match(agents, /use `implement`/);
 
   assert.match(research, /^name: research$/m);
   assert.match(research, /primary sources/i);
@@ -48,5 +54,22 @@ test("Matt Flow decision-phase adapters remain locally routed and policy-bounded
   assert.match(wayfinder, /do not invent aliases/i);
 
   assert.match(sources, /c55ee46073ed923f86ce59a5eb3b6d895095d1b7/);
-  assert.match(sources, /Research, Grill and Wayfinder/);
+  assert.match(toSpec, /^name: to-spec$/m);
+  assert.match(toSpec, /Problem Statement/);
+  assert.match(toSpec, /ready-for-agent/);
+  assert.match(toSpec, /docs\/testing-policy\.md/);
+
+  assert.match(toTickets, /^name: to-tickets$/m);
+  assert.match(toTickets, /tracer-bullet/i);
+  assert.match(toTickets, /Parent/);
+  assert.match(toTickets, /Blocked by/);
+  assert.match(toTickets, /Never pretend a native relationship/i);
+
+  assert.match(implement, /^name: implement$/m);
+  assert.match(implement, /`tdd`/);
+  assert.match(implement, /`code-review`/);
+  assert.match(implement, /KEEP \/ MOVE \/ DELETE/);
+  assert.match(implement, /Do not merge, deploy, publish CMS state/i);
+
+  assert.match(sources, /Research, Grill, Wayfinder, Spec, Tickets and Implement/);
 });
