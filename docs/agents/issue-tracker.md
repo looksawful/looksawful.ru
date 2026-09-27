@@ -99,5 +99,5 @@ Wayfinder is for decision work that is too large/foggy for one session. It is pl
 
 ### Wayfinder provisioning prerequisite
 
-The label names above are the configured vocabulary, but documentation is not proof the labels exist in GitHub. Before the first Wayfinder map is created, verify or provision the five `wayfinder:*` labels through an authorized GitHub label-management surface. The currently connected GitHub operation surface does not expose repository-label creation, so this remains an explicit provisioning prerequisite rather than a fake completed setup.
+The label names above are the configured vocabulary, but documentation is not proof the labels exist in GitHub. Before the first Wayfinder map is created, verify the current repository labels through the active authorized GitHub operation surface. If a required label is missing, create it only through an authorized surface that actually exposes repository-label mutation. If the active surface cannot verify or create labels, report that prerequisite and stop before pretending the map is fully provisioned; do not invent aliases.
 

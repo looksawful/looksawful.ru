@@ -33,8 +33,15 @@ Status: configuration repair on research branch; no product/runtime behavior cha
 - GitHub labels themselves;
 - stale SetupMatt PR state.
 
-## Remaining prerequisites before Wayfinder
+## Prerequisites recorded at audit time
 
 1. Verify/provision `wayfinder:map`, `wayfinder:research`, `wayfinder:prototype`, `wayfinder:grilling`, `wayfinder:task`.
 2. Reconcile stale duplicate SetupMatt PRs #1136 and #1138.
 3. Review this policy/config diff before integration into `dev`.
+
+## Closeout update — 2026-09-27
+
+- Replacement PR #1226 now owns the complete Matt Flow policy/tooling rollout.
+- PR #1136 and PR #1138 were closed as superseded after #1226 existed; audit-time prerequisite 2 is satisfied.
+- Label verification/provisioning remains capability-dependent and must be checked at first Wayfinder use rather than inferred from this historical audit.
+- PR review/CI remains the integration gate before `dev`.
