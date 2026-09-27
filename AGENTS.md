@@ -74,3 +74,17 @@
 - Do not use destructive git commands such as `git reset --hard`, `git clean`, forced checkout, force-push, rebase, or merge as an incidental repair step.
 - Do not claim a check, branch-protection rule, PR state, deployment, or production result without fresh evidence.
 - Do not commit, push, create/merge PRs, publish CMS content, or deploy unless the user explicitly requests that external action.
+
+## Agent skills
+
+### Issue tracker
+
+Issue tracker is configured for this repository. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Triage vocabulary is configured in `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context layout. See `docs/agents/domain.md`.
