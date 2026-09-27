@@ -31,7 +31,9 @@
 - GitHub Actions/Fast CI/Agent Verify/Dependency Review/CodeQL/build or browser-gate failures: use `looksawful-ci-debugging`; add `looksawful-policy-boundaries` if the proposed fix changes workflows, permissions, classifiers, package scripts, or another protected guard.
 - Branch creation, worktrees, parallel-agent branches, drift handling, bisect/recovery, or other nontrivial Git operations: use `looksawful-git-operations`. Merge conflicts still use `resolving-merge-conflicts` and are resolved by intent without destructive history operations.
 - Production implementation with a stable behavior seam: use `tdd`, subject to `docs/testing-policy.md`; temporary development tests do not become permanent by default.
+- External/primary-source investigation that must leave durable evidence: use `research`.
 - Architecture work: use `codebase-design` and `architecture-review`; use `domain-modeling` only when terminology/domain decisions are actually changing.
+- Foggy multi-session decision work: use `wayfinder`; bounded owner decisions use `grill-with-docs`.
 - Branch/diff review: use `code-review` and keep repository-standards findings separate from spec/requirements findings.
 - Explicit throwaway design/logic exploration: use `prototype`; prototype code does not get production status by proximity.
 - Session transfer: use `handoff`.

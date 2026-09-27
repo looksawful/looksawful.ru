@@ -12,6 +12,8 @@ const derivativeTests = new Set([
 // explicitly justified as cheap, long-lived contracts under docs/testing-policy.md.
 export const fastTests = new Set([
   "test/agent-verification-workflow.test.mjs",
+  // CONTRACT: repository-local Matt Flow decision routing is protected policy.
+  "test/matt-flow-agent-contract.test.mjs",
   "test/awful-cases-cms-editorial.test.mjs",
   "test/ci-fast-concurrency.test.mjs",
   "test/code-block-contract.test.mjs",
