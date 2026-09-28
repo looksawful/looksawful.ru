@@ -44,6 +44,10 @@ test("private Lab deploy is dev-only, authenticated, and Cloudflare-backed", asy
     workflow,
     /Install media tooling[\s\S]*?apt-get install -y ffmpeg[\s\S]*?Prepare production-backed media fixtures[\s\S]*?npm run media:ensure/u,
   );
+  assert.match(
+    workflow,
+    /Build isolated Private Lab[\s\S]*?Prune Cloudflare-incompatible oversized Lab assets[\s\S]*?find dist-lab -type f -size \+26214400c -print0[\s\S]*?Enforce Cloudflare Pages asset size limit[\s\S]*?find dist-lab -type f -size \+26214400c -print -quit[\s\S]*?Deploy Private Lab with Pages Functions/u,
+  );
   assert.match(workflow, /npm run lab:build/u);
   assert.match(workflow, /working-directory:\s*lab/u);
   assert.match(workflow, /wrangler@4 pages deploy \.\.\/dist-lab/u);
