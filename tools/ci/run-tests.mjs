@@ -95,6 +95,7 @@ export const fastTests = new Set([
   "test/outreach-link.test.mjs",
   "test/pages-cms-yaml-syntax.test.mjs",
   "test/private-admin-github-oauth.test.mjs",
+  "test/private-lab-deploy.test.mjs",
   // CONTRACT: public GitHub automation must never publish pre-production visual-review evidence.
   "test/public-review-privacy-policy.test.mjs",
   "test/private-lab-shell.test.mjs",
