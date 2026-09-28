@@ -95,6 +95,7 @@ export const fastTests = new Set([
   "test/outreach-link.test.mjs",
   "test/pages-cms-yaml-syntax.test.mjs",
   "test/private-admin-github-oauth.test.mjs",
+  // CONTRACT: Private Lab deployment stays trusted-dev-only, authenticated, and isolated from public review.
   "test/private-lab-deploy.test.mjs",
   // CONTRACT: public GitHub automation must never publish pre-production visual-review evidence.
   "test/public-review-privacy-policy.test.mjs",
