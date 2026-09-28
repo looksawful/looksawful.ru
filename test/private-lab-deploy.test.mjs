@@ -10,7 +10,20 @@ test("private Lab deploy is dev-only, authenticated, and Cloudflare-backed", asy
   assert.match(workflow, /branches:\s*\[dev\]/u);
   assert.match(workflow, /workflow_dispatch:/u);
   assert.doesNotMatch(workflow, /pull_request(?:_target)?:/u);
-  assert.match(workflow, /permissions:\s*\n\s+contents:\s*read/u);
+  assert.match(
+    workflow,
+    /^permissions:\n  contents: read\n\n/mu,
+    "workflow permissions must be exactly contents: read",
+  );
+  assert.equal(
+    (workflow.match(/^\s*permissions:/gmu) ?? []).length,
+    1,
+    "no job-level permission overrides",
+  );
+  assert.match(workflow, /github\.ref == 'refs\/heads\/dev'/u);
+  assert.doesNotMatch(workflow, /continue-on-error:/u);
+
+  const deployHeader = workflow.match(/\n  deploy:\n([\s\S]*?)\n    steps:\n/u)?.[1] ?? "";
 
   for (const secret of [
     "CLOUDFLARE_API_TOKEN",
@@ -20,6 +33,11 @@ test("private Lab deploy is dev-only, authenticated, and Cloudflare-backed", asy
     "ADMIN_SESSION_SECRET",
   ]) {
     assert.equal(workflow.includes("secrets." + secret), true, "missing " + secret);
+    assert.equal(
+      deployHeader.includes("secrets." + secret),
+      false,
+      secret + " must not be job-scoped",
+    );
   }
 
   assert.match(workflow, /npm run lab:build/u);
