@@ -1,0 +1,200 @@
+name: Private Lab Deploy
+
+on:
+  push:
+    branches: [dev]
+    paths:
+      - "lab/**"
+      - "src/**"
+      - "public/**"
+      - "tools/lab/**"
+      - "vite.lab.config.ts"
+      - "package.json"
+      - "package-lock.json"
+      - "test/private-lab*.test.mjs"
+      - ".github/workflows/private-lab-deploy.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: private-lab-deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    if: >-
+      github.ref == 'refs/heads/dev' &&
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      PRIVATE_LAB_PROJECT: looksawful-private-lab
+      PRIVATE_LAB_DOMAIN: admin.looksawful.ru
+    steps:
+      - name: Checkout exact dev SHA
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate deployment credentials
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          ADMIN_GITHUB_CLIENT_ID: ${{ secrets.ADMIN_GITHUB_CLIENT_ID }}
+          ADMIN_GITHUB_CLIENT_SECRET: ${{ secrets.ADMIN_GITHUB_CLIENT_SECRET }}
+          ADMIN_SESSION_SECRET: ${{ secrets.ADMIN_SESSION_SECRET }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          for name in CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID ADMIN_GITHUB_CLIENT_ID ADMIN_GITHUB_CLIENT_SECRET ADMIN_SESSION_SECRET; do
+            if [[ -z "${!name:-}" ]]; then
+              echo "Missing required deployment secret: ${name}" >&2
+              exit 1
+            fi
+          done
+
+      - name: Verify Private Lab contracts
+        run: >-
+          node --test
+          test/private-lab-shell.test.mjs
+          test/private-admin-github-oauth.test.mjs
+          test/private-lab-storybook-integration.test.mjs
+          test/private-lab-deploy.test.mjs
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Prepare production-backed media fixtures
+        run: npm run media:ensure
+
+      - name: Build isolated Private Lab
+        env:
+          LAB_BUILD_BRANCH: dev
+          LAB_BUILD_COMMIT: ${{ github.sha }}
+          LAB_BUILD_TIME: ${{ github.event.repository.updated_at }}
+        run: npm run lab:build
+
+      - name: Ensure Cloudflare Pages project
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          endpoint="https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/pages/projects/${PRIVATE_LAB_PROJECT}"
+          status="$(curl --silent --show-error --output /tmp/private-lab-project.json --write-out '%{http_code}' \
+            --header "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+            "${endpoint}")"
+          if [[ "${status}" == "404" ]]; then
+            project_payload="$(node -e 'process.stdout.write(JSON.stringify({name:process.env.PRIVATE_LAB_PROJECT,production_branch:"dev"}))')"
+            curl --fail --silent --show-error \
+              --request POST \
+              --header "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+              --header "Content-Type: application/json" \
+              --data "${project_payload}" \
+              "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/pages/projects" \
+              > /tmp/private-lab-project-created.json
+          elif [[ ! "${status}" =~ ^2 ]]; then
+            echo "Cloudflare Pages project lookup failed with HTTP ${status}" >&2
+            exit 1
+          fi
+          curl --fail --silent --show-error \
+            --request PATCH \
+            --header "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+            --header "Content-Type: application/json" \
+            --data '{"production_branch":"dev"}' \
+            "${endpoint}" > /tmp/private-lab-project-patched.json
+
+      - name: Sync Private Lab runtime secrets
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          ADMIN_GITHUB_CLIENT_ID: ${{ secrets.ADMIN_GITHUB_CLIENT_ID }}
+          ADMIN_GITHUB_CLIENT_SECRET: ${{ secrets.ADMIN_GITHUB_CLIENT_SECRET }}
+          ADMIN_SESSION_SECRET: ${{ secrets.ADMIN_SESSION_SECRET }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          for name in ADMIN_GITHUB_CLIENT_ID ADMIN_GITHUB_CLIENT_SECRET ADMIN_SESSION_SECRET; do
+            printf '%s' "${!name}" |
+              npx --yes wrangler@4 pages secret put "${name}" --project-name "${PRIVATE_LAB_PROJECT}" >/dev/null
+          done
+
+      - name: Deploy Private Lab with Pages Functions
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        working-directory: lab
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx --yes wrangler@4 pages deploy ../dist-lab \
+            --project-name "${PRIVATE_LAB_PROJECT}" \
+            --branch dev \
+            --commit-hash "${GITHUB_SHA}" \
+            --commit-dirty=false
+
+      - name: Ensure Private Lab custom domain
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          domain_endpoint="https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/pages/projects/${PRIVATE_LAB_PROJECT}/domains/${PRIVATE_LAB_DOMAIN}"
+          status="$(curl --silent --show-error --output /tmp/private-lab-domain.json --write-out '%{http_code}' \
+            --header "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+            "${domain_endpoint}")"
+          if [[ "${status}" == "404" ]]; then
+            domain_payload="$(node -e 'process.stdout.write(JSON.stringify({name:process.env.PRIVATE_LAB_DOMAIN}))')"
+            curl --fail --silent --show-error \
+              --request POST \
+              --header "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+              --header "Content-Type: application/json" \
+              --data "${domain_payload}" \
+              "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/pages/projects/${PRIVATE_LAB_PROJECT}/domains" \
+              > /tmp/private-lab-domain-created.json
+          elif [[ ! "${status}" =~ ^2 ]]; then
+            echo "Private Lab domain lookup failed with HTTP ${status}" >&2
+            exit 1
+          fi
+
+      - name: Verify remote auth boundary and Storybook route
+        shell: bash
+        run: |
+          set -euo pipefail
+          ready=0
+          for delay in 0 5 10 20 30 45; do
+            if (( delay > 0 )); then sleep "${delay}"; fi
+            redirect="$(curl --silent --show-error --output /dev/null --write-out '%{redirect_url}' \
+              --max-time 15 "https://${PRIVATE_LAB_DOMAIN}/lab/system/" || true)"
+            if [[ "${redirect}" == "https://${PRIVATE_LAB_DOMAIN}/auth/github" ]]; then
+              ready=1
+              break
+            fi
+          done
+          if (( ready != 1 )); then
+            echo "Private Lab did not expose the protected Storybook route." >&2
+            exit 1
+          fi
+
+          oauth_redirect="$(curl --silent --show-error --output /dev/null --write-out '%{redirect_url}' \
+            --max-time 15 "https://${PRIVATE_LAB_DOMAIN}/auth/github" || true)"
+          if [[ "${oauth_redirect}" != https://github.com/login/oauth/authorize* ]]; then
+            echo "Private Lab OAuth start endpoint is not redirecting to GitHub." >&2
+            exit 1
+          fi
+          echo "Private Lab is live behind the GitHub OAuth boundary."

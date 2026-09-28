@@ -15,6 +15,7 @@ const expectedWorkflows = [
   "media-desk-cloudflare.yml",
   "pages-cms-publish.yml",
   "pages.yml",
+  "private-lab-deploy.yml",
   "private-lab-verify.yml",
   "production-health.yml",
   "quality.yml",
