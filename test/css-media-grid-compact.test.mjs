@@ -5,6 +5,9 @@ import test from "node:test";
 const media = readFileSync(new URL("../src/styles/media.css", import.meta.url), "utf8");
 const components = readFileSync(new URL("../src/styles/components.css", import.meta.url), "utf8");
 
+const defaultColumnsContract =
+  /\.media-group\s*\{[^}]*?--group-columns:\s*2;[^}]*?--group-mobile-columns:\s*1;/;
+
 const patterns = [
   /\/\* Plain grid\. \*\//,
   /\.media-group\[data-layout="grid"\]:not\(\[data-compact-layout="reel"\]\)\s*>\s*\.media-group__items\s*\{/,
@@ -22,6 +25,16 @@ test("media grid/compact grid and compact layout family has one canonical media 
 });
 
 test("media grid/compact preserves the authored grid/rail/compact contract", () => {
+  assert.match(
+    media,
+    defaultColumnsContract,
+    "ordinary media grids must default to one mobile column",
+  );
+  assert.doesNotMatch(
+    ".media-group { --group-columns: 2; } .special { --group-mobile-columns: 1; }",
+    defaultColumnsContract,
+    "the default-column contract must not escape the base media-group block",
+  );
   assert.match(
     media,
     /\.media-group\[data-layout="grid"\]:not\(\[data-compact-layout="reel"\]\)\s*>\s*\.media-group__items\s*\{[\s\S]*?grid-template-columns:\s*repeat\(var\(--group-mobile-columns\),\s*minmax\(0,\s*1fr\)\);[\s\S]*?column-gap:\s*var\(--group-gap\);[\s\S]*?row-gap:\s*var\(--group-row-gap\);/,
