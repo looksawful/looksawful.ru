@@ -46,7 +46,7 @@ test("private Lab deploy is dev-only, authenticated, and Cloudflare-backed", asy
   );
   assert.match(
     workflow,
-    /Build isolated Private Lab[\s\S]*?Prune Cloudflare-incompatible oversized Lab assets[\s\S]*?find dist-lab -type f -size \+26214400c -print0[\s\S]*?Enforce Cloudflare Pages asset size limit[\s\S]*?find dist-lab -type f -size \+26214400c -print -quit[\s\S]*?Deploy Private Lab with Pages Functions/u,
+    /Build isolated Private Lab[\s\S]*?Prune Cloudflare-incompatible source assets[\s\S]*?find dist-lab\/media\/projects -type f -path '\*\/source\/\*' -size \+26214400c -print0[\s\S]*?dist-lab\/media\/projects\/index\/2\.png[\s\S]*?Enforce Cloudflare Pages asset size limit[\s\S]*?find dist-lab -type f -size \+26214400c -print -quit[\s\S]*?Deploy Private Lab with Pages Functions/u,
   );
   assert.match(workflow, /npm run lab:build/u);
   assert.match(workflow, /working-directory:\s*lab/u);
