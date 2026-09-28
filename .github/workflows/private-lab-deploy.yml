@@ -90,7 +90,7 @@ jobs:
           LAB_BUILD_TIME: ${{ github.event.repository.updated_at }}
         run: npm run lab:build
 
-      - name: Prune Cloudflare-incompatible source assets
+      - name: Prune Cloudflare-incompatible Lab-only assets
         shell: bash
         run: |
           set -euo pipefail
@@ -107,6 +107,14 @@ jobs:
             rm -- "${orphan_cover}"
             removed=$((removed + 1))
           fi
+
+          review_unused_video="dist-lab/media/generated/video/projects/sensetique/11/source/97-16x9.web.mp4"
+          if [[ -f "${review_unused_video}" ]] && (( $(stat -c '%s' "${review_unused_video}") > 26214400 )); then
+            echo "Pruning oversized video unused by Private Lab stories: ${review_unused_video#dist-lab/}"
+            rm -- "${review_unused_video}"
+            removed=$((removed + 1))
+          fi
+
           echo "Pruned ${removed} confirmed non-delivery oversized Lab asset(s)."
 
       - name: Enforce Cloudflare Pages asset size limit
