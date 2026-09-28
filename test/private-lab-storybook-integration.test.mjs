@@ -20,7 +20,7 @@ test("Storybook is integrated into the isolated Private Lab artifact", async () 
   assert.match(labHtml, /href="\/lab\/system\/inventory\.html"/);
   assert.match(builder, /path\.join\("dist-lab", "lab"\)/);
   assert.match(inventory, /path\.join\(root, "dist-lab", "lab"\)/);
-  assert.match(main, /staticDirs:[\s\S]*public/);
+  assert.doesNotMatch(main, /staticDirs:/);
   assert.match(labConfig, /outDir:\s*"dist-lab"/);
   assert.match(workflow, /Prepare production media for Storybook[\s\S]*npm run media:ensure[\s\S]*npm run lab:system/);
   assert.match(workflow, /Build private Storybook design system[\s\S]*timeout-minutes:\s*12[\s\S]*run:\s*npm run lab:system/);
