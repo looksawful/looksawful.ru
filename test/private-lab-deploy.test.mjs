@@ -42,7 +42,7 @@ test("private Lab deploy is dev-only, authenticated, and Cloudflare-backed", asy
 
   assert.match(
     workflow,
-    /Install media tooling[\\s\\S]*?apt-get install -y ffmpeg[\\s\\S]*?Prepare production-backed media fixtures[\\s\\S]*?npm run media:ensure/u,
+    /Install media tooling[\s\S]*?apt-get install -y ffmpeg[\s\S]*?Prepare production-backed media fixtures[\s\S]*?npm run media:ensure/u,
   );
   assert.match(workflow, /npm run lab:build/u);
   assert.match(workflow, /working-directory:\s*lab/u);
