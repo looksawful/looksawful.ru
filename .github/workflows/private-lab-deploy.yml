@@ -90,6 +90,28 @@ jobs:
           LAB_BUILD_TIME: ${{ github.event.repository.updated_at }}
         run: npm run lab:build
 
+      - name: Prune Cloudflare-incompatible oversized Lab assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          removed=0
+          while IFS= read -r -d '' file; do
+            echo "Pruning oversized Private Lab asset: ${file#dist-lab/}"
+            rm -- "${file}"
+            removed=$((removed + 1))
+          done < <(find dist-lab -type f -size +26214400c -print0)
+          echo "Pruned ${removed} oversized Private Lab asset(s)."
+
+      - name: Enforce Cloudflare Pages asset size limit
+        shell: bash
+        run: |
+          set -euo pipefail
+          if find dist-lab -type f -size +26214400c -print -quit | grep -q .; then
+            echo "Private Lab artifact still contains files larger than Cloudflare Pages' 25 MiB limit." >&2
+            find dist-lab -type f -size +26214400c -print >&2
+            exit 1
+          fi
+
       - name: Ensure Cloudflare Pages project
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
