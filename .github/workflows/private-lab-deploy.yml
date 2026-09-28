@@ -77,6 +77,9 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
+      - name: Install media tooling
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+
       - name: Prepare production-backed media fixtures
         run: npm run media:ensure
 
