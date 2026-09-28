@@ -6,7 +6,6 @@ const storybookViteConfig = fileURLToPath(
 
 const config = {
   stories: ["../../../src/lab/stories/**/*.stories.@(js|mjs)"],
-  staticDirs: [{ from: fileURLToPath(new URL("../../../public/", import.meta.url)), to: "/" }],
   addons: [
     "@storybook/addon-docs",
     "@storybook/addon-a11y",

@@ -53,15 +53,15 @@ jobs:
       - name: Protected Admin/Lab contracts
         run: node --test test/private-lab-shell.test.mjs test/private-admin-github-oauth.test.mjs test/private-lab-storybook-integration.test.mjs
 
+      - name: Prepare production media for Storybook
+        run: npm run media:ensure
+
       - name: Build isolated Lab
         env:
           LAB_BUILD_BRANCH: ${{ github.head_ref || github.ref_name }}
           LAB_BUILD_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
           LAB_BUILD_TIME: ${{ github.event.pull_request.updated_at || github.event.repository.updated_at }}
         run: npx vite build --config vite.lab.config.ts
-
-      - name: Prepare production media for Storybook
-        run: npm run media:ensure
 
       - name: Build private Storybook design system
         timeout-minutes: 12

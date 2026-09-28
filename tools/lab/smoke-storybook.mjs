@@ -7,6 +7,7 @@ import { chromium } from "playwright";
 
 const root = process.cwd();
 const storybookDir = path.join(root, "dist-lab", "lab", "system");
+const mediaDir = path.join(root, "dist-lab", "media");
 const MIME = new Map([[".html", "text/html"], [".js", "text/javascript"], [".css", "text/css"], [".json", "application/json"], [".svg", "image/svg+xml"], [".png", "image/png"], [".jpg", "image/jpeg"], [".jpeg", "image/jpeg"], [".webp", "image/webp"], [".woff2", "font/woff2"]]);
 
 const viewports = [
@@ -27,11 +28,23 @@ const cases = [
   ["gallery-error", "03-organisms-animated-canvas-gallery--error", "[data-gallery-state=\"error\"]"],
 ];
 
-function safeFile(urlPath) {
-  const relative = decodeURIComponent(urlPath.split("?")[0]).replace(/^\/+/, "") || "index.html";
-  const candidate = path.resolve(storybookDir, relative);
-  if (!candidate.startsWith(path.resolve(storybookDir))) return null;
+function resolveWithin(baseDir, relative) {
+  const base = path.resolve(baseDir);
+  const candidate = path.resolve(base, relative);
+  if (candidate !== base && !candidate.startsWith(`${base}${path.sep}`)) return null;
   return candidate;
+}
+
+function safeFile(urlPath) {
+  const pathname = decodeURIComponent(urlPath.split("?")[0]);
+
+  if (pathname === "/media" || pathname.startsWith("/media/")) {
+    const relative = pathname.replace(/^\/media\/?/, "");
+    return resolveWithin(mediaDir, relative);
+  }
+
+  const relative = pathname.replace(/^\/+/, "") || "index.html";
+  return resolveWithin(storybookDir, relative);
 }
 
 const server = createServer(async (request, response) => {
