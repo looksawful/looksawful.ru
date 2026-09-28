@@ -1,5 +1,9 @@
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
+import { mkdirSync, mkdtempSync, rmSync, truncateSync, writeFileSync } from "node:fs";
 import { readFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import test from "node:test";
 
 const workflowUrl = new URL("../.github/workflows/private-lab-deploy.yml", import.meta.url);
@@ -44,6 +48,10 @@ test("private Lab deploy is dev-only, authenticated, and Cloudflare-backed", asy
     workflow,
     /Install media tooling[\s\S]*?apt-get install -y ffmpeg[\s\S]*?Prepare production-backed media fixtures[\s\S]*?npm run media:ensure/u,
   );
+  assert.match(
+    workflow,
+    /Build isolated Private Lab[\s\S]*?Prune Cloudflare-incompatible source assets[\s\S]*?find dist-lab\/media\/projects -type f -path '\*\/source\/\*' -size \+26214400c -print0[\s\S]*?dist-lab\/media\/projects\/index\/2\.png[\s\S]*?Enforce Cloudflare Pages asset size limit[\s\S]*?find dist-lab -type f -size \+26214400c -print -quit[\s\S]*?Deploy Private Lab with Pages Functions/u,
+  );
   assert.match(workflow, /npm run lab:build/u);
   assert.match(workflow, /working-directory:\s*lab/u);
   assert.match(workflow, /wrangler@4 pages deploy \.\.\/dist-lab/u);
@@ -52,4 +60,45 @@ test("private Lab deploy is dev-only, authenticated, and Cloudflare-backed", asy
   assert.match(workflow, /\/pages\/projects\/\$\{PRIVATE_LAB_PROJECT\}\/domains/u);
   assert.match(workflow, /\/lab\/system\//u);
   assert.match(workflow, /\/auth\/github/u);
+});
+
+
+test("Cloudflare Pages size gate accepts 25 MiB and rejects one byte over", async (t) => {
+  if (process.platform === "win32") {
+    t.skip("GNU find size semantics are verified in Linux CI");
+    return;
+  }
+
+  const workflow = await readFile(workflowUrl, "utf8");
+  const sizeExpression = workflow.match(
+    /find dist-lab -type f -size (\+\d+c) -print -quit/u,
+  )?.[1];
+  assert.ok(sizeExpression, "workflow must define the Pages size expression");
+
+  const root = mkdtempSync(join(tmpdir(), "private-lab-size-"));
+  const dist = join(root, "dist-lab");
+  const asset = join(dist, "asset.bin");
+
+  try {
+    mkdirSync(dist, { recursive: true });
+    writeFileSync(asset, "");
+
+    truncateSync(asset, 26_214_400);
+    let output = execFileSync(
+      "find",
+      ["dist-lab", "-type", "f", "-size", sizeExpression, "-print", "-quit"],
+      { cwd: root, encoding: "utf8" },
+    );
+    assert.equal(output.trim(), "");
+
+    truncateSync(asset, 26_214_401);
+    output = execFileSync(
+      "find",
+      ["dist-lab", "-type", "f", "-size", sizeExpression, "-print", "-quit"],
+      { cwd: root, encoding: "utf8" },
+    );
+    assert.equal(output.trim(), "dist-lab/asset.bin");
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 });
