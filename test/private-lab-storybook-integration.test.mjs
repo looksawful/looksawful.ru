@@ -25,6 +25,9 @@ test("Storybook is integrated into the isolated Private Lab artifact", async () 
   assert.match(smoke, /path\.join\(root, "dist-lab", "media"\)/);
   assert.match(smoke, /pathname\.startsWith\("\/media\/"\)/);
   assert.match(labConfig, /outDir:\s*"dist-lab"/);
-  assert.match(workflow, /Prepare production media for Storybook[\s\S]*npm run media:ensure[\s\S]*npm run lab:system/);
+  assert.match(
+    workflow,
+    /Prepare production media for Storybook[\s\S]*npm run media:ensure[\s\S]*Build isolated Lab[\s\S]*npx vite build --config vite\.lab\.config\.ts[\s\S]*npm run lab:system/,
+  );
   assert.match(workflow, /Build private Storybook design system[\s\S]*timeout-minutes:\s*12[\s\S]*run:\s*npm run lab:system/);
 });
