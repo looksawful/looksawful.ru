@@ -4,7 +4,7 @@ const CANDIDATE_SHA = "2bebd2cc2a64f08230ca243f3437db270ac15152";
 const CANDIDATE_MODEL =
   "https://raw.githubusercontent.com/looksawful/awful-studio/" +
   CANDIDATE_SHA +
-  "/assets/device_mockups/iphone_17/runtime/v30/iphone_17_v30_web_meshopt.glb";
+  "/assets/device_mockups/iphone_17/runtime/v30/iphone_17_v30_web.glb";
 const STYLE_ID = "iphone-17-private-review-styles";
 
 const ensureStyles = () => {
