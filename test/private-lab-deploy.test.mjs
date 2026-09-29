@@ -56,6 +56,12 @@ test("private Lab deploy is dev-only, authenticated, and Cloudflare-backed", asy
   assert.match(workflow, /working-directory:\s*lab/u);
   assert.match(workflow, /wrangler@4 pages deploy \.\.\/dist-lab/u);
   assert.match(workflow, /admin\.looksawful\.ru/u);
+  assert.match(workflow, /PRIVATE_LAB_ZONE:\s*looksawful\.ru/u);
+  assert.match(workflow, /Ensure Private Lab DNS record/u);
+  assert.match(workflow, /client\/v4\/zones\?name=\$\{PRIVATE_LAB_ZONE\}&account\.id=\$\{CLOUDFLARE_ACCOUNT_ID\}/u);
+  assert.match(workflow, /\/dns_records/u);
+  assert.match(workflow, /type:\\"CNAME\\"/u);
+  assert.match(workflow, /proxied:true/u);
   assert.match(workflow, /api\.cloudflare\.com\/client\/v4\/accounts/u);
   assert.match(workflow, /\/pages\/projects\/\$\{PRIVATE_LAB_PROJECT\}\/domains/u);
   assert.match(workflow, /\/lab\/system\//u);
