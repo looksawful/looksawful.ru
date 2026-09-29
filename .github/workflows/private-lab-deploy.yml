@@ -32,6 +32,7 @@ jobs:
     env:
       PRIVATE_LAB_PROJECT: looksawful-private-lab
       PRIVATE_LAB_DOMAIN: admin.looksawful.ru
+      PRIVATE_LAB_ZONE: looksawful.ru
     steps:
       - name: Checkout exact dev SHA
         uses: actions/checkout@v7
@@ -212,6 +213,74 @@ jobs:
             exit 1
           fi
 
+      - name: Ensure Private Lab DNS record
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          project_endpoint="https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/pages/projects/${PRIVATE_LAB_PROJECT}"
+          project_status="$(curl --silent --show-error --output /tmp/private-lab-project-dns.json --write-out '%{http_code}' \
+            --header "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+            "${project_endpoint}")"
+          if [[ ! "${project_status}" =~ ^2 ]]; then
+            echo "Private Lab Pages project lookup for DNS failed with HTTP ${project_status}" >&2
+            exit 1
+          fi
+          target="$(node -e 'const fs=require("fs");const j=JSON.parse(fs.readFileSync(0,"utf8"));process.stdout.write(j.result?.subdomain||"")' < /tmp/private-lab-project-dns.json)"
+          if [[ -z "${target}" ]]; then
+            echo "Private Lab Pages project did not expose a deployment subdomain." >&2
+            exit 1
+          fi
+
+          zone_status="$(curl --silent --show-error --output /tmp/private-lab-zone.json --write-out '%{http_code}' \
+            --header "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+            "https://api.cloudflare.com/client/v4/zones?name=${PRIVATE_LAB_ZONE}&account.id=${CLOUDFLARE_ACCOUNT_ID}")"
+          if [[ ! "${zone_status}" =~ ^2 ]]; then
+            echo "Private Lab DNS zone lookup failed with HTTP ${zone_status}; the Cloudflare token needs zone read access." >&2
+            exit 1
+          fi
+          zone_id="$(node -e 'const fs=require("fs");const j=JSON.parse(fs.readFileSync(0,"utf8"));process.stdout.write(j.result?.[0]?.id||"")' < /tmp/private-lab-zone.json)"
+          if [[ -z "${zone_id}" ]]; then
+            echo "Cloudflare zone ${PRIVATE_LAB_ZONE} was not found in the configured account." >&2
+            exit 1
+          fi
+
+          records_endpoint="https://api.cloudflare.com/client/v4/zones/${zone_id}/dns_records"
+          records_status="$(curl --silent --show-error --output /tmp/private-lab-dns-records.json --write-out '%{http_code}' \
+            --header "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+            "${records_endpoint}?type=CNAME&name=${PRIVATE_LAB_DOMAIN}")"
+          if [[ ! "${records_status}" =~ ^2 ]]; then
+            echo "Private Lab DNS record lookup failed with HTTP ${records_status}; the Cloudflare token needs DNS read access." >&2
+            exit 1
+          fi
+          record_count="$(node -e 'const fs=require("fs");const j=JSON.parse(fs.readFileSync(0,"utf8"));process.stdout.write(String(j.result?.length||0))' < /tmp/private-lab-dns-records.json)"
+          if (( record_count > 1 )); then
+            echo "Multiple CNAME records exist for ${PRIVATE_LAB_DOMAIN}; refusing to guess which one to mutate." >&2
+            exit 1
+          fi
+          record_id="$(node -e 'const fs=require("fs");const j=JSON.parse(fs.readFileSync(0,"utf8"));process.stdout.write(j.result?.[0]?.id||"")' < /tmp/private-lab-dns-records.json)"
+          dns_payload="$(node -e 'process.stdout.write(JSON.stringify({type:"CNAME",name:process.env.PRIVATE_LAB_DOMAIN,content:process.argv[1],ttl:1,proxied:true}))' "${target}")"
+          if [[ -z "${record_id}" ]]; then
+            write_status="$(curl --silent --show-error --output /tmp/private-lab-dns-write.json --write-out '%{http_code}' \
+              --request POST \
+              --header "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+              --header "Content-Type: application/json" \
+              --data "${dns_payload}" \
+              "${records_endpoint}")"
+          else
+            write_status="$(curl --silent --show-error --output /tmp/private-lab-dns-write.json --write-out '%{http_code}' \
+              --request PATCH \
+              --header "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+              --header "Content-Type: application/json" \
+              --data "${dns_payload}" \
+              "${records_endpoint}/${record_id}")"
+          fi
+          if [[ ! "${write_status}" =~ ^2 ]]; then
+            echo "Private Lab DNS write failed with HTTP ${write_status}; the Cloudflare token needs DNS edit access." >&2
+            exit 1
+          fi
       - name: Verify remote auth boundary and Storybook route
         shell: bash
         run: |
