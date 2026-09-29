@@ -102,6 +102,7 @@ const createStory = () => {
 };
 
 export default {
+  id: "iphone-17-review",
   title: "90 Experimental/3D Review/iPhone 17 · PR #119",
   tags: ["experimental"],
   parameters: {
