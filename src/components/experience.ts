@@ -4,11 +4,11 @@ import type { EngagementData } from "../types/engagement.ts";
 
 const experienceEngagementIds = [
   "jestei-pool-2024-2026",
-  "styx-jewel-2022-2025",
+  "styx-jewel-2021-2025",
   "sensetique-2016-2018",
-  "mad-cow-films-2018",
-  "li-ne-agency-2016-2017",
-  "progress-tradition-2014-2016",
+  "mad-cow-films-2019",
+  "li-ne-agency-2017",
+  "progress-tradition-2013-2015",
   "moskovskie-novosti-2012",
 ] as const satisfies readonly EngagementId[];
 
