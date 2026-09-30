@@ -1,6 +1,7 @@
 import homeHtml from "../../../index.html?raw";
 import { renderHomepage } from "../../site/renderers/home/home-slots.ts";
 import { initMotion } from "../../motion.ts";
+import { initializeMountedPreview } from "./preview-lifecycle.mjs";
 
 const markup = renderHomepage(homeHtml);
 export function renderUsefulPreview(cardId) {
@@ -17,8 +18,5 @@ export function renderUsefulPreview(cardId) {
     }
   }
   root.append(section);
-  return root;
-}
-export function initializeUseful({ canvasElement }) {
-  return initMotion({ root: canvasElement });
+  return initializeMountedPreview(root, (mountedRoot) => initMotion({ root: mountedRoot }));
 }
