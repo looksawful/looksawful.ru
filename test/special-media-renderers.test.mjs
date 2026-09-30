@@ -3,6 +3,7 @@ import { existsSync } from "node:fs";
 import test from "node:test";
 
 import { renderMediaFigure } from "../src/templates/media-figure.ts";
+import { getMediaAsset } from "../src/data/media/index.ts";
 import { renderMediaGroup } from "../src/templates/media-group.ts";
 import { jesteiBrandSystemGroup } from "../src/data/content/jestei-pool.ts";
 import { styxProductionMediaGroup } from "../src/data/content/styx.ts";
@@ -177,7 +178,7 @@ test("registered model media renders through the production model viewer shell",
   });
 
   assert.match(html, /data-model-viewer-runtime=""/);
-  assert.match(html, /data-model-src="\/media\/models\/devices\/iphone-17-v30\.meshopt\.glb"/);
+  assert.ok(html.includes(`data-model-src="${getMediaAsset("device-iphone-17-v30-model").src}"`));
   assert.match(html, /<canvas[^>]*data-model-viewer-canvas=""/);
   assert.doesNotMatch(html, /<(?:img|video)\b/);
 });
