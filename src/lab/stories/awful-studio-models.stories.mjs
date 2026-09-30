@@ -14,7 +14,6 @@ const models = {
   darkNeon: ["Dark Neon v2", "dark-neon-v2"],
   loftDaylight: ["Loft Daylight v2", "loft-daylight-v2"],
 };
-let cleanup = () => {};
 const render = ({ model, view, autorotate }) => {
   const entry = models[model];
   if (!entry) throw new Error("Unknown AWFUL STUDIO model");
@@ -28,6 +27,18 @@ const render = ({ model, view, autorotate }) => {
   stage.dataset.modelAutorotate = String(autorotate);
   stage.setAttribute("aria-label", entry[0]);
   figure.querySelector("figcaption").textContent = entry[0];
+  let destroy;
+  const observer = new MutationObserver(() => {
+    if (!figure.isConnected) {
+      if (destroy) { destroy(); observer.disconnect(); }
+      return;
+    }
+    if (destroy) return;
+    const motion = createMotionPreference();
+    const destroyViewers = createModelViewers({ root: figure, motion });
+    destroy = () => { destroyViewers(); motion.destroy(); };
+  });
+  observer.observe(document.documentElement, { childList: true, subtree: true });
   return figure;
 };
 export default {
@@ -38,13 +49,6 @@ export default {
     view: { options: ["three-quarter", "front", "side", "top"], control: "select" },
     autorotate: { control: "boolean" },
   }, render,
-  beforeEach: () => { cleanup(); return () => cleanup(); },
-  play: ({ canvasElement }) => {
-    cleanup();
-    const motion = createMotionPreference();
-    const destroyViewers = createModelViewers({ root: canvasElement, motion });
-    cleanup = () => { destroyViewers(); motion.destroy(); };
-  },
   parameters: { layout: "padded", looksawful: {
     sources: ["src/components/model-viewer.ts", "src/data/media/assets/devices.ts", "src/data/media/assets/awful-studio-models.ts"],
     layer: "molecule", policy: "behavior-fixture", canonical: true,

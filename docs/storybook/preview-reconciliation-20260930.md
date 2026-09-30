@@ -17,5 +17,6 @@ Inventory: 26 stories; 0 structural errors; 62 missing source classifications, n
 Limits: screen stories review layout/content; specialized interactions stay in focused runtime stories. Primitive implementation/adoption remains #1106/#1112–#1118.
 Review follow-up: register all seven restored GLBs as typed assets; all 11 models use catalog lookup. Autorotation uses production motion preference with cleanup; browser recheck 11 models plus animation/reduced-motion assertions PASS.
 CI at 38f1a6cf: Storybook build/contracts/browser smoke PASS; Fast regression fails on the same frozen media-semantic hashes as base dev 7549fb33. No guard or baseline was weakened. Code scanning AI setup failed because the requested upstream model is unsupported; CodeQL and Dependency Review PASS.
-Tests: NEW PERMANENT TESTS 0; TEMPORARY TESTS REMOVED 3; MOVED TO AFFECTED/FULL 0. KEEP existing candidate identity contract, corrected escaping.
+Autodocs follow-up: viewer initialization/cleanup belongs to each mounted figure, independent of play hooks or other story instances. Browser PASS for representative Canvas stories and all 12 simultaneously mounted Docs instances.
+Tests: NEW PERMANENT TESTS 0; TEMPORARY TESTS REMOVED 4; MOVED TO AFFECTED/FULL 0. KEEP existing candidate identity contract, corrected escaping.
 Next: publish the reviewed diff, run configured exact-head CI, deploy the private Lab, then await owner review in Storybook.
