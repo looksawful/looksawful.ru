@@ -130,7 +130,7 @@ export function renderJesteiThemeOrganismMockup(
                   </div>
                   <div class="jestei-theme-organism__copy">
                     <div class="jestei-theme-organism__track-viewport">
-                      <ul class="jestei-theme-organism__track" data-theme-track="">${cards}</ul>
+                      <ul class="jestei-theme-organism__track cluster" data-theme-track="">${cards}</ul>
                     </div>
                   </div>
                 </div>
