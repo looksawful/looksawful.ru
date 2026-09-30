@@ -26,12 +26,14 @@ function loadRuntime() {
     import("three/addons/controls/OrbitControls.js"),
     import("three/addons/environments/RoomEnvironment.js"),
     import("three/addons/libs/meshopt_decoder.module.js"),
-  ]).then(([THREE, { GLTFLoader }, { OrbitControls }, { RoomEnvironment }, { MeshoptDecoder }]) => ({
+    import("./iphone-presentation.ts"),
+  ]).then(([THREE, { GLTFLoader }, { OrbitControls }, { RoomEnvironment }, { MeshoptDecoder }, iphonePresentation]) => ({
     THREE,
     GLTFLoader,
     OrbitControls,
     RoomEnvironment,
     MeshoptDecoder,
+    iphonePresentation,
   }));
 }
 
@@ -103,7 +105,7 @@ async function mountModelViewer(
 
   element.dataset.modelState = "loading";
   const runtime = await getRuntime();
-  const { THREE, GLTFLoader, OrbitControls, RoomEnvironment, MeshoptDecoder } = runtime;
+  const { THREE, GLTFLoader, OrbitControls, RoomEnvironment, MeshoptDecoder, iphonePresentation } = runtime;
   const renderer = new THREE.WebGLRenderer({
     canvas,
     antialias: true,
@@ -148,6 +150,8 @@ async function mountModelViewer(
   const center = bounds.getCenter(new THREE.Vector3());
   model.position.sub(center);
   scene.add(model);
+  const isIphone = /iphone[-_]17/i.test(modelSrc);
+  const iphone = isIphone ? iphonePresentation.prepareIphonePresentation(model) : null;
 
   const radius = Math.max(size.length() * 0.5, 0.001);
   const direction = new THREE.Vector3(...readViewDirection(element.dataset.modelView)).normalize();
@@ -165,7 +169,7 @@ async function mountModelViewer(
   const replacedTextures = new Set<Texture>();
   const screenSrc = element.dataset.modelScreenSrc?.trim();
   let screenTexture: Texture | null = null;
-  if (screenSrc) {
+  if (screenSrc && !iphone) {
     try {
       screenTexture = await new THREE.TextureLoader().loadAsync(screenSrc);
       screenTexture.colorSpace = THREE.SRGBColorSpace;
@@ -215,6 +219,10 @@ async function mountModelViewer(
   const renderOnce = () => {
     if (!destroyed) renderer.render(scene, camera);
   };
+
+  const destroyScreenControls = iphone
+    ? iphonePresentation.mountIphoneScreenControls(element, iphone, renderOnce)
+    : noop;
 
   const shouldAnimate = () => autoRotate && visible && documentVisible && motionAllowed;
 
@@ -290,6 +298,7 @@ async function mountModelViewer(
     document.removeEventListener("visibilitychange", handleVisibilityChange);
     controls.removeEventListener("change", renderOnce);
     controls.dispose();
+    destroyScreenControls();
     scene.remove(model);
     disposeObject(model);
     replacedTextures.forEach((texture) => texture.dispose());

@@ -51,11 +51,14 @@ test("Gallery output keeps invisible series boundaries and intrinsic image geome
   assert.doesNotMatch(html, /gallery-series__title|data-gallery-series-title/);
 });
 
-test("Gallery renders exactly five approved Jestei symbols as interactive model cards", () => {
+test("Gallery renders the approved Jestei symbols and iPhone in separate interactive series", () => {
   const modelCards = [...html.matchAll(/<figure class="gallery-card gallery-card--model"[\s\S]*?<\/figure>/g)]
     .map((match) => match[0]);
 
-  assert.equal(modelCards.length, 5);
+  assert.equal(modelCards.length, 6);
+  assert.match(html, /id="gallery-awful-3d-mockups"/);
+  assert.match(html, /data-gallery-series="awful-3d-mockups"/);
+  assert.match(html, /data-gallery-series="jestei-3d-symbols"/);
   assert.deepEqual(
     modelCards.map((card) => card.match(/data-model-src="([^"]+)"/)?.[1]),
     [
@@ -64,6 +67,7 @@ test("Gallery renders exactly five approved Jestei symbols as interactive model 
       "/media/logo-3d/jestei/jestei-symbol-orange.glb",
       "/media/logo-3d/jestei/jestei-symbol-blue.glb",
       "/media/logo-3d/jestei/jestei-symbol-biloba.glb",
+      "/media/models/devices/iphone-17-v30.web.meshopt.glb",
     ],
   );
 
