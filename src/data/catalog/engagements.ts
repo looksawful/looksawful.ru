@@ -12,7 +12,7 @@ export const engagements = [
   },
   {
     id: "styx-jewel-2021-2025",
-    date: "2021–2025",
+    date: "2022–2025",
     clientIds: ["styx-jewel"],
     primaryRoleId: "designer",
     roleIds: ["designer", "digital-artist", "graphic-designer", "producer", "photographer"],
@@ -38,7 +38,7 @@ export const engagements = [
   },
   {
     id: "lyve-moscow-2025",
-    date: "2025",
+    date: "2024–2025",
     clientIds: ["lyve-moscow"],
     primaryRoleId: "designer",
     roleIds: ["designer", "illustrator"],
@@ -63,7 +63,7 @@ export const engagements = [
   },
   {
     id: "mad-cow-films-2019",
-    date: "2019",
+    date: "2018",
     clientIds: ["mad-cow-films"],
     primaryRoleId: "assistant-producer",
     primaryRoleLabel: "ассистент продюсера",
@@ -71,7 +71,7 @@ export const engagements = [
   },
   {
     id: "li-ne-agency-2017",
-    date: "2017",
+    date: "2016–2017",
     clientIds: ["li-ne-agency"],
     primaryRoleId: "junior-producer",
     primaryRoleLabel: "JR продюсер",
@@ -79,7 +79,7 @@ export const engagements = [
   },
   {
     id: "progress-tradition-2013-2015",
-    date: "2013–2015",
+    date: "2014–2016",
     clientIds: ["progress-tradition"],
     primaryRoleId: "book-designer",
     roleIds: ["book-designer"],
