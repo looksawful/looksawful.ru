@@ -1,6 +1,7 @@
 import { createModelViewers } from "../../components/model-viewer.ts";
 import { createMotionPreference } from "../../components/motion-preference.ts";
 import { getMediaAsset } from "../../data/media/index.ts";
+import { initializeMountedPreview } from "./preview-lifecycle.mjs";
 const models = {
   iphone17: ["iPhone 17 v30 baseline", "iphone-17-v30"],
   ipad11: ["iPad Pro 11 M5 v6", "ipad-pro-11-m5-v6"],
@@ -27,19 +28,11 @@ const render = ({ model, view, autorotate }) => {
   stage.dataset.modelAutorotate = String(autorotate);
   stage.setAttribute("aria-label", entry[0]);
   figure.querySelector("figcaption").textContent = entry[0];
-  let destroy;
-  const observer = new MutationObserver(() => {
-    if (!figure.isConnected) {
-      if (destroy) { destroy(); observer.disconnect(); }
-      return;
-    }
-    if (destroy) return;
+  return initializeMountedPreview(figure, (root) => {
     const motion = createMotionPreference();
-    const destroyViewers = createModelViewers({ root: figure, motion });
-    destroy = () => { destroyViewers(); motion.destroy(); };
+    const destroyViewers = createModelViewers({ root, motion });
+    return () => { destroyViewers(); motion.destroy(); };
   });
-  observer.observe(document.documentElement, { childList: true, subtree: true });
-  return figure;
 };
 export default {
   title: "02 Molecules/Model Viewer/AWFUL Studio 3D",

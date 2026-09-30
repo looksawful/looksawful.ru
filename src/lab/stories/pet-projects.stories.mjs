@@ -1,10 +1,7 @@
-import { renderUsefulPreview, initializeUseful } from "./useful-preview.mjs";
-let cleanup = () => {};
+import { renderUsefulPreview } from "./useful-preview.mjs";
 export default {
   title: "03 Organisms/Pet Projects", tags: ["autodocs", "stable"],
   render: () => renderUsefulPreview(),
-  play: (context) => { cleanup(); cleanup = initializeUseful(context); },
-  beforeEach: () => { cleanup(); return () => cleanup(); },
   parameters: { layout: "fullscreen", looksawful: {
     sources: ["src/site/renderers/home/home-slots.ts", "src/templates/subproject-card.ts", "src/data/subproject-cards.ts"],
     layer: "organism", policy: "composition", canonical: true,
