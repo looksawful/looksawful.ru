@@ -1,4 +1,5 @@
 import { createModelViewers } from "../../components/model-viewer.ts";
+import { createMotionPreference } from "../../components/motion-preference.ts";
 import { getMediaAsset } from "../../data/media/index.ts";
 const models = {
   iphone17: ["iPhone 17 v30 baseline", "iphone-17-v30"],
@@ -21,9 +22,8 @@ const render = ({ model, view, autorotate }) => {
   figure.className = "media";
   figure.innerHTML = '<div class="media__surface" style="position:relative;aspect-ratio:4/3;max-block-size:80vh" data-model-viewer-runtime data-model-autorotate="false" role="img"><canvas data-model-viewer-canvas aria-hidden="true" style="position:absolute;inset:0;inline-size:100%;block-size:100%;touch-action:none"></canvas></div><figcaption class="media__caption"></figcaption>';
   const stage = figure.querySelector("[data-model-viewer-runtime]");
-  stage.dataset.modelSrc = ["iphone17", "ipad11", "ipad13", "macbook14"].includes(model)
-    ? getMediaAsset("device-" + entry[1] + "-model").src
-    : "/media/projects/awful-studio/model-viewer/" + entry[1] + ".glb";
+  const assetPrefix = ["iphone17", "ipad11", "ipad13", "macbook14"].includes(model) ? "device-" : "awful-studio-";
+  stage.dataset.modelSrc = getMediaAsset(assetPrefix + entry[1] + "-model").src;
   stage.dataset.modelView = view;
   stage.dataset.modelAutorotate = String(autorotate);
   stage.setAttribute("aria-label", entry[0]);
@@ -39,9 +39,14 @@ export default {
     autorotate: { control: "boolean" },
   }, render,
   beforeEach: () => { cleanup(); return () => cleanup(); },
-  play: ({ canvasElement }) => { cleanup(); cleanup = createModelViewers({ root: canvasElement }); },
+  play: ({ canvasElement }) => {
+    cleanup();
+    const motion = createMotionPreference();
+    const destroyViewers = createModelViewers({ root: canvasElement, motion });
+    cleanup = () => { destroyViewers(); motion.destroy(); };
+  },
   parameters: { layout: "padded", looksawful: {
-    sources: ["src/components/model-viewer.ts", "src/data/media/assets/devices.ts"],
+    sources: ["src/components/model-viewer.ts", "src/data/media/assets/devices.ts", "src/data/media/assets/awful-studio-models.ts"],
     layer: "molecule", policy: "behavior-fixture", canonical: true,
     state: "accepted-catalog-baseline", visibility: ["always", "input-capability"],
     responsive: { review: ["desktop", "tablet", "mobile"] },
