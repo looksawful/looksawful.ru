@@ -250,7 +250,7 @@ async function mountModelViewer(
   };
 
   const resize = () => {
-    const rect = element.getBoundingClientRect();
+    const rect = canvas.getBoundingClientRect();
     const width = Math.max(1, Math.round(rect.width));
     const height = Math.max(1, Math.round(rect.height));
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
