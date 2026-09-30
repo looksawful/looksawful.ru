@@ -70,7 +70,7 @@ function renderPreviewCallout(entry: HomepageEntry): string {
   const preview = entry.preview;
   if (!preview) return "";
   return `
-    <div class="project-preview-entry" data-reveal-group>
+    <div class="project-preview-entry wrapper" data-reveal-group>
       <a class="project-preview-entry__link" href="${escapeHtml(preview.href)}" data-reveal="copy">
         <span>${escapeHtml(preview.calloutLabel)}</span>
         <span class="project-preview-entry__arrow" aria-hidden="true">→</span>
@@ -155,8 +155,8 @@ function excludeUtilityTextFromSnippets(html: string): string {
     '<!--noindex--><address class="cluster" data-nosnippet>$1</address><!--/noindex-->',
   );
   output = output.replace(
-    /<footer class="project__footer cluster" data-reveal-group>([\s\S]*?)<\/footer>/gi,
-    '<!--noindex--><footer class="project__footer cluster" data-reveal-group data-nosnippet>$1</footer><!--/noindex-->',
+    /<footer class="project__footer wrapper cluster" data-reveal-group>([\s\S]*?)<\/footer>/gi,
+    '<!--noindex--><footer class="project__footer wrapper cluster" data-reveal-group data-nosnippet>$1</footer><!--/noindex-->',
   );
   output = output.replace(
     /<figcaption class="media__caption"([^>]*)>([\s\S]*?)<\/figcaption>/gi,

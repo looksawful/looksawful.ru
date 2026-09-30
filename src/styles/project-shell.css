@@ -101,8 +101,9 @@
 }
 
 .project-preview-entry {
-  inline-size: min(calc(100% - (var(--project-gutter) * 2)), var(--content-max-width));
-  margin-inline: auto;
+  --wrapper-gutter: var(--project-gutter);
+  --wrapper-max-width: var(--content-max-width);
+
   padding-block: clamp(1rem, 2.2cqi, 2rem) clamp(3.5rem, 7cqi, 7rem);
 }
 
