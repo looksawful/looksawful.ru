@@ -81,7 +81,7 @@ test("Sensetique CMS source keeps fixed editorial identities while Case owns int
   assert.deepEqual(Object.keys(source.intro).sort(), ["lead"]);
   assert.equal(caseData.summary, undefined);
   assert.equal(caseData.date, "2016–2018");
-  assert.equal(caseData.periodLabel, "2017–2018");
+  assert.equal(caseData.periodLabel, "2016–2018");
   assert.deepEqual(source.sections.map(({ id }) => id), sectionIds);
   assert.deepEqual(source.credits.map(({ id }) => id), creditIds);
   assert.deepEqual(source.notes.map(({ id }) => id), noteIds);
@@ -91,7 +91,7 @@ test("Sensetique live intro resolves role and period from canonical Case data an
   const source = await readSource();
   const { role, period } = readCanonicalIntro();
 
-  assert.equal(period, "2017–2018");
+  assert.equal(period, "2016–2018");
   assert.deepEqual(
     { role: sensetique.sensetiqueIntro.role, period: sensetique.sensetiqueIntro.period, lead: sensetique.sensetiqueIntro.lead },
     { role, period, lead: source.intro.lead },
