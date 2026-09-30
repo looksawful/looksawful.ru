@@ -11,7 +11,7 @@ const genericBase = /(?:^|\n)\.media-group\s*\{[\s\S]*?--group-gap:\s*var\(--med
 test("media-group base moves the generic media-group base into the canonical media owner", () => {
   assert.match(
     index,
-    /@import "\.\/patterns\.css" layer\(patterns\);\n@import "\.\/media\.css" layer\(components\);\n@import "\.\/components\.css" layer\(components\);/,
+    /@import "\.\/patterns\.css" layer\(patterns\);\n@import "\.\/primitives\.css" layer\(components\);\n@import "\.\/media\.css" layer\(components\);\n@import "\.\/components\.css" layer\(components\);/,
   );
   assert.match(media, genericBase);
   assert.equal(

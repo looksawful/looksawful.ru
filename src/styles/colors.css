@@ -5,6 +5,8 @@
   --clr-foreground: rgb(17 17 17);
   --clr-accent: rgb(47 91 255);
   --clr-on-accent: rgb(255 255 255);
+  --clr-danger: rgb(190 48 48);
+  --clr-on-danger: rgb(255 255 255);
 }
 
 /* Every theme owns surface, foreground and accent. */
@@ -38,6 +40,12 @@
     in srgb,
     var(--clr-foreground),
     transparent 55%
+  );
+
+  --clr-danger-soft: color-mix(
+    in srgb,
+    var(--clr-danger),
+    transparent 88%
   );
 
   --clr-selection-bg: var(--clr-foreground);
