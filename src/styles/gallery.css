@@ -66,6 +66,10 @@
     block-size: 100%;
   }
 
+  :is(.gallery-model, .model-viewer):has(.model-viewer__screen-control) > [data-model-viewer-canvas] {
+    block-size: calc(100% - 2.5rem);
+  }
+
   .model-viewer__screen-control {
     position: absolute;
     inset-inline: .5rem;
