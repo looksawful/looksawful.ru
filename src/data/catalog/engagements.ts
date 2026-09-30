@@ -11,7 +11,7 @@ export const engagements = [
     industryIds: ["music", "technology"],
   },
   {
-    id: "styx-jewel-2022-2025",
+    id: "styx-jewel-2021-2025",
     date: "2022–2025",
     clientIds: ["styx-jewel"],
     primaryRoleId: "designer",
@@ -37,7 +37,7 @@ export const engagements = [
     ],
   },
   {
-    id: "lyve-moscow-2024-2025",
+    id: "lyve-moscow-2025",
     date: "2024–2025",
     clientIds: ["lyve-moscow"],
     primaryRoleId: "designer",
@@ -62,7 +62,7 @@ export const engagements = [
     roleIds: ["smm-manager"],
   },
   {
-    id: "mad-cow-films-2018",
+    id: "mad-cow-films-2019",
     date: "2018",
     clientIds: ["mad-cow-films"],
     primaryRoleId: "assistant-producer",
@@ -70,7 +70,7 @@ export const engagements = [
     roleIds: ["assistant-producer"],
   },
   {
-    id: "li-ne-agency-2016-2017",
+    id: "li-ne-agency-2017",
     date: "2016–2017",
     clientIds: ["li-ne-agency"],
     primaryRoleId: "junior-producer",
@@ -78,7 +78,7 @@ export const engagements = [
     roleIds: ["junior-producer"],
   },
   {
-    id: "progress-tradition-2014-2016",
+    id: "progress-tradition-2013-2015",
     date: "2014–2016",
     clientIds: ["progress-tradition"],
     primaryRoleId: "book-designer",
