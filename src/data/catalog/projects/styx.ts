@@ -4,7 +4,7 @@ const styxBase = {
   status: "completed",
   caseIds: ["styx"],
   clientIds: ["styx-jewel"],
-  engagementIds: ["styx-jewel-2021-2025"],
+  engagementIds: ["styx-jewel-2022-2025"],
   industryIds: ["jewelry", "fashion"],
 } as const;
 
