@@ -38,7 +38,7 @@ test("Private Lab contains the exact iPhone 17 PR #119 review candidate", async 
   assert.match(story, /90 Experimental\/3D Review\/iPhone 17 · PR #119/u);
   assert.match(story, /2bebd2cc2a64f08230ca243f3437db270ac15152/u);
   assert.match(story, /raw\.githubusercontent\.com\/looksawful\/awful-studio/u);
-  assert.match(story, /iphone_17_v30_web\\.glb/u);
+  assert.match(story, /iphone_17_v30_web\.glb/u);
   assert.match(story, /createModelViewers/u);
   assert.match(story, /canonical:\s*false/u);
   assert.match(story, /routeDiscovery:\s*\{\s*listed:\s*false,\s*indexable:\s*false\s*\}/u);

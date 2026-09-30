@@ -1,0 +1,25 @@
+import type { MediaAsset } from "../../../types/media.ts";
+
+export const awfulStudioModelMediaAssets = [
+  { id: "awful-studio-dark-neon-v2-model", type: "model",
+    src: "/media/projects/awful-studio/model-viewer/dark-neon-v2.glb",
+    mimeType: "model/gltf-binary", byteLength: 332808 },
+  { id: "awful-studio-loft-daylight-v2-model", type: "model",
+    src: "/media/projects/awful-studio/model-viewer/loft-daylight-v2.glb",
+    mimeType: "model/gltf-binary", byteLength: 1600276 },
+  { id: "awful-studio-profoto-d1-500-air-model", type: "model",
+    src: "/media/projects/awful-studio/model-viewer/profoto-d1-500-air.glb",
+    mimeType: "model/gltf-binary", byteLength: 632804 },
+  { id: "awful-studio-profoto-magnum-100624-model", type: "model",
+    src: "/media/projects/awful-studio/model-viewer/profoto-magnum-100624.glb",
+    mimeType: "model/gltf-binary", byteLength: 214432 },
+  { id: "awful-studio-studio-sandbag-01-model", type: "model",
+    src: "/media/projects/awful-studio/model-viewer/studio-sandbag-01.glb",
+    mimeType: "model/gltf-binary", byteLength: 438864 },
+  { id: "awful-studio-studio-support-cstand-01-model", type: "model",
+    src: "/media/projects/awful-studio/model-viewer/studio-support-cstand-01.glb",
+    mimeType: "model/gltf-binary", byteLength: 300960 },
+  { id: "awful-studio-white-studio-v2-model", type: "model",
+    src: "/media/projects/awful-studio/model-viewer/white-studio-v2.glb",
+    mimeType: "model/gltf-binary", byteLength: 1387684 },
+] as const satisfies readonly MediaAsset[];

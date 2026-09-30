@@ -1,4 +1,5 @@
 import type { EntityPageContent } from "../../content/contracts/page-content.ts";
+import { renderJesteiTrackFilter } from "../../components/specialized/index.ts";
 import type { Section } from "../../content/contracts/sections.ts";
 import {
   entityPageContentRegistry,
@@ -62,6 +63,7 @@ function renderCanonicalArticle(page: EntityPageDefinition): string {
   return renderEntityShell(content, {
     ...presentation,
     introHeadingLevel: 1,
+    specialized: { jesteiTrackFilter: renderJesteiTrackFilter },
   });
 }
 
@@ -83,7 +85,7 @@ function templateFixtures(): StorybookFixture[] {
       owner: "src/site/renderers/entity/section.ts → renderSection",
       viewports: VIEWPORTS,
       route: routeDiscovery(page),
-      render: () => renderSection(section),
+      render: () => renderSection(section, { specialized: { jesteiTrackFilter: renderJesteiTrackFilter } }),
     })),
   );
 }
