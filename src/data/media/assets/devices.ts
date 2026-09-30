@@ -4,7 +4,7 @@ export const deviceModelMediaAssets = [
   {
     id: "device-iphone-17-v30-model",
     type: "model",
-    src: "/media/models/devices/iphone-17-v30.meshopt.glb",
+    src: "/media/models/devices/iphone-17-v30.web.meshopt.glb",
     mimeType: "model/gltf-binary",
     byteLength: 3844964,
   },
