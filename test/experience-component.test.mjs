@@ -53,7 +53,7 @@ test("experience renders only the approved seven engagements", async () => {
   ];
 
   for (const id of approvedIds) assert.match(source, new RegExp(`"${id}"`));
-  assert.doesNotMatch(source, /lyve-moscow-2025|berry-agency-2020|s-and-s-2018-2019/);
+  assert.doesNotMatch(source, /lyve-moscow-2024-2025|berry-agency-2020|s-and-s-2018-2019/);
   assert.match(source, /experience__period/);
   assert.match(source, /experience__arrow/);
   assert.match(source, /experience__place/);
@@ -68,7 +68,7 @@ test("experience renders the workplaces heading and labels the section from it",
 });
 
 test("experience typography stays compact and shifts left only on wide layouts", async () => {
-  assert.equal(existsSync(stylesUrl), true, "experience.css should exist");
+  assert.equal(existsSync(stylesUrl), true, "experience.ts should exist");
   const styles = await readFile(stylesUrl, "utf8");
 
   assert.match(styles, /font-size:\s*clamp\(0\.9375rem,\s*0\.8rem \+ 0\.65cqi,\s*1\.625rem\)/);
