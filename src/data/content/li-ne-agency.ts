@@ -14,7 +14,7 @@ export const liNeAgencyIntro = {
   },
 
   role: "JR продюсер",
-  period: "2017",
+  period: "2016–2017",
 
   summary: "Продакшн-агентство в сфере моды, рекламы и медиа.",
 } as const satisfies ProjectIntroData<LogoUsageId>;
