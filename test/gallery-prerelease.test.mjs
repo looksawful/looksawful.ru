@@ -76,7 +76,7 @@ test("Gallery public contract keeps one photo collection plus an explicit 3D ser
   assert.equal(typeof gallery.getGalleryModelItems, "function");
 });
 
-test("Gallery 3D curation exposes exactly the five approved Jestei Pool symbols", async () => {
+test("Gallery 3D curation keeps the approved Jestei symbols and opts in the iPhone mockup", async () => {
   const gallery = await import("../src/data/media/gallery.ts");
   const models = gallery.getGalleryModelItems();
 
@@ -88,8 +88,11 @@ test("Gallery 3D curation exposes exactly the five approved Jestei Pool symbols"
       "jestei-symbol-orange",
       "jestei-symbol-blue",
       "jestei-symbol-biloba",
+      "device-iphone-17-v30-model",
     ],
   );
+  assert.equal(models.filter((item) => item.seriesId === "jestei-3d-symbols").length, 5);
+  assert.equal(models.filter((item) => item.seriesId === "awful-3d-mockups").length, 1);
   assert.ok(models.every((item) => item.asset.type === "model"));
   assert.ok(models.every((item) => item.asset.src.endsWith(".glb")));
   assert.ok(models.every((item) => item.posterSrc.endsWith(".png")));
