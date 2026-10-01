@@ -12,10 +12,18 @@ const screens = [
 type ScreenState = (typeof screens)[number]["id"];
 
 export function prepareIphonePresentation(model: THREE.Object3D) {
-  const screen = model.getObjectByName("SCREEN_CONTENT");
-  if (!(screen instanceof THREE.Mesh) || !(screen.material instanceof THREE.MeshStandardMaterial)) return null;
-  const front = screen.material;
-  const originalMap = front.map;
+  const screenNode = model.getObjectByName("SCREEN_CONTENT");
+  const screen = screenNode instanceof THREE.Mesh ? screenNode : screenNode?.children.find(child => {
+    if (!(child instanceof THREE.Mesh)) return false;
+    const materials = Array.isArray(child.material) ? child.material : [child.material];
+    return materials.some(material => material.name === "MAT_SCREEN_CONTENT");
+  });
+  if (!(screen instanceof THREE.Mesh)) return null;
+  const sourceMaterials = Array.isArray(screen.material) ? screen.material : [screen.material];
+  const front = sourceMaterials.find(material => material.name === "MAT_SCREEN_CONTENT") ?? sourceMaterials[0];
+  if (!(front instanceof THREE.MeshStandardMaterial)) return null;
+  const originalMap = front.map ?? front.emissiveMap;
+  front.map = originalMap;
   const originalEmissiveMap = front.emissiveMap;
   front.toneMapped = false;
   front.color.set(0x000000);
@@ -28,7 +36,7 @@ export function prepareIphonePresentation(model: THREE.Object3D) {
   front.emissive.set(0xffffff);
   front.emissiveMap = front.map;
   front.emissiveIntensity = 1;
-  const edge = new THREE.MeshStandardMaterial({ color: 0x020203, roughness: .36, metalness: 0 });
+  const edge = sourceMaterials.find(material => material.name === "MAT_SCREEN_EDGE") ?? new THREE.MeshStandardMaterial({ color: 0x020203, roughness: .36, metalness: 0 });
   const geometry = screen.geometry;
   const normal = geometry.getAttribute("normal");
   const index = geometry.index;
@@ -89,6 +97,10 @@ export function prepareIphonePresentation(model: THREE.Object3D) {
       if (material.name === "MAT_FASTENER") {
         material.roughness = .5;
         material.envMapIntensity = .35;
+      }
+      if (material.name === "MAT_FRONT_OPTIC") {
+        material.envMapIntensity = .1;
+        if (material instanceof THREE.MeshPhysicalMaterial) material.specularIntensity = .15;
       }
     }
   });
