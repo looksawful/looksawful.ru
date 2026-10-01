@@ -14,7 +14,7 @@ export const madCowFilmsIntro = {
   },
 
   role: "ассистент продюсера",
-  period: "2019",
+  period: "2018",
 
   summary: "Международный рекламный продакшн с офисами в Лондоне и Москве.",
 } as const satisfies ProjectIntroData<LogoUsageId>;
