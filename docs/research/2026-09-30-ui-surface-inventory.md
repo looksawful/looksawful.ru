@@ -161,3 +161,89 @@ Measure per interactive control:
 7. Verify Storybook + browser + keyboard + a11y at the canonical viewport matrix.
 8. Reconcile #1118 / #861 and Asana UI molecules task.
 
+
+
+## Methodology reinforcement — 2026-10-01
+
+This section records the research basis for finishing the live-browser pass without changing the inventory's production-first authority model.
+
+### Primary standards
+
+- WCAG 2.2 Target Size (Minimum), SC 2.5.8: interactive targets should be at least 24×24 CSS px unless an explicit spacing/equivalent/inline/user-agent/essential exception applies.
+  - https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum
+- WCAG 2.2 Focus Visible, SC 2.4.7: keyboard-operable UI requires visible focus.
+  - https://www.w3.org/WAI/WCAG22/Understanding/focus-visible
+- WCAG 2.2 Focus Not Obscured (Minimum), SC 2.4.11: focused components must not be fully hidden by author-created UI.
+  - https://www.w3.org/WAI/WCAG22/Understanding/focus-not-obscured-minimum
+- WCAG 2.2 Reflow, SC 1.4.10: content should remain usable without two-dimensional scrolling at the specified 320 CSS px equivalent, except genuinely two-dimensional content.
+  - https://www.w3.org/WAI/WCAG22/Understanding/reflow.html
+- WAI-ARIA APG Button/Link: action vs navigation remains a semantic boundary; prefer native button/anchor elements.
+  - https://www.w3.org/WAI/ARIA/apg/patterns/button/
+  - https://www.w3.org/WAI/ARIA/apg/patterns/link/
+- WAI-ARIA APG Tabs: a real tablist is a single-panel-switching widget with defined keyboard focus/activation behavior; route navigation must not be renamed Tabs for visual similarity.
+  - https://www.w3.org/WAI/ARIA/apg/patterns/tabs/
+- WAI-ARIA APG Slider / Media Seek Slider: a seek control needs focusability, min/max/current value exposure and keyboard value changes; a pointer-only progress div is not sufficient.
+  - https://www.w3.org/WAI/ARIA/apg/patterns/slider/
+  - https://www.w3.org/WAI/ARIA/apg/patterns/slider/examples/slider-seek/
+- WAI-ARIA APG Tooltip: tooltip content is supplemental, does not receive focus, remains associated with its trigger, and Escape dismisses it; essential content must not exist only there.
+  - https://www.w3.org/WAI/ARIA/apg/patterns/tooltip/
+
+### Test/evidence policy
+
+- Storybook accessibility checks are useful first-line automation but do not replace manual assessment.
+  - https://storybook.js.org/docs/writing-tests/accessibility-testing
+- Storybook interaction tests should exercise real production-backed states instead of static screenshots alone.
+  - https://storybook.js.org/docs/9/writing-tests/interaction-testing
+- Playwright + axe can scan rendered page states, but the Playwright docs explicitly recommend automated + manual accessibility assessment together.
+  - https://playwright.dev/docs/accessibility-testing
+- Visual baselines must be deterministic. Playwright warns that host OS/browser/settings/hardware can affect screenshot output.
+  - https://playwright.dev/docs/test-snapshots
+- Prefer visual/interaction tests to large DOM snapshots for UI appearance and behavior.
+  - https://storybook.js.org/docs/writing-tests/snapshot-testing
+
+### Audit matrix for each interactive surface
+
+Record one row per real production usage, not per CSS class name:
+
+1. route / surface / owner;
+2. semantic role and native element;
+3. navigation vs action vs selection vs status vs metadata;
+4. actual rendered target size at required viewports;
+5. default / hover / focus-visible / active / disabled / selected/current/pressed states where meaningful;
+6. keyboard contract;
+7. touch/coarse-pointer behavior;
+8. reduced-motion behavior;
+9. forced-colors/high-contrast behavior where relevant;
+10. text expansion, wrapping, 200% zoom and reflow;
+11. token/radius/spacing/focus owner;
+12. duplicate visual grammar;
+13. Storybook state coverage;
+14. defect / keep-specialized / canonical-candidate / migration-candidate classification.
+
+### External skill evaluation (omgskills catalog)
+
+The external skills below are optional accelerators only. They do not override repository evidence, W3C, production code or current issues.
+
+**Useful**
+- `JPeetz/agent-skills:accessibility-compliance-audit` — focused WCAG 2.2 AA audit. Best used as an independent accessibility pass after the source/live inventory.
+- `szilu/ux-designer-skill:ux-designer` — useful for the qualitative UX/usability pass after objective semantics and runtime measurements are recorded.
+- `Ashutos1997/claude-design-auditor-skill` — broad second-opinion pass across ARIA, focus, contrast, tokens, responsive, motion, spacing and states. Use to challenge omissions, not as canonical scoring.
+- `jovd83/design-fidelity-auditor` — potentially useful for token/spacing/state drift checks after canonical primitives exist.
+
+**Low value / redundant for this repo**
+- `Dragoon0x/dragoon-skills:inventory` — generic heuristic file inventory. This repository already has a source-complete hand-reviewed inventory plus `lab:inventory`; running another filename heuristic would add noise rather than authority.
+- `Dragoon0x/dragoon-skills:storybook` — scaffolding-oriented and unnecessary because this repository already owns a custom production-backed Lab/Storybook system.
+- PostHog visual-review triage skill — only relevant if PostHog Visual Review is actually adopted; current repo evidence uses its own review/Playwright/Storybook contracts.
+
+### Current research conclusion
+
+The source inventory is already sufficiently mature to move into **live rendered verification**, not another source-only taxonomy exercise.
+
+Do not redesign primitives yet. First close the evidence gaps:
+- render and measure 1440×1000, 834×1112, 390×844 and short-height landscape;
+- keyboard-only walkthrough;
+- reduced-motion pass;
+- forced-colors/high-contrast pass where applicable;
+- exact failures appended to this inventory and linked to existing #1113–#1118 or new issues only when no owner exists.
+
+After that evidence pass, #1112 can be considered complete and the primitive implementation stream can begin.
