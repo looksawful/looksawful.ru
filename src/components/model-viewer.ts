@@ -220,7 +220,8 @@ async function mountModelViewer(
     if (!destroyed) renderer.render(scene, camera);
   };
 
-  const destroyScreenControls = iphone
+  // Public controls are deferred until they follow the site's design system.
+  const destroyScreenControls = iphone && element.dataset.modelScreenControls === "true"
     ? iphonePresentation.mountIphoneScreenControls(element, iphone, renderOnce)
     : noop;
 
