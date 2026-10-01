@@ -6,7 +6,7 @@ export const deviceModelMediaAssets = [
     type: "model",
     src: "/media/models/devices/iphone-17-v30.web.meshopt.glb",
     mimeType: "model/gltf-binary",
-    byteLength: 3844964,
+    byteLength: 3850596,
   },
   {
     id: "device-ipad-pro-11-m5-v6-model",
