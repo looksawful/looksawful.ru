@@ -1588,16 +1588,43 @@
 
 .berserk-audio__progress {
   position: relative;
-  block-size: 0.35rem;
-  overflow: hidden;
-  background: rgb(255 255 255 / 0.16);
+  display: grid;
+  align-items: center;
+  block-size: 1.5rem;
   cursor: pointer;
 
+  &::before {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    block-size: 0.35rem;
+    background: rgb(255 255 255 / 0.16);
+  }
+
   & > span {
+    position: relative;
+    z-index: 1;
     display: block;
     inline-size: 0;
-    block-size: 100%;
+    block-size: 0.35rem;
     background: currentColor;
+    pointer-events: none;
+  }
+
+  & input[type="range"] {
+    position: absolute;
+    z-index: 2;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  &:has(input:focus-visible) {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
   }
 }
 
@@ -1605,7 +1632,7 @@
   --cluster-wrap: wrap;
 }
 
-.berserk-audio input[type="range"] {
+.berserk-audio__line input[type="range"] {
   inline-size: min(14rem, 45%);
   accent-color: currentColor;
 }
