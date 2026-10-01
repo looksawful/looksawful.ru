@@ -1596,9 +1596,11 @@
   &::before {
     content: "";
     position: absolute;
+    inset-block-start: 50%;
     inset-inline: 0;
     block-size: 0.35rem;
     background: rgb(255 255 255 / 0.16);
+    translate: 0 -50%;
   }
 
   & > span {
@@ -1623,8 +1625,8 @@
   }
 
   &:has(input:focus-visible) {
-    outline: 2px solid currentColor;
-    outline-offset: 2px;
+    outline: var(--border-width-200) solid currentColor;
+    outline-offset: var(--border-width-200);
   }
 }
 
