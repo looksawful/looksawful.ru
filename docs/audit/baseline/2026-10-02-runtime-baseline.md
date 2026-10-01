@@ -65,15 +65,17 @@ Method: SHA-256 of `<baseline commit>:<route id>`, sorted ascending; take the fi
 
 Selected:
 
-1. `project:awful-cases` → `/work/awful-cases/`
-2. `project:sea` → `/work/sea/`
-3. `project:awful-3d-mockups` → `/work/awful-3d-mockups/`
+1. `project:awful-cases` → `/work/awful-cases/` — hash `1be835a1…`
+2. `project:sea` → `/work/sea/` — hash `478401be…`
+3. `project:awful-3d-mockups` → `/work/awful-3d-mockups/` — hash `482e7286…`
 
 When the baseline commit changes materially, regenerate rather than carrying this sample forward by habit.
 
 ## 4. Evidence model
 
 Evidence strength, strongest first:
+
+Parent spec #1244 is canonical for this ordering. The older charter has the first two classes reversed; that single older ordering is superseded by #1244 and must not create a second precedence rule.
 
 1. **runtime-measured** — geometry, trace, contrast, accessibility tree, timing, input behavior;
 2. **runtime-observed** — reproduced behavior in current browser/runtime;
@@ -139,6 +141,7 @@ Therefore this baseline is **source-complete but runtime-incomplete**.
 | Evidence | Classification | Current use |
 | --- | --- | --- |
 | comprehensive audit charter (2026-10-01) | CURRENT | audit contract and quality model |
+| charter's older `runtime-observed > runtime-measured` ordering | SUPERSEDED | #1244 now governs evidence precedence as `runtime-measured > runtime-observed` |
 | methodology research (2026-10-01) | CURRENT | sampling/evidence method |
 | `docs/testing-policy.md` | CURRENT | test-lifecycle authority |
 | #245 responsive/accessibility baseline | CURRENT OWNER | executable engineering owner; findings still require current evidence |
