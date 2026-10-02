@@ -123,10 +123,8 @@
 
 .page-flip__count {
   min-inline-size: 4rem;
-  text-align: center;
   font-size: var(--fs-200);
   line-height: var(--lh-heading);
-  font-variant-numeric: tabular-nums;
 }
 
 @container page-flip (width <= 50rem) {

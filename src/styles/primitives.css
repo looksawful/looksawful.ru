@@ -1,4 +1,4 @@
-/* Shared production action controls own only repeated interaction reset behavior. */
+/* Shared production UI primitives grow only when real reuse proves the role. */
 
 .action-control {
   appearance: none;
@@ -6,4 +6,9 @@
   font: inherit;
   touch-action: manipulation;
   cursor: pointer;
+}
+
+.sequence-counter {
+  text-align: center;
+  font-variant-numeric: tabular-nums;
 }
