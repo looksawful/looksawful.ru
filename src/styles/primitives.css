@@ -1,0 +1,9 @@
+/* Shared production action controls own only repeated interaction reset behavior. */
+
+.action-control {
+  appearance: none;
+  color: inherit;
+  font: inherit;
+  touch-action: manipulation;
+  cursor: pointer;
+}

@@ -40,13 +40,8 @@
 }
 
 .contact-form-hub__text-action {
-  appearance: none;
   border: 0;
   background: transparent;
-  color: inherit;
-  font: inherit;
-  cursor: pointer;
-  touch-action: manipulation;
 }
 
 .contact-form-hub__collapse,
@@ -168,8 +163,6 @@
   background: var(--clr-surface-elevated);
   color: var(--clr-text);
   box-shadow: var(--shadow-control);
-  font: inherit;
-  cursor: pointer;
 }
 
 .contact-form-hub__text-action:focus-visible,

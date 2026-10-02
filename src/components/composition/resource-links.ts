@@ -11,7 +11,7 @@ function renderResourceLink(link: ResourceLinkData): string {
   const rel = link.rel ? ` rel="${escapeHtml(link.rel)}"` : "";
   const download = link.download ? ` download="${escapeHtml(link.download)}"` : "";
 
-  return `<a class="resource-row__action" href="${escapeHtml(link.href)}"${target}${rel}${download}>${escapeHtml(link.label)}</a>`;
+  return `<a class="action-control resource-row__action" href="${escapeHtml(link.href)}"${target}${rel}${download}>${escapeHtml(link.label)}</a>`;
 }
 
 export function renderResourceLinks(

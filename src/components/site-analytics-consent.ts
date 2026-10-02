@@ -28,8 +28,9 @@ const noop = () => {};
 function button(root: Document, label: string, value: "granted" | "denied"): HTMLButtonElement {
   const element = root.createElement("button");
   element.type = "button";
-  element.className = "site-analytics-consent__button";
+  element.className = "action-control site-analytics-consent__button";
   element.dataset.analyticsConsent = value;
+  element.dataset.emphasis = value === "granted" ? "primary" : "quiet";
   element.textContent = label;
   return element;
 }
