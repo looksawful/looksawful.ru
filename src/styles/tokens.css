@@ -21,6 +21,9 @@
   --fs-800: clamp(2.5rem, 1.6rem + 3.6vw, 5rem);
   --fs-900: clamp(3.25rem, 1.65rem + 6vw, 8.5rem);
 
+  /* Supporting interface copy: captions, navigation support and card metadata. */
+  --fs-supporting: clamp(0.72rem, 0.68rem + 0.15cqi, 0.84rem);
+
   --lh-body: 1.45;
   --lh-copy: 1.48;
   --lh-caption: 1.36;

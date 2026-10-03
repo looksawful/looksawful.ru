@@ -19,7 +19,7 @@
   max-inline-size: min(100%, 72ch);
   margin: 0;
   color: var(--clr-text-muted);
-  font-size: clamp(0.72rem, 0.68rem + 0.15cqi, 0.84rem);
+  font-size: var(--fs-supporting);
   font-weight: var(--fw-400);
   line-height: var(--lh-caption);
 }
