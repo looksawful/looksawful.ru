@@ -145,3 +145,168 @@ export const ReelHorizontalOverflow = {
     },
   },
 };
+
+
+export const ClusterPeers = {
+  render: () => `
+    <main style="padding:clamp(1.5rem,4vw,4rem)">
+      <nav class="cluster" aria-label="Пример cluster" style="--cluster-space:0.75rem">
+        <a href="#one">Первый</a>
+        <a href="#two">Второй пункт</a>
+        <a href="#three">Третий</a>
+        <button type="button">Действие</button>
+      </nav>
+    </main>
+  `,
+  parameters: {
+    looksawful: { state: "peer-inline-cluster" },
+    docs: {
+      description: {
+        story: "Cluster owns wrapping adjacency between peer inline controls or labels. It does not express heading-to-copy hierarchy.",
+      },
+    },
+  },
+};
+
+export const SplitIntrinsic = {
+  render: () => `
+    <main style="container-type:inline-size;padding:clamp(1.5rem,4vw,4rem)">
+      <section class="split" style="--split-min:18rem;--split-gap:clamp(1rem,4cqi,3rem)">
+        <article style="min-block-size:12rem;padding:1rem;border:1px solid currentColor">
+          <h2>Первый контейнер</h2>
+          <p>Split создаёт следующую колонку только когда для неё действительно хватает места.</p>
+        </article>
+        <article style="min-block-size:12rem;padding:1rem;border:1px solid currentColor">
+          <h2>Второй контейнер</h2>
+          <p>Точка перехода определяется содержимым и доступной шириной, а не названием устройства.</p>
+        </article>
+      </section>
+    </main>
+  `,
+  parameters: {
+    looksawful: { state: "intrinsic-container-split" },
+    docs: {
+      description: {
+        story: "Split owns intrinsic composition of peer containers. It may collapse to one column when authored minimums no longer fit.",
+      },
+    },
+  },
+};
+
+export const SplitAlwaysAuthoredPair = {
+  render: () => `
+    <main style="container-type:inline-size;padding:clamp(1.5rem,4vw,4rem)">
+      <section class="split split-always" style="--split-min:8rem;--split-gap:clamp(0.75rem,3cqi,1.5rem)">
+        <figure style="min-block-size:12rem;margin:0;padding:1rem;border:1px solid currentColor">
+          <figcaption>Левая авторизованная часть</figcaption>
+        </figure>
+        <figure style="min-block-size:12rem;margin:0;padding:1rem;border:1px solid currentColor">
+          <figcaption>Правая авторизованная часть</figcaption>
+        </figure>
+      </section>
+    </main>
+  `,
+  parameters: {
+    looksawful: { state: "authored-persistent-split" },
+    docs: {
+      description: {
+        story: "Split Always is reserved for explicit two-part compositions that must remain divided. It is not a typography-flow mechanism and must never turn separate prose paragraphs into layout columns.",
+      },
+    },
+  },
+};
+
+export const PileOverlap = {
+  render: () => `
+    <main style="padding:clamp(1.5rem,4vw,4rem)">
+      <figure class="pile" style="max-inline-size:28rem;margin:0;--pile-place-items:end start">
+        <div style="inline-size:100%;aspect-ratio:4/3;border:1px solid currentColor"></div>
+        <figcaption style="padding:1rem">Наложенный слой</figcaption>
+      </figure>
+    </main>
+  `,
+  parameters: {
+    looksawful: { state: "overlap-pile" },
+    docs: {
+      description: {
+        story: "Pile owns deliberate overlap. All direct children share one grid area; it is not a vertical stack substitute.",
+      },
+    },
+  },
+};
+
+export const AutoGridAdaptive = {
+  render: () => `
+    <main style="container-type:inline-size;padding:clamp(1.5rem,4vw,4rem)">
+      <ul class="auto-grid" style="--auto-grid-min:12rem;--auto-grid-gap:1rem;list-style:none;padding:0;margin:0">
+        ${["Figma", "CSS", "TypeScript", "Three.js", "Blender", "GSAP"].map((label) => `
+          <li style="padding:1rem;border:1px solid currentColor">${label}</li>
+        `).join("")}
+      </ul>
+    </main>
+  `,
+  parameters: {
+    looksawful: { state: "adaptive-auto-grid" },
+    docs: {
+      description: {
+        story: "Auto Grid owns repeated equal-role items with intrinsic column count. Consumers provide only the preferred item minimum and gaps.",
+      },
+    },
+  },
+};
+
+export const GridExplicitTracks = {
+  render: () => `
+    <main style="container-type:inline-size;padding:clamp(1.5rem,4vw,4rem)">
+      <div class="grid" style="--grid-columns:minmax(0,2fr) minmax(0,1fr);--grid-gap:1rem">
+        <div style="min-block-size:10rem;padding:1rem;border:1px solid currentColor">2fr</div>
+        <div style="min-block-size:10rem;padding:1rem;border:1px solid currentColor">1fr</div>
+      </div>
+    </main>
+  `,
+  parameters: {
+    looksawful: { state: "explicit-grid-tracks" },
+    docs: {
+      description: {
+        story: "Grid is the low-level explicit track primitive. Consumers own the track definition; use a more semantic primitive when one already matches the composition.",
+      },
+    },
+  },
+};
+
+export const EditorialGridProjectIntro = {
+  render: () => `
+    <main style="container-type:inline-size">
+      <section class="project">
+        ${renderProjectIntro(progressTraditionIntro)}
+      </section>
+    </main>
+  `,
+  parameters: {
+    looksawful: { state: "editorial-grid-project-intro" },
+    docs: {
+      description: {
+        story: "Editorial Grid owns authored page-level tracks. The real project intro is the canonical consumer.",
+      },
+    },
+  },
+};
+
+
+export const WrapperContainer = {
+  render: () => `
+    <main style="padding-block:2rem;border-block:1px solid currentColor">
+      <div class="wrapper" style="--wrapper-max-width:48rem">
+        <p>Wrapper owns centered page/container width and gutters. Content semantics live inside it.</p>
+      </div>
+    </main>
+  `,
+  parameters: {
+    looksawful: { state: "wrapper-container" },
+    docs: {
+      description: {
+        story: "Wrapper owns centered maximum width plus inline gutters. It is a container boundary, not a typography measure.",
+      },
+    },
+  },
+};
