@@ -906,7 +906,7 @@
 }
 
 /* ==================================================
-   Moves Awful — prototype canvas + tabs
+   Moves Awful — prototype canvas + variant selector (legacy visual hooks retained)
    ================================================== */
 
 /* ==================================================
@@ -1117,7 +1117,7 @@
       background: transparent;
     }
 
-    &[aria-selected="true"] {
+    &[aria-checked="true"] {
       color: #fff;
 
       &::after {

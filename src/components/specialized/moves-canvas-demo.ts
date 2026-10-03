@@ -5,7 +5,7 @@ import type {
 } from "../../types/animated-canvas-gallery.ts";
 import { renderAnimatedCanvasGallery } from "./animated-canvas-gallery.ts";
 
-const MOVES_CANVAS_TABS = [
+const MOVES_CANVAS_VARIANTS = [
   ["arc", "arc"],
   ["spiral", "spiral"],
   ["horizontal", "horizontal"],
@@ -14,10 +14,10 @@ const MOVES_CANVAS_TABS = [
   ["masonry", "masonry"],
 ] as const satisfies readonly (readonly [MovesCanvasGalleryVariant, string])[];
 
-function renderVariantTabs(): string {
-  return MOVES_CANVAS_TABS.map(
+function renderVariantOptions(): string {
+  return MOVES_CANVAS_VARIANTS.map(
     ([variant, label], index) =>
-      `<button aria-selected="${index === 0 ? "true" : "false"}" class="variant-tab" data-canvas-gallery-tab="" data-variant="${variant}" role="tab" type="button">${label}</button>`,
+      `<button aria-checked="${index === 0 ? "true" : "false"}" class="variant-tab" data-canvas-gallery-option="" data-variant="${variant}" role="radio" type="button">${label}</button>`,
   ).join("\n");
 }
 
@@ -51,8 +51,8 @@ export function renderMovesCanvasDemo(
           </div>
         </div>
         <div class="browser-mockup__controls-area">
-          <div aria-label="Варианты Moves Awful" class="variant-tabs reel" data-canvas-gallery-tabs="" data-moves-awful-tabs="" role="tablist">
-            ${renderVariantTabs()}
+          <div aria-label="Варианты Moves Awful" aria-orientation="horizontal" class="variant-tabs reel" data-canvas-gallery-options="" data-moves-awful-options="" role="radiogroup">
+            ${renderVariantOptions()}
           </div>
         </div>
       </div>
