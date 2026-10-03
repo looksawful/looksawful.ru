@@ -24,12 +24,6 @@
   container: media-deck / inline-size;
 }
 
-.media-deck__toolbar {
-  --cluster-wrap: nowrap;
-  --cluster-justify: flex-end;
-  --cluster-space: 0.35rem;
-}
-
 .media-deck__button,
 .media-deck__dot {
   appearance: none;
