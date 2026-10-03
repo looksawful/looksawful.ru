@@ -1,4 +1,5 @@
 import { handleGitHubOAuth, verifyAdminSession } from "./github-oauth.js";
+import { handleReviewRequest } from "./review.js";
 
 function securityHeaders() {
   return {
@@ -50,6 +51,13 @@ export async function onRequest(context) {
     }
     return protectedResponse("Authentication required.", 401);
   }
+
+  const reviewResponse = await handleReviewRequest({
+    request: context.request,
+    env: context.env,
+    session,
+  });
+  if (reviewResponse) return withSecurityHeaders(reviewResponse);
 
   return withSecurityHeaders(await context.next());
 }
