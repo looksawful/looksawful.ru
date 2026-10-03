@@ -49,15 +49,11 @@
 }
 
 .code-block__copy {
-  appearance: none;
   padding: 0;
   border: 0;
-  color: inherit;
   background: transparent;
-  font: inherit;
   font-size: 0.75rem;
   line-height: 1;
-  cursor: pointer;
 
   &:hover,
   &:focus-visible,
