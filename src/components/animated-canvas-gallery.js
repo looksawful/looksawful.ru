@@ -632,13 +632,15 @@ const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
     });
 
     option.addEventListener("keydown", (event) => {
-      if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") {
+      const forward = event.key === "ArrowRight" || event.key === "ArrowDown";
+      const backward = event.key === "ArrowLeft" || event.key === "ArrowUp";
+      if (!forward && !backward) {
         return;
       }
 
       event.preventDefault();
 
-      const step = event.key === "ArrowRight" ? 1 : -1;
+      const step = forward ? 1 : -1;
       const next = (index + step + variantOptions.length) % variantOptions.length;
 
       setVariant(variantOptions[next].dataset.variant, next);
