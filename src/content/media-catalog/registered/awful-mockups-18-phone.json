@@ -4,9 +4,16 @@
   "alt": "????? ???????? ? ????????????? ???????",
   "description": "",
   "date": "2026",
-  "workAreaIds": [],
-  "projectTypeIds": [],
-  "deliverableIds": [],
+  "workAreaIds": [
+    "graphic-design"
+  ],
+  "projectTypeIds": [
+    "graphic-design-project"
+  ],
+  "deliverableIds": [
+    "design-assets",
+    "screen-mockup"
+  ],
   "tags": [],
   "credits": [],
   "reusable": true,
