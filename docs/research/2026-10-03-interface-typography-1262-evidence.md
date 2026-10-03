@@ -3,7 +3,7 @@
 Status: implementation evidence  
 Parent: #1244  
 Implementation issue: #1262  
-Baseline: stacked UI branch `feat/ui-selection-1261`
+Baseline: merged integration branch `dev@0c1f6afe`
 
 ## Current production contract
 
@@ -40,6 +40,8 @@ is now owned as `--fs-supporting` for six surfaces that also share the supportin
 - `.project-card__caption`;
 - `.brand-system__hover-copy`;
 - `.jestei-captioned-group .jestei-media__hover-copy`.
+
+For the two hover-copy surfaces, `--fs-supporting` is the base/coarse-pointer size. On fine-pointer devices, `captions.css` intentionally promotes the lower-third to `clamp(0.82rem, 0.78rem + 0.14cqi, 0.95rem)`; that art-directed overlay override remains local and unchanged.
 
 `.placeholder-surface` deliberately keeps the same numeric value locally because it is a utility placeholder label, not supporting content.
 
