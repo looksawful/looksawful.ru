@@ -301,26 +301,22 @@ async function verifyMovesVariantSelector(page, label) {
 
   await options.nth(0).focus();
   await page.keyboard.press("ArrowDown");
-  assert.equal(
-    await options.nth(1).getAttribute("aria-checked"),
-    "true",
+  assert(
+    (await options.nth(1).getAttribute("aria-checked")) === "true",
     `${label}: ArrowDown did not select the next Moves variant`,
   );
-  assert.equal(
+  assert(
     await options.nth(1).evaluate((node) => document.activeElement === node),
-    true,
     `${label}: ArrowDown did not move focus to the next Moves variant`,
   );
 
   await page.keyboard.press("ArrowUp");
-  assert.equal(
-    await options.nth(0).getAttribute("aria-checked"),
-    "true",
+  assert(
+    (await options.nth(0).getAttribute("aria-checked")) === "true",
     `${label}: ArrowUp did not select the previous Moves variant`,
   );
-  assert.equal(
+  assert(
     await options.nth(0).evaluate((node) => document.activeElement === node),
-    true,
     `${label}: ArrowUp did not move focus to the previous Moves variant`,
   );
 }
