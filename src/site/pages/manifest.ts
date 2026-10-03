@@ -201,6 +201,30 @@ export const sitePages = [
     },
   },
   {
+    id: "services",
+    type: "static",
+    path: "/services/",
+    enabled: true,
+    renderer: "services",
+    build: VITE_BUILD,
+    discovery: {
+      listed: true,
+      indexable: true,
+    },
+  },
+  {
+    id: "all-services",
+    type: "static",
+    path: "/services/all/",
+    enabled: true,
+    renderer: "all-services",
+    build: VITE_BUILD,
+    discovery: {
+      listed: true,
+      indexable: true,
+    },
+  },
+  {
     id: "cv",
     type: "static",
     path: "/cv/",
