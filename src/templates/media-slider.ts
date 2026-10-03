@@ -76,7 +76,7 @@ export function renderMediaSlider(
 
       <div aria-label="Навигация по слайдам" class="slider-controls cluster" role="group">
         <button aria-label="Предыдущий кадр" class="slider-controls__button" data-deck-prev="" type="button">←</button>
-        <span aria-live="polite" class="slider-controls__count" data-deck-count="">${count}</span>
+        <span aria-live="polite" class="sequence-counter slider-controls__count" data-deck-count="">${count}</span>
         <button aria-label="Следующий кадр" class="slider-controls__button" data-deck-next="" type="button">→</button>
       </div>
     </figure>
