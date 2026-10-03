@@ -124,6 +124,13 @@
     var(--cluster-column-gap, var(--cluster-space, var(--size-200)));
 }
 
+/* Compact end-aligned action group. Consumers keep control geometry local. */
+.control-bar {
+  --cluster-wrap: nowrap;
+  --cluster-justify: flex-end;
+  --cluster-space: 0.35rem;
+}
+
 .pile {
   display: grid;
   grid-template-areas: "pile";
