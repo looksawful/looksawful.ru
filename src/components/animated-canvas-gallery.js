@@ -9,11 +9,11 @@ const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
   const gallery = document.querySelector('[data-animated-canvas-gallery][data-gallery-profile="moves"]');
   const canvas = gallery?.querySelector("canvas");
   const scope = gallery?.closest(".project") || document;
-  const tabs = [...scope.querySelectorAll("[data-canvas-gallery-tab]")];
+  const variantOptions = [...scope.querySelectorAll("[data-canvas-gallery-option]")];
   const overlayTitle = scope.querySelector("[data-canvas-gallery-title]");
   const stage = gallery?.closest(".moves-awful-stage");
   const stageScale = stage?.querySelector(".moves-awful-stage__scale");
-  const TAB_AUTOPLAY_MS = 5000;
+  const VARIANT_AUTOPLAY_MS = 5000;
   const VIEWPORT_MARGIN = "50% 0px";
 
   if (!(gallery instanceof HTMLElement) || !(canvas instanceof HTMLCanvasElement)) {
@@ -125,7 +125,7 @@ const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
     layoutKey: "",
   };
 
-  let tabAutoplayTimer = null;
+  let variantAutoplayTimer = null;
 
   const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
   const mod = (value, divisor) => ((value % divisor) + divisor) % divisor;
@@ -549,23 +549,23 @@ const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
     state.raf = requestAnimationFrame(frame);
   }
 
-  function clearTabAutoplay() {
-    if (tabAutoplayTimer !== null) {
-      clearTimeout(tabAutoplayTimer);
-      tabAutoplayTimer = null;
+  function clearVariantAutoplay() {
+    if (variantAutoplayTimer !== null) {
+      clearTimeout(variantAutoplayTimer);
+      variantAutoplayTimer = null;
     }
   }
 
-  function scheduleTabAutoplay() {
-    clearTabAutoplay();
-    if (!canAnimate() || !tabs.length) return;
+  function scheduleVariantAutoplay() {
+    clearVariantAutoplay();
+    if (!canAnimate() || !variantOptions.length) return;
 
-    tabAutoplayTimer = setTimeout(() => {
-      const currentIndex = tabs.findIndex((tab) => tab.getAttribute("aria-selected") === "true");
-      const next = (Math.max(0, currentIndex) + 1) % tabs.length;
-      setVariant(tabs[next].dataset.variant, next);
-      scheduleTabAutoplay();
-    }, TAB_AUTOPLAY_MS);
+    variantAutoplayTimer = setTimeout(() => {
+      const currentIndex = variantOptions.findIndex((option) => option.getAttribute("aria-checked") === "true");
+      const next = (Math.max(0, currentIndex) + 1) % variantOptions.length;
+      setVariant(variantOptions[next].dataset.variant, next);
+      scheduleVariantAutoplay();
+    }, VARIANT_AUTOPLAY_MS);
   }
 
   function syncActivity() {
@@ -575,7 +575,7 @@ const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
         state.raf = 0;
       }
 
-      clearTabAutoplay();
+      clearVariantAutoplay();
 
       if (state.images.length) {
         drawFrame();
@@ -588,8 +588,8 @@ const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
       state.raf = requestAnimationFrame(frame);
     }
 
-    if (tabAutoplayTimer === null) {
-      scheduleTabAutoplay();
+    if (variantAutoplayTimer === null) {
+      scheduleVariantAutoplay();
     }
   }
 
@@ -602,10 +602,10 @@ const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
       aspectRatios[variant] || "16 / 9",
     );
 
-    tabs.forEach((tab, tabIndex) => {
-      const active = tabIndex === index;
-      tab.setAttribute("aria-selected", String(active));
-      tab.tabIndex = active ? 0 : -1;
+    variantOptions.forEach((option, optionIndex) => {
+      const active = optionIndex === index;
+      option.setAttribute("aria-checked", String(active));
+      option.tabIndex = active ? 0 : -1;
     });
 
     if (overlayTitle) {
@@ -625,25 +625,27 @@ const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
     syncActivity();
   }
 
-  tabs.forEach((tab, index) => {
-    tab.addEventListener("click", () => {
-      setVariant(tab.dataset.variant, index);
-      scheduleTabAutoplay();
+  variantOptions.forEach((option, index) => {
+    option.addEventListener("click", () => {
+      setVariant(option.dataset.variant, index);
+      scheduleVariantAutoplay();
     });
 
-    tab.addEventListener("keydown", (event) => {
-      if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") {
+    option.addEventListener("keydown", (event) => {
+      const forward = event.key === "ArrowRight" || event.key === "ArrowDown";
+      const backward = event.key === "ArrowLeft" || event.key === "ArrowUp";
+      if (!forward && !backward) {
         return;
       }
 
       event.preventDefault();
 
-      const step = event.key === "ArrowRight" ? 1 : -1;
-      const next = (index + step + tabs.length) % tabs.length;
+      const step = forward ? 1 : -1;
+      const next = (index + step + variantOptions.length) % variantOptions.length;
 
-      setVariant(tabs[next].dataset.variant, next);
-      tabs[next].focus();
-      scheduleTabAutoplay();
+      setVariant(variantOptions[next].dataset.variant, next);
+      variantOptions[next].focus();
+      scheduleVariantAutoplay();
     });
   });
 
@@ -685,12 +687,12 @@ const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
 
   syncCanvasSize(canvas.clientWidth, canvas.clientHeight);
   syncStageScale();
-  const initialVariant = gallery.dataset.galleryVariant || tabs[0]?.dataset.variant || "arc";
-  const initialTabIndex = Math.max(
+  const initialVariant = gallery.dataset.galleryVariant || variantOptions[0]?.dataset.variant || "arc";
+  const initialOptionIndex = Math.max(
     0,
-    tabs.findIndex((tab) => tab.dataset.variant === initialVariant),
+    variantOptions.findIndex((option) => option.dataset.variant === initialVariant),
   );
-  setVariant(initialVariant, initialTabIndex);
+  setVariant(initialVariant, initialOptionIndex);
 
   document.addEventListener("visibilitychange", handleVisibilityChange);
   reduceMotion.addEventListener?.("change", handleMotionChange);
@@ -715,7 +717,7 @@ const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
         state.raf = 0;
       }
 
-      clearTabAutoplay();
+      clearVariantAutoplay();
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       reduceMotion.removeEventListener?.("change", handleMotionChange);
       viewportObserver?.disconnect();
