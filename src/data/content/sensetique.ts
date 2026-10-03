@@ -1083,8 +1083,6 @@ export const sensetiqueInnaHonourReel = {
   "columns": 4,
   "compactItemSize": "min(68cqi, 17rem)",
   "head": {
-    "className": "split split-always",
-    "style": "--split-min: 12rem; --split-gap: clamp(1rem, 6cqi, 6rem)",
     "credits": { lines: getSensetiqueEditorialCredit("inna-honour").lines! }
   },
   "items": [
