@@ -28,6 +28,7 @@ export interface MediaBase {
 
 export interface ImageMedia extends MediaBase {
   type: "image";
+  responsive?: boolean;
 }
 
 export interface VideoMedia extends MediaBase {
