@@ -24,6 +24,16 @@ test("static analytics injects Cloudflare, consent-gated Yandex and conversion g
   assert.match(html, /looksawful:analytics-internal/);
   assert.match(html, /if\(optedOut\|\|internalTraffic\)return/);
   assert.match(html, /href=\"\/privacy\/\"/);
+  assert.match(
+    html,
+    /accept\.className=\"action-control site-analytics-consent__button\";accept\.dataset\.emphasis=\"primary\"/,
+  );
+  assert.match(
+    html,
+    /reject\.className=\"action-control site-analytics-consent__button\";reject\.dataset\.emphasis=\"quiet\"/,
+  );
+  assert.match(html, /\.site-analytics-consent__button\[data-emphasis=\"primary\"\]/);
+  assert.doesNotMatch(html, /site-analytics-consent__button:first-child/);
   assert.match(html, /project_open/);
   assert.match(html, /cv_open/);
   assert.match(html, /contact_email/);
