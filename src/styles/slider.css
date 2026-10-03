@@ -72,7 +72,6 @@
   margin-block-start: 0.55rem;
   font-size: var(--fs-200);
   line-height: var(--lh-heading);
-  font-variant-numeric: tabular-nums;
 }
 
 .slider-controls__button {
@@ -89,5 +88,4 @@
 
 .slider-controls__count {
   min-inline-size: 4.5ch;
-  text-align: center;
 }
