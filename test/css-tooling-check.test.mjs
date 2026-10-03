@@ -71,6 +71,21 @@ test("css:check is wired as a small repository-owned architecture command", () =
   assert.deepEqual(checkCssArchitecture(root), []);
 });
 
+test("TEMP #1264: proven compact control bars use the shared composition pattern", () => {
+  const patterns = readFileSync(new URL("../src/styles/patterns.css", import.meta.url), "utf8");
+  const mediaSlider = readFileSync(new URL("../src/templates/media-slider.ts", import.meta.url), "utf8");
+  const mockupDeck = readFileSync(new URL("../src/templates/mockup-deck.ts", import.meta.url), "utf8");
+  const homepage = readFileSync(new URL("../index.html", import.meta.url), "utf8");
+
+  assert.match(
+    patterns,
+    /\.control-bar\s*\{[\s\S]*?--cluster-wrap:\s*nowrap;[\s\S]*?--cluster-justify:\s*flex-end;[\s\S]*?--cluster-space:\s*0\.35rem;/,
+  );
+  assert.match(mediaSlider, /class="control-bar slider-controls cluster"/);
+  assert.match(mockupDeck, /class="control-bar slider-controls cluster"/);
+  assert.match(homepage, /class="control-bar media-deck__toolbar cluster"/);
+});
+
 test("manifest checker enforces the complete ordered stylesheet load graph", () => {
   assert.deepEqual(checkFixture(canonicalManifest), []);
 
