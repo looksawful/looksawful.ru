@@ -24,7 +24,7 @@ export function renderCodeBlock(data: CodeBlockData): string {
     `<section class="code-block" data-code-block data-code-copy${languageAttribute}>`,
     '<header class="code-block__head cluster">',
     title,
-    '<button aria-label="Скопировать код" class="code-block__copy" data-code-copy-button type="button">Copy</button>',
+    '<button aria-label="Скопировать код" class="action-control code-block__copy" data-code-copy-button type="button">Copy</button>',
     "</header>",
     `<pre><code data-code-source>${escapeHtml(data.code)}</code></pre>`,
     description,
