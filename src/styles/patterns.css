@@ -108,6 +108,19 @@
   min-inline-size: 0;
 }
 
+@media (max-width: 42rem) {
+  .text-pair {
+    --_text-pair-side-size: 100%;
+    --_text-pair-content-min: 100%;
+  }
+
+  .text-pair > :first-child,
+  .text-pair > :last-child {
+    flex-basis: 100%;
+    min-inline-size: 0;
+  }
+}
+
 .stack {
   display: flex;
   flex-direction: column;

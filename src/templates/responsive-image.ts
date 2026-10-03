@@ -7,6 +7,8 @@ export function renderResponsiveImageAttributes(
   asset: ImageMedia,
   loading: MediaLoading,
 ): string {
+  if (asset.responsive === false) return "";
+
   const srcset = responsiveImageSrcSet(asset);
   if (!srcset) return "";
 
