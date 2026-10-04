@@ -32,6 +32,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         lab: fileURLToPath(new URL("./lab/index.html", import.meta.url)),
+        review: fileURLToPath(new URL("./lab/review/index.html", import.meta.url)),
       },
     },
   },
