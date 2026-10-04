@@ -17,6 +17,10 @@ import { deferHomepageLazyImages } from "../renderers/home/home-image-deferral.t
 import { deferHomepageAutoplayMedia } from "../renderers/home/home-media-deferral.ts";
 import { renderHomepagePage } from "../renderers/home/home-page.ts";
 import { renderNotFoundPage } from "../renderers/not-found-page.ts";
+import {
+  renderAllServicesPage,
+  renderServicesPage,
+} from "../renderers/services-page.ts";
 import { publicStaticRequestPath } from "./public-static.ts";
 
 export function entryRequestToPagePath(requestPath: string): string {
@@ -85,6 +89,12 @@ export function createSitePagesPlugin(root = process.cwd()): Plugin {
         }
         if (page.renderer === "gallery" && page.type === "gallery") {
           return renderGalleryPage(page);
+        }
+        if (page.renderer === "services" && page.type === "static") {
+          return renderServicesPage(page);
+        }
+        if (page.renderer === "all-services" && page.type === "static") {
+          return renderAllServicesPage(page);
         }
         if (page.renderer === "static-project") return html;
         if (page.renderer === "entity") return renderStandaloneEntityPage(page);

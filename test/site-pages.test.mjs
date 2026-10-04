@@ -42,6 +42,8 @@ const expectedRoutes = new Map([
   ["project:sea", "/work/sea/"],
   ["project:moves-awful", "/work/moves-awful/"],
   ["project:berry-social-content-2020", "/work/berry-social-content-2020/"],
+  ["services", "/services/"],
+  ["all-services", "/services/all/"],
   ["cv", "/cv/"],
   ["privacy", "/privacy/"],
   ["not-found", "/404.html"],
@@ -169,6 +171,8 @@ test("enabled page lookup uses canonical normalized paths", () => {
   assert.equal(page?.id, "case:jestei-pool");
   assert.equal(getPageByPath("/cv")?.id, "cv");
   assert.equal(getPageByPath("/privacy")?.id, "privacy");
+  assert.equal(getPageByPath("/services")?.id, "services");
+  assert.equal(getPageByPath("/services/all")?.id, "all-services");
 });
 
 test("entity routes reference the existing domain model", () => {
@@ -200,9 +204,17 @@ test("only enabled pages are returned for build ownership decisions", () => {
   assert.ok(enabled.every((page) => page.enabled));
 });
 
-test("public Case, Collection, CV and privacy pages are listed and indexable while selected Project pages stay unlisted", () => {
+test("public portfolio and Services pages are listed and indexable while selected Project pages stay unlisted", () => {
   for (const page of sitePages) {
-    if (page.type === "case" || page.type === "collection" || page.type === "gallery" || page.id === "cv" || page.id === "privacy") {
+    if (
+      page.type === "case"
+      || page.type === "collection"
+      || page.type === "gallery"
+      || page.id === "cv"
+      || page.id === "privacy"
+      || page.id === "services"
+      || page.id === "all-services"
+    ) {
       assert.equal(page.discovery.listed, true);
       assert.equal(page.discovery.indexable, true);
     }
