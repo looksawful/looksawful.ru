@@ -2,6 +2,15 @@ import { createGalleryController } from "../../components/gallery/gallery-contro
 import { getPageByPath } from "../../site/pages/manifest.ts";
 import { extractElementContainingMarker } from "../../site/rendering/html.ts";
 import { renderGalleryPage } from "../../site/renderers/gallery-page.ts";
+import { cases } from "../../data/catalog/cases.ts";
+import { contextualMediaCatalogItems } from "../../data/media/catalog-view.ts";
+import { resolveGalleryCuration } from "../../data/media/gallery-curation.ts";
+import { renderGalleryResolvedSeries } from "../../components/gallery/gallery-markup.ts";
+
+const jesteiCaseName = cases.find(({ id }) => id === "jestei-pool")?.name;
+if (!jesteiCaseName) {
+  throw new Error("Canonical Jestei Pool Case identity is unavailable");
+}
 
 const galleryPage = getPageByPath("/gallery/");
 if (!galleryPage || galleryPage.type !== "gallery") {
@@ -13,6 +22,32 @@ const galleryMarkup = extractElementContainingMarker(
   "section",
   "data-gallery",
 );
+
+const mixedMediaPlacements = resolveGalleryCuration([
+  {
+    id: "jestei-track-filter-proof",
+    projectId: "jestei-track-filter",
+    placements: [
+      { assetId: "jestei-08-source-05-407x425", featured: true },
+      { assetId: "jestei-13-source-01-16x9" },
+      {
+        assetId: "jestei-08-source-11-637x419",
+        slideAssetIds: ["jestei-10-source-09-449x337"],
+      },
+    ],
+  },
+], contextualMediaCatalogItems);
+
+const mixedMediaMarkup = `<section class="gallery" data-gallery>
+  <h1 class="visually-hidden">Галерея</h1>
+  <div class="gallery__content">
+    ${renderGalleryResolvedSeries({
+      id: "jestei-track-filter-proof",
+      projectLabel: jesteiCaseName,
+      placements: mixedMediaPlacements,
+    })}
+  </div>
+</section>`;
 
 const storyUrl = () => `${window.location.pathname}${window.location.search}${window.location.hash}`;
 
@@ -130,6 +165,90 @@ export const DeepLinked = {
     looksawful: {
       state: "gallery-deep-linked",
       interaction: ["open", "selected"],
+    },
+  },
+};
+
+
+export const MixedMedia = {
+  render: () => mixedMediaMarkup,
+  play: (context) => {
+    registerCleanup(initialize(context));
+  },
+  parameters: {
+    looksawful: {
+      state: "gallery-mixed-media",
+      interaction: ["closed", "focus-visible", "selected"],
+      data: ["image", "video", "multi-slide"],
+    },
+  },
+};
+
+export const MixedVideoFocusedPreview = {
+  render: () => mixedMediaMarkup,
+  play: async (context) => {
+    registerCleanup(initialize(context));
+    const card = context.canvasElement.querySelector('[data-gallery-item-id="jestei-13-source-01-16x9"]');
+    if (!(card instanceof HTMLElement)) throw new Error("Mixed Gallery story has no video card");
+
+    card.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", bubbles: true }));
+    card.focus();
+    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+
+    const preview = card.querySelector("[data-gallery-video-preview]");
+    if (!(preview instanceof HTMLVideoElement)) throw new Error("Mixed Gallery story has no preview video");
+    if (!card.hasAttribute("data-gallery-video-previewing")) {
+      throw new Error("Keyboard focus did not start Gallery video preview");
+    }
+    if (!preview.muted) throw new Error("Gallery video preview must stay muted");
+  },
+  parameters: {
+    looksawful: {
+      state: "gallery-mixed-video-focus-preview",
+      interaction: ["focus-visible", "selected"],
+      data: ["video"],
+    },
+  },
+};
+
+export const MixedVideoOpen = {
+  render: () => mixedMediaMarkup,
+  play: (context) => {
+    registerCleanup(initialize(context));
+    const card = context.canvasElement.querySelector('[data-gallery-item-id="jestei-13-source-01-16x9"]');
+    if (!(card instanceof HTMLElement)) throw new Error("Mixed Gallery story has no video card");
+    card.focus();
+    card.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
+  },
+  parameters: {
+    looksawful: {
+      state: "gallery-mixed-video-open",
+      interaction: ["open", "focus-visible", "selected"],
+      data: ["video"],
+    },
+  },
+};
+
+export const DeepLinkedSlide = {
+  render: () => mixedMediaMarkup,
+  play: (context) => {
+    const previous = storyUrl();
+    window.history.replaceState(
+      null,
+      "",
+      "/gallery/?item=jestei-08-source-11-637x419&slide=2",
+    );
+    const destroy = createGalleryController(galleryRoot(context.canvasElement));
+    registerCleanup(() => {
+      destroy();
+      window.history.replaceState(null, "", previous);
+    });
+  },
+  parameters: {
+    looksawful: {
+      state: "gallery-deep-linked-slide",
+      interaction: ["open", "selected"],
+      data: ["multi-slide"],
     },
   },
 };
