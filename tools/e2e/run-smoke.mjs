@@ -277,8 +277,10 @@ async function verifyDenseMobileCaptions(page, { requireMiddleReel = false } = {
     assert.ok(authoredCaption, "hidden dense overlay must retain authored caption content in DOM");
     const source = hiddenOverlay.locator("[data-lightbox-source]").first();
     await source.scrollIntoViewIfNeeded();
-    await source.click({ force: true });
-    await page.waitForFunction(() => window.pswp?.opener?.isOpen === true || document.querySelector("[data-media-lightbox][open]"));
+    // The floating portfolio mascot can cover an image's center at mobile widths.
+    // A real, non-forced click at a clear inset position retains pointer hit-testing.
+    await source.click({ position: { x: 24, y: 24 } });
+    await page.locator(".pswp").waitFor({ state: "visible", timeout: 8_000 });
     const lightboxCaption = page.locator(".media-lightbox__caption").first();
     await lightboxCaption.waitFor({ state: "attached" });
     assert.ok((await lightboxCaption.innerText()).trim(), "hidden dense overlay caption must reach the lightbox");
