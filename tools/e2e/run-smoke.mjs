@@ -278,7 +278,8 @@ async function verifyDenseMobileCaptions(page, { requireMiddleReel = false } = {
     const source = hiddenOverlay.locator("[data-lightbox-source]").first();
     await source.scrollIntoViewIfNeeded();
     await source.click({ force: true });
-    await page.waitForFunction(() => window.pswp?.opener?.isOpen === true || document.querySelector("[data-media-lightbox][open]"));
+    // PhotoSwipe owns the visible dialog; legacy window.pswp/open attributes are not its readiness contract.
+    await page.locator(".pswp").waitFor({ state: "visible", timeout: 8_000 });
     const lightboxCaption = page.locator(".media-lightbox__caption").first();
     await lightboxCaption.waitFor({ state: "attached" });
     assert.ok((await lightboxCaption.innerText()).trim(), "hidden dense overlay caption must reach the lightbox");
