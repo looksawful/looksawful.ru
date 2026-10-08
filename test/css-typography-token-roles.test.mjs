@@ -40,31 +40,31 @@ test("supporting interface copy shares one Inter-era size role without absorbing
 
   assert.match(
     captions,
-    /\.media__caption\s*\{[\s\S]*?font-size:\s*var\(--fs-supporting\);[\s\S]*?line-height:\s*var\(--lh-caption\);/,
+    /\.media__caption\s*\{[^}]*?font-size:\s*var\(--fs-supporting\);[^}]*?line-height:\s*var\(--lh-caption\);/,
   );
   assert.match(
     projectNavigation,
-    /\.project-nav__link\s*\{[\s\S]*?font-size:\s*var\(--fs-supporting\);[\s\S]*?line-height:\s*var\(--lh-caption\);/,
+    /\.project-nav__link\s*\{[^}]*?font-size:\s*var\(--fs-supporting\);[^}]*?line-height:\s*var\(--lh-caption\);/,
   );
   assert.match(
     projectNavigation,
-    /\.project-nav__top\s*\{[\s\S]*?font-size:\s*var\(--fs-supporting\);[\s\S]*?line-height:\s*var\(--lh-caption\);/,
+    /\.project-nav__top\s*\{[^}]*?font-size:\s*var\(--fs-supporting\);[^}]*?line-height:\s*var\(--lh-caption\);/,
   );
   assert.match(
     components,
-    /\.project-card__caption\s*\{[\s\S]*?font-size:\s*var\(--fs-supporting\);[\s\S]*?line-height:\s*var\(--lh-caption\);/,
+    /\.project-card__caption\s*\{[^}]*?font-size:\s*var\(--fs-supporting\);[^}]*?line-height:\s*var\(--lh-caption\);/,
   );
   assert.match(
     components,
-    /\.brand-system__hover-copy\s*\{[\s\S]*?font-size:\s*var\(--fs-supporting\);[\s\S]*?line-height:\s*var\(--lh-caption\);/,
+    /\.brand-system__hover-copy\s*\{[^}]*?font-size:\s*var\(--fs-supporting\);[^}]*?line-height:\s*var\(--lh-caption\);/,
   );
   assert.match(
     components,
-    /\.jestei-captioned-group \.jestei-media__hover-copy\s*\{[\s\S]*?font-size:\s*var\(--fs-supporting\);[\s\S]*?line-height:\s*var\(--lh-caption\);/,
+    /\.jestei-captioned-group \.jestei-media__hover-copy\s*\{[^}]*?font-size:\s*var\(--fs-supporting\);[^}]*?line-height:\s*var\(--lh-caption\);/,
   );
 
   assert.match(
     utilities,
-    /\.placeholder-surface\s*\{[\s\S]*?font-size:\s*clamp\(0\.72rem,\s*0\.68rem \+ 0\.15cqi,\s*0\.84rem\);/,
+    /\.placeholder-surface\s*\{[^}]*?font-size:\s*clamp\(0\.72rem,\s*0\.68rem \+ 0\.15cqi,\s*0\.84rem\);/,
   );
 });
