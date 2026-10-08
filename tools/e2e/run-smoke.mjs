@@ -277,41 +277,9 @@ async function verifyDenseMobileCaptions(page, { requireMiddleReel = false } = {
     assert.ok(authoredCaption, "hidden dense overlay must retain authored caption content in DOM");
     const source = hiddenOverlay.locator("[data-lightbox-source]").first();
     await source.scrollIntoViewIfNeeded();
-    // Temporary targeted diagnosis: which DOM target receives the real pointer click?
-    const beforeClick = await source.evaluate((node) => {
-      const rect = node.getBoundingClientRect();
-      const target = document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2);
-      const media = node.querySelector("img, video");
-      return {
-        source: node.tagName + "." + node.className,
-        width: Math.round(rect.width),
-        height: Math.round(rect.height),
-        target: target?.tagName + "." + (target?.className || ""),
-        targetInsideSource: node.contains(target),
-        targetIsInteractive: Boolean(target?.closest("a, button, input, select, textarea, [contenteditable], video[controls]")),
-        mediaTag: media?.tagName,
-        mediaControls: media?.hasAttribute("controls"),
-      };
-    });
-    console.log("[DEBUG-J1271] before pointer click:", JSON.stringify(beforeClick));
-    await page.evaluate(() => {
-      document.addEventListener("click", (event) => {
-        const target = event.target;
-        window.__j1271LastClick = {
-          target: target?.tagName,
-          inSource: Boolean(target?.closest("[data-lightbox-source]")),
-          interactive: Boolean(target?.closest("a, button, input, select, textarea, [contenteditable], video[controls]")),
-        };
-      }, { capture: true, once: true });
-    });
-    await source.click({ force: true });
-    const afterClick = await page.evaluate(() => ({
-      click: window.__j1271LastClick || null,
-      pswpCount: document.querySelectorAll(".pswp").length,
-      legacyCount: document.querySelectorAll("[data-media-lightbox][open]").length,
-    }));
-    console.log("[DEBUG-J1271] after pointer click:", JSON.stringify(afterClick));
-    // PhotoSwipe owns the visible dialog; legacy window.pswp/open attributes are not its readiness contract.
+    // The floating portfolio mascot can cover an image's center at mobile widths.
+    // A real, non-forced click at a clear inset position retains pointer hit-testing.
+    await source.click({ position: { x: 24, y: 24 } });
     await page.locator(".pswp").waitFor({ state: "visible", timeout: 8_000 });
     const lightboxCaption = page.locator(".media-lightbox__caption").first();
     await lightboxCaption.waitFor({ state: "attached" });
