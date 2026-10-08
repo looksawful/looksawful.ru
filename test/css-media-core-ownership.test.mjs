@@ -13,7 +13,7 @@ test("media core has one canonical base owner before component specializations",
   assert.equal(existsSync(ownerPath), true, "src/styles/media.css must exist");
   assert.match(
     index,
-    /@import "\.\/patterns\.css" layer\(patterns\);\n@import "\.\/media\.css" layer\(components\);\n@import "\.\/components\.css" layer\(components\);/,
+    /@import "\.\/patterns\.css" layer\(patterns\);\n@import "\.\/primitives\.css" layer\(components\);\n@import "\.\/media\.css" layer\(components\);\n@import "\.\/components\.css" layer\(components\);/,
   );
 });
 

@@ -292,6 +292,35 @@ async function verifyCanvasHosts(page, label) {
   assert(!failures.length, `${label}: canvas failures:\n${failures.join("\n")}`);
 }
 
+async function verifyMovesVariantSelector(page, label) {
+  const group = page.locator('[data-canvas-gallery-options][role="radiogroup"]:visible').first();
+  if (!(await group.count())) return;
+
+  const options = group.locator('[role="radio"]');
+  if ((await options.count()) < 2) return;
+
+  await options.nth(0).focus();
+  await page.keyboard.press("ArrowDown");
+  assert(
+    (await options.nth(1).getAttribute("aria-checked")) === "true",
+    `${label}: ArrowDown did not select the next Moves variant`,
+  );
+  assert(
+    await options.nth(1).evaluate((node) => document.activeElement === node),
+    `${label}: ArrowDown did not move focus to the next Moves variant`,
+  );
+
+  await page.keyboard.press("ArrowUp");
+  assert(
+    (await options.nth(0).getAttribute("aria-checked")) === "true",
+    `${label}: ArrowUp did not select the previous Moves variant`,
+  );
+  assert(
+    await options.nth(0).evaluate((node) => document.activeElement === node),
+    `${label}: ArrowUp did not move focus to the previous Moves variant`,
+  );
+}
+
 async function closeLightbox(page) {
   const close = page.locator("[data-lightbox-close], .pswp__button--close").first();
   if (await close.count()) {
@@ -1161,6 +1190,7 @@ async function auditViewport(browser, viewport) {
     await verifyImages(page, label);
     await verifyVideos(page, label);
     await verifyCanvasHosts(page, label);
+    await verifyMovesVariantSelector(page, label);
     await verifyLightbox(page, label, {
       touch: viewport.mobile,
       advanced: viewport.label === "phone-portrait" || viewport.label === "desktop",

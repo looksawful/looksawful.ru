@@ -102,6 +102,14 @@ test("homepage final output resolves every build-time marker", () => {
   assert.doesNotMatch(rendered, /<!-- [A-Z][A-Z0-9_]+ -->/);
 });
 
+test("homepage Moves variants use the same exclusive-selection contract as the runtime", () => {
+  const rendered = renderHomepagePage(indexHtml);
+  assert.match(rendered, /data-canvas-gallery-options=""[^>]*role="radiogroup"|role="radiogroup"[^>]*data-canvas-gallery-options=""/);
+  assert.match(rendered, /data-canvas-gallery-option=""[^>]*role="radio"|role="radio"[^>]*data-canvas-gallery-option=""/);
+  assert.match(rendered, /aria-checked="true"/);
+  assert.doesNotMatch(rendered, /data-canvas-gallery-tab(?:s)?=""|data-moves-awful-tabs=""/);
+});
+
 test("homepage enabled entities render from canonical PageContent in declared order", () => {
   const html = renderHomepagePage(indexHtml);
   const articleIds = [

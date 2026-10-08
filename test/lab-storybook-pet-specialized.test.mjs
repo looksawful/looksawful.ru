@@ -22,7 +22,7 @@ test("pet project specialized sections are present in the private Storybook", ()
   assert.match(awfulHtml, /id="startButton"/);
 
   const movesHtml = movesAwful.render();
-  assert.match(movesHtml, /data-moves-awful-tabs=""/);
+  assert.match(movesHtml, /data-moves-awful-options=""/);
   assert.match(movesHtml, /data-animated-canvas-gallery/);
 });
 

@@ -259,7 +259,7 @@
   padding: var(--project-card-caption-padding);
   color: var(--clr-text-muted);
   background: var(--clr-surface-page);
-  font-size: clamp(0.72rem, 0.68rem + 0.15cqi, 0.84rem);
+  font-size: var(--fs-supporting);
   font-weight: var(--fw-400);
   line-height: var(--lh-caption);
 }
@@ -410,7 +410,7 @@
   max-inline-size: min(42ch, calc(100% - (var(--brand-system-hover-inset) * 2)));
   margin: 0;
   color: #fff;
-  font-size: clamp(0.72rem, 0.68rem + 0.15cqi, 0.84rem);
+  font-size: var(--fs-supporting);
   font-weight: var(--fw-400);
   line-height: var(--lh-caption);
   opacity: 0;
@@ -470,7 +470,7 @@
   margin: 0;
   overflow: auto;
   color: #fff;
-  font-size: clamp(0.72rem, 0.68rem + 0.15cqi, 0.84rem);
+  font-size: var(--fs-supporting);
   font-weight: var(--fw-400);
   line-height: var(--lh-caption);
   opacity: 0;
@@ -604,8 +604,6 @@
 
 .resource-row__action {
   flex: 0 0 auto;
-  color: inherit;
-  font: inherit;
 }
 
 /* ==================================================
@@ -908,7 +906,7 @@
 }
 
 /* ==================================================
-   Moves Awful — prototype canvas + tabs
+   Moves Awful — prototype canvas + variant selector (legacy visual hooks retained)
    ================================================== */
 
 /* ==================================================
@@ -1119,7 +1117,7 @@
       background: transparent;
     }
 
-    &[aria-selected="true"] {
+    &[aria-checked="true"] {
       color: #fff;
 
       &::after {

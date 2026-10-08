@@ -53,7 +53,7 @@ export function renderPageFlip(
       </div>
       <div class="page-flip__nav cluster">
         <button aria-label="Назад" data-page-flip-prev="" type="button"><svg aria-hidden="true" viewBox="0 0 20 20"><path d="M12.5 4.5 7 10l5.5 5.5"></path></svg></button>
-        <span class="page-flip__count" data-page-flip-count="">${count}</span>
+        <span class="sequence-counter page-flip__count" data-page-flip-count="">${count}</span>
         <button aria-label="Вперёд" data-page-flip-next="" type="button"><svg aria-hidden="true" viewBox="0 0 20 20"><path d="m7.5 4.5 5.5 5.5-5.5 5.5"></path></svg></button>
       </div>
     </section>

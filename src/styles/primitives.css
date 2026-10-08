@@ -1,0 +1,14 @@
+/* Shared production UI primitives grow only when real reuse proves the role. */
+
+.action-control {
+  appearance: none;
+  color: inherit;
+  font: inherit;
+  touch-action: manipulation;
+  cursor: pointer;
+}
+
+.sequence-counter {
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}

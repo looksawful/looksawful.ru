@@ -27,7 +27,7 @@ const MOBILE_MEDIA = "(width <= 42.5rem)";
 function createTextButton(documentRef: Document, text: string): HTMLButtonElement {
   const button = documentRef.createElement("button");
   button.type = "button";
-  button.className = "contact-form-hub__text-action";
+  button.className = "action-control contact-form-hub__text-action";
   button.textContent = text;
   return button;
 }
@@ -118,7 +118,7 @@ function createContactForm(documentRef: Document) {
   footer.className = "contact-form-hub__footer";
   const submitButton = documentRef.createElement("button");
   submitButton.type = "submit";
-  submitButton.className = "contact-form-hub__text-action contact-form-hub__submit";
+  submitButton.className = "action-control contact-form-hub__text-action contact-form-hub__submit";
   submitButton.textContent = "отправить";
 
   footer.append(submitButton);
@@ -133,7 +133,7 @@ function createContactForm(documentRef: Document) {
 
   const collapsedLauncher = documentRef.createElement("button");
   collapsedLauncher.type = "button";
-  collapsedLauncher.className = "contact-form-hub-launcher";
+  collapsedLauncher.className = "action-control contact-form-hub-launcher";
   collapsedLauncher.dataset.contactFormHubLauncher = "";
   collapsedLauncher.setAttribute("aria-label", "Развернуть форму связи");
   collapsedLauncher.textContent = "↗";

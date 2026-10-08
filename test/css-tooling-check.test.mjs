@@ -32,6 +32,7 @@ const canonicalManifest = `@layer reset, tokens, colors, base, patterns, compone
 @import "./colors.css" layer(colors);
 @import "./base.css" layer(base);
 @import "./patterns.css" layer(patterns);
+@import "./primitives.css" layer(components);
 @import "./media.css" layer(components);
 @import "./components.css" layer(components);
 @import "./before-after.css" layer(components);
