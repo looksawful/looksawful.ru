@@ -277,8 +277,10 @@ async function verifyDenseMobileCaptions(page, { requireMiddleReel = false } = {
     assert.ok(authoredCaption, "hidden dense overlay must retain authored caption content in DOM");
     const source = hiddenOverlay.locator("[data-lightbox-source]").first();
     await source.scrollIntoViewIfNeeded();
-    await source.click({ force: true });
-    await page.waitForFunction(() => window.pswp?.opener?.isOpen === true || document.querySelector("[data-media-lightbox][open]"));
+    // The floating portfolio mascot can cover an image's center at mobile widths.
+    // A real, non-forced click at a clear inset position retains pointer hit-testing.
+    await source.click({ position: { x: 24, y: 24 } });
+    await page.locator(".pswp").waitFor({ state: "visible", timeout: 8_000 });
     const lightboxCaption = page.locator(".media-lightbox__caption").first();
     await lightboxCaption.waitFor({ state: "attached" });
     assert.ok((await lightboxCaption.innerText()).trim(), "hidden dense overlay caption must reach the lightbox");
@@ -295,6 +297,48 @@ async function verifyCanvas(page) {
     return gallery?.dataset.galleryState === "error" || (canvas?.width > 2 && canvas?.height > 2 && canvas.getBoundingClientRect().width > 2);
   });
   assert.notEqual(await page.locator("[data-animated-canvas-gallery]").first().getAttribute("data-gallery-state"), "error");
+}
+
+async function verifyStandaloneBerserkSeek(page) {
+  const player = page.locator("[data-music-player]");
+  assert.equal(await player.count(), 1, "standalone Berserk page must mount one music player");
+  const seek = player.locator('input[data-music-progress][type="range"]');
+  assert.equal(await seek.count(), 1, "standalone seek must be a keyboard-accessible native range");
+
+  await player.locator("audio").evaluate((audio) => {
+    let currentTime = 0;
+    Object.defineProperty(audio, "duration", { configurable: true, value: 10 });
+    Object.defineProperty(audio, "currentTime", {
+      configurable: true,
+      get: () => currentTime,
+      set: (value) => { currentTime = Number(value); },
+    });
+    audio.dispatchEvent(new Event("loadedmetadata"));
+  });
+
+  assert.ok(await seek.getAttribute("aria-label"), "standalone seek needs an accessible name");
+  await seek.focus();
+  await seek.press("ArrowRight");
+  const state = await player.evaluate((node) => {
+    const range = node.querySelector("[data-music-progress]");
+    const audio = node.querySelector("audio");
+    const fill = node.querySelector("[data-music-progress-fill]");
+    const current = node.querySelector("[data-music-current]");
+    return {
+      min: Number(range.min),
+      max: Number(range.max),
+      value: Number(range.value),
+      valueText: range.getAttribute("aria-valuetext"),
+      currentTime: audio.currentTime,
+      fill: fill?.style.width,
+      displayedTime: current?.textContent,
+    };
+  });
+  assert.deepEqual(
+    state,
+    { min: 0, max: 10, value: 1, valueText: "00:01", currentTime: 1, fill: "10%", displayedTime: "00:01" },
+    "standalone keyboard seek must synchronise range, audio, fill and time",
+  );
 }
 
 async function verifyPortfolioPet(page) {
@@ -342,6 +386,7 @@ export async function runQuickSmoke({ browser, baseUrl, cvMode = "authored" }) {
     (page) => verifyDenseMobileCaptions(page),
     { hasTouch: true, isMobile: viewport.width === 390 },
   ));
+  await audit(runtime, "/work/berserk-timer/", VIEWPORTS[1], verifyStandaloneBerserkSeek);
   await audit(runtime, "/cv/", VIEWPORTS[1], async (page) => {
     assert.equal(await page.locator("main.resume").count(), 1);
     assert.equal(await page.locator(".experience-card").count(), getExpectedCvCardCount(cvMode));
