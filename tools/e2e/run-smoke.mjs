@@ -406,6 +406,42 @@ export async function runQuickSmoke({ browser, baseUrl, cvMode = "authored" }) {
     (page) => verifyDenseMobileCaptions(page),
     { hasTouch: true, isMobile: viewport.width === 390 },
   ));
+  // TEMPORARY #1264 acceptance: inspect both real slider and mockup-deck consumers on Styx.
+  await mapWithConcurrency(VIEWPORTS, 2, (viewport) => audit(runtime, "/work/styx/", viewport, async (page) => {
+    const groups = await page.locator(".control-bar.slider-controls.cluster").evaluateAll((nodes) =>
+      nodes.map((node) => {
+        const style = getComputedStyle(node);
+        return {
+          display: style.display,
+          wrap: style.flexWrap,
+          align: style.justifyContent,
+          gap: parseFloat(style.columnGap),
+          expectedGap: parseFloat(getComputedStyle(document.documentElement).fontSize) * 0.35,
+          role: node.getAttribute("role"),
+          label: node.getAttribute("aria-label"),
+          buttonsNamed: [...node.querySelectorAll("button")].every((b) => Boolean(b.getAttribute("aria-label"))),
+        };
+      }),
+    );
+    assert.ok(groups.length >= 2, "Styx must mount media-slider and mockup-deck compact control groups");
+    for (const group of groups) {
+      assert.equal(group.display, "flex");
+      assert.equal(group.wrap, "nowrap");
+      assert.equal(group.align, "flex-end");
+      assert.ok(Math.abs(group.gap - group.expectedGap) < 0.2);
+      assert.equal(group.role, "group");
+      assert.ok(group.label);
+      assert.equal(group.buttonsNamed, true);
+    }
+    const button = page.locator(".control-bar.slider-controls [data-deck-next]").first();
+    await button.evaluate((node) => {
+      for (let p = node.parentElement; p; p = p.parentElement) {
+        if (p.hasAttribute("hidden")) p.hidden = false;
+      }
+    });
+    await button.focus();
+    assert.equal(await button.evaluate((node) => document.activeElement === node), true, "slider button must remain keyboard focusable");
+  }));
   // TEMPORARY #1264 acceptance: run the existing deck E2E (next, resize, dots, Berserk keyboard seek).
   await runMediaDeckSmoke(runtime);
   await audit(runtime, "/work/berserk-timer/", VIEWPORTS[1], verifyStandaloneBerserkSeek);
