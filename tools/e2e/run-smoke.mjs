@@ -372,6 +372,15 @@ export async function runQuickSmoke({ browser, baseUrl, cvMode = "authored" }) {
     await verifyBuiltAssets(page);
     await verifyNavigation(page);
     await verifyImage(page);
+    // TEMPORARY #1262 browser-seam assertion, removed after RED/GREEN acceptance.
+    const badgeFontPx = await page.locator(".pet-projects .subproject-card__badge").evaluate(
+      (node) => parseFloat(getComputedStyle(node).fontSize),
+    );
+    const expectedBadgePx = viewport.width === 390 ? 12.105 : 13.68;
+    assert.ok(
+      Math.abs(badgeFontPx - expectedBadgePx) < 0.2,
+      `Home pet badge must use accepted compact --fs-200 size at ${viewport.width}px: expected ${expectedBadgePx}, got ${badgeFontPx}`,
+    );
     if (viewport.width === 390) await verifyPortfolioPet(page);
   }));
   await mapWithConcurrency([
