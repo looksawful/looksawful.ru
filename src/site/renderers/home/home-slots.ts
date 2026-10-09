@@ -95,7 +95,7 @@ const petProjectsStyles = `
     border-radius: 999px;
     background: rgb(0 0 0 / 76%);
     color: #fff;
-    font-size: var(--fs-100);
+    font-size: var(--fs-200);
     font-weight: var(--fw-600);
     line-height: 1;
     letter-spacing: 0.02em;
