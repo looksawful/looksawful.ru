@@ -10,7 +10,7 @@ const secondImageEntry = "styx-06-source-02-1920x917-use-01";
 function assertGroupedSliderControls(html, label) {
   assert.match(
     html,
-    /<div(?=[^>]*\bclass="slider-controls cluster")(?=[^>]*\baria-label="Навигация по слайдам")(?=[^>]*\brole="group")[^>]*>/,
+    /<div(?=[^>]*\bclass="(?:[^"\s]+\s+)*slider-controls(?:\s|"))(?=[^>]*\bclass="(?:[^"\s]+\s+)*cluster(?:\s|"))(?=[^>]*\baria-label="Навигация по слайдам")(?=[^>]*\brole="group")[^>]*>/,
     `${label} slider controls must expose one named group`,
   );
   assert.match(html, /<button aria-label="Предыдущий кадр" class="slider-controls__button"/);
