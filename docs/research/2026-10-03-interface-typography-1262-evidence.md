@@ -45,9 +45,9 @@ is now owned as `--fs-supporting` for six surfaces that also share the supportin
 
 Fixed `0.75rem` usages also remain local. They currently belong to different roles: before/after overlay labels, code index/copy/description text, and media-deck actions.
 
-## Missing `--fs-100` contract
+## Historical missing `--fs-100` contract
 
-`src/site/renderers/home/home-slots.ts` currently contains:
+Before the owner-approved fix in #1274, `src/site/renderers/home/home-slots.ts` contained:
 
 ```css
 .subproject-card__badge {
@@ -61,13 +61,13 @@ For an undefined custom property without fallback, `var()` becomes invalid at co
 
 Primary source: MDN `var()`.
 
-## Human gate
+## Owner decision and durable badge ownership — 2026-10-09
 
-The Home pet-project badge size remains a visible design decision.
+The owner explicitly approved **variant B**, the compact status-overlay badge typography using the existing `--fs-200` token. This settles the original visual HUMAN GATE after comparing A (the incidental inherited size) and B (the existing compact token); no retroactive historical `--fs-100` value is assumed.
 
-Adding `--fs-100`, replacing the reference with `--fs-200`, or choosing a smaller local/fluid value changes hierarchy. No historical evidence proves which value was intended.
+The Home `.pet-projects .subproject-card__badge` style owns this choice in `src/site/renderers/home/home-slots.ts`; implementation PR #1274 changes only its `font-size` declaration to `var(--fs-200)`. At 1440px, the token resolves to about **13.68px**, versus the accidental inherited **18px**. Other compact controls and editorial/display typography remain untouched.
 
-This part should be compared in the real browser on the Home pet-project cards and approved visually before implementation.
+The owner comparison prototype is isolated at `prototype/home-badge-1262` (`prototypes/home-badge-1262.html`); its illustrative cover is not production media and is not used for a pixel-parity claim. Validation evidence belongs to the exact-SHA GitHub Actions runs linked on #1274.
 
 ## Explicit non-goals
 
