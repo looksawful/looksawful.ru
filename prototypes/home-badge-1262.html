@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>#1262 · Home badge comparison · PROTOTYPE ONLY</title>
+<style>
+:root{
+  --ff-primary:"Inter Variable",Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --fs-200:clamp(0.75rem,0.72rem + 0.15vw,0.875rem);
+  --fs-300:clamp(0.875rem,0.84rem + 0.18vw,1rem);
+  --fs-400:clamp(1rem,0.94rem + 0.3vw,1.125rem);
+  --lh-caption:1.36;
+  --lh-tight:1.18;
+  --size-100:clamp(0.25rem,0.4vw,0.5rem);
+  --size-200:clamp(0.5rem,0.7vw,0.75rem);
+  --fw-600:600;
+  font-family:var(--ff-primary);
+  color:#161616;
+  background:#fff;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;font-size:var(--fs-400);line-height:1.45}
+main{width:min(100% - 32px,760px);margin:38px auto 64px}
+h1{font-size:clamp(1.35rem,2vw,1.7rem);line-height:1.15;margin:0 0 12px}
+.lead{max-width:65ch;margin:0 0 28px;color:#565656;font-size:var(--fs-300)}
+.compare{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,290px),1fr));gap:28px;align-items:start}
+.option{min-width:0}
+.option h2{font-size:1rem;line-height:1.3;margin:0 0 5px}
+.option p{font-size:0.8rem;line-height:1.4;margin:0 0 14px;color:#666}
+.figure{width:min(100%,19rem);margin:0}
+.cover{
+  display:grid;place-items:center;position:relative;width:100%;aspect-ratio:4/5;overflow:hidden;
+  border-radius:clamp(0.875rem,2.2vw,1.375rem);
+  background:#dfdfe1;
+}
+.cover::before{content:"";position:absolute;inset:0;background:linear-gradient(145deg,#bbc1c9,#787f8b 45%,#d9dade);opacity:.7}
+.cover::after{content:"ПРЕВЬЮ МЕДИА";z-index:0;font-size:11px;font-weight:600;letter-spacing:.2em;color:rgba(30,30,30,.5);transform:rotate(-20deg)}
+.badge{
+  position:absolute;top:var(--size-200);left:var(--size-200);z-index:1;
+  padding:.38em .62em;border-radius:999px;
+  background:rgb(0 0 0 / 76%);color:white;
+  font-weight:var(--fw-600);line-height:1;letter-spacing:.02em;
+  white-space:nowrap;
+}
+.option--current .badge{font-size:var(--fs-400)}
+.option--compact .badge{font-size:var(--fs-200)}
+.caption{display:grid;gap:var(--size-100);min-height:6rem;padding-top:var(--size-200)}
+.caption strong{font-size:var(--fs-300);font-weight:var(--fw-600);line-height:var(--lh-tight)}
+.caption span{font-size:var(--fs-200);line-height:var(--lh-caption);color:#6a6a6a;max-width:32ch}
+.note{margin-top:20px;color:#686868;font-size:0.75rem;line-height:1.55}
+@media(max-width:620px){main{margin-top:24px}.compare{gap:36px}.figure{width:min(100%,72vw)}}
+</style>
+</head>
+<body>
+<main>
+  <h1>Home · бейдж на Awful Mockups</h1>
+  <p class="lead">#1262. Только визуальный прототип сравнения размера бейджа. Подпись и текст карточки взяты из текущего репозитория. Обложка заменена нейтральной заглушкой. Production не изменён.</p>
+  <div class="compare">
+    <section class="option option--current">
+      <h2>A · сохранить размер</h2>
+      <p>Сегодня: несуществующий --fs-100 → наследование --fs-400, до 18px</p>
+      <figure class="figure">
+        <div class="cover"><span class="badge">(временно недоступно)</span></div>
+        <figcaption class="caption"><strong>Awful Mockups</strong><span>Набор PSD-мокапов для презентации интерфейсов и графики.</span></figcaption>
+      </figure>
+    </section>
+    <section class="option option--compact">
+      <h2>B · исправить на --fs-200</h2>
+      <p>Предложение: штатный компактный токен, до 14px</p>
+      <figure class="figure">
+        <div class="cover"><span class="badge">(временно недоступно)</span></div>
+        <figcaption class="caption"><strong>Awful Mockups</strong><span>Набор PSD-мокапов для презентации интерфейсов и графики.</span></figcaption>
+      </figure>
+    </section>
+  </div>
+  <p class="note">Прототип. Единственная переменная между вариантами: font-size бейджа. Общие параметры взяты из src/site/renderers/home/home-slots.ts и src/styles/tokens.css. Это не скриншот сайта, реальный медиафон намеренно не воспроизведён. При выборе B implementation меняет только недействующую ссылку на токен в .subproject-card__badge.</p>
+</main>
+</body>
+</html>
