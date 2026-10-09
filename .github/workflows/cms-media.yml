@@ -45,7 +45,7 @@ jobs:
           git fetch --no-tags --depth=1 origin "$BEFORE"
           git cat-file -e "$BEFORE^{commit}"
       - name: Setup Node
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@v6
         with:
           node-version: 24
           cache: npm
