@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { getExpectedCvCardCount, getExpectedCvHiddenCards } from "./smoke-cv.mjs";
 import { mapWithConcurrency } from "./concurrency.mjs";
+import { runMediaDeckSmoke } from "./smoke-media-deck.mjs";
 import { waitForDocumentReady, waitForLightboxClosed } from "./readiness.mjs";
 import { isDirectExecution, withE2ERuntime } from "./runtime.mjs";
 
@@ -372,6 +373,25 @@ export async function runQuickSmoke({ browser, baseUrl, cvMode = "authored" }) {
     await verifyBuiltAssets(page);
     await verifyNavigation(page);
     await verifyImage(page);
+    // TEMPORARY #1264 acceptance: rendered compact toolbar geometry at phone + desktop widths.
+    const bar = page.locator(".media-deck__toolbar.control-bar.cluster").first();
+    assert.equal(await bar.count(), 1, "Home media deck must reuse the shared action-bar contract");
+    const barState = await bar.evaluate((node) => {
+      const style = getComputedStyle(node);
+      return {
+        display: style.display,
+        wrap: style.flexWrap,
+        justify: style.justifyContent,
+        gap: parseFloat(style.columnGap),
+        expectedGap: parseFloat(getComputedStyle(document.documentElement).fontSize) * 0.35,
+        namedButtons: [...node.querySelectorAll("button")].every((button) => Boolean(button.getAttribute("aria-label"))),
+      };
+    });
+    assert.equal(barState.display, "flex", "control bar must retain flexbox layout");
+    assert.equal(barState.wrap, "nowrap", "compact toolbar must not wrap");
+    assert.equal(barState.justify, "flex-end", "compact toolbar must align its actions to end");
+    assert.ok(Math.abs(barState.gap - barState.expectedGap) < 0.2, "compact toolbar must retain 0.35rem gap");
+    assert.equal(barState.namedButtons, true, "compact toolbar buttons must keep accessible names");
     if (viewport.width === 390) await verifyPortfolioPet(page);
   }));
   await mapWithConcurrency([
@@ -386,6 +406,8 @@ export async function runQuickSmoke({ browser, baseUrl, cvMode = "authored" }) {
     (page) => verifyDenseMobileCaptions(page),
     { hasTouch: true, isMobile: viewport.width === 390 },
   ));
+  // TEMPORARY #1264 acceptance: run the existing deck E2E (next, resize, dots, Berserk keyboard seek).
+  await runMediaDeckSmoke(runtime);
   await audit(runtime, "/work/berserk-timer/", VIEWPORTS[1], verifyStandaloneBerserkSeek);
   await audit(runtime, "/cv/", VIEWPORTS[1], async (page) => {
     assert.equal(await page.locator("main.resume").count(), 1);
