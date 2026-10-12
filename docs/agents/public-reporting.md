@@ -47,9 +47,46 @@ Repository-relative paths and intentionally public names are preferable to local
 
 Production is the only public rendered version of the site. Pre-production visual review must stay private behind the authenticated review boundary.
 
-Do not publish pre-production preview URLs, screenshots, review manifests, visual diffs, raw capture artifacts, storage identifiers, or equivalent review evidence to repository files, Issues, pull requests, comments, reviews, workflow summaries, logs, or public artifacts. A `noindex` directive does not make a rendered preview private.
+A `noindex` directive does not make a rendered preview private; it is search-engine guidance, not an access-control boundary. Do not publish pre-production preview URLs, screenshots, review manifests, visual diffs, raw capture artifacts, storage identifiers, or equivalent review evidence to repository files, Issues, pull requests, comments, reviews, workflow summaries, logs, or public artifacts.
 
-Public GitHub status may identify a Case and exact source SHA and may report sanitized technical check results. It must not reveal where private review evidence is stored or how to access it.
+### Public Review projection
+
+Public GitHub may contain only the minimum projection needed to coordinate repository work:
+
+- stable Case identity or Case name when that Case is already repository-public;
+- the exact source SHA under review;
+- a coarse lifecycle status limited to `review-required`, `approved`, `stale`, or `failed`; private `Superseded`, `Stale`, and `Expired` states collapse to public `stale`;
+- sanitized structural/runtime check names and outcomes;
+- sanitized failure classes that contain no private Review, storage, identity, URL, or evidence details.
+
+These public facts are a projection, not a public Review manifest. They must not be sufficient to locate, enumerate, or reconstruct private review evidence.
+
+### Facts that remain private
+
+- Review ID must stay private.
+- Review depth must stay private.
+- Review manifests and all manifest-only fields must stay private. Case identity and source SHA may be repeated in the public projection, but the raw manifest must not be published.
+- Screenshots, videos, visual diffs, traces, captures, and other Review evidence must stay private.
+- Preview URLs, authenticated Review Hub routes, signed URLs, storage bucket/path/object identifiers, and provider-specific storage identifiers must stay private.
+- Approval and Baseline records must stay private, including record IDs, evidence references, append-only history, and supersession metadata. Public GitHub may expose only the coarse `approved` status when needed.
+- reviewer identity and approval/review timestamps must stay private.
+- Raw CI/browser failure diagnostics, stack traces, logs, and payloads produced inside the private Review boundary must stay private. Public CI may emit only a sanitized check name, outcome, and failure class.
+
+The Review lifecycle remains private even though Case and SHA can be public. Do not publish Current Review identity, Review depth, immutable manifest/evidence identifiers, reviewer activity chronology, or the internal reason a Review became Superseded, Stale, or Expired.
+
+### Historical cleanup priority
+
+Historical cleanup is risk-ranked and handled by the owning cleanup work rather than by weakening this boundary:
+
+1. **P0 access paths** — neutralize still-live access-bearing private preview/storage URLs, public screenshots/manifests, and public artifacts that expose private Review evidence.
+2. **P0 obsolete publication surfaces** — retire old public preview artifacts/deployments where supported, while preserving normal CI and production evidence.
+3. **P1 mutable GitHub text** — replace review URLs, storage IDs, local absolute paths, reviewer identity/timestamps, and raw private diagnostics in mutable Issues, pull requests, comments, and reviews with neutral public-safe summaries.
+4. **P1 workflow evidence** — remove or expire preview-specific artifacts/log surfaces where supported without deleting unrelated CI evidence.
+5. **P2 harmless historical wording** — generic statements such as “preview passed” may remain when they contain no URL, identifier, evidence, identity, storage location, or access context.
+
+History rewrite is reserved only for Sensitive committed material whose continued retention is itself unacceptable, such as secrets/credentials, private correspondence or personal data, private screenshots/files, or access-bearing private URLs that remain sensitive. Dead preview URLs, generic review wording, and local machine paths alone do not justify a history rewrite. Any rewrite requires an explicit freeze, backup, coordinated migration, and separate owner decision.
+
+Cleanup execution belongs to the historical-surface and repository-privacy work packages; this policy only defines the boundary and rewrite threshold.
 
 ## Issues, pull requests, and comments
 

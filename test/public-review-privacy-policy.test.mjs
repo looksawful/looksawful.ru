@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import { access, readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -9,30 +10,40 @@ const workflowsDir = path.join(root, ".github/workflows");
 const legacyWorkflow = path.join(workflowsDir, "pr-preview.yml");
 const legacyCaptionWorkflow = path.join(workflowsDir, "caption-qa.yml");
 const policyPath = path.join(root, "docs/agents/public-reporting.md");
-const scanRoots = [
-  workflowsDir,
-  path.join(root, "tools"),
-  path.join(root, "src/lab"),
-];
-
 const forbidden = [
-  ["legacy public preview project", /looksawful-ru-preview/iu],
-  ["public Pages preview hostname", /pages\.dev/iu],
-  ["legacy public preview comment marker", /looksawful-cloudflare-pr-preview/iu],
+  { label: "legacy public preview project", literal: "looksawful-ru-preview" },
+  { label: "public Pages preview hostname", literal: "pages.dev" },
+  { label: "legacy public preview comment marker", literal: "looksawful-cloudflare-pr-preview" },
 ];
 
-async function textFiles(directory) {
-  const entries = await readdir(directory, { withFileTypes: true });
-  const files = [];
-  for (const entry of entries) {
-    const absolute = path.join(directory, entry.name);
-    if (entry.isDirectory()) {
-      files.push(...await textFiles(absolute));
-      continue;
-    }
-    if (/\.(?:cjs|js|json|md|mjs|ts|yml|yaml)$/iu.test(entry.name)) files.push(absolute);
-  }
-  return files;
+function trackedMatches(literal) {
+  const result = spawnSync(
+    "git",
+    [
+      "grep",
+      "-i",
+      "-I",
+      "-l",
+      "-F",
+      literal,
+      "--",
+      ".",
+      ":(exclude)test/public-review-privacy-policy.test.mjs",
+    ],
+    {
+      cwd: root,
+      encoding: "utf8",
+    },
+  );
+
+  assert.ok(
+    result.status === 0 || result.status === 1,
+    `git grep failed while scanning public repository text: ${result.stderr}`,
+  );
+
+  return result.status === 0
+    ? result.stdout.split(/\r?\n/u).filter(Boolean)
+    : [];
 }
 
 function topLevelBlock(source, key) {
@@ -251,13 +262,9 @@ test("public automation has no pre-production review publication path", async ()
   await assert.rejects(access(legacyWorkflow), (error) => error?.code === "ENOENT");
   await assert.rejects(access(legacyCaptionWorkflow), (error) => error?.code === "ENOENT");
 
-  const files = (await Promise.all(scanRoots.map(textFiles))).flat();
-  for (const file of files) {
-    const source = await readFile(file, "utf8");
-    const relative = path.relative(root, file).replaceAll(path.sep, "/");
-    for (const [label, pattern] of forbidden) {
-      assert.doesNotMatch(source, pattern, `${relative} reintroduces ${label}`);
-    }
+  for (const { label, literal } of forbidden) {
+    const matches = trackedMatches(literal);
+    assert.deepEqual(matches, [], `${matches.join(", ")} reintroduces ${label}`);
   }
 });
 
@@ -306,4 +313,9 @@ test("public reporting policy keeps pre-production visual review private", async
   assert.match(policy, /pre-production.*must stay private/isu);
   assert.match(policy, /noindex.*does not make.*private/isu);
   assert.match(policy, /screenshots.*review manifests.*visual diffs/isu);
+  assert.match(policy, /Review ID.*must stay private/isu);
+  assert.match(policy, /Review depth.*must stay private/isu);
+  assert.match(policy, /reviewer identity.*timestamps.*must stay private/isu);
+  assert.match(policy, /coarse lifecycle status/iu);
+  assert.match(policy, /history rewrite.*only.*sensitive committed material/isu);
 });
