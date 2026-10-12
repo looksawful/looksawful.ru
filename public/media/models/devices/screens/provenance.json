@@ -1,0 +1,56 @@
+{
+  "display": {
+    "raster": [
+      1206,
+      2622
+    ],
+    "ppi": 460,
+    "viewportCss": [
+      402,
+      874
+    ],
+    "widthMm": 66.59217391304348,
+    "heightMm": 144.78,
+    "source": "https://www.apple.com/iphone-17/specs/"
+  },
+  "capturedAt": "2026-09-30T20:05:08.985Z",
+  "captures": [
+    {
+      "state": "website",
+      "url": "https://www.looksawful.ru/",
+      "title": "Иван Крушинский — арт-директор цифровых продуктов",
+      "viewportCss": [
+        402,
+        730
+      ],
+      "deviceScaleFactor": 3,
+      "raster": [
+        1206,
+        2622
+      ],
+      "safeAreaTopCss": 62,
+      "browserAreaBottomCss": 82,
+      "chrome": "illustrative browser frame, actual live page capture",
+      "overlays": "cookie consent declined; floating character dismissed; restore control hidden for screenshot only"
+    },
+    {
+      "state": "resume",
+      "url": "https://www.looksawful.ru/cv/",
+      "title": "Иван Крушинский — резюме",
+      "viewportCss": [
+        402,
+        730
+      ],
+      "deviceScaleFactor": 3,
+      "raster": [
+        1206,
+        2622
+      ],
+      "safeAreaTopCss": 62,
+      "browserAreaBottomCss": 82,
+      "chrome": "illustrative browser frame, actual live page capture",
+      "overlays": "cookie consent declined; floating character dismissed; restore control hidden for screenshot only"
+    }
+  ],
+  "lock": "Illustrative lock screen; vector artwork, not an iOS screenshot."
+}
