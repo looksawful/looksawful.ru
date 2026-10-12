@@ -1,31 +1,24 @@
-import PhotoSwipeLightbox from "photoswipe/lightbox";
-import type { SlideData } from "photoswipe";
-import { labelPhotoSwipeDialog } from "../photoswipe-lightbox.ts";
-import "photoswipe/style.css";
-
-type GallerySlide = SlideData & {
-  galleryItemId: string;
-  src: string;
-  width: number;
-  height: number;
-  alt: string;
-  captionHtml: string;
-};
+import {
+  createPhotoSwipeLightbox,
+  type PhotoSwipeLightboxItem,
+} from "../photoswipe-lightbox.ts";
 
 export interface GalleryLightboxOptions {
   root: HTMLElement;
-  onChange?: (itemId: string) => void;
+  onChange?: (itemId: string, slide: number | null) => void;
   onClose?: () => void;
 }
 
 export interface GalleryLightboxController {
-  openItem: (itemId: string) => boolean;
+  openItem: (itemId: string, slide?: number | null) => boolean;
   close: () => void;
   destroy: () => void;
 }
 
-function activeCards(root: HTMLElement): HTMLElement[] {
-  return [...root.querySelectorAll<HTMLElement>("[data-gallery-card]")];
+interface GalleryViewerSlide {
+  itemId: string;
+  slide: number | null;
+  item: PhotoSwipeLightboxItem;
 }
 
 function escapeCaption(value: string): string {
@@ -35,8 +28,8 @@ function escapeCaption(value: string): string {
     .replaceAll(">", "&gt;");
 }
 
-function galleryCredits(card: HTMLElement): readonly string[] {
-  const raw = card.dataset.galleryCredits || "[]";
+function creditsFor(element: HTMLElement): readonly string[] {
+  const raw = element.dataset.galleryCredits || "[]";
   try {
     const parsed: unknown = JSON.parse(raw);
     if (!Array.isArray(parsed)) return [];
@@ -48,35 +41,129 @@ function galleryCredits(card: HTMLElement): readonly string[] {
   }
 }
 
-function captionHtml(card: HTMLElement, title: string): string {
+function captionHtml(element: HTMLElement): string {
+  const title = element.dataset.galleryTitle?.trim() || "";
   const lines = [
     ...(title ? [title] : []),
-    ...galleryCredits(card),
+    ...creditsFor(element),
   ];
   return lines.map((line) => `<span>${escapeCaption(line)}</span>`).join("<br>");
 }
 
-function slideFor(card: HTMLElement): GallerySlide | null {
+function positiveDimension(value: string | undefined, fallback: number): number {
+  const parsed = Number.parseInt(value || "", 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+}
+
+function cardFallbackDimension(card: HTMLElement, axis: "width" | "height"): number {
   const image = card.querySelector<HTMLImageElement>("img");
-  const id = card.dataset.galleryItemId || "";
-  const src = card.dataset.gallerySrc || image?.currentSrc || image?.src || "";
-  const width = Number.parseInt(card.dataset.galleryWidth || "", 10);
-  const height = Number.parseInt(card.dataset.galleryHeight || "", 10);
-  if (!id || !src || !Number.isFinite(width) || width <= 0 || !Number.isFinite(height) || height <= 0) {
-    return null;
+  const intrinsic = axis === "width"
+    ? image?.naturalWidth || image?.width || 0
+    : image?.naturalHeight || image?.height || 0;
+  return intrinsic > 0 ? intrinsic : axis === "width" ? 1600 : 900;
+}
+
+function descriptorItem(
+  descriptor: HTMLElement,
+  card: HTMLElement,
+): PhotoSwipeLightboxItem | null {
+  const kind = descriptor.dataset.galleryKind;
+  const src = descriptor.dataset.gallerySrc?.trim() || "";
+  const poster = descriptor.dataset.galleryPosterSrc?.trim() || "";
+  const width = positiveDimension(
+    descriptor.dataset.galleryWidth,
+    cardFallbackDimension(card, "width"),
+  );
+  const height = positiveDimension(
+    descriptor.dataset.galleryHeight,
+    cardFallbackDimension(card, "height"),
+  );
+  const alt = descriptor.dataset.galleryAlt || "";
+  const caption = captionHtml(descriptor);
+
+  if (kind === "video" && src && poster) {
+    return {
+      kind: "video",
+      type: "video",
+      html: "",
+      src,
+      poster,
+      width,
+      height,
+      loop: false,
+      resumeAt: 0,
+      muted: true,
+      captionHtml: caption,
+    };
   }
 
-  const title = card.dataset.galleryTitle?.trim() || "";
-  return {
-    galleryItemId: id,
-    src,
-    msrc: image?.currentSrc || image?.src || undefined,
-    srcset: image?.srcset || undefined,
-    width,
-    height,
-    alt: card.dataset.galleryAlt || image?.alt || "",
-    captionHtml: captionHtml(card, title),
-  };
+  if (kind === "model" && poster) {
+    return {
+      kind: "image",
+      src: poster,
+      msrc: poster,
+      width,
+      height,
+      alt,
+      captionHtml: caption,
+    };
+  }
+
+  if (kind === "image" && src) {
+    return {
+      kind: "image",
+      src,
+      msrc: src,
+      width,
+      height,
+      alt,
+      captionHtml: caption,
+    };
+  }
+
+  return null;
+}
+
+function legacyDescriptor(card: HTMLElement): HTMLElement {
+  const descriptor = document.createElement("span");
+  descriptor.dataset.galleryKind = card.dataset.galleryKind || "image";
+  descriptor.dataset.gallerySrc = card.dataset.gallerySrc || "";
+  descriptor.dataset.galleryPosterSrc = card.querySelector<HTMLImageElement>("img")?.currentSrc
+    || card.querySelector<HTMLImageElement>("img")?.src
+    || "";
+  descriptor.dataset.galleryWidth = card.dataset.galleryWidth || "";
+  descriptor.dataset.galleryHeight = card.dataset.galleryHeight || "";
+  descriptor.dataset.galleryAlt = card.dataset.galleryAlt || "";
+  descriptor.dataset.galleryTitle = card.dataset.galleryTitle || "";
+  descriptor.dataset.galleryCredits = card.dataset.galleryCredits || "[]";
+  return descriptor;
+}
+
+function slidesForCard(card: HTMLElement): readonly GalleryViewerSlide[] {
+  const itemId = card.dataset.galleryItemId?.trim() || "";
+  if (!itemId) return [];
+
+  const descriptors = [...card.querySelectorAll<HTMLElement>("[data-gallery-media]")];
+  const media = (descriptors.length ? descriptors : [legacyDescriptor(card)])
+    .map((descriptor) => ({
+      descriptor,
+      item: descriptorItem(descriptor, card),
+    }))
+    .filter((entry): entry is { descriptor: HTMLElement; item: PhotoSwipeLightboxItem } => (
+      entry.item !== null
+    ));
+
+  return media.map(({ item }, index) => ({
+    itemId,
+    slide: media.length > 1 ? index + 1 : null,
+    item,
+  }));
+}
+
+function cardsInSelectedSeries(root: HTMLElement, selected: HTMLElement): HTMLElement[] {
+  const series = selected.closest<HTMLElement>("[data-gallery-series]");
+  if (!series || !root.contains(series)) return [selected];
+  return [...series.querySelectorAll<HTMLElement>("[data-gallery-card]")];
 }
 
 export function createGalleryLightbox({
@@ -84,81 +171,44 @@ export function createGalleryLightbox({
   onChange,
   onClose,
 }: GalleryLightboxOptions): GalleryLightboxController {
-  let current: PhotoSwipeLightbox | null = null;
+  const viewer = createPhotoSwipeLightbox();
 
-  const destroyCurrent = (): void => {
-    current?.destroy();
-    current = null;
-  };
+  const openCard = (
+    selected: HTMLElement,
+    requestedSlide: number | null = null,
+  ): boolean => {
+    const slides = cardsInSelectedSeries(root, selected).flatMap(slidesForCard);
+    if (!slides.length) return false;
 
-  const openCard = (selected: HTMLElement): boolean => {
-    const cards = activeCards(root);
-    const pairs = cards
-      .map((card) => ({ card, slide: slideFor(card) }))
-      .filter((pair): pair is { card: HTMLElement; slide: GallerySlide } => pair.slide !== null);
-    const index = pairs.findIndex(({ card }) => card === selected);
-    if (index < 0 || pairs.length === 0) return false;
+    const itemId = selected.dataset.galleryItemId || "";
+    const requestedIndex = slides.findIndex((entry) => (
+      entry.itemId === itemId
+      && (requestedSlide === null || entry.slide === requestedSlide)
+    ));
+    const firstItemIndex = slides.findIndex((entry) => entry.itemId === itemId);
+    const index = requestedIndex >= 0 ? requestedIndex : firstItemIndex;
+    if (index < 0) return false;
 
-    destroyCurrent();
-    const slides = pairs.map(({ slide }) => slide);
-    const lightbox = new PhotoSwipeLightbox({
-      dataSource: slides,
+    viewer.open({
+      items: slides.map(({ item }) => item),
       index,
-      pswpModule: () => import("photoswipe"),
+      restoreFocus: selected,
+      dialogLabel: "Галерея",
       mainClass: "media-lightbox media-lightbox--photoswipe gallery-lightbox",
-      bgOpacity: 0.96,
-      loop: slides.length > 1,
-      showHideAnimationType: "none",
-      showAnimationDuration: 0,
-      hideAnimationDuration: 0,
-      zoomAnimationDuration: 0,
-      returnFocus: true,
-      preload: [1, 1],
+      loop: false,
+      onChange: (_item, activeIndex) => {
+        const active = slides[activeIndex];
+        if (active) onChange?.(active.itemId, active.slide);
+      },
+      onClose,
     });
-
-    const syncItem = (): void => {
-      const active = slides[lightbox.pswp?.currIndex ?? index];
-      if (active) onChange?.(active.galleryItemId);
-    };
-
-    lightbox.on("uiRegister", () => {
-      lightbox.pswp?.ui?.registerElement({
-        name: "gallery-caption",
-        className: "media-lightbox__caption",
-        tagName: "p",
-        isButton: false,
-        appendTo: "root",
-        order: 9,
-        onInit: (element, instance) => {
-          const syncCaption = (): void => {
-            const slide = slides[instance.currIndex];
-            element.innerHTML = slide?.captionHtml || "";
-            element.toggleAttribute("hidden", !element.textContent?.trim());
-          };
-          instance.on("change", syncCaption);
-          instance.on("afterInit", syncCaption);
-          syncCaption();
-        },
-      });
-    });
-    lightbox.on("afterInit", () => {
-      labelPhotoSwipeDialog(lightbox.pswp, "Галерея");
-      syncItem();
-    });
-    lightbox.on("change", syncItem);
-    lightbox.on("close", () => onClose?.());
-    lightbox.on("destroy", () => {
-      if (current === lightbox) current = null;
-    });
-
-    current = lightbox;
-    lightbox.loadAndOpen(index);
     return true;
   };
 
-  const openItem = (itemId: string): boolean => {
-    const card = activeCards(root).find((candidate) => candidate.dataset.galleryItemId === itemId);
-    return card ? openCard(card) : false;
+  const openItem = (itemId: string, slide: number | null = null): boolean => {
+    const card = [...root.querySelectorAll<HTMLElement>("[data-gallery-card]")]
+      .find((candidate) => candidate.dataset.galleryItemId === itemId);
+    return card ? openCard(card, slide) : false;
   };
 
   const handleClick = (event: Event): void => {
@@ -183,14 +233,11 @@ export function createGalleryLightbox({
 
   return {
     openItem,
-    close: () => {
-      if (current?.pswp) current.pswp.close();
-      else destroyCurrent();
-    },
+    close: () => viewer.close(),
     destroy: () => {
       root.removeEventListener("click", handleClick);
       root.removeEventListener("keydown", handleKeydown);
-      destroyCurrent();
+      viewer.destroy();
     },
   };
 }

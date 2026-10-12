@@ -23,15 +23,21 @@ export type PhotoSwipeVideoItem = SlideData & {
   loop: boolean;
   resumeAt: number;
   captionHtml: string;
+  muted?: boolean;
 };
 
 export type PhotoSwipeLightboxItem = PhotoSwipeImageItem | PhotoSwipeVideoItem;
 
-type OpenOptions = {
+export interface PhotoSwipeOpenOptions {
   items: PhotoSwipeLightboxItem[];
   index: number;
   restoreFocus: HTMLElement | null;
-};
+  dialogLabel?: string;
+  mainClass?: string;
+  loop?: boolean;
+  onChange?: (item: PhotoSwipeLightboxItem, index: number) => void;
+  onClose?: () => void;
+}
 
 type VideoContent = Content & {
   element?: HTMLDivElement;
@@ -115,8 +121,9 @@ function createVideoElement(item: PhotoSwipeVideoItem): HTMLDivElement {
   video.poster = item.poster;
   video.controls = true;
   video.loop = item.loop;
-  video.muted = false;
-  video.defaultMuted = false;
+  const muted = item.muted ?? false;
+  video.muted = muted;
+  video.defaultMuted = muted;
   video.playsInline = true;
   video.preload = "auto";
 
@@ -194,7 +201,8 @@ function bindVideoLifecycle(lightbox: PhotoSwipeLightbox): void {
 }
 
 export function createPhotoSwipeLightbox(): {
-  open: (options: OpenOptions) => void;
+  open: (options: PhotoSwipeOpenOptions) => void;
+  close: () => void;
   destroy: () => void;
 } {
   let current: PhotoSwipeLightbox | null = null;
@@ -204,16 +212,25 @@ export function createPhotoSwipeLightbox(): {
     current = null;
   };
 
-  const open = ({ items, index, restoreFocus }: OpenOptions): void => {
+  const open = ({
+    items,
+    index,
+    restoreFocus,
+    dialogLabel = "Просмотр медиа",
+    mainClass = "media-lightbox media-lightbox--photoswipe",
+    loop,
+    onChange,
+    onClose,
+  }: PhotoSwipeOpenOptions): void => {
     destroy();
 
     const lightbox = new PhotoSwipeLightbox({
       dataSource: items,
       index,
       pswpModule: () => import("photoswipe"),
-      mainClass: "media-lightbox media-lightbox--photoswipe",
+      mainClass,
       bgOpacity: 0.94,
-      loop: items.length > 1,
+      loop: loop ?? items.length > 1,
       showHideAnimationType: "none",
       showAnimationDuration: 0,
       hideAnimationDuration: 0,
@@ -225,12 +242,21 @@ export function createPhotoSwipeLightbox(): {
     registerCaptionUi(lightbox);
     bindVideoLifecycle(lightbox);
 
+    const syncChange = (): void => {
+      const index = lightbox.pswp?.currIndex ?? 0;
+      const item = items[index];
+      if (item) onChange?.(item, index);
+    };
+
     lightbox.on("afterInit", () => {
-      labelPhotoSwipeDialog(lightbox.pswp, "Просмотр медиа");
+      labelPhotoSwipeDialog(lightbox.pswp, dialogLabel);
+      syncChange();
     });
+    lightbox.on("change", syncChange);
 
     lightbox.on("close", () => {
       restoreFocus?.focus();
+      onClose?.();
     });
 
     lightbox.on("destroy", () => {
@@ -243,5 +269,10 @@ export function createPhotoSwipeLightbox(): {
     lightbox.loadAndOpen(index);
   };
 
-  return { open, destroy };
+  const close = (): void => {
+    if (current?.pswp) current.pswp.close();
+    else destroy();
+  };
+
+  return { open, close, destroy };
 }
