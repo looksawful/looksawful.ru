@@ -39,3 +39,24 @@ dt { color: #999; font-size: .75rem; } dd { margin: .25rem 0 0; overflow-wrap: a
 [data-story-viewport="mobile"] .lab-story__canvas { width: 24rem; max-width: none; }
 @media (max-width: 70rem) { .lab-tools { grid-template-columns: repeat(2, minmax(0, 1fr)); } .lab-story__viewports { grid-template-columns: 1fr; } }
 @media (max-width: 42rem) { .lab-shell { width: min(100% - 1rem, 112rem); } .lab-header { grid-template-columns: 1fr; } .lab-provenance, .lab-tools { grid-template-columns: 1fr; } .lab-panel { padding: .75rem; } }
+
+.review-evidence { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr)); }
+.review-evidence__item { margin: 0; overflow: hidden; border: 1px solid #303030; border-radius: .75rem; background: #080808; }
+.review-evidence__item img { display: block; width: 100%; height: auto; background: #111; }
+.review-evidence__item figcaption { padding: .75rem 1rem; color: #aaa; font-size: .8rem; overflow-wrap: anywhere; }
+
+.review-status-row { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem 1rem; }
+.review-status-row p { margin: 0; }
+.review-action { min-height: 2.5rem; padding-inline: .9rem; border: 1px solid #555; border-radius: .5rem; background: #151515; color: inherit; font: inherit; cursor: pointer; }
+.review-action:disabled { cursor: default; opacity: .55; }
+.lab-mode:focus-visible, .review-action:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+.review-evidence[aria-busy="true"] { min-height: 4rem; }
+.review-evidence__item { min-width: 0; }
+.review-evidence__item[aria-busy="true"] { min-height: 10rem; }
+.review-evidence__error { display: grid; min-height: 10rem; margin: 0; padding: 1rem; place-items: center; text-align: center; color: #aaa; }
+.review-evidence__item img { max-width: 100%; }
+@media (forced-colors: active) { .lab-mode, .review-action, .review-evidence__item { border-color: CanvasText; } }
+
+.review-approval__copy { max-width: 70ch; color: #aaa; }
+#review-approval-status[data-state="error"] { color: #ddd; }
+#review-approval-status[data-state="ready"] { color: #f4f4f4; }
