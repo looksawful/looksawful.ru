@@ -10,7 +10,7 @@ export interface PageDiscovery {
 
 export type EntityPageId = CanonicalEntityPageId;
 
-export type StaticPageId = "cv" | "privacy";
+export type StaticPageId = "cv" | "privacy" | "services" | "all-services";
 export type SitePageId = "home" | "gallery" | StaticPageId | "not-found" | EntityPageId;
 
 export interface VitePageBuild {
@@ -23,7 +23,7 @@ export interface PublicStaticPageBuild {
 }
 
 export type SitePageBuild = VitePageBuild | PublicStaticPageBuild;
-export type SitePageRenderer = "home" | "gallery" | "entity" | "static-project" | "cv" | "privacy" | "not-found";
+export type SitePageRenderer = "home" | "gallery" | "entity" | "static-project" | "cv" | "privacy" | "services" | "all-services" | "not-found";
 
 interface BasePageDefinition {
   id: SitePageId;
@@ -98,7 +98,25 @@ export interface PrivacyPageDefinition extends BasePageDefinition {
   build: PublicStaticPageBuild;
 }
 
-export type StaticPageDefinition = CvPageDefinition | PrivacyPageDefinition;
+export interface ServicesPageDefinition extends BasePageDefinition {
+  type: "static";
+  id: "services";
+  renderer: "services";
+  build: VitePageBuild;
+}
+
+export interface AllServicesPageDefinition extends BasePageDefinition {
+  type: "static";
+  id: "all-services";
+  renderer: "all-services";
+  build: VitePageBuild;
+}
+
+export type StaticPageDefinition =
+  | CvPageDefinition
+  | PrivacyPageDefinition
+  | ServicesPageDefinition
+  | AllServicesPageDefinition;
 
 export interface NotFoundPageDefinition extends BasePageDefinition {
   type: "not-found";
