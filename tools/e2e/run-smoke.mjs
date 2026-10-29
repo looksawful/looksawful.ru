@@ -280,11 +280,26 @@ async function verifyPortfolioPet(page) {
   await contactHub.locator("[data-contact-form-hub-close]").click();
 }
 
+async function verifyHeroHeadingAccessibility(page) {
+  const heading = page.getByRole("heading", {
+    level: 1,
+    name: "Иван Крушинский, арт-директор цифровых продуктов",
+    exact: true,
+  });
+  assert.equal(await heading.count(), 1, "Home H1 must expose the full name and role exactly once");
+  assert.equal(
+    await page.locator('.hero__title [data-hero-letter]:not([aria-hidden="true"])').count(),
+    0,
+    "Animated H1 letters must remain hidden from assistive technologies",
+  );
+}
+
 export async function runQuickSmoke({ browser, baseUrl, cvMode = "authored" }) {
   const runtime = { browser, baseUrl };
   // These are the only parallel contexts; callers run quick smoke before deep suites.
   await mapWithConcurrency(VIEWPORTS, 2, (viewport) => audit(runtime, "/", viewport, async (page) => {
     await verifyBuiltAssets(page);
+    await verifyHeroHeadingAccessibility(page);
     await verifyNavigation(page);
     await verifyImage(page);
     if (viewport.width === 390) await verifyPortfolioPet(page);
