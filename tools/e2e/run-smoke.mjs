@@ -366,14 +366,24 @@ async function verifyPortfolioPet(page) {
 }
 
 async function verifyHeroHeadingAccessibility(page) {
-  const heading = page.getByRole("heading", {
-    level: 1,
-    name: "Иван Крушинский, арт-директор цифровых продуктов",
-    exact: true,
-  });
-  assert.equal(await heading.count(), 1, "Home H1 must expose the full name and role exactly once");
+  const heading = page.locator("h1.hero__title");
+  const alternative = heading.locator(":scope > .visually-hidden");
+  assert.equal(await alternative.count(), 1, "Home H1 needs one text alternative");
+
+  const accessibleName = (await alternative.textContent())?.trim();
+  assert.ok(accessibleName, "Home H1 text alternative must not be empty");
   assert.equal(
-    await page.locator('.hero__title [data-hero-letter]:not([aria-hidden="true"])').count(),
+    await page.getByRole("heading", { level: 1, name: accessibleName, exact: true }).count(),
+    1,
+    "Home H1 must expose its text alternative as the accessible name",
+  );
+  assert.equal(
+    await heading.locator(".hero__name[aria-label], .hero__role[aria-label]").count(),
+    0,
+    "Generic animated name and role spans must not carry aria-label",
+  );
+  assert.equal(
+    await heading.locator('[data-hero-letter]:not([aria-hidden="true"])').count(),
     0,
     "Animated H1 letters must remain hidden from assistive technologies",
   );
