@@ -20,6 +20,7 @@ function cloneItem(item: HTMLElement): HTMLElement {
   const clone = item.cloneNode(true) as HTMLElement;
   clone.setAttribute("data-infinite-reel-clone", "");
   clone.setAttribute("aria-hidden", "true");
+  clone.inert = true;
   clone.querySelectorAll("[id]").forEach((node) => node.removeAttribute("id"));
   return clone;
 }
