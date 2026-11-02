@@ -467,6 +467,21 @@ async function verifyLightboxKeyboardAndFocus(page, label) {
   const found = await selectLightboxCandidate(page, "[data-lightbox-source]", "data-smoke-lightbox-keyboard");
   if (!found) return;
 
+  const namedSources = await page.evaluate(() =>
+    [...document.querySelectorAll("figure.media")].flatMap((figure) => {
+      const source = figure.querySelector("[data-lightbox-source]");
+      const title = figure.querySelector(":scope > figcaption.media__caption .media__title");
+      if (!(source instanceof HTMLElement) || !title?.textContent?.trim()) return [];
+      return [{
+        title: title.textContent.replace(/\s+/g, " ").trim(),
+        name: source.getAttribute("aria-label") || "",
+      }];
+    }),
+  );
+  for (const { title, name } of namedSources) {
+    assert(name.includes(title), `${label}: media trigger has no specific accessible title: ${JSON.stringify({ title, name })}`);
+  }
+
   await openSource(page, "[data-smoke-lightbox-keyboard]", `${label}: Enter key opens lightbox`, "enter");
   await page.keyboard.press("Escape");
   await waitForLightboxClosed(page);

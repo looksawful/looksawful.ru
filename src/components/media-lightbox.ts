@@ -57,6 +57,24 @@ function activeCaptionFor(figure: HTMLElement): HTMLElement | null {
   return figure.querySelector<HTMLElement>(":scope > figcaption.media__caption");
 }
 
+
+function accessibleLightboxName(source: HTMLElement, media: LightboxMedia): string {
+  const figure = source.closest("figure");
+  const caption = figure instanceof HTMLElement ? activeCaptionFor(figure) : null;
+  const description = [
+    caption?.querySelector<HTMLElement>(".media__title")?.textContent,
+    caption?.querySelector<HTMLElement>(".media__text")?.textContent,
+    figure instanceof HTMLElement
+      ? figure.querySelector<HTMLElement>(SUPPLEMENTAL_CAPTION_SELECTOR)?.textContent
+      : null,
+    media instanceof HTMLImageElement ? media.alt : null,
+  ]
+    .map(normalizeCaptionText)
+    .find(Boolean);
+
+  return description ? `Открыть: ${description}` : "Открыть медиа";
+}
+
 function appendSupplementalCaption(host: HTMLElement, figure: HTMLElement): void {
   if (host.querySelector(".media__text")) {
     return;
@@ -253,7 +271,7 @@ export function markLightboxSources(root: ParentNode = document): void {
 
       surface.setAttribute("role", "button");
       surface.setAttribute("aria-haspopup", "dialog");
-      surface.setAttribute("aria-label", "Открыть медиа");
+      surface.setAttribute("aria-label", accessibleLightboxName(surface, media));
     });
 }
 
@@ -320,6 +338,16 @@ export function createMediaLightbox(
     open(source);
   };
 
+  const handleFocusIn = (event: Event): void => {
+    const source = event.target instanceof Element
+      ? event.target.closest(SOURCE_SELECTOR)
+      : null;
+    if (!(source instanceof HTMLElement)) return;
+    const media = mediaFor(source);
+    if (media) source.setAttribute("aria-label", accessibleLightboxName(source, media));
+  };
+
+  root.addEventListener("focusin", handleFocusIn);
   root.addEventListener("click", handleClick);
   root.addEventListener("keydown", handleSourceKey);
 
@@ -327,6 +355,7 @@ export function createMediaLightbox(
 
   return () => {
     lightbox.destroy();
+    root.removeEventListener("focusin", handleFocusIn);
     root.removeEventListener("click", handleClick);
     root.removeEventListener("keydown", handleSourceKey);
   };
