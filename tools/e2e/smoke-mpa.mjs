@@ -288,6 +288,32 @@ async function verifyPageFlip(page, label) {
   }
 }
 
+async function verifyInfiniteReelFocus(page, label) {
+  const reel = page.locator("[data-infinite-reel]").first();
+  await reel.scrollIntoViewIfNeeded();
+  await reel.locator("[data-infinite-reel-clone]").first().waitFor({ state: "attached", timeout: 5_000 });
+  const state = await reel.evaluate((root) => {
+    const clones = [...root.querySelectorAll("[data-infinite-reel-clone]")];
+    const cloneTrigger = clones[0]?.querySelector('[tabindex="0"]');
+    const originalTrigger = root.querySelector(
+      '[data-infinite-reel-track] > :not([data-infinite-reel-clone]) [tabindex="0"]',
+    );
+    if (!(cloneTrigger instanceof HTMLElement) || !(originalTrigger instanceof HTMLElement)) return null;
+    cloneTrigger.focus();
+    const cloneCanFocus = document.activeElement === cloneTrigger;
+    originalTrigger.focus();
+    return {
+      cloneCanFocus,
+      originalCanFocus: document.activeElement === originalTrigger,
+      clonesInert: clones.every((clone) => clone instanceof HTMLElement && clone.inert),
+    };
+  });
+  assert(
+    state && !state.cloneCanFocus && state.originalCanFocus && state.clonesInert,
+    `${label}: clone triggers must not receive focus; originals must remain reachable (${JSON.stringify(state)})`,
+  );
+}
+
 async function auditRoute(browser, route, width, height) {
   const mobile = width <= 844;
   const context = await browser.newContext({
@@ -329,6 +355,7 @@ async function auditRoute(browser, route, width, height) {
     await verifyVideos(page, label);
 
     if (width === 1440) {
+      if (["jestei-pool", "sensetique"].includes(route.entityId)) await verifyInfiniteReelFocus(page, label);
       await verifyLightbox(page, label);
       await verifyBeforeAfter(page, label);
       await verifyPageFlip(page, label);
