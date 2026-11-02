@@ -473,7 +473,7 @@ async function verifyLightboxKeyboardAndFocus(page, label) {
       const title = figure.querySelector(":scope > figcaption.media__caption .media__title");
       if (!(source instanceof HTMLElement) || !title?.textContent?.trim()) return [];
       return [{
-        title: title.textContent.replace(/\\s+/g, " ").trim(),
+        title: title.textContent.replace(/\s+/g, " ").trim(),
         name: source.getAttribute("aria-label") || "",
       }];
     }),
