@@ -120,6 +120,18 @@ test("direct-link project receives a breadcrumb but is not promoted into the pri
   assert.doesNotMatch(html, /href="\/work\/awful-cases\/"[^>]*>Awful Cases<\/a>/);
 });
 
+test("homepage keyboard bypass targets the same focusable main landmark as the shared shell", () => {
+  const source = readFileSync(new URL("../index.html", import.meta.url), "utf8");
+  const html = renderHomepagePage(source);
+
+  assert.match(
+    html,
+    /<body>\s*<a class="skip-link" href="#main-content">Перейти к содержимому<\/a>/,
+  );
+  assert.match(html, /<main id="main-content" tabindex="-1">/);
+  assert.equal((html.match(/<main\b/g) ?? []).length, 1);
+});
+
 test("homepage build renders the same live global navigation instead of the legacy hidden Work nav", () => {
   const source = readFileSync(new URL("../index.html", import.meta.url), "utf8");
   const html = renderHomepagePage(source);
