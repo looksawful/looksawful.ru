@@ -145,6 +145,7 @@ test("scheduled quality keeps broad nightly checks and moves physical media audi
   assert.match(workflow, /Resolve exact target SHA/);
   assert.match(workflow, /needs\.resolve-target\.outputs\.target-sha/);
   assert.match(workflow, /prepare-media:[\s\S]*?Install media tooling[\s\S]*?ffmpeg[\s\S]*?Rebuild and validate generated media once[\s\S]*?npm run media:sync/);
+  assert.match(workflow, /\n  prepare-media:\n[\s\S]*?\n    runs-on: ubuntu-24\.04\n/);
   const fullE2E = workflow.match(/\n  full-e2e:\n([\s\S]*?)\n  lighthouse:/)?.[1] ?? "";
   assert.doesNotMatch(fullE2E, /ffmpeg|Install media tooling/);
   assert.match(fullE2E, /Restore exact prepared media[\s\S]*?fail-on-cache-miss: true[\s\S]*?media-dev-state\.mjs --cache-verify/);
