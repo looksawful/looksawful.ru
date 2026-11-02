@@ -291,11 +291,7 @@ async function verifyPageFlip(page, label) {
 async function verifyInfiniteReelFocus(page, label) {
   const reel = page.locator("[data-infinite-reel]").first();
   await reel.scrollIntoViewIfNeeded();
-  await page.waitForFunction(
-    () => document.querySelector("[data-infinite-reel-clone]"),
-    null,
-    { timeout: 5_000 },
-  );
+  await reel.locator("[data-infinite-reel-clone]").first().waitFor({ state: "attached", timeout: 5_000 });
   const state = await reel.evaluate((root) => {
     const clones = [...root.querySelectorAll("[data-infinite-reel-clone]")];
     const cloneTrigger = clones[0]?.querySelector('[tabindex="0"]');
