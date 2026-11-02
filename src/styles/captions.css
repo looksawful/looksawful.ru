@@ -47,7 +47,6 @@
   font-variant-numeric: tabular-nums;
   font-weight: var(--fw-400);
   white-space: nowrap;
-  opacity: 0.58;
 }
 
 .media__title,
