@@ -301,11 +301,70 @@ async function auditNavigation(browser, path, currentLabel, width, height) {
   }
 }
 
+
+async function auditCompactHeroAndTopFilter(browser) {
+  const context = await browser.newContext({ viewport: { width: 320, height: 568 } });
+  const page = await context.newPage();
+
+  try {
+    await page.goto(BASE_URL, { waitUntil: "domcontentloaded", timeout: 30_000 });
+    await page.evaluate(() => document.fonts?.ready);
+    const gap = await page.evaluate(() => {
+      const portrait = document.querySelector(".hero__portrait img").getBoundingClientRect();
+      const intro = document.querySelector(".hero > footer > p").getBoundingClientRect();
+      const title = document.querySelector(".hero h1").getBoundingClientRect();
+      return { text: intro.top - portrait.bottom, title: portrait.top - title.bottom };
+    });
+    assert(gap.text >= 16 && gap.title >= 16, `320x568: hero portrait overlaps text/title: ${JSON.stringify(gap)}`);
+
+    await page.goto(`${BASE_URL}/work/jestei-pool/`, { waitUntil: "domcontentloaded", timeout: 30_000 });
+    await page.locator("playlist-filter-workflow .top-rating").first().waitFor({ state: "attached" });
+    const states = await page.evaluate(() => {
+      const root = document.querySelector("playlist-filter-workflow").shadowRoot;
+      const buttons = [...root.querySelectorAll("button.top-rating")];
+      const snapshot = () => buttons.map((b) => ({
+        selection: b.dataset.selection,
+        pressed: b.getAttribute("aria-pressed"),
+        label: b.getAttribute("aria-label"),
+      }));
+      const initial = snapshot();
+      buttons[0].click();
+      const included = snapshot();
+      buttons[1].click();
+      const excluded = snapshot();
+      buttons[0].click();
+      const neutral = snapshot();
+      buttons[1].click();
+      root.querySelector('[data-action="reset"]').click();
+      const reset = snapshot();
+      return { initial, included, excluded, neutral, reset };
+    });
+    for (const [phase, selection, pressed] of [
+      ["initial", "neutral", "false"],
+      ["included", "included", "true"],
+      ["excluded", "excluded", "false"],
+      ["neutral", "neutral", "false"],
+      ["reset", "neutral", "false"],
+    ]) {
+      assert(
+        states[phase].length === 2 && states[phase].every((b) => b.selection === selection && b.pressed === pressed),
+        `Jestei ${phase}: Top 15 controls disagree: ${JSON.stringify(states[phase])}`,
+      );
+    }
+    assert(states.excluded.every((b) => b.label.includes("исключено")), "excluded Top 15 state has no accessible name");
+    assert(states.reset.every((b) => b.label === "Топ 15"), "reset must restore Top 15 label");
+    console.log("[smoke-navigation] compact hero + Jestei Top 15 states: OK");
+  } finally {
+    await context.close();
+  }
+}
+
 export async function runSmokeNavigation({ browser, baseUrl }) {
   BASE_URL = baseUrl;
   for (const [path, currentLabel, width, height] of CASES) {
     await auditNavigation(browser, path, currentLabel, width, height);
   }
+  await auditCompactHeroAndTopFilter(browser);
   console.log(`[smoke-navigation] OK: ${CASES.length} responsive navigation checks`);
 }
 
