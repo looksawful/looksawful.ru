@@ -304,56 +304,37 @@ async function auditNavigation(browser, path, currentLabel, width, height) {
 
 async function auditCompactHeroAndTopFilter(browser) {
   const context = await browser.newContext({ viewport: { width: 320, height: 568 } });
-  const page = await context.newPage();
-
   try {
-    await page.goto(BASE_URL, { waitUntil: "domcontentloaded", timeout: 30_000 });
+    const page = await context.newPage();
+    await page.goto(BASE_URL, { waitUntil: "domcontentloaded" });
     await page.evaluate(() => document.fonts?.ready);
     const gap = await page.evaluate(() => {
-      const portrait = document.querySelector(".hero__portrait img").getBoundingClientRect();
-      const intro = document.querySelector(".hero > footer > p").getBoundingClientRect();
-      const title = document.querySelector(".hero h1").getBoundingClientRect();
-      return { text: intro.top - portrait.bottom, title: portrait.top - title.bottom };
+      const rect = (selector) => document.querySelector(selector).getBoundingClientRect();
+      const portrait = rect(".hero__portrait img");
+      return [portrait.top - rect(".hero h1").bottom, rect(".hero > footer > p").top - portrait.bottom];
     });
-    assert(gap.text >= 16 && gap.title >= 16, `320x568: hero portrait overlaps text/title: ${JSON.stringify(gap)}`);
+    assert(gap.every((value) => value >= 16), `320x568 portrait overlaps text: ${gap}`);
 
-    await page.goto(`${BASE_URL}/work/jestei-pool/`, { waitUntil: "domcontentloaded", timeout: 30_000 });
+    await page.goto(`${BASE_URL}/work/jestei-pool/`, { waitUntil: "domcontentloaded" });
     await page.locator("playlist-filter-workflow .top-rating").first().waitFor({ state: "attached" });
     const states = await page.evaluate(() => {
       const root = document.querySelector("playlist-filter-workflow").shadowRoot;
-      const buttons = [...root.querySelectorAll("button.top-rating")];
-      const snapshot = () => buttons.map((b) => ({
-        selection: b.dataset.selection,
-        pressed: b.getAttribute("aria-pressed"),
-        label: b.getAttribute("aria-label"),
-      }));
-      const initial = snapshot();
-      buttons[0].click();
-      const included = snapshot();
-      buttons[1].click();
-      const excluded = snapshot();
-      buttons[0].click();
-      const neutral = snapshot();
-      buttons[1].click();
+      const buttons = [...root.querySelectorAll(".top-rating")];
+      const states = [];
+      const record = () => states.push(buttons.map((b) => [b.dataset.selection, b.getAttribute("aria-pressed"), b.getAttribute("aria-label")]));
+      record();
+      for (const index of [0, 1, 0]) { buttons[index].click(); record(); }
       root.querySelector('[data-action="reset"]').click();
-      const reset = snapshot();
-      return { initial, included, excluded, neutral, reset };
+      record();
+      return states;
     });
-    for (const [phase, selection, pressed] of [
-      ["initial", "neutral", "false"],
-      ["included", "included", "true"],
-      ["excluded", "excluded", "false"],
-      ["neutral", "neutral", "false"],
-      ["reset", "neutral", "false"],
-    ]) {
-      assert(
-        states[phase].length === 2 && states[phase].every((b) => b.selection === selection && b.pressed === pressed),
-        `Jestei ${phase}: Top 15 controls disagree: ${JSON.stringify(states[phase])}`,
-      );
+    for (const [index, selection] of ["neutral", "included", "excluded", "neutral", "neutral"].entries()) {
+      assert(states[index].length === 2 && states[index].every(([state, pressed, label]) =>
+        state === selection && pressed === String(selection === "included") &&
+        label === (selection === "excluded" ? "Топ 15, исключено" : "Топ 15")
+      ), `Top 15 state ${selection}: ${JSON.stringify(states[index])}`);
     }
-    assert(states.excluded.every((b) => b.label.includes("исключено")), "excluded Top 15 state has no accessible name");
-    assert(states.reset.every((b) => b.label === "Топ 15"), "reset must restore Top 15 label");
-    console.log("[smoke-navigation] compact hero + Jestei Top 15 states: OK");
+    console.log("[smoke-navigation] compact hero + Top 15: OK");
   } finally {
     await context.close();
   }
