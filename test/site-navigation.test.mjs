@@ -120,6 +120,18 @@ test("direct-link project receives a breadcrumb but is not promoted into the pri
   assert.doesNotMatch(html, /href="\/work\/awful-cases\/"[^>]*>Awful Cases<\/a>/);
 });
 
+test("homepage keyboard bypass targets the same focusable main landmark as the shared shell", () => {
+  const source = readFileSync(new URL("../index.html", import.meta.url), "utf8");
+  const html = renderHomepagePage(source);
+
+  assert.match(
+    html,
+    /<body>\s*<a class="skip-link" href="#main-content">Перейти к содержимому<\/a>/,
+  );
+  assert.match(html, /<main id="main-content" tabindex="-1">/);
+  assert.equal((html.match(/<main\b/g) ?? []).length, 1);
+});
+
 test("homepage build renders the same live global navigation instead of the legacy hidden Work nav", () => {
   const source = readFileSync(new URL("../index.html", import.meta.url), "utf8");
   const html = renderHomepagePage(source);
@@ -135,4 +147,10 @@ test("homepage build renders the same live global navigation instead of the lega
       new RegExp(`href="${escapeRegExp(href)}"[^>]*>${escapeRegExp(escapeHtml(label))}<`),
     );
   }
+});
+
+test("homepage skip link has its focus-only visual treatment", () => {
+  const css = readFileSync(new URL("../src/styles/site-navigation.css", import.meta.url), "utf8");
+  assert.match(css, /\.skip-link\s*\{[^}]*transform:\s*translateY\(calc\(-100%\s*-\s*var\(--size-400\)\)\)/s);
+  assert.match(css, /\.skip-link:focus-visible\s*\{\s*transform:\s*translateY\(0\)/s);
 });

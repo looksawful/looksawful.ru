@@ -26,6 +26,18 @@ function readLayoutCss() {
   return readFileSync(layoutCssUrl, "utf8");
 }
 
+test("both Jestei top-15 toggles retain a name when their text is visually hidden", () => {
+  const html = renderJesteiTrackFilter(section);
+  const buttons = [...html.matchAll(/<button\b[^>]*class="top-rating"[^>]*>/g)].map(
+    ([button]) => button,
+  );
+  assert.equal(buttons.length, 2);
+  for (const button of buttons) {
+    assert.match(button, /aria-label="Топ 15"/);
+    assert.match(button, /aria-pressed="true"/);
+  }
+});
+
 test("Jestei advanced-filter label has a dedicated no-wrap layout contract", () => {
   const html = renderJesteiTrackFilter(section);
 
