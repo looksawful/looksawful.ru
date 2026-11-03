@@ -2,6 +2,24 @@
    Site navigation
    ================================================== */
 
+.skip-link {
+  position: fixed;
+  z-index: 1000;
+  inset-block-start: max(var(--size-200), env(safe-area-inset-top));
+  inset-inline-start: max(var(--page-padding-inline), env(safe-area-inset-left));
+  padding: var(--size-200) var(--size-300);
+  border-radius: var(--radius-editorial);
+  background: var(--clr-bg);
+  color: var(--clr-text);
+  font-size: var(--fs-300);
+  text-decoration: none;
+  transform: translateY(calc(-100% - var(--size-400)));
+}
+
+.skip-link:focus-visible {
+  transform: translateY(0);
+}
+
 .site-nav {
   --site-nav-height: 3.5rem;
   --site-nav-safe-top: env(safe-area-inset-top);
