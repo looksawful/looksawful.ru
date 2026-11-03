@@ -34,7 +34,8 @@ test("both Jestei top-15 toggles retain a name when their text is visually hidde
   assert.equal(buttons.length, 2);
   for (const button of buttons) {
     assert.match(button, /aria-label="Топ 15"/);
-    assert.match(button, /aria-pressed="true"/);
+    assert.match(button, /aria-pressed="false"/);
+    assert.match(button, /data-selection="neutral"/);
   }
 });
 

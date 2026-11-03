@@ -116,6 +116,7 @@
     --hero-portrait-width: 105vw;
     --hero-portrait-inline-start: 50%;
     --hero-portrait-block-start: 50%;
+    min-block-size: max(100svh, 50rem);
   }
 }
 .expertise,
