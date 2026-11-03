@@ -14,6 +14,7 @@ const requireLabel = (id) => {
 
 const PRIMARY_LINKS = [
   ["home", "/"],
+  ["gallery", "/gallery/"],
   ["case:jestei-pool", "/work/jestei-pool/"],
   ["case:styx", "/work/styx/"],
   ["case:sensetique", "/work/sensetique/"],
