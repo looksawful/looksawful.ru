@@ -41,6 +41,8 @@ const expectedRoutes = new Map([
   ["project:keys", "/work/keys/"],
   ["project:sea", "/work/sea/"],
   ["project:moves-awful", "/work/moves-awful/"],
+  ["project:sophisticate", "/work/sophisticate/"],
+  ["project:epson-driver", "/work/epson-driver/"],
   ["project:berry-social-content-2020", "/work/berry-social-content-2020/"],
   ["cv", "/cv/"],
   ["privacy", "/privacy/"],
@@ -184,6 +186,8 @@ test("entity routes reference the existing domain model", () => {
     ["project:keys", { type: "project", entityId: "keys" }],
     ["project:sea", { type: "project", entityId: "sea" }],
     ["project:moves-awful", { type: "project", entityId: "moves-awful" }],
+    ["project:sophisticate", { type: "project", entityId: "sophisticate" }],
+    ["project:epson-driver", { type: "project", entityId: "epson-driver" }],
     ["project:berry-social-content-2020", { type: "project", entityId: "berry-social-content-2020" }],
   ]);
 
