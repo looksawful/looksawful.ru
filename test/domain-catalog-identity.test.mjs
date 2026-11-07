@@ -112,6 +112,8 @@ const expectedIdentitySets = {
     "sea",
     "awful-studio",
     "awful-mockups",
+    "sophisticate",
+    "epson-driver",
   ],
   Client: [
     "kursovoy",
