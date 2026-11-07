@@ -455,6 +455,9 @@ export const petProjectCardsBase: readonly SubprojectCardData[] = usefulProjects
   .map((card) => {
     const definition = USEFUL_PROJECT_DEFINITIONS.find(({ id }) => id === card.id);
     if (!definition) throw new Error(`Missing useful project definition: ${card.id}`);
+    if (!("coverEntryId" in definition) || !definition.coverEntryId) {
+      throw new Error(`Visible project ${card.id} has no approved Media Catalog cover`);
+    }
     return {
       id: card.id,
       title: card.title,
