@@ -28,5 +28,20 @@
     "id": "awful-3d-mockups",
     "visible": true,
     "state": "live"
+  },
+  {
+    "id": "sea",
+    "visible": false,
+    "state": "hidden"
+  },
+  {
+    "id": "sophisticate",
+    "visible": false,
+    "state": "hidden"
+  },
+  {
+    "id": "epson-driver",
+    "visible": false,
+    "state": "hidden"
   }
 ]

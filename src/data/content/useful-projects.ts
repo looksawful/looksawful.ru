@@ -19,6 +19,10 @@ export const USEFUL_PROJECT_DEFINITIONS = [
   { id: "moves-awful", href: "/work/moves-awful/", coverEntryId: "useful-moves-awful-cover-use-01" },
   { id: "berserk-timer", href: "/work/berserk-timer/", coverEntryId: "useful-berserk-timer-cover-use-01" },
   { id: "awful-studio", href: "/work/awful-studio/", coverEntryId: "useful-awful-studio-cover-use-01" },
+  // Draft-only cards. Intentionally no cover until a canonical Media Catalog entry exists.
+  { id: "sea", href: "/work/sea/" },
+  { id: "sophisticate", href: "/work/sophisticate/" },
+  { id: "epson-driver", href: "/work/epson-driver/" },
   { id: "awful-mockups", coverEntryId: "useful-awful-mockups-cover-use-01" },
   { id: "awful-3d-mockups", href: "/work/awful-3d-mockups/", coverEntryId: "useful-awful-3d-mockups-cover-use-01" },
 ] as const;
