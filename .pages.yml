@@ -419,6 +419,9 @@ content:
           - { name: awful-studio, label: Awful Studio, type: object, required: true, fields: *useful-card-copy-fields }
           - { name: awful-mockups, label: Awful Mockups, type: object, required: true, fields: *useful-card-copy-fields }
           - { name: awful-3d-mockups, label: Awful 3D Mockups, type: object, required: true, fields: *useful-card-copy-fields }
+          - { name: sea, label: SEA, type: object, required: true, fields: *useful-card-copy-fields }
+          - { name: sophisticate, label: Sophisticated, type: object, required: true, fields: *useful-card-copy-fields }
+          - { name: epson-driver, label: Epson Driver, type: object, required: true, fields: *useful-card-copy-fields }
 
   - name: useful-project-state
     label: Полезное — публикация карточек
