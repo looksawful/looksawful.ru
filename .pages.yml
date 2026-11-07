@@ -89,6 +89,8 @@ components:
         - { name: keys, label: "KEYS" }
         - { name: sea, label: "SEA" }
         - { name: awful-studio, label: "AWFUL STUDIO" }
+        - { name: sophisticate, label: "Sophisticated" }
+        - { name: epson-driver, label: "Epson Driver" }
 
   media-catalog-work-area-ids:
     type: select
