@@ -33,6 +33,21 @@
       "title": "Awful 3D Mockups",
       "description": "Набор 3D-мокапов устройств для интерфейсов, анимации и рендера.",
       "badge": ""
+    },
+    "sea": {
+      "title": "SEA",
+      "description": "Тренажёр визуальных навыков и интерактивных упражнений.",
+      "badge": ""
+    },
+    "sophisticate": {
+      "title": "Sophisticated",
+      "description": "Браузерный инструмент для обработки видео.",
+      "badge": ""
+    },
+    "epson-driver": {
+      "title": "Epson Driver",
+      "description": "Приложение для сканирования книг на Epson 1260.",
+      "badge": ""
     }
   }
 }
