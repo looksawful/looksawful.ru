@@ -135,6 +135,18 @@ export const otherProjects = [
     primaryRoleId: "developer",
     roleIds: ["developer"],
   },
+  {
+    id: "sophisticate",
+    name: "Sophisticated",
+    status: "active",
+    collectionIds: ["pet-projects"],
+  },
+  {
+    id: "epson-driver",
+    name: "Epson Driver",
+    status: "active",
+    collectionIds: ["pet-projects"],
+  },
 ] as const satisfies readonly ProjectData[];
 
 export type OtherProject = (typeof otherProjects)[number];
