@@ -10,12 +10,10 @@ This file is a human-readable inventory of direct dependencies and known externa
 | --- | --- | --- | --- |
 | `@egjs/infinitegrid` | `^4.13.0` | MIT | https://github.com/naver/egjs-infinitegrid |
 | `@fontsource-variable/inter` | `^5.3.0` | Fontsource distribution; Inter font is SIL Open Font License 1.1 | https://fontsource.org/fonts/inter |
-| `@fontsource-variable/rubik` | `5.3.0` | Fontsource distribution; Rubik font is SIL Open Font License 1.1 | https://fontsource.org/fonts/rubik |
 | `embla-carousel` | `8.6.0` | MIT | https://github.com/davidjerleke/embla-carousel |
 | `gsap` | `^3.15.0` | GreenSock Standard "no charge" License; **not MIT** | https://gsap.com/standard-license |
 | `photoswipe` | `5.4.4` | MIT | https://github.com/dimsemenov/PhotoSwipe |
 | `photoswipe-dynamic-caption-plugin` | `1.2.7` | MIT | https://github.com/dimsemenov/photoswipe-dynamic-caption-plugin |
-| `split.js` | `^1.6.5` | MIT | https://github.com/nathancahill/split |
 | `three` | `^0.185.1` | MIT | https://github.com/mrdoob/three.js |
 | `tom-select` | `^2.6.2` | Apache-2.0 | https://github.com/orchidjs/tom-select |
 
@@ -45,7 +43,7 @@ The tracked source currently references the following font resources in addition
 | Resource | How it appears | Terms / note | Upstream |
 | --- | --- | --- | --- |
 | Inter | Fontsource package and Google Fonts references | SIL Open Font License 1.1 | https://github.com/rsms/inter |
-| Rubik | Fontsource package and Google Fonts references | SIL Open Font License 1.1 | https://github.com/googlefonts/rubik |
+| Rubik | Google Fonts reference | SIL Open Font License 1.1 | https://github.com/googlefonts/rubik |
 | Golos Text | Google Fonts reference | SIL Open Font License 1.1 | https://github.com/googlefonts/golos-text |
 | Press Start 2P | Google Fonts reference | SIL Open Font License 1.1 | https://github.com/google/fonts/tree/main/ofl/pressstart2p |
 | Pixelated MS Sans Serif assets | WOFF/WOFF2 files referenced from `unpkg.com/98.css@0.1.20` | **Needs provenance verification.** 98.css is MIT-licensed, but the package-level MIT declaration does not by itself establish that every historical Microsoft-derived font binary, typeface right or trademark is licensed under MIT. Treat the font binaries as separate third-party material until verified. | https://github.com/jdan/98.css |
