@@ -50,8 +50,10 @@ export function createInfiniteReel(root: Element | null | undefined, { motion }:
   let allowed = motion?.allowsMotion() ?? true;
   let wideEnough = root.clientWidth > animationMinInlineSize();
   let nearViewport = typeof IntersectionObserver !== "function";
+  let focused = false;
+  let hovered = false;
 
-  const isActive = () => mounted && allowed && wideEnough && nearViewport && !document.hidden;
+  const isActive = () => mounted && allowed && wideEnough && nearViewport && !document.hidden && !focused && !hovered;
   const autoplayVideos = (): HTMLVideoElement[] => [...track.querySelectorAll("video[autoplay]")].filter(
     (video): video is HTMLVideoElement => video instanceof HTMLVideoElement && !video.closest("[data-media-deck]"),
   );
@@ -84,7 +86,7 @@ export function createInfiniteReel(root: Element | null | undefined, { motion }:
     syncVideoPlayback(active);
   };
   const mount = () => {
-    if (mounted || destroyed || !allowed || !wideEnough || !nearViewport) return;
+    if (mounted || destroyed || !allowed || !wideEnough || !nearViewport || focused) return;
     const items = [...track.children].filter((item): item is HTMLElement => item instanceof HTMLElement && !item.hasAttribute("data-infinite-reel-clone"));
     if (!items.length) return;
     const fragment = document.createDocumentFragment();
@@ -104,7 +106,7 @@ export function createInfiniteReel(root: Element | null | undefined, { motion }:
   };
   const reconcile = () => {
     if (destroyed) return;
-    if (!allowed || !wideEnough) { if (mounted) unmount(); else syncPlayback(); return; }
+    if (!allowed || !wideEnough || focused) { if (mounted) unmount(); else syncPlayback(); return; }
     if (nearViewport) mount();
     syncPlayback();
   };
@@ -122,6 +124,18 @@ export function createInfiniteReel(root: Element | null | undefined, { motion }:
   }) : null;
   resizeObserver?.observe(root); resizeObserver?.observe(track);
   const handleVisibilityChange = () => syncPlayback();
+  const handleFocusIn = () => { focused = true; reconcile(); };
+  const handleFocusOut = (event: FocusEvent) => {
+    if (event.relatedTarget instanceof Node && root.contains(event.relatedTarget)) return;
+    focused = false;
+    reconcile();
+  };
+  const handlePointerEnter = () => { hovered = true; syncPlayback(); };
+  const handlePointerLeave = () => { hovered = false; syncPlayback(); };
+  root.addEventListener("focusin", handleFocusIn);
+  root.addEventListener("focusout", handleFocusOut);
+  root.addEventListener("pointerenter", handlePointerEnter);
+  root.addEventListener("pointerleave", handlePointerLeave);
   document.addEventListener("visibilitychange", handleVisibilityChange);
   const unsubscribe = motion?.subscribe(({ allowed: nextAllowed }) => { allowed = Boolean(nextAllowed); reconcile(); }) ?? noop;
   syncPlayback();
@@ -131,6 +145,10 @@ export function createInfiniteReel(root: Element | null | undefined, { motion }:
     intersectionObserver?.disconnect();
     resizeObserver?.disconnect();
     document.removeEventListener("visibilitychange", handleVisibilityChange);
+    root.removeEventListener("focusin", handleFocusIn);
+    root.removeEventListener("focusout", handleFocusOut);
+    root.removeEventListener("pointerenter", handlePointerEnter);
+    root.removeEventListener("pointerleave", handlePointerLeave);
     unsubscribe();
     unmount();
   };

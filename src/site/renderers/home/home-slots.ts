@@ -141,7 +141,7 @@ function renderPetProjectsSection(): string {
       <section class="pet-projects" aria-labelledby="pet-projects-title" data-reveal-group>
         <h2 id="pet-projects-title" data-reveal="copy">${usefulProjectsContent.section.title}</h2>
         <p class="pet-projects__lead" data-reveal="copy">${usefulProjectsContent.section.description}</p>
-        <div class="pet-projects__grid reel" data-reveal-group>
+        <div class="pet-projects__grid reel" data-reveal-group tabindex="0" role="group" aria-labelledby="pet-projects-title">
           ${renderPetProjectCards(petProjectCards)}
         </div>
       </section>`;

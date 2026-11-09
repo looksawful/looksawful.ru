@@ -118,6 +118,12 @@
     --hero-portrait-block-start: 50%;
   }
 }
+
+@media (width <= 22rem) {
+  .hero h1 {
+    font-size: clamp(2.75rem, 14.75vw, 3.25rem);
+  }
+}
 .expertise,
 .experience,
 .projects-grid,
@@ -474,6 +480,7 @@
   font-weight: var(--fw-400);
   line-height: var(--lh-caption);
   opacity: 0;
+  visibility: hidden;
   translate: 0 0.35rem;
   pointer-events: none;
   text-shadow: 0 1px 0.75rem rgb(0 0 0 / 0.6);
@@ -498,6 +505,7 @@
     .jestei-captioned-media:is(:hover, :focus-visible, :focus-within)
     .jestei-media__hover-copy {
     opacity: 1;
+    visibility: visible;
     translate: 0;
     pointer-events: auto;
   }
