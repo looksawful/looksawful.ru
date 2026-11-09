@@ -591,6 +591,7 @@ export function renderMediaGroup(
 
       <div
         class="${escapeHtml(itemClasses)}"${renderItemsMotionAttributes(data)}${track}
+        ${usesOuterReel(data) ? 'tabindex="0" role="group" aria-label="Галерея изображений"' : ""}
       >
         ${renderItems(data, options)}
       </div>

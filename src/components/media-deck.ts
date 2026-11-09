@@ -63,6 +63,17 @@ export function createMediaDeck(
   const track = root.querySelector<HTMLElement>("[data-deck-track]");
   const viewport = track?.closest<HTMLElement>("[data-deck-viewport]") || null;
   const richTrack = track instanceof HTMLElement && viewport instanceof HTMLElement;
+  const project = root.closest("article, .portfolio-showcase");
+  const projectName = (project?.querySelector("h2, h1, h3")?.textContent || document.querySelector("h1")?.textContent || "")
+    .replace(/\s+/g, " ").trim();
+  const context = projectName ? ` проекта «${projectName}»` : " проекта";
+  prev?.setAttribute("aria-label", `Предыдущий кадр${context}`);
+  next?.setAttribute("aria-label", `Следующий кадр${context}`);
+  if (prev || next || richTrack) {
+    root.tabIndex = 0;
+    root.setAttribute("role", "group");
+    root.setAttribute("aria-label", `Галерея${context}`);
+  }
   const interval = Number(root.dataset.deckInterval) || 5000;
   const autoplayMode = root.dataset.deckAutoplay || "forward";
   const autoplay = autoplayMode !== "off";
@@ -84,6 +95,7 @@ export function createMediaDeck(
   let nearViewport = typeof IntersectionObserver !== "function";
   let playbackIndex = -1;
   let emblaDeck: EmblaDeckController | null = null;
+  let interactionPaused = false;
 
   const isGrid = (): boolean => root.dataset.deckView === "grid";
   const isActive = (): boolean => allowed && nearViewport && !document.hidden;
@@ -234,7 +246,7 @@ export function createMediaDeck(
   const schedule = (): void => {
     stopTimer();
 
-    if (!autoplay || !isActive() || isGrid()) return;
+    if (!autoplay || !isActive() || isGrid() || interactionPaused) return;
 
     if (activeSlideHasVideo()) return;
 
@@ -271,7 +283,7 @@ export function createMediaDeck(
   };
 
   const handleVideoEnded = (event: Event): void => {
-    if (!advanceOnEnded || isGrid() || !isActive()) return;
+    if (!advanceOnEnded || isGrid() || !isActive() || interactionPaused) return;
 
     const slideIndex = slides.findIndex((slide) => slide.contains(event.currentTarget as Node));
     if (slideIndex !== index) return;
@@ -289,6 +301,21 @@ export function createMediaDeck(
 
   const handlePrev = (): void => goTo(index - 1);
   const handleNext = (): void => goTo(index + 1);
+  const pauseAutoplay = (): void => {
+    interactionPaused = true;
+    stopTimer();
+  };
+  const handleKeyDown = (event: KeyboardEvent): void => {
+    if (isGrid() || event.altKey || event.ctrlKey || event.metaKey ||
+      (event.target instanceof Element && event.target.closest("input, textarea, select, [contenteditable]"))) return;
+    const targetIndex = event.key === "ArrowRight" ? index + 1
+      : event.key === "ArrowLeft" ? index - 1
+      : event.key === "Home" ? 0 : event.key === "End" ? slides.length - 1 : null;
+    if (targetIndex === null) return;
+    event.preventDefault();
+    pauseAutoplay();
+    goTo(targetIndex, { restart: false });
+  };
 
   const handlePointerDown = (event: PointerEvent): void => {
     if (isGrid()) return;
@@ -324,6 +351,9 @@ export function createMediaDeck(
   prev?.addEventListener("click", handlePrev);
   next?.addEventListener("click", handleNext);
   gridButton?.addEventListener("click", toggleGrid);
+  root.addEventListener("keydown", handleKeyDown);
+  root.addEventListener("focusin", pauseAutoplay);
+  root.addEventListener("pointerdown", pauseAutoplay, { passive: true });
 
   const dotHandlers = dots.map((dot, dotIndex) => {
     const handler = (): void => goTo(dotIndex);
@@ -418,6 +448,9 @@ export function createMediaDeck(
     prev?.removeEventListener("click", handlePrev);
     next?.removeEventListener("click", handleNext);
     gridButton?.removeEventListener("click", toggleGrid);
+    root.removeEventListener("keydown", handleKeyDown);
+    root.removeEventListener("focusin", pauseAutoplay);
+    root.removeEventListener("pointerdown", pauseAutoplay);
 
     dotHandlers.forEach(([dot, handler]) => {
       dot.removeEventListener("click", handler);

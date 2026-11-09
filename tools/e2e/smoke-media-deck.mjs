@@ -52,7 +52,15 @@ export async function runMediaDeckSmoke({ browser, baseUrl }) {
     await waitForSelected(0);
     assert.equal((await snapshot()).selected, 0, "dot navigation must return to the first slide");
 
-    console.log("[smoke-media-deck] next + resize/reInit + dot navigation: OK");
+    assert.match(await deck.getAttribute("aria-label"), /проекта/, "deck must name its project");
+    assert.match(await deck.locator("[data-deck-next]").getAttribute("aria-label"), /Следующий кадр проекта/);
+    await deck.focus();
+    await page.keyboard.press("ArrowRight");
+    await waitForSelected(1);
+    await page.keyboard.press("Home");
+    await waitForSelected(0);
+
+    console.log("[smoke-media-deck] next + resize/reInit + dot navigation + keyboard: OK");
   } finally {
     await context.close();
   }
