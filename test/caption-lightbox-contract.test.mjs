@@ -41,8 +41,8 @@ test("custom surface copy remains authored once and is explicitly available to t
     .map((item) => item.surfaceOverlay?.text)
     .filter(Boolean);
 
-  assert.equal((brand.match(/data-lightbox-caption-copy/g) ?? []).length, 6);
-  assert.equal((interfaceGroup.match(/data-lightbox-caption-copy/g) ?? []).length, 3);
+  assert.equal((brand.match(/data-lightbox-caption-copy/g) ?? []).length, brandCopy.length);
+  assert.equal((interfaceGroup.match(/data-lightbox-caption-copy/g) ?? []).length, interfaceCopy.length);
   assert.deepEqual(extractLightboxCopy(brand), brandCopy);
   assert.deepEqual(extractLightboxCopy(interfaceGroup), interfaceCopy);
 });

@@ -400,6 +400,12 @@
   line-height: var(--lh-caption);
 }
 
+@media (width <= 48rem) {
+  .media__caption {
+    font-size: var(--fs-300);
+  }
+}
+
 .media-lightbox__caption {
   line-height: var(--lh-body);
 }
