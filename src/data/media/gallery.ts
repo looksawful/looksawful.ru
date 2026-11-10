@@ -1,5 +1,6 @@
 import type { ModelMedia } from "../../types/media.ts";
 import type { MediaCatalogItem } from "./catalog.ts";
+import { getMediaAsset } from "./index.ts";
 import { contextualMediaCatalogItems } from "./catalog-view.ts";
 import {
   toCatalogItem,
@@ -21,7 +22,7 @@ export interface GalleryModelItem {
   posterSrc: string;
   title: string;
   alt: string;
-  seriesId: "jestei-3d-symbols";
+  seriesId: "jestei-3d-symbols" | "awful-3d-mockups";
   seriesOrder: number;
 }
 
@@ -108,11 +109,12 @@ export function getGalleryItems(): readonly GalleryItem[] {
 }
 
 /**
- * Explicit production curation for the interactive Jestei Pool 3D series.
+ * Explicit curation for the approved interactive 3D series.
  *
  * These are generated production assets, not photographs, so they stay outside
  * the photo eligibility rules above. Keeping the five approved variants here
- * makes Gallery opt-in deterministic instead of exposing every ready 3D asset.
+ * keeps Gallery opt-in deterministic instead of exposing every ready 3D asset.
+ * The iPhone mockup reuses the canonical registered device delivery asset.
  */
 export function getGalleryModelItems(): readonly GalleryModelItem[] {
   const altByVariant: Record<(typeof GALLERY_JESTEI_SYMBOL_VARIANTS)[number], string> = {
@@ -122,7 +124,7 @@ export function getGalleryModelItems(): readonly GalleryModelItem[] {
     blue: "3D-символ Jestei Pool, цвет pro",
     biloba: "3D-символ Jestei Pool, цвет biloba",
   };
-  return GALLERY_JESTEI_SYMBOL_VARIANTS.map((variant, seriesOrder) => {
+  const symbols: GalleryModelItem[] = GALLERY_JESTEI_SYMBOL_VARIANTS.map((variant, seriesOrder) => {
     const id = `jestei-symbol-${variant}`;
     return {
       id,
@@ -139,6 +141,21 @@ export function getGalleryModelItems(): readonly GalleryModelItem[] {
       seriesOrder,
     };
   });
+  const iphone = getMediaAsset("device-iphone-17-v30-model");
+  if (iphone.type !== "model") throw new Error("Gallery iPhone asset must be a model");
+
+  return [
+    ...symbols,
+    {
+      id: iphone.id,
+      asset: iphone,
+      posterSrc: "/media/models/devices/preview/iphone-17-v30.png",
+      title: "iPhone 17 mockup",
+      alt: "Интерактивная 3D-модель iPhone 17",
+      seriesId: "awful-3d-mockups",
+      seriesOrder: 0,
+    },
+  ];
 }
 
 export function getGallerySeriesId(item: GalleryItem): string {

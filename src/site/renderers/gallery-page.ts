@@ -1,7 +1,6 @@
 import {
   getGalleryItems,
   getGalleryModelItems,
-  getGallerySeriesId,
   type GalleryItem,
   type GalleryModelItem,
 } from "../../data/media/gallery.ts";
@@ -10,13 +9,13 @@ import { escapeHtml } from "../../utils/html.ts";
 import type { GalleryPageDefinition } from "../pages/types.ts";
 import { renderPageShell } from "../shell/page-shell.ts";
 
-function groupBySeries(
-  items: readonly GalleryItem[],
-): readonly { id: string; items: readonly GalleryItem[] }[] {
-  const groups = new Map<string, GalleryItem[]>();
+function groupBySeries<T extends { seriesId: string }>(
+  items: readonly T[],
+): readonly { id: string; items: readonly T[] }[] {
+  const groups = new Map<string, T[]>();
 
   for (const item of items) {
-    const seriesId = getGallerySeriesId(item);
+    const seriesId = item.seriesId;
     const group = groups.get(seriesId);
     if (group) group.push(item);
     else groups.set(seriesId, [item]);
@@ -59,11 +58,13 @@ function renderGallerySeries(items: readonly GalleryItem[]): string {
 function renderGalleryModelSeries(items: readonly GalleryModelItem[]): string {
   if (!items.length) return "";
 
-  return `<section class="gallery-series gallery-series--models" data-gallery-series="${escapeHtml(items[0].seriesId)}">
+  return groupBySeries(items)
+    .map(({ id, items: seriesItems }) => `<section id="gallery-${escapeHtml(id)}" class="gallery-series gallery-series--models" data-gallery-series="${escapeHtml(id)}">
   <div class="gallery-series__grid" data-gallery-series-grid>
-    ${items.map(renderGalleryModelCard).join("\n    ")}
+    ${seriesItems.map(renderGalleryModelCard).join("\n    ")}
   </div>
-</section>`;
+</section>`)
+    .join("\n");
 }
 
 export function renderGalleryPage(page: GalleryPageDefinition): string {
