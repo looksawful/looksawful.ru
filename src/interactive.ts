@@ -70,14 +70,24 @@ function initPlaylistFilter(host: Element): Destroy {
     summaryFrame = requestAnimationFrame(syncSummaryVisibility);
   };
 
+  const setTopSelection = (selection: string): void => {
+    root.querySelectorAll<HTMLButtonElement>(".top-rating").forEach((button) => {
+      button.dataset.selection = selection;
+      button.setAttribute("aria-pressed", String(selection === "included"));
+      button.setAttribute("aria-label", selection === "excluded" ? "Топ 15, исключено" : "Топ 15");
+    });
+  };
+
   const cycle = (element: HTMLElement): void => {
     const current = element.dataset.selection || "neutral";
-    element.dataset.selection =
+    const next =
       current === "neutral"
         ? "included"
         : current === "included"
           ? "excluded"
           : "neutral";
+    if (element.dataset.action === "top") setTopSelection(next);
+    else element.dataset.selection = next;
     form.dataset.hasFilters = "true";
   };
 
@@ -109,6 +119,7 @@ function initPlaylistFilter(host: Element): Destroy {
         .querySelectorAll<HTMLElement>("[data-selection]")
         .forEach((element) => (element.dataset.selection = "neutral"));
       form.dataset.hasFilters = "false";
+      setTopSelection("neutral");
     } else if (action === "mode" && target instanceof HTMLInputElement) {
       root
         .querySelectorAll<HTMLElement>(".track-state__option")

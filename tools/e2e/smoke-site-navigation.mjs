@@ -301,11 +301,51 @@ async function auditNavigation(browser, path, currentLabel, width, height) {
   }
 }
 
+
+async function auditCompactHeroAndTopFilter(browser) {
+  const context = await browser.newContext({ viewport: { width: 320, height: 568 } });
+  try {
+    const page = await context.newPage();
+    await page.goto(BASE_URL, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => document.fonts?.ready);
+    const gap = await page.evaluate(() => {
+      const rect = (selector) => document.querySelector(selector).getBoundingClientRect();
+      const portrait = rect(".hero__portrait img");
+      return [portrait.top - rect(".hero h1").bottom, rect(".hero > footer > p").top - portrait.bottom];
+    });
+    assert(gap.every((value) => value >= 16), `320x568 portrait overlaps text: ${gap}`);
+
+    await page.goto(`${BASE_URL}/work/jestei-pool/`, { waitUntil: "domcontentloaded" });
+    await page.locator("playlist-filter-workflow .top-rating").first().waitFor({ state: "attached" });
+    const states = await page.evaluate(() => {
+      const root = document.querySelector("playlist-filter-workflow").shadowRoot;
+      const buttons = [...root.querySelectorAll(".top-rating")];
+      const states = [];
+      const record = () => states.push(buttons.map((b) => [b.dataset.selection, b.getAttribute("aria-pressed"), b.getAttribute("aria-label")]));
+      record();
+      for (const index of [0, 1, 0]) { buttons[index].click(); record(); }
+      root.querySelector('[data-action="reset"]').click();
+      record();
+      return states;
+    });
+    for (const [index, selection] of ["neutral", "included", "excluded", "neutral", "neutral"].entries()) {
+      assert(states[index].length === 2 && states[index].every(([state, pressed, label]) =>
+        state === selection && pressed === String(selection === "included") &&
+        label === (selection === "excluded" ? "Топ 15, исключено" : "Топ 15")
+      ), `Top 15 state ${selection}: ${JSON.stringify(states[index])}`);
+    }
+    console.log("[smoke-navigation] compact hero + Top 15: OK");
+  } finally {
+    await context.close();
+  }
+}
+
 export async function runSmokeNavigation({ browser, baseUrl }) {
   BASE_URL = baseUrl;
   for (const [path, currentLabel, width, height] of CASES) {
     await auditNavigation(browser, path, currentLabel, width, height);
   }
+  await auditCompactHeroAndTopFilter(browser);
   console.log(`[smoke-navigation] OK: ${CASES.length} responsive navigation checks`);
 }
 
