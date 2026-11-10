@@ -175,6 +175,19 @@ export const sitePages = [
     },
   },
   {
+    id: "project:shaders",
+    type: "project",
+    entityId: "shaders",
+    path: "/work/shaders/",
+    enabled: true,
+    renderer: "entity",
+    build: VITE_BUILD,
+    discovery: {
+      listed: false,
+      indexable: false,
+    },
+  },
+  {
     id: "project:moves-awful",
     type: "project",
     entityId: "moves-awful",
