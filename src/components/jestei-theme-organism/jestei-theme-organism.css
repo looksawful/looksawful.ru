@@ -295,9 +295,9 @@
   }
 
   .jestei-theme-organism__track {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
+    --cluster-wrap: wrap;
+    --cluster-align: stretch;
+    --cluster-space: 1rem;
   }
 
   .jestei-theme-organism__card {
@@ -734,9 +734,9 @@
       )
       .jestei-theme-organism__track {
       --jestei-track-gap: clamp(3rem, 10cqi, 7rem);
+      --cluster-wrap: nowrap;
+      --cluster-space: var(--jestei-track-gap);
 
-      flex-wrap: nowrap;
-      gap: var(--jestei-track-gap);
       block-size: 100%;
       inline-size: max-content;
       padding-inline: var(--jestei-track-fade-outset);
