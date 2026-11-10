@@ -8,11 +8,11 @@ import type { LogoUsageId } from "../logos/index.ts";
 export const awfulMockupsIntro = {
   head: { type: "text", text: "Awful Mockups" },
   title: { type: "text", text: "Awful Mockups" },
-  role: "Дизайн и ретушь",
+  role: "PSD-мокапы и презентация",
   period: "2026",
-  summary: "Набор редактируемых PSD-мокапов для презентации интерфейсов и графики.",
+  summary: "Редактируемая PSD-библиотека для презентации интерфейсов, айдентики и графики.",
   lead:
-    "Экран, объект, фон, цвет и обработка собраны отдельно. Мокап можно быстро подстроить под проект, не пересобирая сцену с нуля.",
+    "Внутри разделены экран, объект, фон, цвет и постобработка. Мокап быстро адаптируется под проект, а не пересобирается как отдельная сцена с нуля.",
   links: [
     {
       label: "Скачать PSD",
@@ -34,10 +34,24 @@ export const awfulMockupsMedia = [
   { entryId: "awful-mockups-39-print-case-use-01", captionView: "summary" },
 ] as const satisfies readonly MediaFigureData<MediaEntryId>[];
 
+export const awfulMockupsShowcaseIntro = {
+  title: "Витрина",
+  paragraphs: [
+    "Общий preview собирает разные носители в одну поверхность: так библиотека читается сразу, без просмотра всех файлов подряд.",
+  ],
+} as const satisfies SectionIntroData;
+
+export const awfulMockupsSelectionIntro = {
+  title: "Мокапы",
+  paragraphs: [
+    "В подборке оставлены разные сценарии: рабочий экран, телефон в руке, парные устройства, печать и предметная сцена.",
+  ],
+} as const satisfies SectionIntroData;
+
 export const awfulMockupsPreviewGroup = {
   layout: "grid",
   captionView: "lightbox-only",
-  columns: 2,
+  columns: 4,
   mobileColumns: 1,
   items: awfulMockupsMedia.map(({ entryId }) => ({ entryId })),
 } as const satisfies MediaGroupData<MediaEntryId>;
@@ -68,10 +82,10 @@ export const awfulMockupsMockupDeck = {
 } as const satisfies MockupDeckData<MediaEntryId>;
 
 export const awfulMockupsStructureIntro = {
-  title: "Внутри PSD",
+  title: "PSD",
   paragraphs: [
-    "Мокапы остаются рабочими файлами: экран меняется через Smart Object, а фон, маски, цвет и постобработка лежат отдельно.",
-    "Ниже один из файлов открыт в Photoshop. По структуре слоёв видно, как устроен мокап и что в нём можно менять.",
+    "Файлы собраны как редактируемые заготовки: экран меняется через Smart Object, а фон, маски, цветокоррекция и финальная обработка остаются отдельными слоями.",
+    "Исходники вынесены в отдельный архив, чтобы PSD не раздували репозиторий и не смешивались с web-превью.",
   ],
 } as const satisfies SectionIntroData;
 
