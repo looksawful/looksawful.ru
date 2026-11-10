@@ -5,12 +5,13 @@
   "description": "",
   "date": "2026",
   "workAreaIds": [
-    "motion",
     "3d"
   ],
-  "projectTypeIds": [],
+  "projectTypeIds": [
+    "3d-project"
+  ],
   "deliverableIds": [
-    "screen-mockup"
+    "design-assets"
   ],
   "tags": [
     "моушен",

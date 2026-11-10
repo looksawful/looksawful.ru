@@ -4,9 +4,15 @@
   "alt": "????? ?????? ? Photoshop ? ????????? ?????????? ?????",
   "description": "",
   "date": "2026",
-  "workAreaIds": [],
-  "projectTypeIds": [],
-  "deliverableIds": [],
+  "workAreaIds": [
+    "graphic-design"
+  ],
+  "projectTypeIds": [
+    "graphic-design-project"
+  ],
+  "deliverableIds": [
+    "design-assets"
+  ],
   "tags": [],
   "credits": [],
   "reusable": true,
