@@ -51,6 +51,8 @@ function getDomainPageLabel(page: SitePageDefinition): string {
     case "not-found":
       return "404";
     case "static":
+      if (page.id === "services") return "Услуги";
+      if (page.id === "all-services") return "Все услуги";
       return page.id;
   }
 }

@@ -105,13 +105,15 @@ Current direct-link-only Project routes:
 
 ## Navigation
 
-Primary navigation stores canonical SitePage identities, not independent hrefs. The fixed six-page order lives in:
+Primary navigation is an explicit curated list in `src/site/navigation/primary.ts`; it is not derived from every listed SitePage. Services pages are listed and indexable for discovery but intentionally stay outside primary navigation until a separate IA decision changes that list.
+
+Primary navigation stores canonical SitePage identities, not independent hrefs. The explicit curated order lives in:
 
 `src/site/navigation/primary.ts`
 
 `src/site/navigation/model.ts` resolves those identities through `sitePages` and obtains every menu and breadcrumb href from `SitePage.path`.
 
-Pages CMS may edit the six navigation labels through `src/content/navigation.json`. The adapter in `src/data/navigation.ts` derives the fixed identity/order from the primary SitePage ID list; CMS does not own hrefs, routes, page type, discovery state or renderer/build mechanics.
+Pages CMS may edit the curated navigation labels through `src/content/navigation.json`. The adapter in `src/data/navigation.ts` derives the fixed identity/order from the primary SitePage ID list; CMS does not own hrefs, routes, page type, discovery state or renderer/build mechanics.
 
 ## Discovery and indexability
 
