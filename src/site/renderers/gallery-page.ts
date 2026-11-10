@@ -1,3 +1,6 @@
+import { cases } from "../../data/catalog/cases.ts";
+import { projects } from "../../data/catalog/projects/index.ts";
+import type { GalleryResolvedPlacement } from "../../data/media/gallery-curation.ts";
 import {
   getGalleryItems,
   getGalleryModelItems,
@@ -6,6 +9,7 @@ import {
   type GalleryModelItem,
 } from "../../data/media/gallery.ts";
 import { responsiveImageSrcSet } from "../../data/media/responsive.ts";
+import { renderGalleryResolvedSeries } from "../../components/gallery/gallery-markup.ts";
 import { escapeHtml } from "../../utils/html.ts";
 import type { GalleryPageDefinition } from "../pages/types.ts";
 import { renderPageShell } from "../shell/page-shell.ts";
@@ -25,16 +29,42 @@ function groupBySeries(
   return [...groups].map(([id, seriesItems]) => ({ id, items: seriesItems }));
 }
 
-function renderGalleryCard(item: GalleryItem): string {
-  const srcset = responsiveImageSrcSet(item.asset);
-  const srcsetAttribute = srcset ? ` srcset="${escapeHtml(srcset)}"` : "";
-  const title = item.title || item.alt || "";
-  const accessibleAlt = item.alt.trim() || title;
-  const credits = JSON.stringify([...new Set(item.credits.filter((credit) => credit.trim()))]);
+function projectLabelForSeries(seriesId: string): string {
+  return projects.find(({ id }) => id === seriesId)?.name ?? "";
+}
 
-  return `<figure class="gallery-card" data-gallery-card data-gallery-item-id="${escapeHtml(item.id)}" data-gallery-src="${escapeHtml(item.asset.src)}" data-gallery-width="${item.width}" data-gallery-height="${item.height}" data-gallery-alt="${escapeHtml(accessibleAlt)}" data-gallery-title="${escapeHtml(title)}" data-gallery-credits="${escapeHtml(credits)}" tabindex="0" role="button" aria-haspopup="dialog" aria-label="Открыть: ${escapeHtml(accessibleAlt)}">
-  <img class="gallery-card__image" src="${escapeHtml(item.asset.src)}"${srcsetAttribute} sizes="(max-width: 720px) 50vw, (max-width: 1100px) 33vw, (max-width: 1500px) 25vw, 20vw" width="${item.width}" height="${item.height}" alt="${escapeHtml(accessibleAlt)}" loading="lazy" decoding="async">
-</figure>`;
+function caseLabel(caseId: string): string {
+  return cases.find(({ id }) => id === caseId)?.name ?? "";
+}
+
+function toResolvedPhotoPlacement(
+  item: GalleryItem,
+  seriesOrder: number,
+): GalleryResolvedPlacement {
+  const title = item.title || item.alt || "";
+  const alt = item.alt.trim() || title;
+  const srcset = responsiveImageSrcSet(item.asset);
+
+  return {
+    itemId: item.id,
+    seriesId: item.seriesId,
+    seriesOrder,
+    itemOrder: item.seriesOrder,
+    projectId: item.projectIds[0] ?? item.seriesId,
+    featured: false,
+    media: [{
+      assetId: item.id,
+      kind: "image",
+      src: item.asset.src,
+      posterSrc: item.asset.src,
+      ...(srcset ? { srcset } : {}),
+      width: item.width,
+      height: item.height,
+      title,
+      alt,
+      credits: item.credits,
+    }],
+  };
 }
 
 function renderGalleryModelCard(item: GalleryModelItem): string {
@@ -48,11 +78,11 @@ function renderGalleryModelCard(item: GalleryModelItem): string {
 
 function renderGallerySeries(items: readonly GalleryItem[]): string {
   return groupBySeries(items)
-    .map(({ id, items: seriesItems }) => `<section class="gallery-series" data-gallery-series="${escapeHtml(id)}">
-  <div class="gallery-series__grid" data-gallery-series-grid>
-    ${seriesItems.map(renderGalleryCard).join("\n    ")}
-  </div>
-</section>`)
+    .map(({ id, items: seriesItems }, seriesOrder) => renderGalleryResolvedSeries({
+      id,
+      projectLabel: projectLabelForSeries(id),
+      placements: seriesItems.map((item) => toResolvedPhotoPlacement(item, seriesOrder)),
+    }))
     .join("\n");
 }
 
@@ -60,6 +90,7 @@ function renderGalleryModelSeries(items: readonly GalleryModelItem[]): string {
   if (!items.length) return "";
 
   return `<section class="gallery-series gallery-series--models" data-gallery-series="${escapeHtml(items[0].seriesId)}">
+  <p class="gallery-series__marker">${escapeHtml(caseLabel("jestei-pool"))}</p>
   <div class="gallery-series__grid" data-gallery-series-grid>
     ${items.map(renderGalleryModelCard).join("\n    ")}
   </div>
