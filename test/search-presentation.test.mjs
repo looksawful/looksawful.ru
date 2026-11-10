@@ -83,7 +83,7 @@ test("homepage search and social presentation stays coherent", () => {
   );
   assert.match(
     html,
-    /<!--noindex--><footer class="project__footer cluster" data-reveal-group data-nosnippet>[\s\S]*?<\/footer><!--\/noindex-->/,
+    /<!--noindex--><footer class="project__footer wrapper cluster" data-reveal-group data-nosnippet>[\s\S]*?<\/footer><!--\/noindex-->/,
   );
   assert.match(
     html,

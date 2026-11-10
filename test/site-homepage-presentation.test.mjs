@@ -74,7 +74,7 @@ test("Jestei compact preview exposes only the terminal full-case CTA", () => {
   assert.doesNotMatch(jestei, /class="project__links cluster"/);
   assert.match(
     jestei,
-    /class="project-preview-entry"[\s\S]*href="\/work\/jestei-pool\/"[\s\S]*Подробнее о проекте/,
+    /class="project-preview-entry wrapper"[\s\S]*href="\/work\/jestei-pool\/"[\s\S]*Подробнее о проекте/,
   );
 });
 
