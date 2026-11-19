@@ -12,6 +12,24 @@ export const awfulStudioIntro = {
     "Завершённый Blender-native проект с релизом 1.0.0: редактируемые студийные сцены, свет, камеры, окружение, процедурные мокапы, motion-пресеты и проверенный каталог production-ассетов без замены нативных инструментов Blender.",
   links: [
     {
+      label: "Скачать 1.0.0",
+      href: "https://github.com/looksawful/awful-studio/releases/download/v1.0.0/awful_studio-1.0.0.zip",
+      rel: "noopener",
+      target: "_blank",
+    },
+    {
+      label: "3D-превью",
+      href: "https://looksawful.github.io/awful-studio/",
+      rel: "noopener",
+      target: "_blank",
+    },
+    {
+      label: "Как установить",
+      href: "https://github.com/looksawful/awful-studio/blob/main/docs/INSTALL_UPDATE.md",
+      rel: "noopener",
+      target: "_blank",
+    },
+    {
       label: "GitHub",
       href: "https://github.com/looksawful/awful-studio",
       rel: "noopener",
