@@ -24,6 +24,12 @@ export const awfulStudioIntro = {
       target: "_blank",
     },
     {
+      label: "Как установить",
+      href: "https://github.com/looksawful/awful-studio/blob/main/docs/INSTALL_UPDATE.md",
+      rel: "noopener",
+      target: "_blank",
+    },
+    {
       label: "GitHub",
       href: "https://github.com/looksawful/awful-studio",
       rel: "noopener",
