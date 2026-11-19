@@ -16,6 +16,20 @@ Status: review record for repository-local agent guidance. External sources are 
 | Seth Hobson `wshobson/agents` Git advanced workflows | `a30778f8c4e6b0a87567941b7cca4f534bf642b6` | worktrees, bisect, drift/recovery concepts and clean-branch discipline; destructive history recommendations constrained by repository policy |
 | GitHub `github/gh-aw` workflow debugging | `102cf77b34572420cedf251bb92198f6df709e77` | workflow/job/step failure classification, log-first triage and independent root-cause analysis; gh-aw orchestration itself not adopted |
 
+## English localization review (2026-11-19)
+
+A single focused repo skill, [`looksawful-english-localization`](../../.agents/skills/looksawful-english-localization/SKILL.md), adapts these upstream sources. **No upstream pack was installed wholesale** and no translator/LLM API, grammar service or npm dependency was added. Vendor instructions are evidence, not authority over this repo.
+
+| Source | Pinned catalog commit | Adopted constraint |
+| --- | --- | --- |
+| [kostja94/marketing-skills — translation](https://github.com/kostja94/marketing-skills/blob/45143a7d6d8f92fc9048aa4f3074a26272bd0d2a/skills/content/translation/SKILL.md) | `45143a7d6d8f92fc9048aa4f3074a26272bd0d2a` | freeze source, preserve facts, maintain terms and review coverage |
+| [coreyhaines31/marketingskills — copy-editing](https://github.com/coreyhaines31/marketingskills/blob/0cd9b3a0ef4c411a1d690419ce843f2a1da32cce/skills/copy-editing/SKILL.md) | `0cd9b3a0ef4c411a1d690419ce843f2a1da32cce` | clarity and voice-preserving edits, not invented benefits |
+| [miqdadbadjuber/anti-slop — antislop-copywriting](https://github.com/miqdadbadjuber/anti-slop/blob/3005235d030b4793146ad9afe8d01045efd90e1d/skills/antislop-copywriting/SKILL.md) | `3005235d030b4793146ad9afe8d01045efd90e1d` | avoid empty hype, fabricated claims and generic AI prose |
+| [jwynia/agent-skills — fact-check](https://github.com/jwynia/agent-skills/blob/e02ec7e226a6e4f8419fd3b88a1d8e472d421b32/skills/general/research/verification/fact-check/SKILL.md) | `e02ec7e226a6e4f8419fd3b88a1d8e472d421b32` | separate claim-by-claim verification against sources |
+| [agentic-qe — localization-testing](https://github.com/proffesor-for-testing/agentic-qe/blob/b177b2315521376b83f2eed40e4994fd7581d067/.claude/skills/localization-testing/SKILL.md) | `b177b2315521376b83f2eed40e4994fd7581d067` | check translated UI and a11y in the actual rendered site |
+
+Skill packaging follows [OpenAI Codex documentation](https://developers.openai.com/codex/build-skills) and the [Agent Skills specification](https://agentskills.io/specification). Avoid duplicate skill packs and respect Matt Pocock's upstream [selective installation guidance](https://github.com/mattpocock/skills). Skill-file provenance is not evidence that LLM translation, website build or editorial acceptance has been performed.
+
 ## Local adaptation rule
 
 We intentionally do not copy a large generic bundle blindly. Project-local skills encode the useful workflow while routing back to the actual looksawful.ru contracts. This prevents generic advice from overriding current CSS ownership, motion, Media Catalog, CMS publication or testing policies.
