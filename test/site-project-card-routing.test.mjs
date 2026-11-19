@@ -40,3 +40,22 @@ test("homepage card markup links through canonical SitePage relations", () => {
 
   assert.doesNotMatch(cards, /href="#project-(?:jestei|styx|sensetique|shootings)"/);
 });
+
+test("Subproject links fail closed for disabled or unknown SitePages", async () => {
+  const { petProjectCards } = await import("../src/data/subproject-cards.ts");
+  const { renderSubprojectCard } = await import("../src/templates/subproject-card.ts");
+  const card = petProjectCards.find((item) => item.href?.startsWith("/"));
+  assert.ok(card, "expected an existing linked project card");
+
+  assert.match(renderSubprojectCard(card), /href="\/work\//);
+  for (const page of sitePages.filter((item) => !item.enabled)) {
+    assert.throws(
+      () => renderSubprojectCard({ ...card, href: page.path }),
+      /disabled or unknown SitePage/i,
+    );
+  }
+  assert.throws(
+    () => renderSubprojectCard({ ...card, href: "/work/nonexistent/" }),
+    /disabled or unknown SitePage/i,
+  );
+});

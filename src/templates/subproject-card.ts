@@ -3,6 +3,7 @@ import type {
   SubprojectCardGroupData,
 } from "../data/subproject-cards.ts";
 import { renderRevealAttribute } from "../motion-contract.ts";
+import { getPageByPath } from "../site/pages/manifest.ts";
 import { escapeHtml } from "../utils/html.ts";
 import { renderMediaElement } from "./media-figure.ts";
 
@@ -40,6 +41,10 @@ export function renderSubprojectCard(
   card: SubprojectCardData,
   options: RenderSubprojectCardOptions = {},
 ): string {
+  if (card.href?.startsWith("/") && !getPageByPath(card.href)) {
+    throw new Error(`Project ${card.id} links to a disabled or unknown SitePage: ${card.href}`);
+  }
+
   const body = renderCardBody(card);
   const reveal = renderRevealAttribute(options.reveal ? "card" : false);
   const state = card.state ? ` data-state="${escapeHtml(card.state)}"` : "";
