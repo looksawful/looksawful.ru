@@ -6,33 +6,11 @@ Pages CMS используется для обычного редакторск�
 
 ## Рабочая ветвь
 
-Текущий проектный контракт:
+Редактирование и разработка выполняются только в `dev`. Pages CMS сохраняет редакторские изменения непосредственно в `dev`; локальный Content Desk и удалённый Media Desk также пишут только в `dev`, с собственными ограничениями путей, проверками ревизий и авторизации. `prod` является защищённой веткой публичного релиза и не принимает записи редакторов.
 
-- `dev` — GitHub default branch и working/integration branch;
-- `prod` — production/release/deploy branch;
-- `content/text-cms` — постоянная редакторская ветвь для Pages CMS/контентных циклов.
+`Save` создаёт коммит в `dev`, **не публикуя** сайт. Публикация требует отдельного проверенного `dev → prod` PR и production CI. Краткоживущие feature/PR-ветки не становятся новыми редакторскими средами.
 
-Новые редакторские изменения не нужно сохранять напрямую в `dev` или `prod`. Перед новым циклом `content/text-cms` должна быть безопасно сверена с текущим `dev` без force-reset и без скрытого rebase открытой редакторской сессии.
-
-Изменения остаются в `content/text-cms`, пока пользователь явно не подтвердит `готово`. После этого batch сверяется с fresh `dev`, проходит content-only validation и интегрируется в `dev`. Production publication остаётся отдельным `dev -> prod` release.
-
-`tools/cms-authoring-topology.mjs` является read-only guard/provenance helper для этого процесса. Он проверяет branch/worktree/HEAD, dirty state, drift относительно `dev`, explicit READY и publication scope. Он не reset/rebase/merge/commit/push.
-
-Пример проверки кандидата после `готово`:
-
-```bash
-node tools/cms-authoring-topology.mjs --ready --files-json '["src/content/cases/styx.json"]'
-```
-
-Если `content/text-cms` и fresh `dev` разошлись в обе стороны, helper возвращает `reconciliation-required`; это сигнал для контролируемого сведения истории, а не разрешение на force-reset.
-
-## Save
-
-`Save` создаёт реальный Git commit в выбранной CMS branch.
-
-Для нового редакторского цикла выбранной ветвью должна быть `content/text-cms`. Сохранение в `content/text-cms` не является интеграцией в `dev`, production deployment или разрешением на публикацию.
-
-Не переключай CMS на `prod` для обычной редакторской работы. Не используй direct `dev` save как обход постоянной editorial branch.
+Старый `content/text-cms` сохранён архивным тегом; временную ветку совместимости нельзя удалять до проверки переноса всех writer-адаптеров и сверки старых редакторских отличий. `tools/cms-authoring-topology.mjs` только читает Git-состояние, не переписывает историю.
 
 ## Что можно менять
 
@@ -84,7 +62,7 @@ npm run desk
 npm run desk:write
 ```
 
-разрешён только на branch `content/text-cms`, вне CI/GitHub Actions и без переопределения loopback host. `dev`, `prod`, feature/fix branches и remote host override блокируются до запуска write-capable Desk.
+разрешён только на branch `dev`, вне CI/GitHub Actions и без переопределения loopback host. `prod`, legacy editorial, feature/fix branches и remote host override блокируются до запуска write-capable Desk.
 
 В интерфейсе Desk отображаются `READ ONLY`/`WRITE`, current branch, HEAD, dirty state и divergence относительно `dev`.
 
@@ -100,31 +78,15 @@ Private Lab — отдельная non-production read-only поверхност
 
 Он **не** вводит собственный пароль/Basic Auth. По актуальному #732 удалённый private access должен использовать существующий Admin/GitHub OAuth boundary либо оставаться local-only, пока этот security slice не реализован и не проверен.
 
-Даже успешная network authentication не даёт право на CMS/media mutation. Write authority по-прежнему определяется локальным `content/text-cms` contract.
+Даже успешная network authentication не даёт право на CMS/media mutation. Write authority по-прежнему определяется локальным `dev` authoring contract.
 
 Foundation не считается завершением всего #732: full LIVE/HIDDEN/WIP catalog, hidden organisms/Berserk, viewport/debug tooling и GitHub OAuth/Admin integration остаются отдельным scope.
 
-## Проверить сайт
+## Проверить сайт и завершить редакторский цикл
 
-Текущие `Проверить сайт` actions проверяют `dev`; они не публикуют production.
+`Проверить сайт` запускает проверки `dev` и не публикует production. Pages CMS, локальный Desk и удалённый Media Desk создают редакторские изменения сразу в `dev`; не требуется отдельный editorial-to-dev merge.
 
-Для изменений, которые ещё находятся только в `content/text-cms`, используй branch/topology verification до интеграции. Не считать проверку `dev` доказательством непроинтегрированного editorial batch.
-
-После интеграции в `dev` существующий verification flow используется как integration gate перед release.
-
-## Интеграция редакторского batch
-
-До явного `готово` изменения остаются в `content/text-cms`.
-
-После `готово`:
-
-1. получить fresh `dev` и проверить drift `content/text-cms` через topology guard;
-2. не выполнять force-reset и не прятать конфликт автоматическим rebase;
-3. убедиться, что batch содержит только ожидаемые editorial/media изменения;
-4. выполнить content/media validation checks;
-5. интегрировать batch в `dev` через контролируемый review/merge flow;
-6. проверить resulting `dev` на exact SHA;
-7. только после этого рассматривать отдельный `dev -> prod` release.
+Перед выпуском необходимо проверить сохранённые ревизии и разрешённые пути, отработать проверки контента, сборки и тесты в `dev`. Отдельная проверенная процедура `dev → prod` выпускает сайт. Прямой CMS save в `prod` запрещён.
 
 ## Подготовить публикацию
 
