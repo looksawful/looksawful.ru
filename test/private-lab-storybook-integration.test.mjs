@@ -5,7 +5,7 @@ import test from "node:test";
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
 test("Storybook is integrated into the isolated Private Lab artifact", async () => {
-  const [packageJson, labHtml, builder, inventory, main, labConfig, workflow, smoke] = await Promise.all([
+  const [packageJson, labHtml, builder, inventory, main, labConfig, workflow] = await Promise.all([
     read("package.json"),
     read("lab/index.html"),
     read("tools/lab/build-storybook.mjs"),
@@ -13,7 +13,6 @@ test("Storybook is integrated into the isolated Private Lab artifact", async () 
     read("tools/lab/storybook/main.mjs"),
     read("vite.lab.config.ts"),
     read(".github/workflows/private-lab-verify.yml"),
-    read("tools/lab/smoke-storybook.mjs"),
   ]);
   assert.match(packageJson, /"lab:system":\s*"node tools\/lab\/build-storybook\.mjs"/);
   assert.match(packageJson, /"lab:inventory":\s*"node tools\/lab\/design-system-inventory\.mjs"/);
@@ -21,27 +20,7 @@ test("Storybook is integrated into the isolated Private Lab artifact", async () 
   assert.match(labHtml, /href="\/lab\/system\/inventory\.html"/);
   assert.match(builder, /path\.join\("dist-lab", "lab"\)/);
   assert.match(inventory, /path\.join\(root, "dist-lab", "lab"\)/);
-  assert.doesNotMatch(main, /staticDirs:/);
-  assert.match(smoke, /path\.join\(root, "dist-lab", "media"\)/);
-  assert.match(smoke, /pathname\.startsWith\("\/media\/"\)/);
+  assert.match(main, /staticDirs:[\s\S]*public/);
   assert.match(labConfig, /outDir:\s*"dist-lab"/);
-  assert.match(
-    workflow,
-    /Prepare production media for Storybook[\s\S]*npm run media:ensure[\s\S]*Build isolated Lab[\s\S]*npx vite build --config vite\.lab\.config\.ts[\s\S]*npm run lab:system/,
-  );
-  assert.match(workflow, /Build private Storybook design system[\s\S]*timeout-minutes:\s*12[\s\S]*run:\s*npm run lab:system/);
+  assert.match(workflow, /Prepare production media for Storybook[\s\S]*npm run media:ensure[\s\S]*npm run lab:system/);
 });
-
-test("Private Lab contains the exact iPhone 17 PR #119 review candidate", async () => {
-  const story = await read("src/lab/stories/iphone-17-review.stories.mjs");
-
-  assert.match(story, /90 Experimental\/3D Review\/iPhone 17 · PR #119/u);
-  assert.match(story, /2bebd2cc2a64f08230ca243f3437db270ac15152/u);
-  assert.match(story, /raw\.githubusercontent\.com\/looksawful\/awful-studio/u);
-  assert.match(story, /iphone_17_v30_web\.glb/u);
-  assert.match(story, /createModelViewers/u);
-  assert.match(story, /canonical:\s*false/u);
-  assert.match(story, /routeDiscovery:\s*\{\s*listed:\s*false,\s*indexable:\s*false\s*\}/u);
-  assert.doesNotMatch(story, /trycloudflare\.com/u);
-});
-

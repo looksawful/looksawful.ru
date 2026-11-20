@@ -27,12 +27,12 @@ assert.ok(galleryPage && galleryPage.type === "gallery");
 
 const html = renderGalleryPage(galleryPage);
 
-test("Gallery renderer emits semantic build-time content with a non-visual page heading", () => {
+test("Gallery renderer emits semantic build-time content inside the shared page shell without a page-level heading", () => {
   assert.match(html, /<body[^>]*data-page-type="gallery"[^>]*>/);
   assert.match(html, /data-site-navigation/);
-  assert.match(html, /<main\b/);
+  assert.match(html, /<main>/);
   assert.match(html, /<section[^>]*data-gallery/);
-  assert.match(html, /<h1 class="visually-hidden">Галерея<\/h1>/);
+  assert.doesNotMatch(html, /<h1\b/i);
   assert.doesNotMatch(html, /gallery__header|gallery__title/);
 });
 
@@ -51,11 +51,14 @@ test("Gallery output keeps invisible series boundaries and intrinsic image geome
   assert.doesNotMatch(html, /gallery-series__title|data-gallery-series-title/);
 });
 
-test("Gallery renders exactly five approved Jestei symbols as interactive model cards", () => {
+test("Gallery renders the approved Jestei symbols and iPhone in separate interactive series", () => {
   const modelCards = [...html.matchAll(/<figure class="gallery-card gallery-card--model"[\s\S]*?<\/figure>/g)]
     .map((match) => match[0]);
 
-  assert.equal(modelCards.length, 5);
+  assert.equal(modelCards.length, 6);
+  assert.match(html, /id="gallery-awful-3d-mockups"/);
+  assert.match(html, /data-gallery-series="awful-3d-mockups"/);
+  assert.match(html, /data-gallery-series="jestei-3d-symbols"/);
   assert.deepEqual(
     modelCards.map((card) => card.match(/data-model-src="([^"]+)"/)?.[1]),
     [
@@ -64,6 +67,7 @@ test("Gallery renders exactly five approved Jestei symbols as interactive model 
       "/media/logo-3d/jestei/jestei-symbol-orange.glb",
       "/media/logo-3d/jestei/jestei-symbol-blue.glb",
       "/media/logo-3d/jestei/jestei-symbol-biloba.glb",
+      "/media/models/devices/iphone-17-v30.web.meshopt.glb",
     ],
   );
 
@@ -85,22 +89,6 @@ test("Gallery cards never expose an empty accessible image label when canonical 
     if (title.trim()) {
       assert.ok(alt.trim(), `Gallery card with title ${title} must have a non-empty image alt`);
     }
-  }
-});
-
-test("Gallery photo controls expose item-specific accessible names", () => {
-  const cards = [...html.matchAll(/<figure class="gallery-card"[\s\S]*?<\/figure>/g)]
-    .map((match) => match[0]);
-  assert.ok(cards.length > 0, "Gallery must render photo controls");
-
-  for (const card of cards) {
-    const label = card.match(/\baria-label="([^"]*)"/)?.[1] ?? "";
-    const title = card.match(/\bdata-gallery-title="([^"]*)"/)?.[1] ?? "";
-    const alt = card.match(/\bdata-gallery-alt="([^"]*)"/)?.[1] ?? "";
-    const identity = alt.trim() || title.trim();
-
-    assert.ok(identity, "Gallery photo control must expose authored identity");
-    assert.equal(label, `Открыть: ${identity}`);
   }
 });
 

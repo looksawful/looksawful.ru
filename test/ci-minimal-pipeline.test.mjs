@@ -3,20 +3,16 @@ import { readdir, readFile } from "node:fs/promises";
 import test from "node:test";
 
 const read = (file) => readFile(new URL(`../${file}`, import.meta.url), "utf8");
-const step = (workflow, name) => workflow.match(new RegExp(`      - name: ${name}\\n[\\s\\S]*?(?=\\n      - name: |$)`))?.[0] ?? "";
 
 const expectedWorkflows = [
-  "agent-verify.yml",
+  "caption-qa.yml",
   "ci-fast.yml",
   "cms-media.yml",
   "codeql.yml",
   "dependency-review.yml",
   "media-affected.yml",
-  "media-desk-cloudflare.yml",
   "pages-cms-publish.yml",
   "pages.yml",
-  "private-lab-deploy.yml",
-  "private-lab-verify.yml",
   "production-health.yml",
   "quality.yml",
   "ui-responsive.yml",
@@ -72,7 +68,7 @@ test("production validates exact prod tree, exact media cache, fast safety, comp
   assert.match(workflow, /npm ci/);
   assert.match(workflow, /node tools\/media-dev-state\.mjs --fingerprint/);
   assert.match(workflow, /actions\/cache\/restore@v6/);
-  assert.doesNotMatch(step(workflow, "Restore exact generated media cache"), /restore-keys:/);
+  assert.doesNotMatch(workflow, /restore-keys:/);
   assert.match(workflow, /node tools\/media-dev-state\.mjs --cache-verify/);
   assert.match(workflow, /Regenerate exact media cache on miss[\s\S]*?if: steps\.media-cache\.outputs\.cache-hit != 'true'[\s\S]*?npm run media:sync/);
   assert.match(workflow, /Require clean tracked tree after cache recovery[\s\S]*?if: steps\.media-cache\.outputs\.cache-hit != 'true'[\s\S]*?git diff --exit-code/);
@@ -101,17 +97,8 @@ test("CMS media distinguishes references, image sources and video sources, saves
   assert.match(workflow, /has_video/);
   assert.match(workflow, /has_source/);
 
-  const validationTooling = step(workflow, "Install video tooling");
-  assert.match(validationTooling, /has_media_change == 'true'/);
-  assert.match(validationTooling, /image_only != 'true'/);
-  assert.doesNotMatch(validationTooling, /has_video == 'true'/);
-  assert.match(validationTooling, /ffmpeg/);
-
-  const broadImageBuild = step(workflow, "Build image derivatives incrementally");
-  assert.match(broadImageBuild, /rebuild != 'true'/);
-  assert.match(broadImageBuild, /has_image == 'true'/);
-  assert.match(broadImageBuild, /image_only != 'true'/);
-  assert.match(broadImageBuild, /requires_full_rebuild != 'true'/);
+  assert.match(workflow, /Install video tooling[\s\S]*?if: steps\.scope\.outputs\.has_video == 'true'[\s\S]*?ffmpeg/);
+  assert.match(workflow, /Build image derivatives incrementally[\s\S]*?if: steps\.scope\.outputs\.rebuild != 'true' && steps\.scope\.outputs\.has_image == 'true'/);
   assert.match(workflow, /npm run test:media:contract/);
   assert.match(workflow, /npm run test:media:checks/);
   assert.match(workflow, /actions\/cache\/save@v6/);
@@ -145,7 +132,6 @@ test("scheduled quality keeps broad nightly checks and moves physical media audi
   assert.match(workflow, /Resolve exact target SHA/);
   assert.match(workflow, /needs\.resolve-target\.outputs\.target-sha/);
   assert.match(workflow, /prepare-media:[\s\S]*?Install media tooling[\s\S]*?ffmpeg[\s\S]*?Rebuild and validate generated media once[\s\S]*?npm run media:sync/);
-  assert.match(workflow, /\n  prepare-media:\n[\s\S]*?\n    runs-on: ubuntu-24\.04\n/);
   const fullE2E = workflow.match(/\n  full-e2e:\n([\s\S]*?)\n  lighthouse:/)?.[1] ?? "";
   assert.doesNotMatch(fullE2E, /ffmpeg|Install media tooling/);
   assert.match(fullE2E, /Restore exact prepared media[\s\S]*?fail-on-cache-miss: true[\s\S]*?media-dev-state\.mjs --cache-verify/);

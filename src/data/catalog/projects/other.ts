@@ -1,10 +1,6 @@
 import type { ProjectData } from "../../../types/project.ts";
 import { awfulCasesEditorialContent } from "../../content/awful-cases-editorial.ts";
-import { awful3dMockupsIntro } from "../../content/awful-3d-mockups.ts";
-import { awfulMockupsIntro } from "../../content/awful-mockups.ts";
 import { awfulStudioIntro } from "../../content/awful-studio.ts";
-import { keysIntro } from "../../content/keys.ts";
-import { seaIntro } from "../../content/sea.ts";
 
 export const otherProjects = [
   {
@@ -73,53 +69,6 @@ export const otherProjects = [
     description:
       "Целью было сделать простой CLI-таймер для Windows, который после каждой сессии спрашивает: «Чем вы занимались?». Он сочетает гибкость, простоту и отсутствие рекламы.",
     engagementTypeIds: ["self-initiated", "open-source"],
-    primaryRoleId: "developer",
-    roleIds: ["developer"],
-  },
-  {
-    id: "awful-mockups",
-    name: "Awful Mockups",
-    date: awfulMockupsIntro.period,
-    status: "active",
-    collectionIds: ["pet-projects"],
-    summary: awfulMockupsIntro.summary,
-    description: awfulMockupsIntro.lead,
-    engagementTypeIds: ["self-initiated"],
-    primaryRoleId: "graphic-designer",
-    roleIds: ["graphic-designer"],
-  },
-  {
-    id: "awful-3d-mockups",
-    name: "Awful 3D Mockups",
-    date: awful3dMockupsIntro.period,
-    status: "active",
-    collectionIds: ["pet-projects"],
-    summary: awful3dMockupsIntro.summary,
-    engagementTypeIds: ["self-initiated"],
-    primaryRoleId: "3d-designer",
-    roleIds: ["3d-designer"],
-  },
-  {
-    id: "keys",
-    name: "KEYS",
-    date: keysIntro.period,
-    status: "active",
-    collectionIds: ["pet-projects"],
-    summary: keysIntro.summary,
-    description: keysIntro.lead,
-    engagementTypeIds: ["self-initiated", "open-source"],
-    primaryRoleId: "developer",
-    roleIds: ["developer"],
-  },
-  {
-    id: "sea",
-    name: "SEA",
-    date: seaIntro.period,
-    status: "active",
-    collectionIds: ["pet-projects"],
-    summary: seaIntro.summary,
-    description: seaIntro.lead,
-    engagementTypeIds: ["self-initiated"],
     primaryRoleId: "developer",
     roleIds: ["developer"],
   },

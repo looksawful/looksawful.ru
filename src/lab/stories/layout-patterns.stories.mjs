@@ -1,5 +1,4 @@
 import { jesteiIntro } from "../../data/content/jestei-pool.ts";
-import { progressTraditionIntro } from "../../data/content/progress-tradition.ts";
 import { sensetiqueProductionIntro } from "../../data/content/sensetique.ts";
 import { renderProjectIntro } from "../../templates/project-intro.ts";
 import { renderSectionIntro } from "../../templates/section-intro.ts";
@@ -103,7 +102,10 @@ export const ProjectTitleMeasure = {
   render: () => `
     <main class="stack" style="--stack-space:clamp(3rem,7vw,7rem);padding:clamp(1.5rem,4vw,4rem)">
       <section class="project">
-        ${renderProjectIntro(progressTraditionIntro)}
+        ${renderProjectIntro({
+          title: { type: "text", text: "Длинный текстовый заголовок проекта" },
+          lead: "Текстовый title сохраняет читаемую меру 16ch как часть типографической арт-дирекции.",
+        })}
       </section>
       <section class="project">
         ${renderProjectIntro(jesteiIntro)}
@@ -114,33 +116,7 @@ export const ProjectTitleMeasure = {
     looksawful: { state: "project-title-measure" },
     docs: {
       description: {
-        story: "The longest current text-title case, Издательство Прогресс-Традиция, exercises the 16ch art-direction measure against a real logo-title case. Logo titles use the editorial grid track and never inherit a character-based width cap.",
-      },
-    },
-  },
-};
-
-
-export const ReelHorizontalOverflow = {
-  render: () => `
-    <main style="padding:clamp(1.5rem,4vw,4rem)">
-      <div
-        class="reel"
-        style="--reel-gap:1rem;--reel-item-size:min(72vw,18rem);--reel-snap-type:inline mandatory;--reel-snap-align:center;padding-block:1rem"
-      >
-        ${["01", "02", "03", "04", "05"].map((label) => `
-          <article style="display:grid;place-items:end start;min-block-size:14rem;padding:1rem;border:1px solid currentColor;border-radius:1rem">
-            <strong>${label}</strong>
-          </article>
-        `).join("")}
-      </div>
-    </main>
-  `,
-  parameters: {
-    looksawful: { state: "horizontal-overflow-reel" },
-    docs: {
-      description: {
-        story: "Reel owns horizontal overflow, snapping and hidden-scrollbar mechanics. Consumers provide item geometry and may switch those mechanics off through reel custom properties.",
+        story: "Text project titles keep the 16ch typographic measure. Logo titles use the editorial grid track and never inherit a character-based width cap.",
       },
     },
   },

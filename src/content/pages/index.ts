@@ -3,14 +3,10 @@ import { jesteiPoolPageContent } from "./cases/jestei-pool.ts";
 import { sensetiquePageContent } from "./cases/sensetique.ts";
 import { styxPageContent } from "./cases/styx.ts";
 import { shootingsPageContent } from "./collections/shootings.ts";
-import { awful3dMockupsPageContent } from "./projects/awful-3d-mockups.ts";
-import { awfulMockupsPageContent } from "./projects/awful-mockups.ts";
 import { awfulCasesPageContent } from "./projects/awful-cases.ts";
 import { awfulStudioPageContent } from "./projects/awful-studio.ts";
 import { berrySocialContentPageContent } from "./projects/berry-social-content-2020.ts";
-import { keysPageContent } from "./projects/keys.ts";
 import { movesAwfulPageContent } from "./projects/moves-awful.ts";
-import { seaPageContent } from "./projects/sea.ts";
 import { createEntityPageContentRegistry } from "./registry.ts";
 import { validateEntityPageContents } from "./validation.ts";
 
@@ -25,13 +21,9 @@ export const entityPageContents = [
   sensetiquePageContent,
   shootingsPageContent,
   awfulCasesPageContent,
-  awful3dMockupsPageContent,
-  awfulMockupsPageContent,
   awfulStudioPageContent,
   berrySocialContentPageContent,
-  keysPageContent,
   movesAwfulPageContent,
-  seaPageContent,
 ] as const satisfies readonly EntityPageContent[];
 
 validateEntityPageContents(entityPageContents);

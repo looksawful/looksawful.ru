@@ -12,8 +12,6 @@ const derivativeTests = new Set([
 // explicitly justified as cheap, long-lived contracts under docs/testing-policy.md.
 export const fastTests = new Set([
   "test/agent-verification-workflow.test.mjs",
-  // CONTRACT: repository-local Matt Flow decision routing is protected policy.
-  "test/matt-flow-agent-contract.test.mjs",
   "test/awful-cases-cms-editorial.test.mjs",
   "test/ci-fast-concurrency.test.mjs",
   "test/code-block-contract.test.mjs",
@@ -88,17 +86,13 @@ export const fastTests = new Set([
   "test/media-desk-revision-session.test.mjs",
   "test/media-desk-transaction-invariants.test.mjs",
   "test/media-desk-transactions.test.mjs",
-  "test/media-semantic-baseline.test.mjs",
-  "test/text-review-v2-contract.test.mjs",
   "test/media-tools/affected-media-ci.test.mjs",
   "test/media-tools/media-cache-fingerprint-scope.test.mjs",
   "test/outreach-link.test.mjs",
   "test/pages-cms-yaml-syntax.test.mjs",
+  "test/pr-preview-media-packaging.test.mjs",
+  "test/pr-preview-workflow.test.mjs",
   "test/private-admin-github-oauth.test.mjs",
-  // CONTRACT: Private Lab deployment stays trusted-dev-only, authenticated, and isolated from public review.
-  "test/private-lab-deploy.test.mjs",
-  // CONTRACT: public GitHub automation must never publish pre-production visual-review evidence.
-  "test/public-review-privacy-policy.test.mjs",
   "test/private-lab-shell.test.mjs",
   "test/project-card-hover.test.mjs",
   "test/project-lead-desktop-width.test.mjs",

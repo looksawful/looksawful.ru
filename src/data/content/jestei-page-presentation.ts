@@ -7,13 +7,13 @@ export const jesteiEditorialResources = {
   text: "Правила коммуникации, терминологии и интерфейсных текстов.",
   links: [
     {
-      label: "Читать редполитику",
+      label: "Почитать",
       href: "/docs/jestei-pool-redpolitika.html",
       rel: "noopener noreferrer",
       target: "_blank",
     },
     {
-      label: "Скачать PDF",
+      label: "Скачать",
       href: "/docs/jestei-editorial-guide.pdf",
       download: "jestei-editorial-guide.pdf",
     },

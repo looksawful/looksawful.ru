@@ -1,7 +1,6 @@
 import {
   getGalleryItems,
   getGalleryModelItems,
-  getGallerySeriesId,
   type GalleryItem,
   type GalleryModelItem,
 } from "../../data/media/gallery.ts";
@@ -10,13 +9,13 @@ import { escapeHtml } from "../../utils/html.ts";
 import type { GalleryPageDefinition } from "../pages/types.ts";
 import { renderPageShell } from "../shell/page-shell.ts";
 
-function groupBySeries(
-  items: readonly GalleryItem[],
-): readonly { id: string; items: readonly GalleryItem[] }[] {
-  const groups = new Map<string, GalleryItem[]>();
+function groupBySeries<T extends { seriesId: string }>(
+  items: readonly T[],
+): readonly { id: string; items: readonly T[] }[] {
+  const groups = new Map<string, T[]>();
 
   for (const item of items) {
-    const seriesId = getGallerySeriesId(item);
+    const seriesId = item.seriesId;
     const group = groups.get(seriesId);
     if (group) group.push(item);
     else groups.set(seriesId, [item]);
@@ -32,7 +31,7 @@ function renderGalleryCard(item: GalleryItem): string {
   const accessibleAlt = item.alt.trim() || title;
   const credits = JSON.stringify([...new Set(item.credits.filter((credit) => credit.trim()))]);
 
-  return `<figure class="gallery-card" data-gallery-card data-gallery-item-id="${escapeHtml(item.id)}" data-gallery-src="${escapeHtml(item.asset.src)}" data-gallery-width="${item.width}" data-gallery-height="${item.height}" data-gallery-alt="${escapeHtml(accessibleAlt)}" data-gallery-title="${escapeHtml(title)}" data-gallery-credits="${escapeHtml(credits)}" tabindex="0" role="button" aria-haspopup="dialog" aria-label="Открыть: ${escapeHtml(accessibleAlt)}">
+  return `<figure class="gallery-card" data-gallery-card data-gallery-item-id="${escapeHtml(item.id)}" data-gallery-src="${escapeHtml(item.asset.src)}" data-gallery-width="${item.width}" data-gallery-height="${item.height}" data-gallery-alt="${escapeHtml(accessibleAlt)}" data-gallery-title="${escapeHtml(title)}" data-gallery-credits="${escapeHtml(credits)}" tabindex="0" role="button" aria-haspopup="dialog" aria-label="Открыть изображение">
   <img class="gallery-card__image" src="${escapeHtml(item.asset.src)}"${srcsetAttribute} sizes="(max-width: 720px) 50vw, (max-width: 1100px) 33vw, (max-width: 1500px) 25vw, 20vw" width="${item.width}" height="${item.height}" alt="${escapeHtml(accessibleAlt)}" loading="lazy" decoding="async">
 </figure>`;
 }
@@ -59,11 +58,13 @@ function renderGallerySeries(items: readonly GalleryItem[]): string {
 function renderGalleryModelSeries(items: readonly GalleryModelItem[]): string {
   if (!items.length) return "";
 
-  return `<section class="gallery-series gallery-series--models" data-gallery-series="${escapeHtml(items[0].seriesId)}">
+  return groupBySeries(items)
+    .map(({ id, items: seriesItems }) => `<section id="gallery-${escapeHtml(id)}" class="gallery-series gallery-series--models" data-gallery-series="${escapeHtml(id)}">
   <div class="gallery-series__grid" data-gallery-series-grid>
-    ${items.map(renderGalleryModelCard).join("\n    ")}
+    ${seriesItems.map(renderGalleryModelCard).join("\n    ")}
   </div>
-</section>`;
+</section>`)
+    .join("\n");
 }
 
 export function renderGalleryPage(page: GalleryPageDefinition): string {
@@ -75,7 +76,6 @@ export function renderGalleryPage(page: GalleryPageDefinition): string {
     title: "gallery — Иван Крушинский",
     description: "Photography and selected 3D archive by Ivan Krushinsky.",
     content: `<section class="gallery" data-gallery>
-  <h1 class="visually-hidden">Галерея</h1>
   <div class="gallery__content">
 ${renderGallerySeries(items)}
 ${renderGalleryModelSeries(modelItems)}

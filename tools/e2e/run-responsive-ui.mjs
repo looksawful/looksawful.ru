@@ -391,6 +391,53 @@ async function readJesteiGeometry(page) {
         .filter(Boolean),
       copyPairs,
       rails,
+      promoSequence: (() => {
+        const sequence = root.querySelector('.media-group[data-layout="sequence"]');
+        if (!(sequence instanceof HTMLElement)) return null;
+
+        const items = sequence.querySelector(":scope > .media-group__items");
+        if (!(items instanceof HTMLElement)) return null;
+
+        const leading = items.querySelector(':scope > .media[data-role="wide"]');
+        const middle = items.querySelector(":scope > .media-group__middle");
+        if (!(leading instanceof HTMLElement) || !(middle instanceof HTMLElement)) return null;
+
+        const leadingRect = leading.getBoundingClientRect();
+        const middleRect = middle.getBoundingClientRect();
+
+        const leadingSurface = leading.querySelector(":scope > .media__surface");
+        const leadingSurfaceRect =
+          leadingSurface instanceof HTMLElement ? leadingSurface.getBoundingClientRect() : null;
+
+        const cells = [...middle.querySelectorAll(":scope > .media")].flatMap((cell) => {
+          if (!(cell instanceof HTMLElement)) return [];
+          const rect = cell.getBoundingClientRect();
+          const surface = cell.querySelector(":scope > .media__surface");
+          const surfaceRect = surface instanceof HTMLElement ? surface.getBoundingClientRect() : null;
+
+          return [{
+            top: rect.top,
+            bottom: rect.bottom,
+            height: rect.height,
+            surfaceTop: surfaceRect?.top ?? null,
+            surfaceBottom: surfaceRect?.bottom ?? null,
+            surfaceHeight: surfaceRect?.height ?? null,
+          }];
+        });
+
+        return {
+          leadingTop: leadingRect.top,
+          leadingBottom: leadingRect.bottom,
+          leadingHeight: leadingRect.height,
+          leadingSurfaceTop: leadingSurfaceRect?.top ?? null,
+          leadingSurfaceBottom: leadingSurfaceRect?.bottom ?? null,
+          leadingSurfaceHeight: leadingSurfaceRect?.height ?? null,
+          middleTop: middleRect.top,
+          middleBottom: middleRect.bottom,
+          middleHeight: middleRect.height,
+          cells,
+        };
+      })(),
       horizontalOverflow:
         document.documentElement.scrollWidth - document.documentElement.clientWidth,
     };
@@ -429,7 +476,31 @@ async function checkJesteiMobile(browser, baseUrl) {
       );
     }
 
-    assert.ok(geometry.rails.length >= 4, "Jestei mobile: expected authored horizontal rails");
+    assert.ok(geometry.promoSequence, "Jestei mobile: expected promo sequence geometry");
+    assert.ok(
+      Math.abs(geometry.promoSequence.leadingTop - geometry.promoSequence.middleTop) <= ALIGNMENT_TOLERANCE,
+      `Jestei mobile: promo leading and middle tops differ by ${Math.abs(geometry.promoSequence.leadingTop - geometry.promoSequence.middleTop)}px`,
+    );
+    assert.ok(
+      Math.abs(geometry.promoSequence.leadingBottom - geometry.promoSequence.middleBottom) <= ALIGNMENT_TOLERANCE,
+      `Jestei mobile: promo leading and middle boxes differ by ${Math.abs(geometry.promoSequence.leadingBottom - geometry.promoSequence.middleBottom)}px`,
+    );
+
+    const visibleCellBottom = Math.max(
+      ...geometry.promoSequence.cells
+        .map((cell) => cell.surfaceBottom)
+        .filter((value) => Number.isFinite(value)),
+    );
+    assert.ok(
+      Number.isFinite(geometry.promoSequence.leadingSurfaceBottom),
+      "Jestei mobile: expected leading promo surface geometry",
+    );
+    assert.ok(
+      Math.abs(geometry.promoSequence.leadingSurfaceBottom - visibleCellBottom) <= ALIGNMENT_TOLERANCE,
+      `Jestei mobile: visible promo grid bottom differs from leading surface by ${Math.abs(geometry.promoSequence.leadingSurfaceBottom - visibleCellBottom)}px`,
+    );
+
+        assert.ok(geometry.rails.length >= 4, "Jestei mobile: expected authored horizontal rails");
     for (const rail of geometry.rails) {
       assert.equal(rail.display, "flex", "Jestei mobile: rail must render as flex");
       assert.equal(rail.flexWrap, "nowrap", "Jestei mobile: rail must not wrap");

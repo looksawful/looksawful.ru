@@ -21,16 +21,17 @@ import {
 import {
   jesteiCanonicalPromoSequence,
   jesteiEditorialResources,
+  jesteiLandingsNote,
 } from "../../../data/content/jestei-page-presentation.ts";
 import { jesteiThemeOrganismMockup } from "../../../data/content/jestei-theme-organism.ts";
 import type { EntityPageContent } from "../../contracts/page-content.ts";
 
 /**
- * Canonical composition for the registered Jestei Pool entity page.
+ * Canonical target composition for Jestei Pool.
  *
- * Both the standalone case page and Home reuse this PageContent through the
- * entity-page registry. The track filter remains a specialized renderer inside
- * the canonical composition because its DOM/runtime contract is project-specific.
+ * Deliberately not registered yet. The legacy page remains the runtime source
+ * until the large playlist-filter workflow is moved out of index.html into the
+ * specialized JesteiTrackFilter renderer without changing its DOM contract.
  */
 export const jesteiPoolPageContent = {
   pageId: "case:jestei-pool",
@@ -95,6 +96,7 @@ export const jesteiPoolPageContent = {
       id: "jestei-landings",
       projectId: "jestei-landings",
       intro: jesteiLandingsIntro,
+      note: jesteiLandingsNote,
       blocks: [{ type: "mockup", data: jesteiLandingsMockup }],
     },
     {

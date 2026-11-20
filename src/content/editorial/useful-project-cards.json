@@ -22,7 +22,7 @@
     "awful-studio": {
       "title": "Awful Studio",
       "description": "Blender-native студия для виртуального продакшна и продуктовой рекламы.",
-      "badge": ""
+      "badge": "(временно недоступно)"
     },
     "awful-mockups": {
       "title": "Awful Mockups",
@@ -32,7 +32,7 @@
     "awful-3d-mockups": {
       "title": "Awful 3D Mockups",
       "description": "Набор 3D-мокапов устройств для интерфейсов, анимации и рендера.",
-      "badge": ""
+      "badge": "(временно недоступно)"
     }
   }
 }

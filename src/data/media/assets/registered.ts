@@ -1,10 +1,6 @@
 import { retiredMediaAssetIds } from "../asset-aliases.ts";
 
-import { awful3dMockupsStaticMediaAssets } from "./awful-3d-mockups-static.ts";
 import { awfulCasesMediaAssets } from "./awful-cases.ts";
-import { awfulStudioStaticMediaAssets } from "./awful-studio-static.ts";
-import { awfulStudioModelMediaAssets } from "./awful-studio-models.ts";
-import { awfulMockupsMediaAssets } from "./awful-mockups.ts";
 import { behanceShootingMediaAssets } from "./behance-shootings.ts";
 import { berryMediaAssets } from "./berry.ts";
 import { berserkTimerMediaAssets } from "./berserk-timer.ts";
@@ -30,11 +26,7 @@ import { usefulMediaAssets } from "./useful.ts";
  * read retired records until the one-shot source cleanup removes them.
  */
 export const registeredMediaAssets = [
-  ...awful3dMockupsStaticMediaAssets,
   ...awfulCasesMediaAssets,
-  ...awfulMockupsMediaAssets,
-  ...awfulStudioStaticMediaAssets,
-  ...awfulStudioModelMediaAssets,
   ...behanceShootingMediaAssets,
   ...berryMediaAssets,
   ...berserkTimerMediaAssets,

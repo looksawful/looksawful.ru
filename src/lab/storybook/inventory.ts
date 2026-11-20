@@ -1,5 +1,4 @@
 import type { EntityPageContent } from "../../content/contracts/page-content.ts";
-import { renderJesteiTrackFilter } from "../../components/specialized/index.ts";
 import type { Section } from "../../content/contracts/sections.ts";
 import {
   entityPageContentRegistry,
@@ -38,8 +37,10 @@ function entityPages(): readonly EntityPageDefinition[] {
   const pages: EntityPageDefinition[] = [];
 
   for (const page of sitePages) {
-    if (!page.enabled || page.renderer !== "entity") continue;
-    pages.push(page);
+    if (!page.enabled) continue;
+    if (page.type === "case" || page.type === "collection" || page.type === "project") {
+      pages.push(page);
+    }
   }
 
   return pages;
@@ -63,12 +64,11 @@ function renderCanonicalArticle(page: EntityPageDefinition): string {
   return renderEntityShell(content, {
     ...presentation,
     introHeadingLevel: 1,
-    specialized: { jesteiTrackFilter: renderJesteiTrackFilter },
   });
 }
 
 function renderableSections(page: EntityPageDefinition): readonly Section[] {
-  return contentFor(page).sections;
+  return contentFor(page).sections.filter((section) => section.type !== "specialized");
 }
 
 function pageLabel(page: EntityPageDefinition): string {
@@ -85,7 +85,7 @@ function templateFixtures(): StorybookFixture[] {
       owner: "src/site/renderers/entity/section.ts → renderSection",
       viewports: VIEWPORTS,
       route: routeDiscovery(page),
-      render: () => renderSection(section, { specialized: { jesteiTrackFilter: renderJesteiTrackFilter } }),
+      render: () => renderSection(section),
     })),
   );
 }

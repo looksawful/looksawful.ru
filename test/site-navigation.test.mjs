@@ -148,3 +148,9 @@ test("homepage build renders the same live global navigation instead of the lega
     );
   }
 });
+
+test("homepage skip link has its focus-only visual treatment", () => {
+  const css = readFileSync(new URL("../src/styles/site-navigation.css", import.meta.url), "utf8");
+  assert.match(css, /\.skip-link\s*\{[^}]*transform:\s*translateY\(calc\(-100%\s*-\s*var\(--size-400\)\)\)/s);
+  assert.match(css, /\.skip-link:focus-visible\s*\{\s*transform:\s*translateY\(0\)/s);
+});

@@ -1,13 +1,11 @@
 import { rm, rmdir } from "node:fs/promises";
 import path from "node:path";
-import { spawn } from "node:child_process";
+import { spawnSync } from "node:child_process";
 
 const root = process.cwd();
 const labOutputRoot = path.resolve(root, path.join("dist-lab", "lab"));
 const outputDir = path.join(labOutputRoot, "system");
 const npmCommand = process.platform === "win32" ? "npm.cmd" : "npm";
-const DEFAULT_PHASE_TIMEOUT_MS = 5 * 60 * 1000;
-const WINDOWS_TERMINATION_TIMEOUT_MS = 2_000;
 
 const packages = [
   "storybook@10.6.0",
@@ -18,126 +16,24 @@ const packages = [
   "storybook-design-token@5.0.0",
 ];
 
-function resolvePhaseTimeoutMs() {
-  const raw = process.env.LAB_STORYBOOK_PHASE_TIMEOUT_MS?.trim();
-  if (!raw) return DEFAULT_PHASE_TIMEOUT_MS;
-  const parsed = Number(raw);
-  if (!Number.isFinite(parsed) || !Number.isInteger(parsed) || parsed < 1) {
-    throw new Error(`LAB_STORYBOOK_PHASE_TIMEOUT_MS must be a positive integer, got ${raw}`);
-  }
-  return parsed;
-}
-
-const phaseTimeoutMs = resolvePhaseTimeoutMs();
-
-async function terminateProcessTree(child, isWindows) {
-  if (!child.pid) {
-    child.kill("SIGKILL");
-    child.unref();
-    return;
-  }
-
-  if (isWindows) {
-    await new Promise((resolve) => {
-      const killer = spawn("taskkill", ["/pid", String(child.pid), "/t", "/f"], {
-        stdio: "ignore",
-        windowsHide: true,
-      });
-      let finished = false;
-      let killerTimer;
-      const finish = (fallbackToChildKill) => {
-        if (finished) return;
-        finished = true;
-        if (killerTimer) clearTimeout(killerTimer);
-        if (fallbackToChildKill) child.kill("SIGKILL");
-        child.unref();
-        killer.unref();
-        resolve();
-      };
-
-      killer.once("error", () => finish(true));
-      killer.once("close", (code) => finish(code !== 0));
-      killerTimer = setTimeout(() => {
-        killer.kill("SIGKILL");
-        finish(true);
-      }, WINDOWS_TERMINATION_TIMEOUT_MS);
-    });
-    return;
-  }
-
-  try {
-    process.kill(-child.pid, "SIGKILL");
-  } catch {
-    child.kill("SIGKILL");
-  }
-  child.unref();
-}
-
-function run(phase, command, args) {
+function run(command, args) {
   const isWindows = process.platform === "win32";
   const executable = isWindows ? "cmd.exe" : command;
   const executableArgs = isWindows ? ["/d", "/s", "/c", command, ...args] : args;
-  const startedAt = Date.now();
-
-  console.log(`[lab-storybook] phase=${phase} start timeout=${phaseTimeoutMs}ms`);
-
-  return new Promise((resolve, reject) => {
-    let settled = false;
-    let timer;
-    const child = spawn(executable, executableArgs, {
-      cwd: root,
-      stdio: "inherit",
-      env: process.env,
-      detached: !isWindows,
-      windowsHide: true,
-    });
-
-    const finish = (callback) => {
-      if (settled) return;
-      settled = true;
-      if (timer) clearTimeout(timer);
-      callback();
-    };
-
-    child.once("error", (error) => {
-      finish(() =>
-        reject(
-          new Error(`[lab-storybook] phase=${phase} failed to start: ${error.message}`, {
-            cause: error,
-          }),
-        ),
-      );
-    });
-
-    child.once("close", (code, signal) => {
-      if (settled) return;
-
-      if (code === 0) {
-        finish(() => {
-          console.log(`[lab-storybook] phase=${phase} done duration=${Date.now() - startedAt}ms`);
-          resolve();
-        });
-        return;
-      }
-
-      const reason = signal ? `signal ${signal}` : `exit code ${code ?? "unknown"}`;
-      finish(() => reject(new Error(`[lab-storybook] phase=${phase} failed with ${reason}`)));
-    });
-
-    timer = setTimeout(() => {
-      if (settled) return;
-      settled = true;
-      clearTimeout(timer);
-      const message = `[lab-storybook] phase=${phase} timed out after ${phaseTimeoutMs}ms`;
-      console.error(message);
-      void terminateProcessTree(child, isWindows).finally(() => reject(new Error(message)));
-    }, phaseTimeoutMs);
+  const result = spawnSync(executable, executableArgs, {
+    cwd: root,
+    stdio: "inherit",
+    env: process.env,
   });
+  if (result.error) throw result.error;
+  if (result.status !== 0) {
+    throw new Error(`${command} ${args.join(" ")} failed with exit code ${result.status ?? "unknown"}`);
+  }
 }
 
 await rm(outputDir, { recursive: true, force: true });
 
-await run("install", npmCommand, [
+run(npmCommand, [
   "install",
   "--no-save",
   "--package-lock=false",
@@ -146,7 +42,7 @@ await run("install", npmCommand, [
   ...packages,
 ]);
 
-await run("build", npmCommand, [
+run(npmCommand, [
   "exec",
   "--no",
   "--",

@@ -7,10 +7,7 @@ import {
   mediaUsageMetadataByEntryId,
 } from "../usage-records.ts";
 
-import { awful3dMockupsStaticMediaEntries } from "./awful-3d-mockups-static.ts";
 import { awfulCasesMediaEntries } from "./awful-cases.ts";
-import { awfulStudioStaticMediaEntries } from "./awful-studio-static.ts";
-import { awfulMockupsMediaEntries } from "./awful-mockups.ts";
 import { behanceShootingMediaEntries } from "./behance-shootings.ts";
 import { berryMediaEntries } from "./berry.ts";
 import { berserkTimerMediaEntries } from "./berserk-timer.ts";
@@ -33,10 +30,7 @@ import { unassignedMediaEntries } from "./unassigned.ts";
 import { usefulMediaEntries } from "./useful.ts";
 
 const rawMediaEntries = [
-  ...awful3dMockupsStaticMediaEntries,
   ...awfulCasesMediaEntries,
-  ...awfulMockupsMediaEntries,
-  ...awfulStudioStaticMediaEntries,
   ...behanceShootingMediaEntries,
   ...berryMediaEntries,
   ...berserkTimerMediaEntries,

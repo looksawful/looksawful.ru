@@ -734,13 +734,13 @@ cd awful-cases\app</code></pre>
                   </div>
                 </div>
                 <div class="browser-mockup__controls-area">
-                  <div aria-label="Варианты Moves Awful" aria-orientation="horizontal" class="variant-tabs reel" data-canvas-gallery-options="" data-moves-awful-options="" role="radiogroup">
-                    <button aria-checked="true" class="variant-tab" data-canvas-gallery-option="" data-variant="arc" role="radio" type="button">arc</button>
-                    <button aria-checked="false" class="variant-tab" data-canvas-gallery-option="" data-variant="spiral" role="radio" type="button">spiral</button>
-                    <button aria-checked="false" class="variant-tab" data-canvas-gallery-option="" data-variant="horizontal" role="radio" type="button">horizontal</button>
-                    <button aria-checked="false" class="variant-tab" data-canvas-gallery-option="" data-variant="diagonal" role="radio" type="button">diagonal</button>
-                    <button aria-checked="false" class="variant-tab" data-canvas-gallery-option="" data-variant="showcase-diagonal" role="radio" type="button">showcase diagonal</button>
-                    <button aria-checked="false" class="variant-tab" data-canvas-gallery-option="" data-variant="masonry" role="radio" type="button">masonry</button>
+                  <div aria-label="Варианты Moves Awful" class="variant-tabs reel" data-canvas-gallery-tabs="" data-moves-awful-tabs="" role="tablist">
+                    <button aria-selected="true" class="variant-tab" data-canvas-gallery-tab="" data-variant="arc" role="tab" type="button">arc</button>
+                    <button aria-selected="false" class="variant-tab" data-canvas-gallery-tab="" data-variant="spiral" role="tab" type="button">spiral</button>
+                    <button aria-selected="false" class="variant-tab" data-canvas-gallery-tab="" data-variant="horizontal" role="tab" type="button">horizontal</button>
+                    <button aria-selected="false" class="variant-tab" data-canvas-gallery-tab="" data-variant="diagonal" role="tab" type="button">diagonal</button>
+                    <button aria-selected="false" class="variant-tab" data-canvas-gallery-tab="" data-variant="showcase-diagonal" role="tab" type="button">showcase diagonal</button>
+                    <button aria-selected="false" class="variant-tab" data-canvas-gallery-tab="" data-variant="masonry" role="tab" type="button">masonry</button>
                   </div>
                 </div>
               </div>
@@ -785,7 +785,7 @@ cd awful-cases\app</code></pre>
               Разработчик
             </p>
           </div>
-          <header class="project__intro wrapper editorial-grid">
+          <header class="project__intro project__intro--media wrapper prose editorial-grid">
             <figure class="media terminal" data-presentation="banner" data-terminal-theme="dark" style="  grid-column: 1 / -1;
             inline-size: min(100%, var(--project-media-max));
             margin-inline: auto;
@@ -823,7 +823,7 @@ cd awful-cases\app</code></pre>
           <div class="divider wrapper" aria-hidden="true"></div>
           <section class="project__section wrapper stack">
             <div class="media-deck" data-deck-autoplay="ping-pong" data-deck-interval="10000" data-deck-layout="track" data-media-deck="">
-              <div class="control-bar media-deck__toolbar cluster"><button aria-label="Предыдущий кадр" class="media-deck__button" data-deck-prev="" type="button">←</button><button aria-label="Сетка" aria-pressed="false" class="media-deck__button" data-deck-toggle-grid="" type="button">grid</button><button aria-label="Следующий кадр" class="media-deck__button" data-deck-next="" type="button">→</button>
+              <div class="media-deck__toolbar cluster"><button aria-label="Предыдущий кадр" class="media-deck__button" data-deck-prev="" type="button">←</button><button aria-label="Сетка" aria-pressed="false" class="media-deck__button" data-deck-toggle-grid="" type="button">grid</button><button aria-label="Следующий кадр" class="media-deck__button" data-deck-next="" type="button">→</button>
               </div>
               <div class="media-deck__viewport" data-deck-viewport="">
                 <div class="media-deck__track reel" data-deck-track="">
@@ -1014,7 +1014,7 @@ Press Enter to return to timer...</pre>
                           <div aria-hidden="true" class="berserk-audio__wave">▁▂▃▆█▆▃▂▁▂▅▇▅▂▁▃▆█▇▃▂▁▁▂▃▆█▆▃▂▁▂▅▇▅▂▁
                           </div>
                           <div class="berserk-audio__row cluster"><button aria-pressed="false" class="berserk-audio__button" data-audio-play="" type="button">play / pause</button></div>
-                          <div class="berserk-audio__progress"><span data-audio-progress-fill=""></span><input aria-label="Позиция воспроизведения" aria-valuetext="00:00" data-audio-progress="" max="0" min="0" step="1" type="range" value="0"></div>
+                          <div class="berserk-audio__progress" data-audio-progress=""><span data-audio-progress-fill=""></span></div>
                           <div class="berserk-audio__meta cluster"><span data-audio-current="">00:00</span><span data-audio-duration="">00:00</span></div>
                           <div class="berserk-audio__line cluster"><strong id="berserk-volume-label">Volume:</strong><input aria-labelledby="berserk-volume-label" data-audio-volume="" max="1" min="0" step="0.01" type="range" value="0.5"><em data-audio-volume-text="">5/10</em>
                           </div>

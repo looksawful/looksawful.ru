@@ -17,7 +17,7 @@
   {
     "id": "awful-studio",
     "visible": true,
-    "state": "live"
+    "state": "coming-soon"
   },
   {
     "id": "awful-mockups",
@@ -27,6 +27,6 @@
   {
     "id": "awful-3d-mockups",
     "visible": true,
-    "state": "live"
+    "state": "coming-soon"
   }
 ]
