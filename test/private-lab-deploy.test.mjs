@@ -108,3 +108,19 @@ test("Cloudflare Pages size gate accepts 25 MiB and rejects one byte over", asyn
     rmSync(root, { recursive: true, force: true });
   }
 });
+
+
+test("pruning handles both root and nested Storybook media copies", async () => {
+  const workflow = await readFile(workflowUrl, "utf8");
+  assert.match(
+    workflow,
+    /for media_root in dist-lab\/media dist-lab\/lab\/system\/media; do/u,
+    "Lab build duplicates media under lab/system/media; both copies must be pruned",
+  );
+  assert.match(
+    workflow,
+    /find "\$\{media_root\}\/projects" -type f -path '\*\/source\/\*' -size \+26214400c/u,
+  );
+  assert.match(workflow, /orphan_cover="\$\{media_root\}\/projects\/index\/2\.png"/u);
+  assert.match(workflow, /review_unused_video="\$\{media_root\}\/generated\/video\/projects\/sensetique\/11\/source\/97-16x9\.web\.mp4"/u);
+});
