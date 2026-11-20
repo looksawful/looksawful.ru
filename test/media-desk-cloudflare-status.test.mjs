@@ -18,7 +18,7 @@ async function env() {
       if (/\/git\/ref\/heads\/content\/text-cms$/.test(target)) {
         return Response.json({ object: { sha: "head-status-a" } });
       }
-      if (target.includes("/contents/src/content/projects.json?ref=content%2Ftext-cms")) {
+      if (target.includes("/contents/src/content/projects.json?ref=dev")) {
         return Response.json({
           sha: "blob-projects-a",
           encoding: "base64",
