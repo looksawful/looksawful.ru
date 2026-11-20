@@ -1,4 +1,4 @@
-export const MEDIA_DESK_AUTHORING_BRANCH = "content/text-cms";
+export const MEDIA_DESK_AUTHORING_BRANCH = "dev";
 
 const REPOSITORY = "looksawful/looksawful.ru";
 const API_ROOT = `https://api.github.com/repos/${REPOSITORY}`;
@@ -291,7 +291,7 @@ export async function commitRepositoryFiles({
   );
   const branchHead = updatedRef?.object?.sha;
   if (branchHead !== commit.sha) {
-    throw new Error("GitHub did not advance content/text-cms to the created commit");
+    throw new Error(`GitHub did not advance ${MEDIA_DESK_AUTHORING_BRANCH} to the created commit`);
   }
 
   return { commitSha: commit.sha, branchHead };
