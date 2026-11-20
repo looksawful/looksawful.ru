@@ -92,7 +92,7 @@ test("remote Media Desk fails closed when dev head is stale", async () => {
     /stale branch head/i,
   );
   assert.equal(calls.length, 1);
-  assert.match(calls[0].url, /\/git\/ref\/heads\/content\/text-cms$/);
+  assert.match(calls[0].url, /\/git\/ref\/heads\/dev$/);
 });
 
 test("remote Media Desk creates one fast-forward commit only on dev", async () => {
