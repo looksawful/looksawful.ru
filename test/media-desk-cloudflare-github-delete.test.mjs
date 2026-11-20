@@ -12,7 +12,7 @@ function json(body, status = 200) {
   });
 }
 
-test("remote Media Desk deletes files through the same atomic content/text-cms commit", async () => {
+test("remote Media Desk deletes files through the same atomic dev commit", async () => {
   const calls = [];
   let refReads = 0;
   const fetchImpl = async (url, init = {}) => {
@@ -23,14 +23,14 @@ test("remote Media Desk deletes files through the same atomic content/text-cms c
     };
     calls.push(request);
 
-    if (request.url === `${API}/git/ref/heads/content/text-cms`) {
+    if (request.url === `${API}/git/ref/heads/dev`) {
       refReads += 1;
       return json({ object: { sha: "head-a" } });
     }
     if (request.url === `${API}/git/commits/head-a`) return json({ tree: { sha: "tree-a" } });
     if (request.url === `${API}/git/trees` && request.method === "POST") return json({ sha: "tree-b" }, 201);
     if (request.url === `${API}/git/commits` && request.method === "POST") return json({ sha: "commit-b" }, 201);
-    if (request.url === `${API}/git/refs/heads/content/text-cms` && request.method === "PATCH") {
+    if (request.url === `${API}/git/refs/heads/dev` && request.method === "PATCH") {
       return json({ object: { sha: "commit-b" } });
     }
     throw new Error(`unexpected request: ${request.method} ${request.url}`);
