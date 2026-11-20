@@ -32,7 +32,7 @@ function parseAheadBehind(value) {
 export function inspectCmsAuthoringTopology({
   repoRoot = process.cwd(),
   devRef = "origin/dev",
-  authoringBranch = "content/text-cms",
+  authoringBranch = "dev",
   ready = false,
   files = [],
   ci = process.env.CI === "true" || process.env.CI === "1",
@@ -97,7 +97,7 @@ if (process.argv[1] && fileURLToPath(new URL(import.meta.url)) === path.resolve(
   const result = inspectCmsAuthoringTopology({
     repoRoot: argumentValue(args, "--repo") ?? process.cwd(),
     devRef: argumentValue(args, "--dev") ?? "origin/dev",
-    authoringBranch: argumentValue(args, "--authoring-branch") ?? "content/text-cms",
+    authoringBranch: argumentValue(args, "--authoring-branch") ?? "dev",
     ready: args.includes("--ready"),
     files: parseFilesJson(argumentValue(args, "--files-json")),
   });
