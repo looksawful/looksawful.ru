@@ -9,7 +9,7 @@ test("remote session advances head only after successful mutations", async () =>
     const url = new URL(String(input), "https://media.looksawful.ru");
     calls.push({ path: url.pathname, init });
     if (url.pathname === "/api/status") {
-      return Response.json({ ok: true, branch: "content/text-cms", head: "head-a" });
+      return Response.json({ ok: true, branch: "dev", head: "head-a" });
     }
     if (url.pathname === "/api/media/revision") {
       return Response.json({ ok: true, path: "src/content/projects.json", revision: "r".repeat(64), head: "head-a" });
@@ -35,7 +35,7 @@ test("remote session advances head only after successful mutations", async () =>
 test("remote session preserves the captured head when a mutation conflicts", async () => {
   const fetcher = async (input, init = {}) => {
     const url = new URL(String(input), "https://media.looksawful.ru");
-    if (url.pathname === "/api/status") return Response.json({ ok: true, branch: "content/text-cms", head: "head-a" });
+    if (url.pathname === "/api/status") return Response.json({ ok: true, branch: "dev", head: "head-a" });
     if (url.pathname === "/api/media/assign") {
       const body = JSON.parse(String(init.body));
       assert.equal(body.expectedHead, "head-a");
@@ -56,7 +56,7 @@ test("remote session preserves the captured head when a mutation conflicts", asy
 test("remote multipart mutation carries captured head and advances only after success", async () => {
   const fetcher = async (input, init = {}) => {
     const url = new URL(String(input), "https://media.looksawful.ru");
-    if (url.pathname === "/api/status") return Response.json({ ok: true, branch: "content/text-cms", head: "head-a" });
+    if (url.pathname === "/api/status") return Response.json({ ok: true, branch: "dev", head: "head-a" });
     if (url.pathname === "/api/media/replace") {
       assert.ok(init.body instanceof FormData);
       const metadata = JSON.parse(String(init.body.get("metadata")));
@@ -79,7 +79,7 @@ test("remote asset revision identifies CMS asset and surface without repository 
   const fetcher = async (input) => {
     const url = new URL(String(input), "https://media.looksawful.ru");
     if (url.pathname === "/api/status") {
-      return Response.json({ ok: true, branch: "content/text-cms", head: "head-a" });
+      return Response.json({ ok: true, branch: "dev", head: "head-a" });
     }
     if (url.pathname === "/api/media/revision") {
       assert.equal(url.searchParams.get("assetId"), "cms-74f88a53-7663-4eb4-a1cb-d300f219d8ab");
