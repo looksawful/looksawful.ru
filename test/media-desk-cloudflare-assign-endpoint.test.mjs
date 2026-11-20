@@ -34,13 +34,13 @@ test("project-cover assignment changes one owner and commits only projects.json"
   const githubFetch = async (url, init = {}) => {
     const request = { url: String(url), method: init.method ?? "GET", body: init.body ? JSON.parse(init.body) : undefined };
     calls.push(request);
-    if (request.url === `${API}/git/ref/heads/content/text-cms`) return json({ object: { sha: "head-a" } });
+    if (request.url === `${API}/git/ref/heads/dev`) return json({ object: { sha: "head-a" } });
     if (request.url.startsWith(`${API}/contents/src/content/projects.json?`)) return json({ sha: "blob-a", encoding: "base64", content: Buffer.from(source).toString("base64") });
     if (request.url === `${API}/git/commits/head-a`) return json({ tree: { sha: "tree-a" } });
     if (request.url === `${API}/git/blobs` && request.method === "POST") return json({ sha: "blob-b" }, 201);
     if (request.url === `${API}/git/trees` && request.method === "POST") return json({ sha: "tree-b" }, 201);
     if (request.url === `${API}/git/commits` && request.method === "POST") return json({ sha: "commit-b" }, 201);
-    if (request.url === `${API}/git/refs/heads/content/text-cms` && request.method === "PATCH") return json({ object: { sha: "commit-b" } });
+    if (request.url === `${API}/git/refs/heads/dev` && request.method === "PATCH") return json({ object: { sha: "commit-b" } });
     throw new Error(`unexpected request: ${request.method} ${request.url}`);
   };
   const env = await envWith(githubFetch);
@@ -74,13 +74,13 @@ test("pet-cover assignment commits only the CMS cover override mapping", async (
   const githubFetch = async (url, init = {}) => {
     const request = { url: String(url), method: init.method ?? "GET", body: init.body ? JSON.parse(init.body) : undefined };
     calls.push(request);
-    if (request.url === `${API}/git/ref/heads/content/text-cms`) return json({ object: { sha: "head-a" } });
+    if (request.url === `${API}/git/ref/heads/dev`) return json({ object: { sha: "head-a" } });
     if (request.url.startsWith(`${API}/contents/src/content/subproject-card-covers.json?`)) return json({ sha: "blob-a", encoding: "base64", content: Buffer.from(overrideSource).toString("base64") });
     if (request.url === `${API}/git/commits/head-a`) return json({ tree: { sha: "tree-a" } });
     if (request.url === `${API}/git/blobs` && request.method === "POST") return json({ sha: "blob-b" }, 201);
     if (request.url === `${API}/git/trees` && request.method === "POST") return json({ sha: "tree-b" }, 201);
     if (request.url === `${API}/git/commits` && request.method === "POST") return json({ sha: "commit-b" }, 201);
-    if (request.url === `${API}/git/refs/heads/content/text-cms` && request.method === "PATCH") return json({ object: { sha: "commit-b" } });
+    if (request.url === `${API}/git/refs/heads/dev` && request.method === "PATCH") return json({ object: { sha: "commit-b" } });
     throw new Error(`unexpected request: ${request.method} ${request.url}`);
   };
   const env = await envWith(githubFetch);
