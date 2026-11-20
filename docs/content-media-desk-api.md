@@ -2,12 +2,12 @@
 
 Status: CURRENT IMPLEMENTATION / TRANSITIONAL. Verified against current `dev` launcher/policy/server/transaction contracts; open issues may still own residual acceptance/closeout work.
 
-This document describes the revision-aware local Desk contract implemented on current `dev`. Branch and publication authority remains fixed and separate:
+This document describes the revision-aware local Desk contract implemented on `dev`. Branch and publication authority remain separate:
 
-- `dev` = default working/integration branch;
-- `prod` = production/release/deploy branch;
-- `content/text-cms` = permanent editorial authoring branch;
-- editorial publication = `content/text-cms -> explicit READY/готово -> dev -> separate reviewed dev -> prod`.
+- `dev` = working branch and the only CMS/Media Desk authoring target;
+- `prod` = protected public release/deploy branch, never an authoring target;
+- editorial changes are saved in `dev` and published only through a separate reviewed `dev → prod` release.
+- legacy editorial branch remains temporarily available until migration is verified; it is not a new source of truth.
 
 Executable authority for the write contract is `src/devtools/media-desk/server.ts`, `src/devtools/media-desk/transaction-store.ts`, `tools/content-desk-policy.mjs`, `tools/cms-authoring-topology.mjs`, the existing canonical Media Catalog parsers/editor ownership model and their tests. The local Desk contract does not grant publication authority and must not be exposed as an unauthenticated remote admin API.
 
@@ -29,7 +29,7 @@ npm run desk:write
 
 Write mode is accepted only when all of the following are true:
 
-- current branch is exactly `content/text-cms`;
+- current branch is exactly `dev`;
 - execution is not CI / GitHub Actions;
 - the caller does not override the fixed loopback host;
 - `CONTENT_DESK_WRITE=1` is supplied only by the guarded launcher path.
@@ -40,7 +40,7 @@ The server-side write plugin registers its mutation endpoints only when:
 CONTENT_DESK_WRITE=1
 ```
 
-`dev`, `prod`, arbitrary feature/fix branches and remote host overrides fail closed at the launcher policy. Network authentication, if added around a private Lab surface, does not grant Desk write authority.
+`prod`, legacy editorial, arbitrary feature/fix branches and remote host overrides fail closed at the launcher policy. Network authentication, if added around a private Lab surface, does not grant Desk write authority.
 
 ## Revision model
 
@@ -265,7 +265,7 @@ A candidate is fully serialized and validated before the canonical path is repla
 - fresh `dev` SHA;
 - dirty state;
 - ahead/behind and divergence against `dev`;
-- whether current checkout is the permanent `content/text-cms` authoring branch;
+- whether current checkout is the permanent `dev` authoring branch;
 - whether explicit READY/`готово` is present;
 - whether the candidate diff is CMS/content/media-only or contains engineering/unknown paths.
 
@@ -281,7 +281,7 @@ ordinary Desk browse
 
 explicit authorized write session
   -> npm run desk:write
-  -> content/text-cms only
+  -> dev only
   -> capture source revision
   -> edit
   -> canonical validation
@@ -298,13 +298,13 @@ The Desk does not merge branches, deploy `prod`, expose mutation endpoints throu
 
 ## Remote Cloudflare Media Desk contract
 
-The remote Desk at `media.looksawful.ru` is a separate protocol from the local `__media-desk/*` filesystem API above. It runs through a Cloudflare Worker and GitHub's Git Data API, and its write authority is permanently fixed to `content/text-cms`.
+The remote Desk at `media.looksawful.ru` is a separate protocol from the local `__media-desk/*` filesystem API above. It runs through a Cloudflare Worker and GitHub's Git Data API, and its write authority is permanently fixed to `dev`.
 
 Remote browser/API access requires the signed Media Desk session. Mutations additionally require same-origin requests. The browser never receives the GitHub token or session-signing secret.
 
 Remote optimistic concurrency has two layers:
 
-- `expectedHead` is the captured `content/text-cms` Git head;
+- `expectedHead` is the captured `dev` Git head;
 - `expectedRevision` is the SHA-256 revision of the specific existing source being replaced or edited.
 
 Upload is the exception: a new canonical record has no existing source revision, so it requires `expectedHead` only. Replace, delete and typed assignment require the relevant source revision plus branch head. Stale state returns `409` and is never auto-retried with a refreshed guard.
