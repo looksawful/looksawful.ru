@@ -48,10 +48,11 @@ test("private Lab deploy is dev-only, authenticated, and Cloudflare-backed", asy
     workflow,
     /Install media tooling[\s\S]*?apt-get install -y ffmpeg[\s\S]*?Prepare production-backed media fixtures[\s\S]*?npm run media:ensure/u,
   );
-  assert.match(
-    workflow,
-    /Build isolated Private Lab[\s\S]*?Prune Cloudflare-incompatible Lab-only assets[\s\S]*?find dist-lab\/media\/projects -type f -path '\*\/source\/\*' -size \+26214400c -print0[\s\S]*?dist-lab\/media\/projects\/index\/2\.png[\s\S]*?dist-lab\/media\/generated\/video\/projects\/sensetique\/11\/source\/97-16x9\.web\.mp4[\s\S]*?Enforce Cloudflare Pages asset size limit[\s\S]*?find dist-lab -type f -size \+26214400c -print -quit[\s\S]*?Deploy Private Lab with Pages Functions/u,
-  );
+  assert.match(workflow, /Build isolated Private Lab[\s\S]*?Prune Cloudflare-incompatible Lab-only assets[\s\S]*?Enforce Cloudflare Pages asset size limit[\s\S]*?Deploy Private Lab with Pages Functions/u);
+  assert.match(workflow, /find "\$\{media_root\}\/projects" -type f -path '\*\/source\/\*' -size \+26214400c -print0/u);
+  assert.match(workflow, /orphan_cover="\$\{media_root\}\/projects\/index\/2\.png"/u);
+  assert.match(workflow, /review_unused_video="\$\{media_root\}\/generated\/video\/projects\/sensetique\/11\/source\/97-16x9\.web\.mp4"/u);
+  assert.match(workflow, /find dist-lab -type f -size \+26214400c -print -quit/u);
   assert.match(workflow, /npm run lab:build/u);
   assert.match(workflow, /working-directory:\s*lab/u);
   assert.match(workflow, /wrangler@4 pages deploy \.\.\/dist-lab/u);
@@ -107,4 +108,20 @@ test("Cloudflare Pages size gate accepts 25 MiB and rejects one byte over", asyn
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
+});
+
+
+test("pruning handles both root and nested Storybook media copies", async () => {
+  const workflow = await readFile(workflowUrl, "utf8");
+  assert.match(
+    workflow,
+    /for media_root in dist-lab\/media dist-lab\/lab\/system\/media; do/u,
+    "Lab build duplicates media under lab/system/media; both copies must be pruned",
+  );
+  assert.match(
+    workflow,
+    /find "\$\{media_root\}\/projects" -type f -path '\*\/source\/\*' -size \+26214400c/u,
+  );
+  assert.match(workflow, /orphan_cover="\$\{media_root\}\/projects\/index\/2\.png"/u);
+  assert.match(workflow, /review_unused_video="\$\{media_root\}\/generated\/video\/projects\/sensetique\/11\/source\/97-16x9\.web\.mp4"/u);
 });
