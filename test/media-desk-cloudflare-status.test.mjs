@@ -15,7 +15,7 @@ async function env() {
     MEDIA_DESK_GITHUB_TOKEN: "test-token",
     MEDIA_DESK_GITHUB_FETCH: async (url) => {
       const target = String(url);
-      if (/\/git\/ref\/heads\/content\/text-cms$/.test(target)) {
+      if (/\/git\/ref\/heads\/dev$/.test(target)) {
         return Response.json({ object: { sha: "head-status-a" } });
       }
       if (target.includes("/contents/src/content/projects.json?ref=dev")) {
