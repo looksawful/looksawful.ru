@@ -62,13 +62,13 @@ function withFixture(name, fn) {
   }
 }
 
-test("permanent content/text-cms checkout is recognized and provenance points to dev", () => {
+test("dev checkout is the only write-authorized authoring workspace", () => {
   withFixture("allowed", (root) => {
-    git(root, "checkout", "-q", "content/text-cms");
+    git(root, "checkout", "-q", "dev");
     const { result, payload } = inspect(root);
     assert.equal(result.status, 0, result.stderr);
     assert.equal(payload.authoringAllowed, true);
-    assert.equal(payload.branch, "content/text-cms");
+    assert.equal(payload.branch, "dev");
     assert.equal(payload.intendedIntegrationTarget, "dev");
     assert.match(payload.headSha, /^[0-9a-f]{40}$/);
     assert.match(payload.devSha, /^[0-9a-f]{40}$/);
@@ -84,19 +84,19 @@ test("permanent content/text-cms checkout is recognized and provenance points to
 
 test("CI never recognizes an editorial checkout as write-authorized", () => {
   withFixture("ci-blocked", (root) => {
-    git(root, "checkout", "-q", "content/text-cms");
+    git(root, "checkout", "-q", "dev");
     const { result, payload } = inspect(root, { ci: true });
     assert.equal(result.status, 0, result.stderr);
-    assert.equal(payload.branch, "content/text-cms");
+    assert.equal(payload.branch, "dev");
     assert.equal(payload.authoringAllowed, false);
     assert.equal(payload.integrationAllowed, false);
     assert.equal(payload.integrationReason, "authoring-checkout-required");
   });
 });
 
-test("dev and prod checkouts are never recognized as editorial authoring checkouts", () => {
+test("prod and legacy editorial checkouts remain write-blocked", () => {
   withFixture("blocked-branches", (root) => {
-    for (const branch of ["dev", "prod"]) {
+    for (const branch of ["prod", "content/text-cms"]) {
       git(root, "checkout", "-q", branch);
       const { result, payload } = inspect(root);
       assert.equal(result.status, 0, result.stderr);
@@ -108,7 +108,7 @@ test("dev and prod checkouts are never recognized as editorial authoring checkou
   });
 });
 
-test("divergence from fresh dev is reported without modifying either history", () => {
+test("legacy editorial divergence remains observable but cannot authorize writes", () => {
   withFixture("diverged", (root) => {
     commit(root, "dev", "dev.txt", "engineering moved");
     const devBefore = git(root, "rev-parse", "dev");
@@ -116,7 +116,9 @@ test("divergence from fresh dev is reported without modifying either history", (
     const authoringBefore = git(root, "rev-parse", "content/text-cms");
     const { result, payload } = inspect(root);
     assert.equal(result.status, 0, result.stderr);
-    assert.equal(payload.authoringAllowed, true);
+    assert.equal(payload.authoringAllowed, false);
+    assert.equal(payload.integrationAllowed, false);
+    assert.equal(payload.integrationReason, "authoring-checkout-required");
     assert.equal(payload.ahead, 1);
     assert.equal(payload.behind, 1);
     assert.equal(payload.diverged, true);
@@ -127,7 +129,7 @@ test("divergence from fresh dev is reported without modifying either history", (
 
 test("READY plus CMS-only diff permits an integration candidate, but engineering hitchhikers fail closed", () => {
   withFixture("ready-scope", (root) => {
-    git(root, "checkout", "-q", "content/text-cms");
+    git(root, "checkout", "-q", "dev");
     const allowed = inspect(root, {
       ready: true,
       files: [
@@ -158,7 +160,7 @@ test("READY plus CMS-only diff permits an integration candidate, but engineering
 
 test("dirty authoring checkout remains visible to the operator and cannot become an integration candidate", () => {
   withFixture("dirty", (root) => {
-    git(root, "checkout", "-q", "content/text-cms");
+    git(root, "checkout", "-q", "dev");
     writeFileSync(join(root, "uncommitted.txt"), "draft\n");
     const { result, payload } = inspect(root, {
       ready: true,
