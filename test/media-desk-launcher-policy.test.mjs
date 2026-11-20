@@ -55,17 +55,17 @@ test("Desk write policy fails closed outside the authorized local authoring chec
 
   assert.equal(CONTENT_DESK_LOOPBACK_HOST, "127.0.0.1");
 
-  for (const branch of ["dev", "prod", "feature/test", "fix/test"]) {
+  for (const branch of ["prod", "content/text-cms", "feature/test", "fix/test"]) {
     assert.throws(
       () => assertContentDeskWriteAllowed({ branch, ci: false, githubActions: false, args: [] }),
-      /content\/text-cms/i,
+      /\bdev\b/i,
       `must reject ${branch}`,
     );
   }
 
   assert.throws(
     () => assertContentDeskWriteAllowed({
-      branch: "content/text-cms",
+      branch: "dev",
       ci: true,
       githubActions: false,
       args: [],
@@ -74,7 +74,7 @@ test("Desk write policy fails closed outside the authorized local authoring chec
   );
   assert.throws(
     () => assertContentDeskWriteAllowed({
-      branch: "content/text-cms",
+      branch: "dev",
       ci: false,
       githubActions: true,
       args: [],
@@ -84,7 +84,7 @@ test("Desk write policy fails closed outside the authorized local authoring chec
   for (const args of [["--host"], ["--host=0.0.0.0"], ["--host=localhost"]]) {
     assert.throws(
       () => assertContentDeskWriteAllowed({
-        branch: "content/text-cms",
+        branch: "dev",
         ci: false,
         githubActions: false,
         args,
@@ -93,7 +93,7 @@ test("Desk write policy fails closed outside the authorized local authoring chec
     );
   }
   assert.doesNotThrow(() => assertContentDeskWriteAllowed({
-    branch: "content/text-cms",
+    branch: "dev",
     ci: false,
     githubActions: false,
     args: [],

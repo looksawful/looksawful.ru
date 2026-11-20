@@ -79,7 +79,7 @@ test("isolated Desk build declares remote write provenance without enabling loca
 
   assert.match(build, /VITE_CONTENT_DESK_REMOTE[^\n]*1/);
   assert.match(build, /VITE_CONTENT_DESK_WRITE[^\n]*1/);
-  assert.match(build, /VITE_CONTENT_DESK_BRANCH[^\n]*content\/text-cms/);
+  assert.match(build, /VITE_CONTENT_DESK_BRANCH[^\n]*dev/);
   assert.match(vite, /dist-media-desk/);
   assert.match(vite, /tools[\\/]media-desk[\\/]index\.html/);
   assert.match(mode, /REMOTE WRITE/);

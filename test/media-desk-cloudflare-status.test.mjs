@@ -15,10 +15,10 @@ async function env() {
     MEDIA_DESK_GITHUB_TOKEN: "test-token",
     MEDIA_DESK_GITHUB_FETCH: async (url) => {
       const target = String(url);
-      if (/\/git\/ref\/heads\/content\/text-cms$/.test(target)) {
+      if (/\/git\/ref\/heads\/dev$/.test(target)) {
         return Response.json({ object: { sha: "head-status-a" } });
       }
-      if (target.includes("/contents/src/content/projects.json?ref=content%2Ftext-cms")) {
+      if (target.includes("/contents/src/content/projects.json?ref=dev")) {
         return Response.json({
           sha: "blob-projects-a",
           encoding: "base64",
@@ -54,7 +54,7 @@ test("remote status is authenticated and reports exact authoring head", async ()
   assert.match(response.headers.get("content-type") ?? "", /application\/json/i);
   assert.deepEqual(JSON.parse(await response.text()), {
     ok: true,
-    branch: "content/text-cms",
+    branch: "dev",
     head: "head-status-a",
   });
 });

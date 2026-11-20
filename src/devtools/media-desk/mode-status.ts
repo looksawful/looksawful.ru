@@ -3,7 +3,7 @@ import "./mode-status.css";
 const READ_ONLY_MODE = "READ ONLY";
 const WRITE_MODE = "WRITE";
 const REMOTE_WRITE_MODE = "REMOTE WRITE";
-const REMOTE_BRANCH = "content/text-cms";
+const REMOTE_BRANCH = "dev";
 
 function env(name: string): string {
   const value = import.meta.env[name];

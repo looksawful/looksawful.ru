@@ -1,4 +1,4 @@
-export const CONTENT_DESK_AUTHORING_BRANCH = "content/text-cms";
+export const CONTENT_DESK_AUTHORING_BRANCH = "dev";
 export const CONTENT_DESK_LOOPBACK_HOST = "127.0.0.1";
 
 export function assertContentDeskWriteAllowed({ branch, ci, githubActions, args }) {

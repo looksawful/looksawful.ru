@@ -16,16 +16,16 @@ function json(body, status = 200) {
   });
 }
 
-test("remote Media Desk authoring branch is permanently content/text-cms", () => {
-  assert.equal(MEDIA_DESK_AUTHORING_BRANCH, "content/text-cms");
+test("remote Media Desk authoring branch is permanently dev", () => {
+  assert.equal(MEDIA_DESK_AUTHORING_BRANCH, "dev");
 });
 
-test("remote Media Desk reads exact content/text-cms bytes with source revision", async () => {
+test("remote Media Desk reads exact dev bytes with source revision", async () => {
   const calls = [];
   const source = '{"title":"hello"}\n';
   const fetchImpl = async (url, init = {}) => {
     calls.push({ url: String(url), method: init.method ?? "GET" });
-    if (String(url).includes("/git/ref/heads/content/text-cms")) {
+    if (String(url).includes("/git/ref/heads/dev")) {
       return json({ object: { sha: "head-a" } });
     }
     if (String(url).includes("/contents/")) {
@@ -48,7 +48,7 @@ test("remote Media Desk reads exact content/text-cms bytes with source revision"
   assert.equal(result.blobSha, "blob-a");
   assert.equal(result.branchHead, "head-a");
   assert.match(result.revision, /^[a-f0-9]{64}$/);
-  assert.ok(calls.every(({ url }) => !url.includes("/heads/dev") && !url.includes("/heads/prod")));
+  assert.ok(calls.every(({ url }) => !url.includes("/heads/content/text-cms") && !url.includes("/heads/prod")));
 });
 
 test("remote Media Desk rejects repository paths outside the media/content allowlist before network access", async () => {
@@ -76,7 +76,7 @@ test("remote Media Desk rejects repository paths outside the media/content allow
   }
 });
 
-test("remote Media Desk fails closed when content/text-cms head is stale", async () => {
+test("remote Media Desk fails closed when dev head is stale", async () => {
   const calls = [];
   await assert.rejects(
     () => commitRepositoryFiles({
@@ -92,10 +92,10 @@ test("remote Media Desk fails closed when content/text-cms head is stale", async
     /stale branch head/i,
   );
   assert.equal(calls.length, 1);
-  assert.match(calls[0].url, /\/git\/ref\/heads\/content\/text-cms$/);
+  assert.match(calls[0].url, /\/git\/ref\/heads\/dev$/);
 });
 
-test("remote Media Desk creates one fast-forward commit only on content/text-cms", async () => {
+test("remote Media Desk creates one fast-forward commit only on dev", async () => {
   const calls = [];
   let refReads = 0;
   const fetchImpl = async (url, init = {}) => {
@@ -106,7 +106,7 @@ test("remote Media Desk creates one fast-forward commit only on content/text-cms
     };
     calls.push(request);
 
-    if (request.url === `${REPOSITORY_API}/git/ref/heads/content/text-cms`) {
+    if (request.url === `${REPOSITORY_API}/git/ref/heads/dev`) {
       refReads += 1;
       return json({ object: { sha: "head-a" } });
     }
@@ -122,7 +122,7 @@ test("remote Media Desk creates one fast-forward commit only on content/text-cms
     if (request.url === `${REPOSITORY_API}/git/commits` && request.method === "POST") {
       return json({ sha: "commit-b" }, 201);
     }
-    if (request.url === `${REPOSITORY_API}/git/refs/heads/content/text-cms` && request.method === "PATCH") {
+    if (request.url === `${REPOSITORY_API}/git/refs/heads/dev` && request.method === "PATCH") {
       return json({ object: { sha: "commit-b" } });
     }
     throw new Error(`unexpected request: ${request.method} ${request.url}`);
@@ -141,7 +141,7 @@ test("remote Media Desk creates one fast-forward commit only on content/text-cms
 
   assert.deepEqual(result, { commitSha: "commit-b", branchHead: "commit-b" });
   assert.equal(refReads, 2);
-  assert.ok(calls.every(({ url }) => !url.includes("/heads/dev") && !url.includes("/heads/prod")));
+  assert.ok(calls.every(({ url }) => !url.includes("/heads/content/text-cms") && !url.includes("/heads/prod")));
   const patch = calls.find(({ method }) => method === "PATCH");
   assert.deepEqual(patch?.body, { sha: "commit-b", force: false });
 });
@@ -179,12 +179,12 @@ test("exact-head reads pin content to immutable expected authoring SHA", async (
     expectedHead: "head-a",
     fetchImpl: async (url) => {
       const target = String(url); calls.push(target);
-      if (target.endsWith("/git/ref/heads/content/text-cms")) return json({ object: { sha: "head-a" } });
+      if (target.endsWith("/git/ref/heads/dev")) return json({ object: { sha: "head-a" } });
       if (target.includes("/contents/src/content/projects.json?ref=head-a")) return json({ sha: "blob-a", encoding: "base64", content: Buffer.from("[]\n").toString("base64") });
       throw new Error(`unexpected request: ${target}`);
     },
   });
   assert.equal(result.branchHead, "head-a");
   assert.ok(calls.some((url) => url.includes("?ref=head-a")));
-  assert.ok(calls.every((url) => !url.includes("?ref=content%2Ftext-cms")));
+  assert.ok(calls.every((url) => !url.includes("?ref=dev")));
 });

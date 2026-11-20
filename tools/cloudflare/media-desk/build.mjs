@@ -11,7 +11,7 @@ const child = spawn(process.execPath, [vite, "build", "--config", config], {
     VITE_CONTENT_DESK_REMOTE: "1",
     VITE_CONTENT_DESK_WRITE: "1",
     VITE_CONTENT_DESK_MODE: "write",
-    VITE_CONTENT_DESK_BRANCH: "content/text-cms",
+    VITE_CONTENT_DESK_BRANCH: "dev",
     VITE_CONTENT_DESK_HEAD: "remote",
     VITE_CONTENT_DESK_DIRTY: "0",
     VITE_CONTENT_DESK_DEV_DIVERGENCE: "remote",
