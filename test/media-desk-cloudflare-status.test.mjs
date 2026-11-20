@@ -54,7 +54,7 @@ test("remote status is authenticated and reports exact authoring head", async ()
   assert.match(response.headers.get("content-type") ?? "", /application\/json/i);
   assert.deepEqual(JSON.parse(await response.text()), {
     ok: true,
-    branch: "content/text-cms",
+    branch: "dev",
     head: "head-status-a",
   });
 });
