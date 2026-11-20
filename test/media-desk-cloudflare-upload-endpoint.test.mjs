@@ -37,12 +37,12 @@ test("remote upload creates binary and canonical CMS record in one authoring com
   const githubFetch = async (url, init = {}) => {
     const request = { url: String(url), method: init.method ?? "GET", body: init.body ? JSON.parse(init.body) : undefined };
     calls.push(request);
-    if (request.url === `${API}/git/ref/heads/content/text-cms`) return json({ object: { sha: "head-a" } });
+    if (request.url === `${API}/git/ref/heads/dev`) return json({ object: { sha: "head-a" } });
     if (request.url === `${API}/git/commits/head-a`) return json({ tree: { sha: "tree-a" } });
     if (request.url === `${API}/git/blobs` && request.method === "POST") return json({ sha: `blob-${calls.length}` }, 201);
     if (request.url === `${API}/git/trees` && request.method === "POST") return json({ sha: "tree-b" }, 201);
     if (request.url === `${API}/git/commits` && request.method === "POST") return json({ sha: "commit-b" }, 201);
-    if (request.url === `${API}/git/refs/heads/content/text-cms` && request.method === "PATCH") return json({ object: { sha: "commit-b" } });
+    if (request.url === `${API}/git/refs/heads/dev` && request.method === "PATCH") return json({ object: { sha: "commit-b" } });
     throw new Error(`unexpected request: ${request.method} ${request.url}`);
   };
   const env = await envWith(githubFetch);
@@ -73,7 +73,7 @@ test("remote upload creates binary and canonical CMS record in one authoring com
   assert.equal(treeCall.body.tree.length, 2);
   assert.match(treeCall.body.tree[0].path, /^public\/media\/catalog\/[0-9a-f-]{36}\.webp$/i);
   assert.match(treeCall.body.tree[1].path, /^src\/content\/media-catalog\/uploads\/[0-9a-f-]{36}\.json$/i);
-  assert.ok(calls.every(({ url }) => !url.includes("/heads/dev") && !url.includes("/heads/prod")));
+  assert.ok(calls.every(({ url }) => !url.includes("/heads/content/text-cms") && !url.includes("/heads/prod")));
 });
 
 test("remote upload rejects oversized transport bodies before parsing multipart data", async () => {
