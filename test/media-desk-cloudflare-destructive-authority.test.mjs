@@ -61,7 +61,7 @@ function snapshotFetch({ record = uploadRecord(), sourceBytes = Buffer.from("png
   const fetchImpl = async (url, init = {}) => {
     const target = String(url); const method = init.method ?? "GET";
     calls.push({ target, method, body: init.body ? JSON.parse(init.body) : undefined });
-    if (target === `${API}/git/ref/heads/content/text-cms`) return json({ object: { sha: "head-a" } });
+    if (target === `${API}/git/ref/heads/dev`) return json({ object: { sha: "head-a" } });
     for (const [path, text] of fixed) {
       const encoded = path.split("/").map(encodeURIComponent).join("/");
       if (target.startsWith(`${API}/contents/${encoded}?ref=`)) return json({ sha: `blob-${path}`, encoding: "base64", content: b64(text) });
@@ -72,7 +72,7 @@ function snapshotFetch({ record = uploadRecord(), sourceBytes = Buffer.from("png
     if (target === `${API}/git/blobs` && method === "POST") return json({ sha: `blob-${calls.length}` }, 201);
     if (target === `${API}/git/trees` && method === "POST") return json({ sha: "tree-b" }, 201);
     if (target === `${API}/git/commits` && method === "POST") return json({ sha: "commit-b" }, 201);
-    if (target === `${API}/git/refs/heads/content/text-cms` && method === "PATCH") {
+    if (target === `${API}/git/refs/heads/dev` && method === "PATCH") {
       return json({ object: { sha: "commit-b" } });
     }
     throw new Error(`unexpected request: ${method} ${target}`);
