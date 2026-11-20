@@ -7,7 +7,6 @@ import { fileURLToPath } from "node:url";
 const rules = [
   ["cv", /^(public\/cv\/|src\/(content\/cv[^/]*|data\/cv[^/]*)|tools\/(apply-cv-content|prepare-cv-production|smoke-cv)\.mjs$|tools\/lib\/cv-content\.mjs$|test\/cv-)/],
   ["navigation", /^(src\/(content\/navigation\.json|data\/navigation\.ts|components\/site-nav[^/]*|styles\/(?:site-nav|project-navigation)[^/]*)|test\/(site-navigation|navigation-labels|project-navigation)|tools\/smoke-site-navigation\.mjs$)/],
-  ["media-desk", /^(src\/(?:devtools|tools)\/media-desk\/|tools\/media-desk\/|tools\/e2e\/run-media-desk\.mjs$|test\/media-desk)/],
   ["media-tooling", /^(tools\/(build-responsive-media|build-video-media|media-dev-state|sync-media-catalog)\.mjs$|test\/(media-|responsive-|video-delivery))/],
   ["media", /^(public\/media\/|media\/|src\/content\/(media-catalog\/|projects\.json$)|src\/data\/media\/|src\/types\/media\.ts$)/],
   ["dependencies", /^package(-lock)?\.json$/],
@@ -24,7 +23,6 @@ export function classifyChangedFiles(files, { full = false } = {}) {
   const groups = [...new Set(changedFiles.map((file) => rules.find(([, pattern]) => pattern.test(file))?.[0] ?? "unknown"))].sort();
   const broad = full || groups.some((group) => ["shared-runtime", "build-config", "dependencies", "unknown"].includes(group));
   const mediaChanged = full || groups.some((group) => ["media", "media-tooling", "dependencies", "unknown"].includes(group));
-  const mediaDeskChanged = broad || groups.includes("media-desk") || groups.includes("media");
   const mediaToolingOnly = groups.includes("media-tooling") && groups.every((group) => ["ci", "media-tooling"].includes(group));
   const suites = new Set(mediaToolingOnly ? [] : ["smoke"]);
   if (groups.includes("cv")) suites.add("cv");
@@ -37,7 +35,6 @@ export function classifyChangedFiles(files, { full = false } = {}) {
     changedFiles,
     groups,
     mediaChanged,
-    mediaDeskChanged,
     suites: broad ? ["full"] : [...suites],
     scope: broad ? "full" : "affected",
   };
@@ -90,7 +87,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.a
   if (process.env.GITHUB_OUTPUT) {
     appendFileSync(
       process.env.GITHUB_OUTPUT,
-      `media_inputs_changed=${scope.mediaChanged}\nmedia_desk_changed=${scope.mediaDeskChanged}\ne2e_scope=${scope.scope}\naffected_suites=${scope.suites.join(",")}\ngroups=${scope.groups.join(",")}\nchanged_count=${scope.changedFiles.length}\n`,
+      `media_inputs_changed=${scope.mediaChanged}\ne2e_scope=${scope.scope}\naffected_suites=${scope.suites.join(",")}\ngroups=${scope.groups.join(",")}\nchanged_count=${scope.changedFiles.length}\n`,
     );
   }
 }

@@ -6,7 +6,6 @@ const cvDataModuleUrl = new URL("../src/data/cv.ts", import.meta.url);
 const cvContentUrl = new URL("../src/content/cv.json", import.meta.url);
 const cvSourceUrl = new URL("../public/cv/index.html", import.meta.url);
 const cvContentLibUrl = new URL("../tools/lib/cv-content.mjs", import.meta.url);
-const cmsConfigUrl = new URL("../.pages.yml", import.meta.url);
 
 const expectedSkills = {
   hard: {
@@ -171,19 +170,4 @@ test("CV skill transform fails closed when source paragraph structure drifts", a
     () => contentLib.transformCvSkills(drifted, cvContent),
     /tech.*row|row.*tech|paragraph.*tech/i,
   );
-});
-
-test("Pages CMS exposes keyed authored skill copy without structural visibility or row identity", async () => {
-  const cmsConfig = await readFile(cmsConfigUrl, "utf8");
-  const cvConfig = cmsConfig.match(/\n  - name: cv\b[\s\S]*$/)?.[0] ?? "";
-  const skillsConfig = cvConfig.match(/\n      - name: skills\b[\s\S]*?(?=\n      - name: education\b)/)?.[0] ?? "";
-
-  for (const id of ["hard", "tech", "soft", "tools"]) {
-    assert.match(skillsConfig, new RegExp(`name: ${id}\\b[\\s\\S]*?type: object`));
-  }
-  assert.match(skillsConfig, /name: rows\b[\s\S]*?type: object/);
-  assert.match(skillsConfig, /name: identity\b[\s\S]*?type: object/);
-  assert.match(skillsConfig, /name: label\b[\s\S]*?type: string/);
-  assert.match(skillsConfig, /name: text\b[\s\S]*?type: text/);
-  assert.doesNotMatch(skillsConfig, /name: (id|visible|titleVisible|className|html|markup|layout|column|route|stylesheet)\b/);
 });

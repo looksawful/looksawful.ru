@@ -178,19 +178,3 @@ test("Sensetique parser accepts legitimate copy edits but rejects Case-owned or 
   presentationLeak.credits[0].className = "project__section";
   assert.throws(() => parseSensetiqueEditorialContent(presentationLeak), /unexpected|field|key/i);
 });
-
-test("Pages CMS exposes Sensetique copy without Case identity, route or presentation controls", async () => {
-  const cms = await readFile(new URL("../.pages.yml", import.meta.url), "utf8");
-  const start = cms.indexOf("      - name: sensetique-case");
-  assert.notEqual(start, -1);
-  const rest = cms.slice(start);
-  const nextEntry = rest.indexOf("\n      - name: ", 8);
-  const config = nextEntry === -1 ? rest : rest.slice(0, nextEntry);
-
-  for (const field of ["intro", "lead", "sections", "credits", "notes", "id", "title", "lines", "text"]) {
-    assert.match(config, new RegExp(`name: ${field}\\b`));
-  }
-  for (const forbidden of ["role", "period", "entryId", "className", "layout", "route", "canonical", "href", "renderer", "captionView", "columns"]) {
-    assert.doesNotMatch(config, new RegExp(`name: ${forbidden}\\b`));
-  }
-});

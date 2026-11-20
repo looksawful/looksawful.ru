@@ -39,7 +39,7 @@ export function serializeStaticUsageIndex(indexed) {
 
 export function assertStaticUsageSnapshotFresh(indexed, currentSource) {
   if (currentSource !== serializeStaticUsageIndex(indexed)) {
-    throw new Error("Media Desk static usage snapshot is stale; run node tools/media-desk/index-static-usage.mjs");
+    throw new Error("Media static usage snapshot is stale; run node tools/media/index-static-usage.mjs");
   }
 }
 
@@ -58,7 +58,7 @@ async function runCli() {
     await writeFile(output, serializeStaticUsageIndex(indexed), "utf8");
   }
   process.stdout.write(
-    `[media-desk-static-usage] ${indexed.bindings.length} blocking bindings\n`,
+    `[media-static-usage] ${indexed.bindings.length} blocking bindings\n`,
   );
 }
 

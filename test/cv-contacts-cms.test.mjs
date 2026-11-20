@@ -6,7 +6,6 @@ const cvDataModuleUrl = new URL("../src/data/cv.ts", import.meta.url);
 const cvContentUrl = new URL("../src/content/cv.json", import.meta.url);
 const cvSourceUrl = new URL("../public/cv/index.html", import.meta.url);
 const cvContentLibUrl = new URL("../tools/lib/cv-content.mjs", import.meta.url);
-const cmsConfigUrl = new URL("../.pages.yml", import.meta.url);
 
 const expectedContacts = {
   location: "Москва, Россия",
@@ -125,17 +124,4 @@ test("CV content adapter rejects malformed contact values and unsafe website sch
     }),
     /contacts\.location.*string/i,
   );
-});
-
-test("Pages CMS exposes only authored CV location while structural contacts stay outside the editor", async () => {
-  const cmsConfig = await readFile(cmsConfigUrl, "utf8");
-  const cvConfig = cmsConfig.match(/\n  - name: cv\b[\s\S]*$/)?.[0] ?? "";
-  const profileConfig = cvConfig.match(/\n      - name: profile\b[\s\S]*?(?=\n      - name: skills\b)/)?.[0] ?? "";
-
-  assert.match(profileConfig, /name: location\b[\s\S]*?type: string/);
-  assert.doesNotMatch(profileConfig, /name: contacts\b/);
-  for (const field of ["phone", "telegram", "instagram", "email", "website"]) {
-    assert.doesNotMatch(cvConfig, new RegExp(`- name: ${field}\\b`));
-  }
-  assert.doesNotMatch(cvConfig, /name: (href|target|rel|route|canonical)\b/);
 });

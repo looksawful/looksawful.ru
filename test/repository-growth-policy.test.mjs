@@ -23,23 +23,13 @@ test("repository has a cheap guard against heavyweight source files", async () =
 });
 
 test("CMS media fetches only the exact previous push commit instead of full history", async () => {
-  const workflow = await read(".github/workflows/cms-media.yml");
+  const workflow = await read(".github/workflows/media-preparation.yml");
   assert.doesNotMatch(workflow, /fetch-depth:\s*0/);
   assert.match(workflow, /fetch-depth:\s*1/);
 
   const previous = step(workflow, "Fetch previous push commit");
   assert.match(previous, /if: github\.event_name == 'push'/);
   assert.match(previous, /git fetch --no-tags --depth=1 origin "\$BEFORE"/);
-});
-
-test("CMS publication is shallow-first and only deepens topology history when required", async () => {
-  const workflow = await read(".github/workflows/pages-cms-publish.yml");
-  assert.doesNotMatch(workflow, /fetch-depth:\s*0/);
-  assert.match(workflow, /fetch-depth:\s*1/);
-  assert.match(workflow, /git fetch --no-tags --depth=1 origin/);
-  assert.match(workflow, /--deepen=64/);
-  assert.match(workflow, /--deepen=256/);
-  assert.match(workflow, /--unshallow/);
 });
 
 test("Git LFS stays out of the GitHub Pages media contract", async () => {

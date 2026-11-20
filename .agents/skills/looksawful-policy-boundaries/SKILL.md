@@ -1,6 +1,6 @@
 ---
 name: looksawful-policy-boundaries
-description: "Use when changing AGENTS instructions, skills, CMS publication scope, branch topology, CI guards, security-sensitive content handling, or other policy boundaries in looksawful.ru."
+description: "Use when changing AGENTS instructions, skills, content/media ownership, branch topology, CI guards, security-sensitive content handling, or other policy boundaries in looksawful.ru."
 ---
 
 # Looksawful Policy Boundaries
@@ -9,7 +9,7 @@ Treat agent instructions as operational guidance, not a security boundary. Actua
 
 ## Protected surfaces
 
-Treat changes to `AGENTS.md`, `.pages.yml`, `.github/workflows/`, `tools/cms-publication-scope.mjs`, `tools/cms-publication-topology.mjs`, `tools/ci/change-scope.mjs`, package scripts, and this skill package as a separate policy change. Do not weaken a guard merely to unblock a task.
+Treat changes to `AGENTS.md`, `.github/workflows/`, `tools/ci/change-scope.mjs`, package scripts, and this skill package as a separate policy change. Do not weaken a guard merely to unblock a task.
 
 ## Threat-aware rules
 
@@ -24,7 +24,7 @@ Treat changes to `AGENTS.md`, `.pages.yml`, `.github/workflows/`, `tools/cms-pub
 1. Read the canonical architecture/operations documents and the current guard implementation.
 2. Build a rule → source of truth → executable check → skill/document map.
 3. Add or identify negative tests for unauthorized paths, malformed/untrusted content, topology conflicts, stale generated output, and policy-file changes.
-4. Verify that a valid CMS-only combination of content/media/generated paths still passes and that a diff containing `ENGINEERING` or `UNKNOWN` still blocks.
+4. Verify valid manual content/media paths through typed parsers and exact-cache checks. Malformed paths, stale snapshots and unauthorized metadata writeback must fail closed. Coverage classification never grants publication authority.
 5. Report gaps as implementation work; do not describe a prose prohibition as enforcement.
 
 ## Stop

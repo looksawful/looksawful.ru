@@ -11,10 +11,6 @@ import {
   applyClientLogoWallVisibility,
   renderHomepage,
 } from "../src/site/renderers/home/home-slots.ts";
-import {
-  classifyCmsPublicationPath,
-  CMS_PUBLICATION_CLASS,
-} from "../tools/cms-publication-scope.mjs";
 
 const indexUrl = new URL("../index.html", import.meta.url);
 const visibilityUrl = new URL("../src/content/visibility/home.json", import.meta.url);
@@ -78,11 +74,4 @@ test("disabled Homepage sections are absent from generated output", async () => 
 
   assert.doesNotMatch(rendered, /class="pet-projects"/);
   assert.doesNotMatch(rendered, /id="pet-projects-title"/);
-});
-
-test("Homepage visibility content is explicitly authorized for CMS publication", () => {
-  assert.equal(
-    classifyCmsPublicationPath("src/content/visibility/home.json"),
-    CMS_PUBLICATION_CLASS.CMS_CONTENT,
-  );
 });

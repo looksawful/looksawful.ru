@@ -45,7 +45,9 @@ test("explicit full verification performs expensive core stages exactly once", (
   assert.match(verifyCore, /npm run build:site/);
   assert.match(verifyCore, /npm run test:e2e:full/);
   assert.equal(countCommand(verifyCore, "npm run typecheck"), 1);
-  assert.match(buildSite, /npm run cms:check/);
+  assert.doesNotMatch(buildSite, /cms:|desk:/);
+  assert.equal(scripts["cms:check"], undefined);
+  assert.equal(scripts["desk:write"], undefined);
   assert.match(buildSite, /npm run build:vite/);
   assert.match(buildSite, /npm run site:postbuild/);
 });
@@ -109,7 +111,11 @@ test("shared E2E runtime terminates preview processes and preserves signal termi
 
 test("CV smoke retains authored and production fail-closed modes", async () => {
   const source = await readFile(new URL("../tools/e2e/smoke-cv.mjs", import.meta.url), "utf8");
-  assert.match(source, /mode\s*=\s*["']authored["']/);
+  assert.match(source, /DEFAULT_CV_SMOKE_MODE\s*=\s*["']authored["']/);
+  assert.match(source, /mode\s*=\s*DEFAULT_CV_SMOKE_MODE/);
+  const { getExpectedCvCardCount, getExpectedCvHiddenCards } = await import("../tools/e2e/smoke-cv.mjs");
+  assert.throws(() => getExpectedCvCardCount("unsupported"), /invalid CV smoke mode/);
+  assert.throws(() => getExpectedCvHiddenCards("unsupported"), /invalid CV smoke mode/);
   assert.match(source, /production/);
   assert.match(source, /unsupported CV smoke mode|invalid CV smoke mode/i);
   assert.match(source, /mode\s*===\s*["']production["'][\s\S]*hiddenCards\s*===\s*0/);

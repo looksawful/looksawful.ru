@@ -8,7 +8,6 @@ import { pagePathToEntryPath } from "../src/site/build/inputs.ts";
 import { getEnabledSitePages } from "../src/site/pages/manifest.ts";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
-const legacyMediaDeskPath = ["src", "tools", "media-desk"].join("/");
 const sourceExtensions = new Set([
   ".cjs",
   ".css",
@@ -58,7 +57,8 @@ async function collectRepositorySourceFiles() {
 }
 
 test("repository root contains only intentional source directories", async () => {
-  const ignored = new Set([".cache", ".git", "dist", "node_modules"]);
+  // Build artifacts are outputs, not additional source roots.
+  const ignored = new Set([".cache", ".git", "dist", "dist-lab", "node_modules"]);
   const expected = [
     ".agents",
     ".github",
@@ -135,34 +135,6 @@ test("Lab Storybook JavaScript remains isolated from the production JavaScript m
   );
 });
 
-test("application development tooling has a canonical src/devtools boundary", async () => {
-  assert.equal(
-    await exists("src/devtools/media-desk/server.ts"),
-    true,
-    "Media Desk application tooling must be available from src/devtools",
-  );
-  assert.equal(
-    await exists(legacyMediaDeskPath),
-    false,
-    "legacy Media Desk source boundary must stay retired",
-  );
-});
-
-test("external Media Desk consumers use the canonical src/devtools path", async () => {
-  const offenders = [];
-  for (const file of await collectRepositorySourceFiles()) {
-    if (file.startsWith(`${legacyMediaDeskPath}/`)) continue;
-    const source = await readFile(path.join(root, file), "utf8");
-    if (source.includes(legacyMediaDeskPath)) offenders.push(file);
-  }
-
-  assert.deepEqual(
-    offenders,
-    [],
-    "external Media Desk consumers must not reference the legacy src/tools path",
-  );
-});
-
 test("literal .gitattributes paths point to files that still exist", async () => {
   const attributes = await readFile(path.join(root, ".gitattributes"), "utf8");
   const literalPaths = attributes
@@ -182,4 +154,19 @@ test("literal .gitattributes paths point to files that still exist", async () =>
     [],
     ".gitattributes must not retain path-specific rules for deleted files",
   );
+});
+
+test("manual editing keeps dev/prod and Storybook without CMS or Media Desk services", async () => {
+  for (const obsolete of [".pages.yml", ".github/workflows/pages-cms-publish.yml", ".github/workflows/media-desk-cloudflare.yml", "tools/cloudflare/media-desk", "src/devtools/media-desk", "tools/run-content-desk.mjs", "tools/generate-pages-cms-options.mjs"]) {
+    assert.equal(await exists(obsolete), false, `legacy editor must be retired: ${obsolete}`);
+  }
+  const vite = await readFile(path.join(root, "vite.config.ts"), "utf8");
+  assert.doesNotMatch(vite, /createMediaDeskWritePlugin|CONTENT_DESK_WRITE/u);
+  const pkg = JSON.parse(await readFile(path.join(root, "package.json"), "utf8"));
+  for (const name of ["desk", "desk:write", "media-desk:build", "cms:generate", "cms:check"]) {
+    assert.equal(pkg.scripts[name], undefined, `obsolete script ${name}`);
+  }
+  assert.doesNotMatch(pkg.scripts["build:site"], /cms:check/u);
+  assert.equal(await exists("src/lab/storybook/render.ts"), true, "private Storybook remains");
+  assert.equal(await exists(".github/workflows/pages.yml"), true, "protected production deploy remains");
 });

@@ -132,7 +132,7 @@ test("partial responsive generation preserves untouched manifest entries", async
 test("raster-only PRs keep required Fast CI but route expensive media work to the affected gate", async () => {
   const [fastCi, cmsMedia, affectedWorkflow] = await Promise.all([
     readRepo(".github/workflows/ci-fast.yml"),
-    readRepo(".github/workflows/cms-media.yml"),
+    readRepo(".github/workflows/media-preparation.yml"),
     readRepo(".github/workflows/media-affected.yml").catch((error) => {
       assert.fail(`affected media workflow must exist: ${error.message}`);
     }),

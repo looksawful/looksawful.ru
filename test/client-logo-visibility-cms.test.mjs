@@ -9,7 +9,6 @@ import { clientLogos } from "../src/data/clients.ts";
 import { renderClientLogo } from "../src/templates/client-logo.ts";
 
 const visibilityUrl = new URL("../src/content/client-logo-visibility.json", import.meta.url);
-const cmsConfigUrl = new URL("../.pages.yml", import.meta.url);
 const clientDataUrl = new URL("../src/data/clients.ts", import.meta.url);
 const homeSlotsUrl = new URL("../src/site/renderers/home/home-slots.ts", import.meta.url);
 
@@ -182,16 +181,4 @@ test("homepage consumes a client-logo export that is filtered at the data bounda
 
   assert.match(clientDataSource, /export const clientLogos[\s\S]*?getVisibleClientLogos\(\)/);
   assert.match(homeSource, /const logos = clientLogos\.map\(renderClientLogo\)/);
-});
-
-test("Pages CMS exposes generated client logo preview, name and visibility while hiding identity", async () => {
-  const cmsConfig = await readFile(cmsConfigUrl, "utf8");
-  const block = cmsConfig.match(/\n  - name: client-logo-visibility\b[\s\S]*?(?=\n  - name: [a-z0-9-]+\b)/)?.[0] ?? "";
-
-  assert.match(block, /path: src\/content\/client-logo-visibility\.json/);
-  assert.match(block, /- name: id\b[\s\S]*?hidden: true/);
-  assert.match(block, /- name: previewSrc\b[\s\S]*?type: image[\s\S]*?readonly: true/);
-  assert.match(block, /- name: name\b[\s\S]*?readonly: true/);
-  assert.match(block, /- name: visible\b[\s\S]*?type: boolean/);
-  assert.doesNotMatch(block, /- name: (file|alt|href|route|className|clientId)\b/);
 });

@@ -70,7 +70,7 @@ test("production exact cache miss recovers deterministically and saves the exact
 });
 
 test("production media cache path has no stale fallback or verification/write bypass", () => {
-  assert.doesNotMatch(workflow, /restore-keys:/);
+  assert.doesNotMatch(stepBlock("Restore exact generated media cache"), /restore-keys:/);
   assert.doesNotMatch(workflow, /generated-media-v2-/);
   assert.doesNotMatch(workflow, /cache-verify[^\n]*(?:\|\|\s*true)|continue-on-error/);
   assert.doesNotMatch(workflow, /git\s+(?:commit|push)\b/);

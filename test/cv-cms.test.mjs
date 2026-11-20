@@ -10,7 +10,6 @@ const cvDataModuleUrl = new URL("../src/data/cv.ts", import.meta.url);
 const cvStructureUrl = new URL("../src/content/cv.json", import.meta.url);
 const cvEditorialUrl = new URL("../src/content/editorial/cv.json", import.meta.url);
 const cvSourceUrl = new URL("../public/cv/index.html", import.meta.url);
-const cmsConfigUrl = new URL("../.pages.yml", import.meta.url);
 
 const experienceIds = ["jestei", "styx", "illumihand", "madcow", "sensetique", "line", "berry", "ss", "olovo", "theatre", "soroka", "kursovoy", "ran", "progress", "ria"];
 
@@ -103,13 +102,4 @@ test("production CV transform physically removes exactly runtime-disabled entrie
     assert.equal(Boolean(articleFor(productionHtml, id)), visible, id);
   }
   assert.doesNotMatch(productionHtml, /<article\b[^>]*\bexperience-card\b[^>]*\bhidden\b/i);
-});
-
-test("Pages CMS exposes authored CV copy only; visibility and identity remain structural", async () => {
-  const cmsConfig = await readFile(cmsConfigUrl, "utf8");
-  const cvConfig = cmsConfig.match(/\n  - name: cv\b[\s\S]*$/)?.[0] ?? "";
-  assert.match(cvConfig, /path: src\/content\/editorial\/cv\.json/);
-  assert.doesNotMatch(cvConfig, /- name: (id|visible|titleVisible|phone|telegram|instagram|email|website)\b/);
-  const structure = JSON.parse(await readFile(cvStructureUrl, "utf8"));
-  assert.ok(Object.values(structure.experience).every(({ visible }) => typeof visible === "boolean"));
 });

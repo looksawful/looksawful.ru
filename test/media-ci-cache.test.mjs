@@ -47,7 +47,7 @@ test("Fast CI media recovery is disabled for affected-only image PRs", async () 
 });
 
 test("CMS media may reuse an exact previous cache but image-only work does not require it", async () => {
-  const workflow = await read(".github/workflows/cms-media.yml");
+  const workflow = await read(".github/workflows/media-preparation.yml");
   const previous = block(workflow, "Restore exact previous generated media cache");
   const save = block(workflow, "Save exact generated media cache");
 

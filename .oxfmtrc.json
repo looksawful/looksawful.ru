@@ -6,7 +6,6 @@
     "coverage/**",
     "public/**",
     "package-lock.json",
-    ".pages.yml",
     "**/*.min.*",
     "**/*.generated.*",
     "**/generated/**",
