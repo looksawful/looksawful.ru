@@ -6,8 +6,8 @@
 
 - `dev` remains the working/integration branch.
 - `prod` remains release/deployment authority for the public site.
-- `content/text-cms` is the only remote Media Desk authoring branch.
-- Remote authentication never grants direct write authority to `dev` or `prod`.
+- `dev` is the only remote Media Desk authoring branch (limited paths, exact expected head, non-force fast-forward).
+- Remote authentication permits only validated Media Desk edits on `dev`. It never authorizes writes to `prod` or arbitrary repository paths.
 
 ## Runtime
 
@@ -41,7 +41,7 @@ They are provisioned interactively with `tools/cloudflare/media-desk/configure-s
 
 Pull requests build the isolated UI and run Wrangler dry-run only. Real Worker deployment is eligible only when the workflow ref is exactly `refs/heads/dev`, for either a trusted `push` or a manual `workflow_dispatch`. The deploy job checks out the exact `github.sha`; a manual run from a feature branch or tag cannot publish the production Worker.
 
-The Worker-side GitHub adapter independently fixes its target to `content/text-cms`, validates repository paths before network access, checks the expected branch head, creates one Git commit, rechecks the head, and updates the branch with non-force fast-forward semantics.
+The Worker-side GitHub adapter independently fixes its target to `dev`, validates repository paths before network access, checks the expected branch head, creates one Git commit, rechecks the head, and updates the branch with non-force fast-forward semantics.
 
 ## Authenticated preview delivery
 
@@ -55,7 +55,7 @@ All other Desk JavaScript, CSS and HTML continue to come from the Cloudflare Sta
 
 Authenticated read endpoints:
 
-- `GET /api/status` -> fixed authoring branch plus current `content/text-cms` head;
+- `GET /api/status` -> fixed authoring branch plus current `dev` head;
 - `GET /api/media/revision?target=project-cover|pet-cover` -> revision for one fixed cover-authoring source;
 - `GET /api/media/revision?assetId=cms-<uuid>&surface=catalog|source` -> revision for one server-resolved CMS asset surface. Raw repository paths are rejected.
 Mutation endpoints are same-origin `POST` requests:
@@ -80,7 +80,7 @@ Repository implementation and account activation are deliberately separate. Afte
 3. deploy from trusted `dev` and verify the custom domain `media.looksawful.ru`;
 4. verify unauthenticated HTML receives the login gate and unauthenticated API requests receive `401`;
 5. verify authenticated Desk assets, `/media/**` and `/pets/**` previews, including a Range request;
-6. verify `/api/status` reports `content/text-cms` and the current branch head;
+6. verify `/api/status` reports `dev` and the current branch head;
 7. perform the first real mutation only after confirming the target source revision/head and the dependency preview in the UI.
 
 The deploy verification also checks the generated page-usage and static-usage snapshots for exact freshness. These snapshots let delete dependency checks use the same expected Git commit for page media, direct/video-poster placements and code-owned pet-cover bases.
