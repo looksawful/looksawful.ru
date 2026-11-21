@@ -44,6 +44,11 @@ export const fastTests = new Set([
   "test/homepage-compact-curation.test.mjs",
   "test/jestei-event-contract.test.mjs",
   "test/jestei-mobile-layout-contract.test.mjs",
+  // CONTRACT: first-stage Storybook is a single source-backed read-only catalogue.
+  "test/lab-foundations-catalog.test.mjs",
+  "test/lab-css-patterns-catalog.test.mjs",
+  "test/lab-production-primitives-catalog.test.mjs",
+  "test/lab-storybook-lean.test.mjs",
   "test/lab-vite-config.test.mjs",
   "test/lighthouse-ci-config.test.mjs",
   "test/logo-3d-catalog.test.mjs",

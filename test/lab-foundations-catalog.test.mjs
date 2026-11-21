@@ -1,11 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { readFileSync } from "node:fs";
-import { classifyToken, isCanonicalFoundationDeclaration } from "../src/lab/token-visualization.mjs";
+import { classifyToken, isCanonicalFoundationDeclaration, canonicalFoundationGroup } from "../src/lab/token-visualization.mjs";
 import foundations, {
-  FontFamilies, FontWeights, TypeScale, LineHeights, LetterSpacing,
-  SemanticColors, SurfaceColors, BorderWidths, RadiusScale, Shadows,
-  SpacingScale, ContentWidths, MotionSpeeds, Layers, ControlGeometry,
+  Palette, Typography, SpacingAndLayout, ShapeAndElevation, MotionAndLayers,
 } from "../src/lab/stories/foundations.stories.mjs";
 import reference, {
   ExtractedColors, ExtractedTypography, ExtractedSpacing, ExtractedEffects,
@@ -44,16 +42,18 @@ test("canonical foundation source filter rejects component-local and commented t
   assert.equal(isCanonicalFoundationDeclaration({name:"--arbitrary-var",selector:":root"}), false);
 });
 
-test("canonical foundations are browseable in Storybook without rendering organisms", () => {
-  assert.equal(foundations.title, "00 Foundations/Tokens");
+test("canonical foundations are browseable in Storybook without rendering organisms", async () => {
+  assert.equal(foundations.title, "00 Foundations/Design Tokens");
   for (const [name, story] of Object.entries({
-    FontFamilies, FontWeights, TypeScale, LineHeights, LetterSpacing,
-    SemanticColors, SurfaceColors, BorderWidths, RadiusScale, Shadows,
-    SpacingScale, ContentWidths, MotionSpeeds, Layers, ControlGeometry, ControlGeometry,
+    Palette, Typography, SpacingAndLayout, ShapeAndElevation, MotionAndLayers,
   })) {
     assert.equal(typeof story.render, "function", name);
   }
-  assert.equal(reference.title, "00 Foundations/Extracted Reference Tokens");
+  const exported=Object.keys(await import("../src/lab/stories/foundations.stories.mjs")).sort();
+  assert.deepEqual(exported, [
+    "Palette", "Typography", "SpacingAndLayout", "ShapeAndElevation", "MotionAndLayers", "default",
+  ].sort());
+  assert.equal(reference.title, "90 Experimental/Extracted Reference Tokens");
   assert.equal(reference.parameters.looksawful.canonical, false);
   for (const story of [ExtractedColors, ExtractedTypography, ExtractedSpacing, ExtractedEffects]) {
     assert.equal(typeof story.render, "function");
@@ -95,8 +95,10 @@ test("every active production global token has a recognized family", () => {
   const all=[...extract(core),...extract(colors)];
   assert.equal(all.length,82);
   assert.equal(new Set(all).size,82);
+  const families=new Set(["palette","typography","spacing","shape","motion"]);
   for(const name of all){
     assert.equal(isCanonicalFoundationDeclaration({name,selector:":root"}),true,name);
     assert.notEqual(classifyToken(name,"var(--sample)"),"other",name);
+    assert.ok(families.has(canonicalFoundationGroup(name)),name);
   }
 });

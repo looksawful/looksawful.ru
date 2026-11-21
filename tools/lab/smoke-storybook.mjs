@@ -13,9 +13,18 @@ const viewports = [
   ["desktop", { width: 1440, height: 1000 }],
   ["tablet", { width: 834, height: 1112 }],
   ["mobile", { width: 390, height: 844 }],
+  ["narrow", { width: 320, height: 700 }],
 ];
 
 const cases = [
+  ["foundations-palette", "00-foundations-design-tokens--palette", ".token-foundations .token-card"],
+  ["foundations-typography", "00-foundations-design-tokens--typography", ".token-foundations .token-card"],
+  ["foundations-spacing", "00-foundations-design-tokens--spacing-and-layout", ".token-foundations .token-card"],
+  ["foundations-shape", "00-foundations-design-tokens--shape-and-elevation", ".token-foundations .token-card"],
+  ["foundations-motion", "00-foundations-design-tokens--motion-and-layers", ".token-foundations .token-card"],
+  ["patterns-layout", "00-foundations-css-patterns--layout-primitives", ".pattern-catalog__item"],
+  ["atom-divider", "01-atoms-production-primitives--divider", ".divider"],
+  ["atom-media", "01-atoms-production-primitives--media-image", "img[src]"],
   ["site-navigation-open", "03-organisms-site-navigation--open", "[data-site-navigation][data-menu-open]"],
   ["project-navigation-docked", "03-organisms-project-navigation--docked", "[data-projects-navigation][data-project-nav-docked]"],
   ["media-deck-next", "03-organisms-media-deck--next-selected", "[data-slide][data-active]"],
@@ -59,6 +68,45 @@ try {
       const canvas = page.locator("#storybook-root");
       await canvas.waitFor({ state: "attached" });
       await page.locator(selector).first().waitFor({ state: "attached", timeout: 10000 });
+      // Assert the live CSSOM catalogue, not just that a page exists.
+      const expectedTokenCounts = {
+        "foundations-palette": 14,
+        "foundations-typography": 32,
+        "foundations-spacing": 17,
+        "foundations-shape": 15,
+        "foundations-motion": 4,
+      };
+      if (Object.hasOwn(expectedTokenCounts, name)) {
+        assert.equal(await page.locator(".token-card").count(), expectedTokenCounts[name],
+          `${viewportName}/${name}: production token coverage drift`);
+      }
+      if (/^(foundations|patterns|atom)-/.test(name)) {
+        const overflow = await page.evaluate(() =>
+          document.documentElement.scrollWidth - document.documentElement.clientWidth);
+        assert.ok(overflow <= 1, `${viewportName}/${name}: horizontal overflow ${overflow}px`);
+      }
+      // A compact accessibility stress check: 200% CSS zoom at mobile width.
+      if (viewportName === "mobile" && name === "foundations-palette") {
+        const zoomOverflow = await page.evaluate(() => {
+          document.documentElement.style.zoom = "200%";
+          return document.documentElement.scrollWidth - document.documentElement.clientWidth;
+        });
+        assert.ok(zoomOverflow <= 1, `200% zoom: horizontal overflow ${zoomOverflow}px`);
+        await page.evaluate(() => { document.documentElement.style.zoom = ""; });
+      }
+      if (viewportName === "mobile" && name === "foundations-motion") {
+        await page.emulateMedia({ reducedMotion: "reduce" });
+        const animation = await page.evaluate(() => {
+          const dot = document.createElement("span");
+          dot.className = "token-motion-dot";
+          document.querySelector("#storybook-root").append(dot);
+          const name = getComputedStyle(dot).animationName;
+          dot.remove();
+          return name;
+        });
+        assert.equal(animation, "none", "reduced motion disables decorative token animation");
+        await page.emulateMedia({ reducedMotion: "no-preference" });
+      }
       const errorSurfaces = page.locator("#error-message, .sb-errordisplay");
       const errorCount = await errorSurfaces.count();
       let visibleErrors = 0;
@@ -86,6 +134,7 @@ try {
           id: violation.id,
           impact: violation.impact,
           nodes: violation.nodes.length,
+          targets: violation.nodes.slice(0, 6).map((node) => node.target),
         }));
       });
       assert.deepEqual(a11y, [], `${viewportName}/${name}: axe violations ${JSON.stringify(a11y)}`);
