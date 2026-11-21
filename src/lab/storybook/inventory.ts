@@ -1,12 +1,7 @@
-import type { EntityPageContent } from "../../content/contracts/page-content.ts";
 import type { Section } from "../../content/contracts/sections.ts";
-import {
-  entityPageContentRegistry,
-  getEntityPageContent,
-} from "../../content/pages/index.ts";
-import { renderEntityShell } from "../../site/renderers/entity/entity-shell.ts";
+import { entityPageContentRegistry, getEntityPageContent } from "../../content/pages/index.ts";
+import { renderCanonicalEntityArticle } from "../../site/renderers/entity-page.ts";
 import { renderSection } from "../../site/renderers/entity/section.ts";
-import { getEntityShellPresentation } from "../../site/pages/entity-presentation.ts";
 import { sitePages } from "../../site/pages/manifest.ts";
 import type { EntityPageDefinition } from "../../site/pages/types.ts";
 
@@ -54,21 +49,12 @@ function routeDiscovery(page: EntityPageDefinition): StorybookRouteDiscovery {
   };
 }
 
-function contentFor(page: EntityPageDefinition): EntityPageContent {
-  return getEntityPageContent(entityPageContentRegistry, page.id);
-}
-
 function renderCanonicalArticle(page: EntityPageDefinition): string {
-  const content = contentFor(page);
-  const presentation = getEntityShellPresentation(page.id);
-  return renderEntityShell(content, {
-    ...presentation,
-    introHeadingLevel: 1,
-  });
+  return renderCanonicalEntityArticle(page);
 }
 
 function renderableSections(page: EntityPageDefinition): readonly Section[] {
-  return contentFor(page).sections.filter((section) => section.type !== "specialized");
+  return getEntityPageContent(entityPageContentRegistry, page.id).sections.filter((section) => section.type !== "specialized");
 }
 
 function pageLabel(page: EntityPageDefinition): string {

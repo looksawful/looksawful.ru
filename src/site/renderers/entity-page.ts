@@ -30,7 +30,7 @@ function getEntityPageCopy(page: EntityPageDefinition): { title: string; descrip
   return { title: `${name} — Иван Крушинский`, description: entity.description || entity.summary || name };
 }
 
-function renderCanonicalEntityArticle(page: EntityPageDefinition): string {
+export function renderCanonicalEntityArticle(page: EntityPageDefinition): string {
   const content = getEntityPageContent(entityPageContentRegistry, page.id);
   const presentation = getEntityShellPresentation(page.id);
   const standalonePresentation = getEntityStandalonePresentation(page.id);
