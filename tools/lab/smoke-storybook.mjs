@@ -16,6 +16,9 @@ const viewports = [
 ];
 
 const cases = [
+  ["foundations-palette", "00-foundations-design-tokens--palette", ".token-foundations .token-card"],
+  ["patterns-layout", "00-foundations-css-patterns--layout-primitives", "[data-css-pattern]"],
+  ["atom-media", "01-atoms-production-primitives--media-image", "img[src]"],
   ["site-navigation-open", "03-organisms-site-navigation--open", "[data-site-navigation][data-menu-open]"],
   ["project-navigation-docked", "03-organisms-project-navigation--docked", "[data-projects-navigation][data-project-nav-docked]"],
   ["media-deck-next", "03-organisms-media-deck--next-selected", "[data-slide][data-active]"],

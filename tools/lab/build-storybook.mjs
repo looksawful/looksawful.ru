@@ -13,7 +13,6 @@ const packages = [
   "@storybook/addon-docs@10.6.0",
   "@storybook/addon-a11y@10.6.0",
   "axe-core@4.10.3",
-  "storybook-design-token@5.0.0",
 ];
 
 function run(command, args) {

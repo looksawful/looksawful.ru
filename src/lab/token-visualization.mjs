@@ -74,15 +74,17 @@ export function buildTokenRegistry(declarations) {
 
 // Keep the live foundations gallery scoped to globally declared, active CSS
 // tokens. Component-local props and disabled theme presets are not foundations.
-const FOUNDATION_PREFIXES = [
-  "--clr-", "--ff-", "--fw-", "--fs-", "--lh-", "--ls-",
-  "--size-", "--space-", "--content-", "--page-padding-",
-  "--radius-", "--shadow-", "--border-width-", "--control-",
-  "--motion-speed-", "--layer-",
-];
+export function canonicalFoundationGroup(name) {
+  if (/^--clr-/.test(name)) return "palette";
+  if (/^--(?:ff|fw|fs|lh|ls)-/.test(name)) return "typography";
+  if (/^--(?:size|space|content|page-padding)-/.test(name)) return "spacing";
+  if (/^--(?:radius|shadow|border-width|control)-/.test(name)) return "shape";
+  if (/^--(?:motion-speed|layer)-/.test(name)) return "motion";
+  return null;
+}
 
 export function isCanonicalFoundationDeclaration(declaration) {
   const selector = String(declaration.selector || "").trim();
   const rootSelector = selector === ":root" || selector.startsWith(":where(:root,");
-  return rootSelector && FOUNDATION_PREFIXES.some((prefix) => declaration.name.startsWith(prefix));
+  return rootSelector && canonicalFoundationGroup(declaration.name) !== null;
 }
