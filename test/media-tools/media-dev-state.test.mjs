@@ -313,3 +313,16 @@ test("failed stale-state sync does not create a fresh state file", async () => {
     await assert.rejects(readFile(fixture.statePath, "utf8"), /ENOENT/);
   });
 });
+
+
+test("cache marker detects same-size generated video corruption", async () => {
+  await withFixture(async (fixture) => {
+    await writeFreshState(fixture);
+    await writeFile(path.join(fixture.repoRoot, "public/media/generated/video/video.web.mp4"), "other");
+    const result = await inspectMediaDevState({
+      repoRoot: fixture.repoRoot, assets: fixture.assets, configFiles: CONFIG_FILES,
+    });
+    assert.equal(result.fresh, false);
+    assert.match(result.reasons.join(" "), /video output integrity/i);
+  });
+});

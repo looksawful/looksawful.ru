@@ -1,10 +1,16 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { createHash } from "node:crypto";
+import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
 
 import {
   canReuseVideoOutput,
   classifyVideoProbe,
   plannedVideoOutputSrc,
+  portableVideoInventoryItem,
+  verifiedCachedVideoOutputBytes,
 } from "../../tools/build-video-media.mjs";
 
 test("video classifier keeps compatible web mp4 unchanged", () => {
@@ -84,4 +90,49 @@ test("video builder reuses only an output produced from the same source and conf
     outputSrc: "/media/generated/video/clip.web.mp4",
     outputBytes: 999,
   }), false);
+});
+
+
+test("tracked video inventory excludes platform-specific encoder output size", () => {
+  const source = {
+    id: "sample", sourceHash: "source", configHash: "config",
+    outputSrc: "/media/generated/video/sample.web.mp4", outputBytes: 26373462,
+  };
+  const first = portableVideoInventoryItem(source);
+  const otherPlatform = portableVideoInventoryItem({ ...source, outputBytes: 26822646 });
+  assert.deepEqual(first, otherPlatform);
+  assert.equal(first.outputBytes, null);
+  assert.equal(first.sourceHash, source.sourceHash);
+});
+
+test("reusing portable generated video requires locally verified cached output", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "portable-video-"));
+  const outputPath = path.join(root, "sample.web.mp4");
+  const content = Buffer.from("video-content");
+  const sha256 = createHash("sha256").update(content).digest("hex");
+  const outputSrc = "/media/generated/video/sample.web.mp4";
+  const previousItem = { sourceHash: "source", configHash: "config", outputSrc, outputBytes: null };
+  try {
+    await writeFile(outputPath, content);
+    const verifiedOutputBytes = await verifiedCachedVideoOutputBytes({
+      cachedVideo: { src: outputSrc, bytes: content.length, sha256 },
+      outputSrc, outputPath, outputBytes: content.length,
+    });
+    assert.equal(verifiedOutputBytes, content.length);
+    assert.equal(canReuseVideoOutput({
+      previousItem, sourceHash: "source", configHash: "config",
+      outputSrc, outputBytes: content.length, verifiedOutputBytes,
+    }), true);
+    await writeFile(outputPath, Buffer.from("X".repeat(content.length)));
+    assert.equal(await verifiedCachedVideoOutputBytes({
+      cachedVideo: { src: outputSrc, bytes: content.length, sha256 },
+      outputSrc, outputPath, outputBytes: content.length,
+    }), null, "same-size corruption must not be reused");
+    assert.equal(canReuseVideoOutput({
+      previousItem, sourceHash: "source", configHash: "config",
+      outputSrc, outputBytes: content.length, verifiedOutputBytes: null,
+    }), false);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
 });
