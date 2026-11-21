@@ -4,9 +4,16 @@ const storybookViteConfig = fileURLToPath(
   new URL("./vite.config.mjs", import.meta.url),
 );
 
+const publicOnly = process.env.PUBLIC_STORYBOOK === "1";
+const approvedPublicStories = [
+  "../../../src/lab/stories/foundations.stories.mjs",
+  "../../../src/lab/stories/css-patterns.stories.mjs",
+  "../../../src/lab/stories/divider.stories.mjs",
+];
+
 const config = {
-  stories: ["../../../src/lab/stories/**/*.stories.@(js|mjs)"],
-  staticDirs: [{ from: fileURLToPath(new URL("../../../public/", import.meta.url)), to: "/" }],
+  stories: publicOnly ? approvedPublicStories : ["../../../src/lab/stories/**/*.stories.@(js|mjs)"],
+  staticDirs: publicOnly ? [] : [{ from: fileURLToPath(new URL("../../../public/", import.meta.url)), to: "/" }],
   addons: [
     "@storybook/addon-docs",
     "@storybook/addon-a11y",

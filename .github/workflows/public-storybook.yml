@@ -1,0 +1,84 @@
+name: Public Storybook
+
+on:
+  push:
+    branches: [dev]
+    paths:
+      - ".github/workflows/public-storybook.yml"
+      - "tools/lab/storybook/**"
+      - "tools/lab/build-storybook.mjs"
+      - "src/lab/stories/foundations.stories.mjs"
+      - "src/lab/stories/css-patterns.stories.mjs"
+      - "src/lab/stories/divider.stories.mjs"
+      - "src/lab/token-visualization.mjs"
+      - "src/styles/**"
+      - "package.json"
+      - "package-lock.json"
+      - "test/public-storybook-boundary.test.mjs"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: public-storybook-deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/dev'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      PAGES_PROJECT: looksawful-storybook
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install
+        run: npm ci
+      - name: Enforce approved public Storybook boundary
+        run: node --test test/public-storybook-boundary.test.mjs
+      - name: Build only approved stories
+        run: npm run storybook:public
+      - name: Ensure no media inventory was copied into public artifact
+        run: |
+          test -f dist-storybook/index.json
+          test ! -e dist-storybook/media
+          test ! -e dist-storybook/projects
+          test ! -e dist-storybook/lab
+      - name: Ensure separate public Cloudflare Pages project
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          : "${CLOUDFLARE_API_TOKEN:?Missing Cloudflare token}"
+          : "${CLOUDFLARE_ACCOUNT_ID:?Missing Cloudflare account}"
+          endpoint="https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/pages/projects/${PAGES_PROJECT}"
+          status="$(curl --silent --show-error --output /tmp/storybook-pages-project.json --write-out '%{http_code}' --header "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" "${endpoint}")"
+          if [[ "${status}" == 404 ]]; then
+            curl --fail --silent --show-error --request POST \
+              --header "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+              --header "Content-Type: application/json" \
+              --data '{"name":"looksawful-storybook","production_branch":"dev"}' \
+              "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/pages/projects" > /tmp/storybook-pages-created.json
+          elif [[ ! "${status}" =~ ^2 ]]; then
+            echo "Cloudflare Pages lookup failed: ${status}" >&2
+            exit 1
+          fi
+      - name: Deploy public-only Storybook
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: >-
+          npx --yes wrangler@4 pages deploy dist-storybook
+          --project-name looksawful-storybook
+          --branch dev
+          --commit-hash "${GITHUB_SHA}"
+          --commit-dirty=false
