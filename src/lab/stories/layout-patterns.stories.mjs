@@ -37,7 +37,7 @@ const renderComparison = () => `
 `;
 
 const meta = {
-  title: "00 Foundations/Typographic Layout",
+  title: "04 Layout/Typographic Rhythm",
   tags: ["autodocs", "stable"],
   parameters: {
     layout: "fullscreen",
@@ -50,7 +50,7 @@ const meta = {
         "src/data/content/jestei-pool.ts",
         "src/data/content/sensetique.ts",
       ],
-      layer: "foundation",
+      layer: "layout",
       policy: "composition",
       canonical: true,
       state: "typographic-flow",

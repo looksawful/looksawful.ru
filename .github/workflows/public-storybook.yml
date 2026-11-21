@@ -7,10 +7,12 @@ on:
       - ".github/workflows/public-storybook.yml"
       - "tools/lab/storybook/**"
       - "tools/lab/build-storybook.mjs"
-      - "src/lab/stories/foundations.stories.mjs"
-      - "src/lab/stories/css-patterns.stories.mjs"
-      - "src/lab/stories/divider.stories.mjs"
-      - "src/lab/token-visualization.mjs"
+      - "src/lab/**"
+      - "src/site/**"
+      - "src/components/**"
+      - "src/templates/**"
+      - "src/content/**"
+      - "src/data/**"
       - "src/styles/**"
       - "package.json"
       - "package-lock.json"
@@ -41,9 +43,9 @@ jobs:
           cache: npm
       - name: Install
         run: npm ci
-      - name: Enforce approved public Storybook boundary
+      - name: Verify unified Storybook catalog
         run: node --test test/public-storybook-boundary.test.mjs
-      - name: Build only approved stories
+      - name: Build complete Storybook catalog
         run: npm run storybook:public
       - name: Ensure no media inventory was copied into public artifact
         run: |

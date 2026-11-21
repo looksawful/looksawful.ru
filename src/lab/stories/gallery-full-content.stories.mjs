@@ -129,7 +129,7 @@ const createStory = () => {
 };
 
 export default {
-  title: "05 Pages/Gallery/Full Content Preview",
+  title: "06 Pages/Gallery/Full Content",
   tags: ["autodocs", "experimental"],
   parameters: {
     layout: "fullscreen",

@@ -1,3 +1,4 @@
+import { usePublishedAssetUrls, usePublishedAssetUrlsInNode } from "../../../src/lab/storybook/published-assets.mjs";
 import "../../../src/styles/index.css";
 
 const labReviewViewports = {
@@ -18,7 +19,17 @@ const labReviewViewports = {
   },
 };
 
+// The published portfolio owns media. Both Storybook entrypoints render the
+// same stories and reference their already-public assets instead of copying 1 GB.
+const withPublicPortfolioAssets = (story) => {
+  const content = story();
+  if (typeof content === "string") return usePublishedAssetUrls(content);
+  if (content instanceof Element) return usePublishedAssetUrlsInNode(content);
+  return content;
+};
+
 const preview = {
+  decorators: [withPublicPortfolioAssets],
   tags: ["autodocs"],
   parameters: {
     layout: "fullscreen",
@@ -28,14 +39,9 @@ const preview = {
     options: {
       storySort: {
         order: [
-          "00 Foundations",
-          "01 Atoms",
-          "02 Molecules",
-          "03 Organisms",
-          "04 Templates",
-          "05 Pages",
-          "06 Motion",
-          "90 Experimental",
+          "00 Foundations", "01 Atoms", "02 Molecules", "03 Organisms",
+          "04 Layout", "05 Patterns & Templates", "06 Pages",
+          "07 Motion", "08 Feedback", "90 Experimental",
         ],
       },
     },

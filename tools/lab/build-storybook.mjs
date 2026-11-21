@@ -59,25 +59,21 @@ run(npmCommand, [
 ]);
 
 if (publicOnly) {
-  // Public visibility is an allowlist, not a filtered copy of the private Lab.
+  // All documented components share one public catalog. The artifact includes
+  // no portfolio media; browsers request already-published site assets.
   const { entries } = JSON.parse(await readFile(path.join(outputDir, "index.json"), "utf8"));
-  const approved = new Set([
-    "00-foundations-design-tokens--docs",
-    "00-foundations-design-tokens--palette",
-    "00-foundations-design-tokens--typography",
-    "00-foundations-design-tokens--spacing-and-layout",
-    "00-foundations-design-tokens--shape-and-elevation",
-    "00-foundations-design-tokens--motion-and-layers",
-    "00-foundations-css-patterns--docs",
-    "00-foundations-css-patterns--layout-primitives",
-    "01-atoms-divider--docs",
-    "01-atoms-divider--divider",
-  ]);
-  const actual = Object.keys(entries);
-  if (actual.length !== approved.size || actual.some((id) => !approved.has(id))) {
-    throw new Error("Public Storybook contains unapproved or missing stories: " + actual.join(", "));
+  const titles = Object.values(entries).map((entry) => entry.title);
+  const chapters = [
+    "00 Foundations", "01 Atoms", "02 Molecules", "03 Organisms",
+    "04 Layout", "05 Patterns & Templates", "06 Pages",
+    "07 Motion", "08 Feedback",
+  ];
+  for (const chapter of chapters) {
+    if (!titles.some((title) => title.startsWith(chapter + "/"))) {
+      throw new Error("Storybook chapter is missing: " + chapter);
+    }
   }
-  console.log("[public-storybook] approved stories only: " + actual.length + " index entries");
+  console.log("[storybook] unified catalog: " + titles.length + " index entries");
 }
 
 const generatedTokenDir = path.join(root, "tools", "lab", "public");

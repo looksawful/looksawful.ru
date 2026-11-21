@@ -10,7 +10,7 @@ const groups = [
 ];
 
 test("native Storybook exposes every production-backed entity fixture without copying renderers", () => {
-  assert.equal(meta.title, "04 Templates/Production Entities");
+  assert.equal(meta.title, "05 Patterns & Templates/Production Entities");
   assert.equal(meta.parameters.looksawful.canonical, true);
   for (const [kind, story] of groups) {
     const expected = storybookInventory.filter((fixture) => fixture.kind === kind).map((fixture) => fixture.id);

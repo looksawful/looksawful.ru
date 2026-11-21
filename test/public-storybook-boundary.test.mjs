@@ -1,29 +1,53 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
-test("public Storybook is a strict, asset-free allowlist", async () => {
+const root = fileURLToPath(new URL("../", import.meta.url));
+const storiesDir = path.join(root, "src/lab/stories");
+const files = readdirSync(storiesDir).filter((name) => /\.stories\.(?:js|mjs)$/.test(name));
+
+test("one Storybook catalog has the same complete story set for every build", async () => {
   process.env.PUBLIC_STORYBOOK = "1";
-  const { default: config } = await import("../tools/lab/storybook/main.mjs?public");
+  const { default: publicConfig } = await import("../tools/lab/storybook/main.mjs?public");
   delete process.env.PUBLIC_STORYBOOK;
+  const { default: previewConfig } = await import("../tools/lab/storybook/main.mjs?lab");
 
-  const approved = [
-    "../../../src/lab/stories/foundations.stories.mjs",
-    "../../../src/lab/stories/css-patterns.stories.mjs",
-    "../../../src/lab/stories/divider.stories.mjs",
+  assert.deepEqual(publicConfig.stories, previewConfig.stories);
+  assert.deepEqual(publicConfig.stories, ["../../../src/lab/stories/**/*.stories.@(js|mjs)"]);
+  assert.deepEqual(publicConfig.staticDirs, []);
+  assert.equal(previewConfig.staticDirs.length, 1);
+});
+
+test("Storybook covers every requested design-system layer with real source-backed stories", () => {
+  const titles = files.flatMap((file) => {
+    const source = readFileSync(path.join(storiesDir, file), "utf8");
+    return [...source.matchAll(/title\s*:\s*["']([^"']+)["']/g)].map((match) => match[1]);
+  });
+  const chapters = [
+    "00 Foundations", "01 Atoms", "02 Molecules", "03 Organisms",
+    "04 Layout", "05 Patterns & Templates", "06 Pages",
+    "07 Motion", "08 Feedback",
   ];
-  assert.deepEqual(config.stories, approved);
-  assert.deepEqual(config.staticDirs, []);
-  for (const story of approved) {
-    const text = readFileSync(new URL("../tools/lab/storybook/" + story, import.meta.url), "utf8");
-    assert.doesNotMatch(text, /(?:from|import)\s*\(?\s*["'][^"']*\/(?:data|content|specialized|templates)\//);
-    assert.doesNotMatch(text, /<img\b|<video\b|\/media\/|jesteiIntro|sensetiqueProductionIntro/i);
+  for (const chapter of chapters) {
+    assert.ok(titles.some((title) => title.startsWith(chapter + "/")), chapter);
+  }
+  assert.ok(files.length >= 30, "all catalog sections must be populated");
+  for (const file of files) {
+    const source = readFileSync(path.join(storiesDir, file), "utf8");
+    assert.match(source, /looksawful:\s*\{[\s\S]*?sources\s*:/, file + " needs production-source provenance");
   }
 });
 
-test("private Storybook keeps its existing comprehensive stories", async () => {
-  delete process.env.PUBLIC_STORYBOOK;
-  const { default: config } = await import("../tools/lab/storybook/main.mjs?private");
-  assert.deepEqual(config.stories, ["../../../src/lab/stories/**/*.stories.@(js|mjs)"]);
-  assert.equal(config.staticDirs.length, 1);
+
+test("published media are served by the already-public site, not duplicated in Storybook", async () => {
+  const { usePublishedAssetUrls } = await import("../src/lab/storybook/published-assets.mjs");
+  const fragment = '<img src="/media/gallery/example.webp" alt=""><source srcset="/media/a.webp 1x, /media/b.webp 2x"><script type="application/json">{"src":"/media/logo.glb"}</script>';
+  const resolved = usePublishedAssetUrls(fragment);
+  assert.match(resolved, /https:\/\/www\.looksawful\.ru\/media\/gallery\/example\.webp/);
+  assert.match(resolved, /https:\/\/www\.looksawful\.ru\/media\/a\.webp/);
+  assert.match(resolved, /https:\/\/www\.looksawful\.ru\/media\/b\.webp/);
+  assert.match(resolved, /https:\/\/www\.looksawful\.ru\/media\/logo\.glb/);
+  assert.doesNotMatch(resolved, /src="\/media\//);
 });

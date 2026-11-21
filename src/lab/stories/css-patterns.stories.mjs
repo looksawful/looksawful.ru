@@ -1,11 +1,11 @@
 const meta = {
-  title: "00 Foundations/CSS Patterns",
+  title: "04 Layout/CSS Patterns",
   tags: ["autodocs", "stable"],
   parameters: {
     layout: "fullscreen",
     looksawful: {
       sources: ["src/styles/patterns.css"],
-      layer: "foundation",
+      layer: "layout",
       policy: "isolated",
       canonical: true,
       state: "read-only",

@@ -5,14 +5,10 @@ const storybookViteConfig = fileURLToPath(
 );
 
 const publicOnly = process.env.PUBLIC_STORYBOOK === "1";
-const approvedPublicStories = [
-  "../../../src/lab/stories/foundations.stories.mjs",
-  "../../../src/lab/stories/css-patterns.stories.mjs",
-  "../../../src/lab/stories/divider.stories.mjs",
-];
+
 
 const config = {
-  stories: publicOnly ? approvedPublicStories : ["../../../src/lab/stories/**/*.stories.@(js|mjs)"],
+  stories: ["../../../src/lab/stories/**/*.stories.@(js|mjs)"],
   staticDirs: publicOnly ? [] : [{ from: fileURLToPath(new URL("../../../public/", import.meta.url)), to: "/" }],
   addons: [
     "@storybook/addon-docs",

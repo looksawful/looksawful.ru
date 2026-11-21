@@ -33,7 +33,7 @@ function renderCanonicalFixture(kind, { fixtureId }) {
 }
 
 const meta = {
-  title: "04 Templates/Production Entities",
+  title: "05 Patterns & Templates/Production Entities",
   tags: ["autodocs", "stable"],
   parameters: {
     layout: "fullscreen",
