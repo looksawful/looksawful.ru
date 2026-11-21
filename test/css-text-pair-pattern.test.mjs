@@ -20,9 +20,13 @@ test("section copy and expertise consume text-pair instead of hand-authored spli
   assert.match(expertise, /class="expertise__head text-pair"/);
   assert.match(expertise, /class="expertise__copy"[\s\S]*?class="expertise__description"/);
   assert.doesNotMatch(projectShell, /@container project-section \(width > 45rem\)[\s\S]*?\.section-copy\s*\{/);
-  assert.doesNotMatch(projectShell, /\.section-copy__title\s*\{[\s\S]*?max-inline-size:/);
+  const titleDeclarations = projectShell.match(/\.section-copy__title\s*\{([^}]*)\}/)?.[1];
+  assert.ok(titleDeclarations, "section-copy title styles must exist");
+  assert.doesNotMatch(titleDeclarations, /max-inline-size:/);
   assert.match(projectShell, /\.section-copy__text\s*>\s*\*\s*\{[\s\S]*?max-inline-size:\s*var\(--project-copy-max\);/);
-  assert.doesNotMatch(expertiseCss, /\.expertise__head\s*\{[\s\S]*?grid-template-columns:/);
+  const expertiseHeadDeclarations = expertiseCss.match(/\.expertise__head\s*\{([^}]*)\}/)?.[1];
+  assert.ok(expertiseHeadDeclarations, "expertise text-pair styles must exist");
+  assert.doesNotMatch(expertiseHeadDeclarations, /grid-template-columns:/);
 });
 
 
@@ -35,8 +39,8 @@ test("expertise restores space-between alignment between titles and copy", () =>
     expertiseCss,
     /\.expertise__head\s*>\s*:first-child\s*\{[\s\S]*?flex-grow:\s*0;/,
   );
-  assert.match(
-    expertiseCss,
-    /\.expertise__head\s*>\s*:last-child\s*\{[\s\S]*?flex-grow:\s*0;[\s\S]*?flex-basis:\s*min\(62\.5%,\s*62ch\);/,
-  );
+  const lastChildDeclarations = expertiseCss.match(/\.expertise__head\s*>\s*:last-child\s*\{([^}]*)\}/)?.[1];
+  assert.ok(lastChildDeclarations, "expertise layout must have a content owner");
+  assert.match(lastChildDeclarations, /flex-grow:\s*0;/);
+  assert.match(lastChildDeclarations, /flex-basis:\s*min\(62\.5%,\s*62ch\);/);
 });

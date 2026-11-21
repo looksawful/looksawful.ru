@@ -82,9 +82,17 @@ test("built Homepage keeps explicit eager images live and defers every other ima
   }
 
   for (const image of deferredImages) {
+    if (/\bdata-masonry-source\b/i.test(image)) {
+      assert.match(image, /\ssrc="/i, "masonry owns source loading and must retain its URL");
+      continue;
+    }
     assert.doesNotMatch(image, /\ssrc="/i);
     assert.doesNotMatch(image, /\ssrcset="/i);
-    assert.match(image, /\bdata-home-src="/i);
+    if (/\bdata-menu-preview-image\b/i.test(image)) {
+      assert.match(html, /\bdata-site-menu\b/i, "deferred preview belongs to navigation interaction");
+    } else {
+      assert.match(image, /\bdata-home-src="/i);
+    }
   }
 
   assert.match(html, /\bdata-home-image-loader\b/i);

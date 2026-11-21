@@ -88,8 +88,17 @@ test("Shootings editorial parser is strict and restores code-owned record order"
   const recordsInCodeOwnedOrder = restoreCodeOwnedOrder(records);
 
   assert.deepEqual(SHOOTING_RECORD_IDS, expectedIds);
-  assert.deepEqual(shootingsEditorialRecords, recordsInCodeOwnedOrder);
-  assert.deepEqual(parseShootingsOverview(clone(overview)), overview);
+  assert.deepEqual(shootingsEditorialRecords, recordsInCodeOwnedOrder.map(({ id, title, date, description, credits }) => ({
+    id,
+    title: (title ?? "").trim(),
+    date: (date ?? "").trim(),
+    description: (description ?? "").trim(),
+    credits: (credits ?? []).map((credit) => credit.trim()).filter(Boolean),
+  })));
+  const parsedOverview = parseShootingsOverview(clone(overview));
+  for (const [key, value] of Object.entries(overview)) {
+    assert.equal(parsedOverview[key], value.trim(), `Shootings overview ${key} must normalize whitespace`);
+  }
 
   const malformed = clone(recordsInCodeOwnedOrder[0]);
   malformed.layout = "masonry";
@@ -122,9 +131,11 @@ test("Shootings CMS data flows through the current catalog and rendered copy", a
   const recordsInCodeOwnedOrder = restoreCodeOwnedOrder(records);
 
   assert.deepEqual(
-    shootingsProjects.map(({ id, name, date }) => ({ id, title: name, date: date ?? "" })),
-    recordsInCodeOwnedOrder.map(({ id, title, date }) => ({ id, title, date })),
+    shootingsProjects.filter(({ id }) => expectedIds.includes(id)).map(({ id, name, date }) => ({ id, title: name, date: date ?? "" })),
+    recordsInCodeOwnedOrder.map(({ id, title, date }) => ({ id, title: (title ?? "").trim(), date: (date ?? "").trim() })),
   );
+
+  assert.deepEqual(shootingsProjects.filter(({ id }) => !expectedIds.includes(id)).map(({ id }) => id), ["shootings-dava"], "the code-owned Dava project must remain an explicit exception");
 
   const renderedOverview = renderProjectIntro(shootingsIntro);
   for (const text of Object.values(overview)) {

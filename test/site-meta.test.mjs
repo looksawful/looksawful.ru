@@ -3,6 +3,7 @@ import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
+import { collectManifestIndexableCanonicals } from "../tools/generate-sitemap.mjs";
 
 import { validateSite } from "../tools/check-site-meta.mjs";
 
@@ -43,7 +44,21 @@ async function withSite(pageHtml, run = async (dir) => validateSite({ distDir: d
     await writeFile(path.join(dir, "favicon.png"), "fixture", "utf8");
     await writeFile(path.join(dir, "apple-touch-icon.png"), "fixture", "utf8");
     await writeFile(path.join(dir, "robots.txt"), "User-agent: *\nAllow: /\n\nSitemap: https://www.looksawful.ru/sitemap.xml\n", "utf8");
-    await writeFile(path.join(dir, "sitemap.xml"), `<?xml version="1.0"?><urlset><url><loc>${canonical}</loc></url></urlset>`, "utf8");
+    const siteCanonicals = collectManifestIndexableCanonicals();
+    for (const pageCanonical of siteCanonicals) {
+      if (pageCanonical === canonical) continue;
+      const pathname = new URL(pageCanonical).pathname;
+      const relative = pathname.replace(/^\//, "");
+      const directory = path.join(dir, relative);
+      await mkdir(directory, { recursive: true });
+      const title = `Fixture ${pathname}`;
+      await writeFile(path.join(directory, "index.html"), validPage({
+        title, ogTitle: title, twitterTitle: title,
+        canonical: pageCanonical, ogUrl: pageCanonical, jsonLd: null,
+      }), "utf8");
+    }
+    await writeFile(path.join(dir, "sitemap.xml"),
+      `<?xml version="1.0"?><urlset>${siteCanonicals.map((url) => `<url><loc>${url}</loc></url>`).join("")}</urlset>`, "utf8");
     return await run(dir);
   } finally {
     await rm(dir, { recursive: true, force: true });
@@ -52,7 +67,7 @@ async function withSite(pageHtml, run = async (dir) => validateSite({ distDir: d
 
 test("valid metadata passes", async () => {
   const result = await withSite(validPage());
-  assert.equal(result.indexableCount, 1);
+  assert.equal(result.indexableCount, collectManifestIndexableCanonicals().length);
 });
 
 for (const [label, overrides, pattern] of [
@@ -78,9 +93,14 @@ test("duplicate canonical fails", async () => {
 });
 
 test("noindex page is excluded from the indexable metadata contract", async () => {
-  const result = await withSite('<!doctype html><html><head><title>private</title><meta name="robots" content="noindex,follow"></head><body>x</body></html>', async (dir) => {
-    await writeFile(path.join(dir, "sitemap.xml"), "<?xml version=\"1.0\"?><urlset></urlset>", "utf8");
+  const result = await withSite(validPage(), async (dir) => {
+    const privateDir = path.join(dir, "private");
+    await mkdir(privateDir, { recursive: true });
+    await writeFile(path.join(privateDir, "index.html"),
+      '<!doctype html><html><head><title>private</title><meta name="robots" content="noindex,follow"></head><body>x</body></html>',
+      "utf8");
     return validateSite({ distDir: dir });
   });
-  assert.equal(result.indexableCount, 0);
+  assert.equal(result.indexableCount, collectManifestIndexableCanonicals().length);
+  assert.equal(result.htmlCount, result.indexableCount + 1);
 });

@@ -17,7 +17,7 @@ class FakeElement {
 
   querySelector(selector) {
     if (selector === ".project-nav__top") {
-      return this.children.find((child) => child.className === "project-nav__top") ?? null;
+      return this.children.find((child) => child.className.split(/\s+/).includes("project-nav__top")) ?? null;
     }
 
     return this.queries.get(selector) ?? null;
@@ -87,7 +87,7 @@ test("back-to-top is created once as a native hash link and cleanup restores the
     assert.equal(root.inner.children.length, 1);
 
     const link = root.inner.children[0];
-    assert.equal(link.className, "project-nav__top");
+    assert.deepEqual(link.className.split(/\s+/), ["project-nav__top", "cluster"]);
     assert.equal(link.getAttribute("href"), "#top");
     assert.equal(link.getAttribute("aria-label"), "Наверх");
     assert.equal(link.children.length, 2);
