@@ -60,7 +60,7 @@ const productionPatterns = [
 ];
 
 export const LayoutPrimitives = {
-  render: () => `<main class="wrapper stack" style="--stack-space:var(--size-400);padding-block:var(--size-400)">
+  render: () => `<main class="wrapper stack" style="--stack-space:var(--size-400);padding-block:var(--size-400);overflow-wrap:anywhere">
     <style>
       .pattern-tile{display:block;min-inline-size:0;margin:0;padding:var(--size-200);background:var(--clr-surface-raised);overflow-wrap:anywhere}
     </style>
