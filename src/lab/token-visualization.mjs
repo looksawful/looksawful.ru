@@ -4,6 +4,13 @@ export function classifyToken(name, value) {
   const n = name.toLowerCase();
   const v = String(value).trim().toLowerCase();
   if (/gradient\(/.test(v) || n.includes("gradient")) return "gradient";
+  if (/^--ff-/.test(n)) return "font-family";
+  if (/^--fw-/.test(n)) return "font-weight";
+  if (/^--fs-/.test(n)) return "font-size";
+  if (/^--lh-/.test(n)) return "line-height";
+  if (/^--ls-/.test(n)) return "letter-spacing";
+  if (/^--motion-speed-/.test(n)) return "speed";
+  if (/^--layer-/.test(n)) return "z-index";
   if (/^--clr-|color|colour/.test(n) || /^(#|rgb\(|rgba\(|hsl\(|hsla\(|oklch\(|oklab\(|color\()/.test(v)) return "color";
   if (/font-size|type-size|text-size/.test(n)) return "font-size";
   if (/font-weight|weight/.test(n)) return "font-weight";
@@ -62,4 +69,20 @@ export function buildTokenRegistry(declarations) {
       kind: classifyToken(declaration.name, raw),
     };
   });
+}
+
+
+// Keep the live foundations gallery scoped to globally declared, active CSS
+// tokens. Component-local props and disabled theme presets are not foundations.
+const FOUNDATION_PREFIXES = [
+  "--clr-", "--ff-", "--fw-", "--fs-", "--lh-", "--ls-",
+  "--size-", "--space-", "--content-", "--page-padding-",
+  "--radius-", "--shadow-", "--border-width-", "--control-",
+  "--motion-speed-", "--layer-",
+];
+
+export function isCanonicalFoundationDeclaration(declaration) {
+  const selector = String(declaration.selector || "").trim();
+  const rootSelector = selector === ":root" || selector.startsWith(":where(:root,");
+  return rootSelector && FOUNDATION_PREFIXES.some((prefix) => declaration.name.startsWith(prefix));
 }
