@@ -42,16 +42,9 @@ function el(tag, className, text) {
 function previewFor(token) {
   const preview = el("div", `token-preview token-preview--${token.kind}`);
   const value = `var(${token.name})`;
-  if (token.kind === "color" || token.kind === "gradient") preview.style.background = value;
-  else if (token.kind === "aspect-ratio") {
-    const box = el("span", "token-ratio-box");
-    const ratio = token.resolved || token.raw;
-    if (ratio === "auto") box.textContent = "auto";
-    else box.style.aspectRatio = ratio;
-    preview.append(box);
-  } else if (token.kind === "radius") preview.style.borderRadius = value;
+  if (token.kind === "color") preview.style.background = value;
+  else if (token.kind === "radius") preview.style.borderRadius = value;
   else if (token.kind === "shadow") preview.style.boxShadow = value;
-  else if (token.kind === "opacity") preview.style.opacity = value;
   else if (token.kind === "border") {
     preview.style.borderStyle = "solid";
     preview.style.borderColor = "var(--clr-foreground)";
@@ -67,11 +60,6 @@ function previewFor(token) {
     const bar = el("span", "token-size-bar");
     bar.style.width = `min(${value}, 100%)`;
     preview.append(bar);
-  } else if (token.kind === "duration" || token.kind === "easing") {
-    const dot = el("span", "token-motion-dot");
-    if (token.kind === "duration") dot.style.animationDuration = value;
-    else dot.style.animationTimingFunction = value;
-    preview.append(dot);
   } else if (token.kind === "z-index") {
     preview.innerHTML = '<span class="token-layer">1</span><span class="token-layer token-layer--active">z</span>';
     preview.lastElementChild.style.zIndex = value;
@@ -96,11 +84,9 @@ function tokenGallery(filter, heading) {
     .token-count{font-size:12px;opacity:.6}.token-section{margin:36px 0}.token-section h2{text-transform:lowercase;margin:0 0 14px;font-size:20px}.token-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(230px,100%),1fr));gap:12px}
     .token-card{min-width:0;padding:12px;border:1px solid var(--clr-border,#ddd);border-radius:14px;background:color-mix(in srgb,var(--clr-bg,#fff) 94%,var(--clr-text,#111) 6%)}
     .token-preview{height:112px;margin-bottom:12px;border:1px solid color-mix(in srgb,currentColor 16%,transparent);border-radius:9px;display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:32px}
-    .token-preview--shadow{margin:12px;height:88px;background:var(--clr-bg,#fff)}.token-preview--spacing{justify-content:flex-start;padding:12px}.token-size-bar{display:block;height:40px;min-width:2px;max-width:100%;background:currentColor}.token-ratio-box{display:block;height:78px;max-width:90%;border:1px solid currentColor;border-radius:8px;background:color-mix(in srgb,currentColor 10%,transparent)}
-    .token-motion-dot{width:28px;height:28px;border-radius:50%;background:currentColor;animation:token-travel 1s ease-in-out infinite alternate}.token-preview--duration .token-motion-dot,.token-preview--easing .token-motion-dot{align-self:center}
+    .token-preview--shadow{margin:12px;height:88px;background:var(--clr-bg,#fff)}.token-preview--spacing{justify-content:flex-start;padding:12px}.token-size-bar{display:block;height:40px;min-width:2px;max-width:100%;background:currentColor}
     .token-layer{position:relative;width:58px;height:58px;display:grid;place-items:center;border:1px solid currentColor;background:var(--clr-bg,#fff);transform:translate(12px,8px)}.token-layer--active{transform:translate(-12px,-8px)}
     .token-name{font:600 12px/1.3 ui-monospace,SFMono-Regular,Consolas,monospace;overflow-wrap:anywhere}.token-value{margin-top:5px;font:11px/1.4 ui-monospace,SFMono-Regular,Consolas,monospace;opacity:.65;overflow-wrap:anywhere}.token-alias,.token-context{margin-top:5px;font-size:12px;opacity:1;overflow-wrap:anywhere}
-    @keyframes token-travel{from{transform:translateX(-70px)}to{transform:translateX(70px)}}@media(prefers-reduced-motion:reduce){.token-motion-dot{animation:none!important}}
   </style>`;
   root.append(el("h1", "", heading));
   root.append(el("p", "token-intro", "Active global CSS tokens from the production stylesheet. Component-local values and disabled themes are excluded."));

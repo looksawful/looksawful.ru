@@ -169,27 +169,18 @@ const productionPatterns = [
 ];
 
 export const LayoutPrimitives = {
-  render: () => `<main class="pattern-catalog">
+  render: () => `<main class="wrapper stack" style="--stack-space:var(--size-400);padding-block:var(--size-400)">
     <style>
-      .pattern-catalog{padding:clamp(1rem,3vw,3rem);background:var(--clr-bg);color:var(--clr-text);font-family:var(--ff-primary,system-ui,sans-serif)}
-      .pattern-catalog h1{margin:0 0 .6rem;font-size:var(--fs-700);line-height:var(--lh-heading)}
-      .pattern-catalog__intro{max-inline-size:70ch;margin:0 0 2rem;line-height:var(--lh-copy)}
-      .pattern-catalog__grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(22rem,100%),1fr));gap:var(--size-400)}
-      .pattern-catalog__item{min-inline-size:0;padding-block:var(--size-300);border-block-start:var(--border-width-100) solid var(--clr-border)}
-      .pattern-catalog__item h2{margin:0 0 .5rem;font-size:var(--fs-500);font-weight:var(--fw-600)}
-      .pattern-catalog__item p{margin:0 0 .7rem;color:var(--clr-text-muted);font-size:var(--fs-300)}
-      .pattern-catalog__sample{min-inline-size:0;padding:var(--size-300);background:var(--clr-surface-page)}
-      .pattern-catalog__source{display:block;margin-top:.75rem;font:var(--fs-200)/var(--lh-copy) var(--ff-mono);overflow-wrap:anywhere}
-      .pattern-tile{display:block;min-inline-size:0;margin:0;padding:var(--size-200);background:var(--clr-surface-raised);outline:1px solid var(--clr-border);font-size:var(--fs-300);overflow-wrap:anywhere}
+      .pattern-tile{display:block;min-inline-size:0;margin:0;padding:var(--size-200);background:var(--clr-surface-raised);overflow-wrap:anywhere}
     </style>
     <h1>CSS layout patterns</h1>
-    <p class="pattern-catalog__intro">Read-only specimens from src/styles/patterns.css. These are actual site selectors, not a parallel CSS implementation. Prose and real text-pair content have separate examples beside this gallery. Research: <a href="https://github.com/looksawful/evangelistic-css/blob/main/docs/02-patterns.md">evangelistic-css</a>; original inspiration: <a href="https://github.com/kevin-powell/responsive-design-patterns">Kevin Powell</a>.</p>
-    <div class="pattern-catalog__grid">
-      ${productionPatterns.map((pattern) => `<section class="pattern-catalog__item">
+    <p>Read-only specimens from src/styles/patterns.css. The gallery itself also uses production CSS. Prose and real text-pair content have separate examples. Research: <a href="https://github.com/looksawful/evangelistic-css/blob/main/docs/02-patterns.md">evangelistic-css</a>; original inspiration: <a href="https://github.com/kevin-powell/responsive-design-patterns">Kevin Powell</a>.</p>
+    <div class="auto-grid" style="--auto-grid-min:22rem">
+      ${productionPatterns.map((pattern) => `<section class="stack" data-css-pattern="${pattern.name}" style="--stack-space:var(--size-200)">
         <h2><code>.${pattern.name}</code></h2>
         <p>${pattern.description}</p>
-        <div class="pattern-catalog__sample">${pattern.preview}</div>
-        <span class="pattern-catalog__source">src/styles/patterns.css · ${pattern.usage}</span>
+        <div>${pattern.preview}</div>
+        <small>src/styles/patterns.css · ${pattern.usage}</small>
       </section>`).join("")}
     </div>
   </main>`,
