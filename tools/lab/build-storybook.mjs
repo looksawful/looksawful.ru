@@ -5,9 +5,10 @@ import { spawnSync } from "node:child_process";
 const root = process.cwd();
 const publicOnly = process.argv.includes("--public");
 if (publicOnly) process.env.PUBLIC_STORYBOOK = "1";
+const labOutputRoot = path.resolve(root, path.join("dist-lab", "lab"));
 const outputDir = publicOnly
   ? path.resolve(root, "dist-storybook")
-  : path.resolve(root, "dist-lab/lab/system");
+  : path.join(labOutputRoot, "system");
 const npmCommand = process.platform === "win32" ? "npm.cmd" : "npm";
 
 const packages = [
