@@ -3,14 +3,19 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
-const step = (workflow, name) => workflow.match(new RegExp(`      - name: ${name}\\n[\\s\\S]*?(?=\\n      - name: |$)`))?.[0] ?? "";
+const step = (workflow, name) => {
+  const parts = workflow.split("\n      - name: " + name + "\n");
+  assert.equal(parts.length, 2, "required workflow step must exist exactly once: " + name);
+  const body = parts[1].split("\n      - name: ")[0];
+  assert.ok(body.trim(), "required workflow step must have a body: " + name);
+  return body;
+};
 const job = (workflow, name) => workflow.match(new RegExp(`  ${name}:[\\s\\S]*?(?=\\n  [a-z][\\w-]*:|$)`))?.[0] ?? "";
 
 const workflows = [
   "ci-fast",
-  "cms-media",
+  "media-preparation",
   "codeql",
-  "pages-cms-publish",
   "pages",
   "quality",
 ];
@@ -58,7 +63,7 @@ test("production deploy builds exact prod SHA, validates fast safety, compact br
   assert.doesNotMatch(workflow, /npm run cv:prod:prepare/);
   assert.equal((workflow.match(/npm run cv:prod:verify/g) ?? []).length, 1);
   assert.match(workflow, /actions\/cache\/restore@v6/);
-  assert.doesNotMatch(workflow, /restore-keys:/);
+  assert.doesNotMatch(step(workflow, "Restore exact generated media cache"), /restore-keys:/);
   assert.match(workflow, /media-dev-state\.mjs --cache-verify/);
   assert.match(step(workflow, "Regenerate exact media cache on miss"), /if: steps\.media-cache\.outputs\.cache-hit != 'true'[\s\S]*npm run media:sync/);
   assert.match(step(workflow, "Require clean tracked tree after cache recovery"), /if: steps\.media-cache\.outputs\.cache-hit != 'true'[\s\S]*git diff --exit-code/);
@@ -96,10 +101,10 @@ test("full regression remains nightly/manual while physical media audit is weekl
 });
 
 test("CMS media mutation is explicit, allowlisted, race-safe and does one final Fast validation", async () => {
-  const workflow = await read(".github/workflows/cms-media.yml");
+  const workflow = await read(".github/workflows/media-preparation.yml");
   assert.match(workflow, /branches: \[dev\]/);
   assert.match(workflow, /paths:/);
-  assert.match(workflow, /CMS media attempted unexpected tracked mutation/);
+  assert.match(workflow, /Media preparation attempted unexpected tracked mutation/);
   assert.match(workflow, /git push origin HEAD:dev/);
   assert.match(workflow, /git rev-parse origin\/dev/);
   assert.match(workflow, /SOURCE_SHA/);

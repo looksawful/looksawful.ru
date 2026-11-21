@@ -120,20 +120,3 @@ test("Jestei parser accepts legitimate copy edits but rejects Case-owned or stru
   presentationLeak.sections[0].className = "project__section";
   assert.throws(() => parseJesteiEditorialContent(presentationLeak), /unexpected|field|key/i);
 });
-
-test("Pages CMS exposes Jestei editorial copy without Case identity, route, media or runtime controls", async () => {
-  const cms = await readFile(new URL("../.pages.yml", import.meta.url), "utf8");
-  const start = cms.indexOf("      - name: jestei-case");
-  assert.notEqual(start, -1);
-  const rest = cms.slice(start);
-  const nextEntry = rest.indexOf("\n      - name: ", 8);
-  const config = nextEntry === -1 ? rest : rest.slice(0, nextEntry);
-
-  for (const field of ["lead", "sections", "id", "title", "paragraphs", "overlays", "text"]) {
-    assert.match(config, new RegExp(`name: ${field}\\b`));
-  }
-
-  for (const forbidden of ["role", "period", "entryId", "className", "layout", "route", "canonical", "href", "renderer", "filter", "before", "after", "captionView", "surfaceDeck"]) {
-    assert.doesNotMatch(config, new RegExp(`name: ${forbidden}\\b`));
-  }
-});

@@ -6,7 +6,6 @@ const cvDataModuleUrl = new URL("../src/data/cv.ts", import.meta.url);
 const cvContentUrl = new URL("../src/content/cv.json", import.meta.url);
 const cvSourceUrl = new URL("../public/cv/index.html", import.meta.url);
 const cvContentLibUrl = new URL("../tools/lib/cv-content.mjs", import.meta.url);
-const cmsConfigUrl = new URL("../.pages.yml", import.meta.url);
 
 const expectedProfile = {
   name: "ИВАН КРУШИНСКИЙ",
@@ -154,20 +153,4 @@ test("CV content adapter protects profile identity while allowing empty copy", a
     () => parseCvContent({ ...current, profile: invalidCopy }),
     /profile\.role.*string/i,
   );
-});
-
-test("Pages CMS exposes keyed profile copy while stable identity stays outside editorial JSON", async () => {
-  const cmsConfig = await readFile(cmsConfigUrl, "utf8");
-  const cvConfig = cmsConfig.match(/\n  - name: cv\b[\s\S]*$/)?.[0] ?? "";
-  const profileConfig = cvConfig.match(/\n      - name: profile\b[\s\S]*?(?=\n      - name: skills\b)/)?.[0] ?? "";
-
-  for (const field of ["name", "role", "aboutPrimary", "aboutSecondary", "location"]) {
-    assert.match(profileConfig, new RegExp(`name: ${field}\\b`));
-  }
-  assert.match(profileConfig, /name: principles\b[\s\S]*?type: object/);
-  assert.match(profileConfig, /name: visual\b[\s\S]*?type: object/);
-  assert.match(profileConfig, /name: languages\b[\s\S]*?type: object/);
-  assert.match(profileConfig, /name: english\b[\s\S]*?type: object/);
-  assert.doesNotMatch(profileConfig, /- name: id\b|\blist:/);
-  assert.doesNotMatch(profileConfig, /name: (visible|titleVisible|route|canonical|portraitSrc|stylesheet|pageType)\b/);
 });

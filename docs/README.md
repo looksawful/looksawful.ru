@@ -29,12 +29,8 @@ Branch vocabulary is explicit:
 | `../AGENTS.md` | CURRENT POLICY | Repository-wide agent and change rules. |
 | `testing-policy.md` | CURRENT NORMATIVE | Testing ownership and verification policy. |
 | `testing-pipeline.md` | CURRENT OPERATIONAL | Current testing commands/groups and operator map. |
-| `cms-architecture.md` | CURRENT NORMATIVE, with open TARGET reconciliation | Content/media/CMS ownership and publication trust boundary. |
-| `cms-content-map.md` | CURRENT INVENTORY | Detailed content/CMS field mapping. |
-| `cms-handbook.md` | CURRENT OPERATOR | Owner-facing Pages CMS behavior and publication flow. |
-| `site-operations.md` | CURRENT OPERATOR | Branches, Pages CMS publication, media and release operations. |
-| `tooling-pipeline.md` | CURRENT OPERATIONAL | Local commands, CI/CMS tooling and branch assumptions. |
-| `content-media-desk-api.md` | CURRENT IMPLEMENTATION / TRANSITIONAL | Local Desk HTTP/write contract; open issues still own residual acceptance/closeout work. |
+| `site-operations.md` | CURRENT OPERATOR | Manual dev content, media preparation, private Lab and protected prod releases. |
+| `tooling-pipeline.md` | CURRENT OPERATIONAL | Local commands, CI/media tooling and explicit branches. |
 | `repository-structure.md` | CURRENT MAP | Repository area ownership/navigation. |
 | `gitbook-architecture.md` | CURRENT NORMATIVE / rollout in progress | Free-only GitBook projection over canonical repository docs and migration governance. |
 | `SUMMARY.md` | CURRENT NAVIGATION | GitBook Wave 1 navigation only; does not redefine authority. |
@@ -43,15 +39,7 @@ Branch vocabulary is explicit:
 
 GitHub Issues own independently executable work. An issue may remain open after a core implementation slice lands; the issue state alone is not proof that the implementation is absent.
 
-Current interpretation:
-
-- #249 — source/round-trip governance reconciliation;
-- #451 — core authoring provenance/READY/scope/divergence guard is CURRENT; the issue remains owner of residual end-to-end Pages CMS/integration enforcement, acceptance and closeout;
-- #452 — read-only-by-default `npm run desk`, explicit guarded `npm run desk:write`, loopback policy and visible provenance are CURRENT; the issue remains owner of residual acceptance/E2E/closeout where applicable;
-- #453 — revision-aware `expectedRevision` conflicts and staged/rollback-backed persistence are CURRENT; the issue remains owner of residual source-authorization/acceptance/E2E/closeout where applicable;
-- #687 — deep-refactor program/preflight, TARGET rather than current architecture evidence.
-
-Do not auto-close #451/#452/#453 merely because documentation now reflects their landed core safeguards. Closeout must use the issues' own acceptance criteria and fresh verification evidence.
+Retirement/consolidation acceptance is recorded in existing issue #1009. Historical CMS issues and dated handoffs describe the former editors; they do not authorize a third permanent branch or restore removed write services. Do not automatically close unrelated historical issues.
 
 ## GitBook projection
 
@@ -78,6 +66,6 @@ Notion, Google Sheets and other connected sources are not blanket substitutes fo
 
 - Notion: planning, decisions, research, fact bases and historical evidence;
 - Google Sheets: source material, editorial/operator registries and mirrors according to field ownership;
-- Git-backed authored content and typed registries: runtime content/domain/media authority according to the contracts in `cms-architecture.md`.
+- Git-backed authored content and typed registries: runtime content/domain/media authority according to the contracts in `site-operations.md`.
 
 A fixed `prod@<sha>` in an external document is a snapshot unless it is explicitly revalidated against current production.

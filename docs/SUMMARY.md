@@ -6,13 +6,6 @@
 
 * [Repository structure](repository-structure.md)
 
-## Content & CMS
-
-* [CMS architecture](cms-architecture.md)
-* [CMS content ownership map](cms-content-map.md)
-* [CMS handbook](cms-handbook.md)
-* [Content / Media Desk HTTP contract](content-media-desk-api.md)
-
 ## Operations
 
 * [Site operations](site-operations.md)

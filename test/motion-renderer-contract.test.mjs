@@ -51,7 +51,7 @@ test("project intro renderer exposes separate copy groups for head and intro", (
   assert.match(html, /<p class="project__name"[^>]*\bdata-reveal="copy"/);
   assert.match(html, /<p class="project__role"[^>]*\bdata-reveal="copy"/);
   assert.match(html, /<p class="project__period"[^>]*\bdata-reveal="copy"/);
-  assert.match(html, /<h2 class="project__title"[^>]*\bdata-reveal="copy"/);
+  assert.match(html, /<h2 class="project__title project__title--text"[^>]*\bdata-reveal="copy"/);
   assert.match(html, /<p class="project__summary"[^>]*\bdata-reveal="copy"/);
   assert.match(html, /<p class="project__lead"[^>]*\bdata-reveal="copy"/);
   assert.match(html, /<nav[\s\S]*class="project__links cluster"[\s\S]*\bdata-reveal="copy"/);

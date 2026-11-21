@@ -12,7 +12,7 @@ export function serializePageUsageIndex(indexed) {
 export function assertPageUsageSnapshotFresh(indexed, currentSource) {
   const expected = serializePageUsageIndex(indexed);
   if (currentSource !== expected) {
-    throw new Error("Media Desk page-usage snapshot is stale; run node tools/media-desk/index-page-media.mjs");
+    throw new Error("Media page-usage snapshot is stale; run node tools/media/index-page-media.mjs");
   }
 }
 
@@ -130,7 +130,7 @@ async function runCli() {
     await writeFile(output, serializePageUsageIndex(indexed), "utf8");
   }
   process.stdout.write(
-    `[media-desk-page-index] ${indexed.records.length} canonical refs; ${indexed.unresolved.length} unresolved refs\n`,
+    `[media-page-index] ${indexed.records.length} canonical refs; ${indexed.unresolved.length} unresolved refs\n`,
   );
 }
 

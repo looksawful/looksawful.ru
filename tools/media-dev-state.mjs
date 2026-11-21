@@ -287,10 +287,19 @@ async function collectGeneratedState(resolved) {
   const outputReasons = await validateGeneratedOutputs(resolved.repoRoot, responsive.value, video.value);
   if (outputReasons.length) return { state: null, reasons: outputReasons };
 
+  const videoOutputIntegrity = await Promise.all((video.value?.videos ?? [])
+    .filter((entry) => entry?.outputSrc)
+    .map(async ({ outputSrc }) => {
+      const outputPath = path.join(resolved.repoRoot, "public", normalizePublicSrc(outputSrc));
+      const fileStat = await stat(outputPath);
+      return { src: outputSrc, bytes: fileStat.size, sha256: await hashFile(outputPath) };
+    }));
+
   return {
     state: {
       responsiveManifestHash: responsive.hash,
       videoInventoryHash: video.hash,
+      videoOutputIntegrity,
     },
     reasons: [],
   };
@@ -345,6 +354,9 @@ export async function verifyGeneratedMediaCache(options = {}) {
   if (generated.state) {
     if (marker?.responsiveManifestHash !== generated.state.responsiveManifestHash) reasons.push("responsive manifest does not match cached generated media");
     if (marker?.videoInventoryHash !== generated.state.videoInventoryHash) reasons.push("video inventory does not match cached generated media");
+    if (stableJson(marker?.videoOutputIntegrity) !== stableJson(generated.state.videoOutputIntegrity)) {
+      reasons.push("generated video output integrity does not match cached generated media");
+    }
   }
 
   return { valid: reasons.length === 0, fingerprint: expectedFingerprint, reasons };

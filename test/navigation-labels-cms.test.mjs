@@ -106,15 +106,3 @@ test("live navigation content keeps seven stable IDs with editable non-empty lab
   assert.deepEqual(content.map(({ id }) => id), PRIMARY_NAVIGATION_PAGE_IDS);
   assert.ok(content.every(({ label }) => typeof label === "string" && label.trim().length > 0));
 });
-
-test("Pages CMS exposes only navigation identity and label, never routing or preview ownership", async () => {
-  const cmsConfig = await readFile(new URL("../.pages.yml", import.meta.url), "utf8");
-  const block = cmsConfig.match(
-    /\n  - name: navigation-labels\b[\s\S]*?(?=\n  - name: [a-z0-9-]+\b)/,
-  )?.[0] ?? "";
-
-  assert.match(block, /path: src\/content\/navigation\.json/);
-  assert.match(block, /- name: id\b[\s\S]*?readonly: true/);
-  assert.match(block, /- name: label\b[\s\S]*?type: string/);
-  assert.doesNotMatch(block, /- name: (href|path|route|pageId|slug|canonical|preview|previewSrc)\b/);
-});

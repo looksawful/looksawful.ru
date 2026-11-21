@@ -94,12 +94,3 @@ test("experience transform changes copy while preserving code-owned hrefs and cl
   assert.match(articleFor(transformed, "jestei"), /Арт-директор &amp; дизайн-лид/);
   assert.match(articleFor(transformed, "styx"), /Факт &lt;сохранён&gt; &amp; обновлён/);
 });
-
-test("Pages CMS experience editor exposes copy fields only", async () => {
-  const cms = await readFile(new URL("../.pages.yml", import.meta.url), "utf8");
-  const cvConfig = cms.match(/\n  - name: cv\b[\s\S]*$/)?.[0] ?? "";
-  assert.match(cvConfig, /path: src\/content\/editorial\/cv\.json/);
-  for (const forbidden of ["visible", "links", "href", "route", "className", "target", "rel", "layout"]) {
-    assert.doesNotMatch(cvConfig, new RegExp(`- name: ${forbidden}\\b`));
-  }
-});

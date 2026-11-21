@@ -23,11 +23,13 @@ test("Vite inputs are derived from enabled managed pages and exclude public CV o
 
   assert.deepEqual(new Set(relative), new Set([
     "index.html",
+    "gallery/index.html",
     "work/jestei-pool/index.html",
     "work/styx/index.html",
     "work/sensetique/index.html",
     "shootings/index.html",
     "work/awful-cases/index.html",
+    "work/awful-studio/index.html",
     "work/moves-awful/index.html",
     "work/berry-social-content-2020/index.html",
     "404.html",

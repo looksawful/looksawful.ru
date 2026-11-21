@@ -2,13 +2,10 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-let indexer = {};
-try {
-  indexer = await import("../tools/media-desk/index-static-usage.mjs");
-} catch {}
+import * as indexer from "../tools/media/index-static-usage.mjs";
 
 const packageJson = JSON.parse(await readFile("package.json", "utf8"));
-const workflow = await readFile(".github/workflows/media-desk-cloudflare.yml", "utf8");
+const workflow = await readFile(".github/workflows/ci-fast.yml", "utf8");
 
 test("static usage index records direct and video-poster blockers deterministically", () => {
   assert.equal(typeof indexer.buildStaticUsageIndex, "function");
@@ -29,8 +26,8 @@ test("static usage snapshot has a checked verification path", () => {
   const exact = `${JSON.stringify(indexed, null, 2)}\n`;
   assert.doesNotThrow(() => indexer.assertStaticUsageSnapshotFresh(indexed, exact));
   assert.throws(() => indexer.assertStaticUsageSnapshotFresh(indexed, "{}\n"), /static.*usage.*stale|stale.*static.*usage/i);
-  assert.match(packageJson.scripts["media-desk:static-usage:check"] ?? "", /index-static-usage\.mjs\s+--check/);
-  assert.match(workflow, /npm run media-desk:static-usage:check/);
+  assert.match(packageJson.scripts["media:static-usage:check"] ?? "", /index-static-usage\.mjs\s+--check/);
+  assert.match(workflow, /npm run media:static-usage:check/);
 });
 
 test("static usage snapshot carries code-owned pet cover bases separately from CMS overrides", () => {

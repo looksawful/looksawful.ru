@@ -2,10 +2,10 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-import * as pageIndexer from "../tools/media-desk/index-page-media.mjs";
+import * as pageIndexer from "../tools/media/index-page-media.mjs";
 
 const packageJson = JSON.parse(await readFile("package.json", "utf8"));
-const workflow = await readFile(".github/workflows/media-desk-cloudflare.yml", "utf8");
+const workflow = await readFile(".github/workflows/ci-fast.yml", "utf8");
 
 test("page usage freshness check rejects stale generated snapshots", () => {
   assert.equal(typeof pageIndexer.assertPageUsageSnapshotFresh, "function");
@@ -17,7 +17,7 @@ test("page usage freshness check rejects stale generated snapshots", () => {
   );
 });
 
-test("Media Desk verification runs page usage freshness check before deploy", () => {
-  assert.match(packageJson.scripts["media-desk:page-usage:check"] ?? "", /index-page-media\.mjs\s+--check/);
-  assert.match(workflow, /npm run media-desk:page-usage:check/);
+test("Fast CI verifies the retained page usage snapshot", () => {
+  assert.match(packageJson.scripts["media:page-usage:check"] ?? "", /index-page-media\.mjs\s+--check/);
+  assert.match(workflow, /npm run media:page-usage:check/);
 });

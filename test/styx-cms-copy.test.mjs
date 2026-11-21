@@ -136,23 +136,6 @@ test("Styx parser accepts legitimate copy edits but rejects Case-owned or struct
   assert.throws(() => parseStyxEditorialContent(presentationLeak), /unexpected|field|key/i);
 });
 
-test("Pages CMS exposes Styx editorial copy without Case identity, route, media or presentation controls", async () => {
-  const cms = await readFile(new URL("../.pages.yml", import.meta.url), "utf8");
-  const start = cms.indexOf("      - name: styx-case");
-  assert.notEqual(start, -1);
-  const rest = cms.slice(start);
-  const nextEntry = rest.indexOf("\n      - name: ", 8);
-  const config = nextEntry === -1 ? rest : rest.slice(0, nextEntry);
-
-  for (const field of ["lead", "sections", "id", "title", "paragraphs", "credits"]) {
-    assert.match(config, new RegExp(`name: ${field}\\b`));
-  }
-
-  for (const forbidden of ["role", "period", "entryId", "className", "layout", "route", "canonical", "href", "renderer"]) {
-    assert.doesNotMatch(config, new RegExp(`name: ${forbidden}\\b`));
-  }
-});
-
 test("Styx user-facing sources keep the canonical Styx Jewel display name", async () => {
   const source = await readSource();
   const values = [

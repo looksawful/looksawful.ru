@@ -1,10 +1,10 @@
 # Agent Context: Media
 
-The authoritative details are `docs/cms-architecture.md`, `docs/cms-content-map.md`, `docs/media-upload-policy.md`, media types, catalog code, and the media tooling tests.
+The authoritative details are `docs/site-operations.md`, `docs/media-upload-policy.md`, media types, catalog code, and the media tooling tests.
 
 ## Ownership and flow
 
-There are two authored entry paths: registered assets and CMS upload records converge in the typed `MediaCatalogItem`/catalog layer. A CMS upload record is normalized into a typed uploaded `MediaAsset` and then added with `origin: "cms"`. `MediaEntry` is a separate usage/placement-specific project or template layer and is created only where required, not for every CMS upload. TypeScript/catalog code owns reusable identity and technical structure; CMS owns approved editorial metadata; deterministic builders own derivatives and generated indexes.
+There are two authored entry paths: registered assets and CMS upload records converge in the typed `MediaCatalogItem`/catalog layer. A CMS upload record is normalized into a typed uploaded `MediaAsset` and then added with `origin: "cms"`. `MediaEntry` is a separate usage/placement-specific project or template layer and is created only where required, not for every CMS upload. TypeScript/catalog code owns reusable identity and technical structure; manually authored JSON owns editorial metadata; deterministic builders own derivatives and generated indexes.
 
 - Preserve source/master media. For video, `VideoMedia.src` is the browser delivery asset and optional `sourceSrc` retains the source master.
 - Do not hand-edit `public/media/generated/`, `src/data/media/catalog-records.generated.ts`, `src/data/media/responsive-generated.ts`, or generated JSON manifests such as `responsive-manifest.json` and `video-inventory.json`. Change the source or builder and regenerate.
@@ -18,6 +18,8 @@ Inspect `src/types/media.ts`, catalog records, content consumers, and builders. 
 
 ```bash
 npm run media:catalog:check
+npm run media:page-usage:check
+npm run media:static-usage:check
 npm run media:sync
 npm run test:media:contract
 npm run test:media:checks

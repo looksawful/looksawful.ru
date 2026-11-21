@@ -2,7 +2,7 @@
 
 Status: OAUTH SECURITY CANDIDATE / non-production internal tooling foundation.
 
-Private Lab is a read-only internal tooling surface. It is not a CMS branch, not a source of truth, not a deployment authority and not a shortcut around Media/Content Desk write policy.
+Private Lab is a read-only internal tooling surface. It is not a CMS branch, not a source of truth, not a deployment authority and not a content-write API or release authority.
 
 ## Build
 
@@ -54,24 +54,15 @@ Security contract:
 - unauthenticated mutation-like requests fail `401`;
 - missing/broken authentication configuration fails closed;
 - protected responses retain private/no-store/noindex/frame/content-type headers;
-- network authentication never grants Media Desk write authority.
+- network authentication never grants content-write or release authority.
 
 Repository code alone does **not** prove that the remote Admin is deployed or protected. `ADMIN_GITHUB_CLIENT_ID`, `ADMIN_GITHUB_CLIENT_SECRET`, `ADMIN_SESSION_SECRET`, the GitHub OAuth application callback and the `admin.looksawful.ru` runtime/custom-domain configuration must exist in the actual deployment environment before remote access can be claimed operational.
 
 ## Read-only rule
 
-The Lab client contains no Desk mutation API calls and displays `READ ONLY`.
+The Lab client contains no content mutation API calls and displays `READ ONLY`.
 
-Local write authority remains separate:
-
-```text
-npm run desk:write
-  -> local loopback only
-  -> content/text-cms only
-  -> revision-aware guarded writes
-```
-
-Authentication does not change those write gates.
+Edit authored files manually in dev. Lab authentication grants neither content writes nor production publication.
 
 ## Scope boundary
 

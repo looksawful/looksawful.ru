@@ -8,7 +8,8 @@ import { renderProjectIntro } from "../src/templates/project-intro.ts";
 import { renderSectionIntro } from "../src/templates/section-intro.ts";
 import { escapeHtml } from "../src/utils/html.ts";
 
-const sectionIds = ["studio", "production"];
+const authoredSectionIds = ["studio", "equipment", "production"];
+const renderedSectionIds = ["studio", "production"];
 const noteIds = ["buro247", "olovo-lookbook-2016"];
 const creditIds = [
   "buro247",
@@ -82,7 +83,7 @@ test("Sensetique CMS source keeps fixed editorial identities while Case owns int
   assert.equal(caseData.summary, undefined);
   assert.equal(caseData.date, "2016–2018");
   assert.equal(caseData.periodLabel, "2016–2018");
-  assert.deepEqual(source.sections.map(({ id }) => id), sectionIds);
+  assert.deepEqual(source.sections.map(({ id }) => id), authoredSectionIds);
   assert.deepEqual(source.credits.map(({ id }) => id), creditIds);
   assert.deepEqual(source.notes.map(({ id }) => id), noteIds);
 });
@@ -96,7 +97,10 @@ test("Sensetique live intro resolves role and period from canonical Case data an
     { role: sensetique.sensetiqueIntro.role, period: sensetique.sensetiqueIntro.period, lead: sensetique.sensetiqueIntro.lead },
     { role, period, lead: source.intro.lead },
   );
-  assert.deepEqual(sectionExports.map((section, index) => ({ id: sectionIds[index], ...section })), source.sections);
+  const renderedSections = source.sections.filter(({ id }) => renderedSectionIds.includes(id));
+  assert.deepEqual(sectionExports.map((section, index) => ({ id: renderedSectionIds[index], ...section })), renderedSections);
+  const { getSensetiqueEditorialSection } = await import("../src/data/content/sensetique-editorial.ts");
+  assert.deepEqual(getSensetiqueEditorialSection("equipment"), source.sections.find(({ id }) => id === "equipment"));
   assert.deepEqual(creditExports.map((credits, index) => ({ id: creditIds[index], ...credits })), source.credits);
   assert.deepEqual(
     [sensetique.sensetiqueBuro247Group.head?.note, sensetique.sensetiqueOlovoLookbook2016Reel.head?.note].map((note, index) => ({ id: noteIds[index], text: note?.text })),
@@ -104,7 +108,7 @@ test("Sensetique live intro resolves role and period from canonical Case data an
   );
 
   const rendered = [renderProjectIntro(sensetique.sensetiqueIntro), ...sectionExports.map(renderSectionIntro)].join("\n");
-  for (const value of [role, period, source.intro.lead, ...source.sections.flatMap(({ title, paragraphs }) => [title, ...paragraphs])]) {
+  for (const value of [role, period, source.intro.lead, ...renderedSections.flatMap(({ title, paragraphs }) => [title, ...paragraphs])]) {
     assert.ok(rendered.includes(escapeHtml(value)), `Rendered Sensetique output must consume canonical/CMS value: ${value}`);
   }
 });
@@ -177,20 +181,4 @@ test("Sensetique parser accepts legitimate copy edits but rejects Case-owned or 
   const presentationLeak = clone(source);
   presentationLeak.credits[0].className = "project__section";
   assert.throws(() => parseSensetiqueEditorialContent(presentationLeak), /unexpected|field|key/i);
-});
-
-test("Pages CMS exposes Sensetique copy without Case identity, route or presentation controls", async () => {
-  const cms = await readFile(new URL("../.pages.yml", import.meta.url), "utf8");
-  const start = cms.indexOf("      - name: sensetique-case");
-  assert.notEqual(start, -1);
-  const rest = cms.slice(start);
-  const nextEntry = rest.indexOf("\n      - name: ", 8);
-  const config = nextEntry === -1 ? rest : rest.slice(0, nextEntry);
-
-  for (const field of ["intro", "lead", "sections", "credits", "notes", "id", "title", "lines", "text"]) {
-    assert.match(config, new RegExp(`name: ${field}\\b`));
-  }
-  for (const forbidden of ["role", "period", "entryId", "className", "layout", "route", "canonical", "href", "renderer", "captionView", "columns"]) {
-    assert.doesNotMatch(config, new RegExp(`name: ${forbidden}\\b`));
-  }
 });

@@ -5,7 +5,6 @@ import test from "node:test";
 import { projectCardPresentations } from "../src/data/projects.ts";
 import { getProjectCardHref } from "../src/site/pages/project-card-routes.ts";
 
-const cmsConfigUrl = new URL("../.pages.yml", import.meta.url);
 const homeSlotsUrl = new URL("../src/site/renderers/home/home-slots.ts", import.meta.url);
 const expectedIds = ["jestei", "styx", "sensetique", "shootings"];
 
@@ -45,15 +44,4 @@ test("hiding a homepage card does not own or alter its standalone route", () => 
     if (card.id === "sensetique") assert.equal(href, "/work/sensetique/");
     if (card.id === "shootings") assert.equal(href, "/shootings/");
   }
-});
-
-test("Pages CMS exposes homepage visibility only on the structural project-card surface", async () => {
-  const cmsConfig = await readFile(cmsConfigUrl, "utf8");
-  const projectMediaBlock = cmsConfig.match(/\n  - name: project-card-media\b[\s\S]*?(?=\n  - name: [a-z0-9-]+\b)/)?.[0] ?? "";
-  const projectCopyBlock = cmsConfig.match(/\n  - name: project-cards\b[\s\S]*?(?=\n  - name: [a-z0-9-]+\b)/)?.[0] ?? "";
-
-  assert.match(projectMediaBlock, /- name: visible\b[\s\S]*?type: boolean/);
-  assert.match(projectMediaBlock, /label: Показывать на главной/);
-  assert.doesNotMatch(projectMediaBlock, /- name: (route|canonical|listed|indexable|slug|pageType|pageId)\b/);
-  assert.doesNotMatch(projectCopyBlock, /- name: visible\b/);
 });

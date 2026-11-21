@@ -29,7 +29,7 @@ on:
   workflow_dispatch:
     inputs:
       payload:
-        description: Optional Pages CMS action payload; Fast CI never mutates it
+        description: Legacy unused action payload; Fast CI never mutates it
         required: false
         type: string
   workflow_call:
@@ -131,11 +131,11 @@ jobs:
       - name: Typecheck
         if: github.event_name != 'pull_request' || steps.affected.outputs.image_only != 'true'
         run: npm run typecheck
-      - name: Verify Media Desk usage snapshots
+      - name: Verify media usage snapshots
         if: github.event_name != 'pull_request' || steps.affected.outputs.image_only != 'true'
         run: |
-          npm run media-desk:page-usage:check
-          npm run media-desk:static-usage:check
+          npm run media:page-usage:check
+          npm run media:static-usage:check
       - name: Fast tests
         if: github.event_name != 'pull_request' || steps.affected.outputs.image_only != 'true'
         run: npm run test:fast

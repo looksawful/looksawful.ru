@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import { test } from "node:test";
 
 const css = await readFile(new URL("../../src/styles/components.css", import.meta.url), "utf8");
+const projectShellCss = await readFile(new URL("../../src/styles/project-shell.css", import.meta.url), "utf8");
 const mediaDeckCss = await readFile(new URL("../../src/styles/media-deck.css", import.meta.url), "utf8");
 const mediaLightboxCss = await readFile(new URL("../../src/styles/media-lightbox.css", import.meta.url), "utf8");
 
@@ -18,8 +19,9 @@ test("project-card caption uses card container without moving the grid breakpoin
   );
 });
 
-test("project header direct logo uses the project-name grid area", () => {
-  assert.match(css, /& > img\s*{\s*grid-area:\s*project;/);
+test("project title direct logo fits the full-width heading without distorting its image", () => {
+  assert.match(projectShellCss, /\.project__title\s*\{[^}]*grid-column:\s*1\s*\/\s*-1;/);
+  assert.match(projectShellCss, /&\s*>\s*img\s*\{[^}]*display:\s*block;[^}]*max-inline-size:\s*100%;[^}]*block-size:\s*auto;/);
 });
 
 test("media deck dots keep small visual dots on larger hit targets", () => {

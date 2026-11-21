@@ -6,7 +6,7 @@ const read = (file) => readFile(new URL(`../${file}`, import.meta.url), "utf8");
 const step = (workflow, name) => workflow.match(new RegExp(`\\n      - name: ${name}\\b[\\s\\S]*?(?=\\n      - name: |$)`))?.[0] ?? "";
 
 test("CMS media routes registered image replacement through affected-only generation", async () => {
-  const workflow = await read(".github/workflows/cms-media.yml");
+  const workflow = await read(".github/workflows/media-preparation.yml");
 
   for (const path of [
     "src/content/projects.json",
@@ -76,7 +76,7 @@ test("CMS media routes registered image replacement through affected-only genera
 });
 
 test("media metadata cannot result in zero Actions while Fast CI keeps it off the engineering push path", async () => {
-  const media = await read(".github/workflows/cms-media.yml");
+  const media = await read(".github/workflows/media-preparation.yml");
   const fast = await read(".github/workflows/ci-fast.yml");
   for (const path of [
     "src/content/media-catalog/registered/**",

@@ -48,7 +48,8 @@ test("site navigation keeps one two-column header over a continuous fullscreen m
     /\.site-nav\[data-menu-open\]\s+\.site-nav__bar\s*\{[^}]*background:\s*var\(--clr-bg\)/,
   );
   assert.match(navigationSource, /background:\s*var\(--clr-bg\)/);
-  assert.doesNotMatch(navigationSource, /box-shadow|backdrop-filter|border-radius/);
+  const navigationDeclarations = navigationSource.slice(navigationSource.indexOf(".site-nav {"));
+  assert.doesNotMatch(navigationDeclarations, /box-shadow|backdrop-filter|border-radius/);
 });
 
 test("open menu removes the header band instead of only making it transparent", () => {

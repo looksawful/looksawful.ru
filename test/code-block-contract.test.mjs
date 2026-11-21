@@ -6,7 +6,6 @@ import { CONTENT_BLOCK_TYPES } from "../src/content/contracts/content-block.ts";
 import { sitePages } from "../src/site/pages/manifest.ts";
 import { renderStandaloneEntityPage } from "../src/site/renderers/entity-page.ts";
 import { renderContentBlock } from "../src/site/renderers/entity/content-block.ts";
-import { collectContentDeskTextEntries } from "../src/devtools/media-desk/editor-model.ts";
 
 const awfulCasesSourcePath = "src/content/standalone-projects/awful-cases.json";
 
@@ -14,14 +13,6 @@ function awfulCasesPage() {
   const page = sitePages.find((candidate) => candidate.id === "project:awful-cases");
   assert.ok(page, "missing project:awful-cases SitePage");
   return page;
-}
-
-function awfulCasesCmsEntry(cms) {
-  const start = cms.indexOf("      - name: awful-cases-standalone-project\n");
-  assert.notEqual(start, -1, "Awful Cases Pages CMS entry must exist");
-  const rest = cms.slice(start);
-  const next = rest.indexOf("\n  - name: ", 1);
-  return next === -1 ? rest : rest.slice(0, next);
 }
 
 test("code-block is a first-class ContentBlock rendered through the canonical boundary", () => {
@@ -63,7 +54,7 @@ test("code-block keeps optional metadata optional", () => {
   assert.doesNotMatch(html, /data-code-language=/);
 });
 
-test("Awful Cases owns install and run snippets in authored content and exposes them through Content Desk", async () => {
+test("Awful Cases owns install and run snippets in authored content and renders code from authored JSON", async () => {
   const source = JSON.parse(await readFile(awfulCasesSourcePath, "utf8"));
 
   assert.deepEqual(source.codeBlocks, {
@@ -89,30 +80,7 @@ test("Awful Cases owns install and run snippets in authored content and exposes 
     /unexpected|field|key/i,
   );
 
-  const entries = collectContentDeskTextEntries({
-    "../../content/standalone-projects/awful-cases.json": source,
-  });
-  const codeEntryPaths = entries
-    .filter((entry) => entry.fieldPath.startsWith("codeBlocks."))
-    .map((entry) => entry.fieldPath);
-  assert.deepEqual(codeEntryPaths, [
-    "codeBlocks.install.code",
-    "codeBlocks.install.title",
-    "codeBlocks.run.code",
-    "codeBlocks.run.title",
-  ]);
-});
 
-test("Pages CMS exposes authored Awful code fields but keeps rendering metadata protected", async () => {
-  const cms = await readFile(new URL("../.pages.yml", import.meta.url), "utf8");
-  const entry = awfulCasesCmsEntry(cms);
-
-  assert.match(entry, /- name: codeBlocks\n\s+label: Кодовые блоки\n\s+type: object/);
-  assert.match(entry, /- name: install\n\s+label: Установка\n\s+type: object/);
-  assert.match(entry, /- name: run\n\s+label: Запуск\n\s+type: object/);
-  assert.equal((entry.match(/- name: code\n/g) ?? []).length, 2);
-  assert.equal((entry.match(/- name: title\n/g) ?? []).length >= 3, true);
-  assert.doesNotMatch(entry, /- name: (?:language|variant|layout|skin)\n/);
 });
 
 test("canonical Awful Cases page renders authored code through CodeBlock with code-owned semantics", async () => {

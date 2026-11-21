@@ -4,15 +4,26 @@ import test from "node:test";
 
 const read = (file) => readFile(new URL(`../${file}`, import.meta.url), "utf8");
 
+const step = (workflow, name) => {
+  const parts = workflow.split("\n      - name: " + name + "\n");
+  assert.equal(parts.length, 2, "required workflow step must exist exactly once: " + name);
+  const body = parts[1].split("\n      - name: ")[0];
+  assert.ok(body.trim(), "required workflow step must have a body: " + name);
+  return body;
+};
+
 const expectedWorkflows = [
+  "agent-verify.yml",
   "caption-qa.yml",
   "ci-fast.yml",
-  "cms-media.yml",
   "codeql.yml",
   "dependency-review.yml",
   "media-affected.yml",
-  "pages-cms-publish.yml",
+  "media-preparation.yml",
   "pages.yml",
+  "pr-preview.yml",
+  "private-lab-deploy.yml",
+  "private-lab-verify.yml",
   "production-health.yml",
   "quality.yml",
   "ui-responsive.yml",
@@ -36,7 +47,7 @@ test("Fast CI automatically validates engineering dev pushes and PRs while warm-
   assert.match(workflow, /actions\/cache\/restore@v6/);
   assert.match(workflow, /generated-media-v3-\$\{\{ runner\.os \}\}-\$\{\{ steps\.media\.outputs\.fingerprint \}\}/);
   assert.match(workflow, /node tools\/media-dev-state\.mjs --cache-verify/);
-  assert.doesNotMatch(workflow, /restore-keys:/);
+  assert.doesNotMatch(step(workflow, "Restore exact generated media cache"), /restore-keys:/);
 
   assert.match(workflow, /Install recovery video tooling on cache miss[\s\S]*?if: \(github\.event_name != 'pull_request' \|\| steps\.affected\.outputs\.image_only != 'true'\) && steps\.media-cache\.outputs\.cache-hit != 'true'[\s\S]*?ffmpeg/);
   assert.match(workflow, /Recover generated media on cache miss[\s\S]*?if: \(github\.event_name != 'pull_request' \|\| steps\.affected\.outputs\.image_only != 'true'\) && steps\.media-cache\.outputs\.cache-hit != 'true'[\s\S]*?npm run media:sync/);
@@ -68,7 +79,7 @@ test("production validates exact prod tree, exact media cache, fast safety, comp
   assert.match(workflow, /npm ci/);
   assert.match(workflow, /node tools\/media-dev-state\.mjs --fingerprint/);
   assert.match(workflow, /actions\/cache\/restore@v6/);
-  assert.doesNotMatch(workflow, /restore-keys:/);
+  assert.doesNotMatch(step(workflow, "Restore exact generated media cache"), /restore-keys:/);
   assert.match(workflow, /node tools\/media-dev-state\.mjs --cache-verify/);
   assert.match(workflow, /Regenerate exact media cache on miss[\s\S]*?if: steps\.media-cache\.outputs\.cache-hit != 'true'[\s\S]*?npm run media:sync/);
   assert.match(workflow, /Require clean tracked tree after cache recovery[\s\S]*?if: steps\.media-cache\.outputs\.cache-hit != 'true'[\s\S]*?git diff --exit-code/);
@@ -87,8 +98,8 @@ test("production validates exact prod tree, exact media cache, fast safety, comp
   assert.match(workflow, /\/assets\/\[\^/);
 });
 
-test("CMS media distinguishes references, image sources and video sources, saves cache, and validates once", async () => {
-  const workflow = await read(".github/workflows/cms-media.yml");
+test("Media preparation distinguishes references, image sources and video sources, saves cache, and validates once", async () => {
+  const workflow = await read(".github/workflows/media-preparation.yml");
 
   assert.match(workflow, /push:\s*\n\s*branches:\s*\[dev\]/);
   assert.match(workflow, /public\/media\/catalog\/\*\*/);
@@ -97,8 +108,8 @@ test("CMS media distinguishes references, image sources and video sources, saves
   assert.match(workflow, /has_video/);
   assert.match(workflow, /has_source/);
 
-  assert.match(workflow, /Install video tooling[\s\S]*?if: steps\.scope\.outputs\.has_video == 'true'[\s\S]*?ffmpeg/);
-  assert.match(workflow, /Build image derivatives incrementally[\s\S]*?if: steps\.scope\.outputs\.rebuild != 'true' && steps\.scope\.outputs\.has_image == 'true'/);
+  assert.match(step(workflow, "Install video tooling"), /image_only != 'true'[\s\S]*?ffmpeg/);
+  assert.match(workflow, /Build image derivatives incrementally[\s\S]*?if: steps\.scope\.outputs\.rebuild != 'true' && steps\.affected\.outputs\.requires_full_rebuild != 'true' && steps\.scope\.outputs\.has_image == 'true'/);
   assert.match(workflow, /npm run test:media:contract/);
   assert.match(workflow, /npm run test:media:checks/);
   assert.match(workflow, /actions\/cache\/save@v6/);
@@ -178,10 +189,4 @@ test("ordinary dev and build scripts do not mutate media", async () => {
   assert.equal(scripts["cv:prod:verify"], "node tools/verify-cv-production.mjs");
   assert.doesNotMatch(scripts.dev, /media:/);
   assert.doesNotMatch(scripts.build, /media:/);
-});
-
-test("Pages CMS actions reference only live lightweight verification workflows", async () => {
-  const cms = await read(".pages.yml");
-  assert.doesNotMatch(cms, /workflow: verify-pr\.yml/);
-  assert.match(cms, /workflow: ci-fast\.yml/);
 });

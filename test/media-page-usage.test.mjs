@@ -1,8 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { indexPageMediaSources } from "../tools/media-desk/index-page-media.mjs";
-import { pageMediaUsages } from "../src/devtools/media-desk/usage-sources.ts";
+import { indexPageMediaSources } from "../tools/media/index-page-media.mjs";
 
 function catalogItem(id, src) {
   return {
@@ -56,30 +55,22 @@ test("standalone page index joins only repository references that resolve to can
   ]);
 });
 
-test("page usage adapter emits blocking page-media provenance without inventing identities", () => {
-  const bindings = pageMediaUsages([
-    {
-      assetId: "screenshot",
-      ownerId: "awful-cases",
-      route: "/pets/awful-cases/",
-      sourcePath: "public/pets/awful-cases/index.html",
-      referencedPath: "/pets/awful-cases/assets/screenshot.png",
-    },
-  ]);
-
-  assert.deepEqual(bindings, [
-    {
-      assetId: "screenshot",
-      usage: {
-        kind: "page-media",
+test("page index rejects ambiguous canonical media identities", () => {
+  assert.throws(
+    () => indexPageMediaSources({
+      sources: [{
         ownerId: "awful-cases",
         route: "/pets/awful-cases/",
         sourcePath: "public/pets/awful-cases/index.html",
-        fieldPath: "/pets/awful-cases/assets/screenshot.png",
-        blockingDelete: true,
-      },
-    },
-  ]);
+        text: '<img src="/media/shared.png">',
+      }],
+      catalog: [
+        catalogItem("first", "/media/shared.png"),
+        catalogItem("second", "/media/shared.png"),
+      ],
+    }),
+    /Ambiguous canonical media path/,
+  );
 });
 
 test("page index ignores external URLs and deduplicates repeated canonical references", () => {

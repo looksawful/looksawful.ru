@@ -16,6 +16,7 @@ import { mediaAssets } from "../src/data/media/assets/index.ts";
 
 const OUTPUT_PREFIX = "/media/generated/video";
 const INVENTORY_PATH = "public/media/generated/video-inventory.json";
+const CACHE_MARKER_PATH = ".cache/media/generated-cache.json";
 const VIDEO_CONFIG = Object.freeze({
   version: 1,
   videoCodec: "libx264",
@@ -120,12 +121,27 @@ export function plannedVideoOutputSrc(src) {
   return `${OUTPUT_PREFIX}/${dir}${parsed.name}.web.mp4`;
 }
 
+export function portableVideoInventoryItem(item) {
+  // Different FFmpeg/x264 builds can produce valid, different-size bytes from the same input.
+  // Persist only portable metadata; the private cache marker owns output-byte integrity.
+  return { ...item, outputBytes: item.outputSrc ? null : item.outputBytes ?? null };
+}
+
+export async function verifiedCachedVideoOutputBytes({ cachedVideo, outputSrc, outputPath, outputBytes }) {
+  if (!cachedVideo || cachedVideo.src !== outputSrc
+    || !Number.isSafeInteger(outputBytes) || outputBytes <= 0
+    || cachedVideo.bytes !== outputBytes || !/^[0-9a-f]{64}$/.test(cachedVideo.sha256 ?? "")
+    || !outputPath) return null;
+  return (await hashFile(outputPath)) === cachedVideo.sha256 ? outputBytes : null;
+}
+
 export function canReuseVideoOutput({
   previousItem,
   sourceHash,
   configHash,
   outputSrc,
   outputBytes,
+  verifiedOutputBytes = null,
 }) {
   return Boolean(
     previousItem
@@ -133,7 +149,7 @@ export function canReuseVideoOutput({
       && previousItem.configHash === configHash
       && previousItem.outputSrc === outputSrc
       && Number.isFinite(outputBytes)
-      && previousItem.outputBytes === outputBytes,
+      && (verifiedOutputBytes ?? previousItem.outputBytes) === outputBytes,
   );
 }
 
@@ -261,6 +277,7 @@ export async function analyzeVideoMedia({
   const root = path.resolve(repoRoot);
   const videos = assets.filter((asset) => asset.type === "video");
   const previousInventory = await readInventory(inventoryPath);
+  const cacheMarker = await readInventory(path.join(root, CACHE_MARKER_PATH));
   const buildConfigHash = videoConfigHash();
   const items = [];
   let generatedCount = 0;
@@ -293,12 +310,19 @@ export async function analyzeVideoMedia({
       : null;
     let outputStat = outputPath ? await stat(outputPath).catch(() => null) : null;
     const previousItem = previousInventory?.videos?.find((item) => item.id === asset.id);
+    const cachedVideo = cacheMarker?.videoOutputIntegrity?.find((entry) => entry.src === outputSrc);
+    const verifiedOutputBytes = outputPath && outputStat && cachedVideo
+      ? await verifiedCachedVideoOutputBytes({
+        cachedVideo, outputSrc, outputPath, outputBytes: outputStat.size,
+      })
+      : null;
     const reusable = outputSrc && canReuseVideoOutput({
       previousItem,
       sourceHash,
       configHash: buildConfigHash,
       outputSrc,
       outputBytes: outputStat?.size,
+      verifiedOutputBytes,
     });
 
     if (build && analysis.status === "transcode" && outputPath) {
@@ -311,7 +335,7 @@ export async function analyzeVideoMedia({
       }
     }
 
-    items.push({
+    items.push(portableVideoInventoryItem({
       id: asset.id,
       src: asset.src,
       sourceSrc,
@@ -321,7 +345,7 @@ export async function analyzeVideoMedia({
       outputSrc,
       outputBytes: outputStat?.size ?? null,
       ...analysis,
-    });
+    }));
   }
 
   const persistedInventory = {

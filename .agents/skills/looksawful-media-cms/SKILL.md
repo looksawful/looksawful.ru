@@ -1,6 +1,6 @@
 ---
 name: looksawful-media-cms
-description: Use for Pages CMS models, Media Catalog, media uploads/derivatives, content ownership, and CMS publication-related implementation in looksawful.ru.
+description: Use for manual authored content, Media Catalog, media uploads/derivatives and content ownership in looksawful.ru.
 ---
 
 # Looksawful media and CMS
@@ -9,7 +9,6 @@ Use the canonical architecture and live branch policy, not assumptions from an o
 
 ## Read first
 
-- `docs/cms-architecture.md`
 - `docs/site-operations.md`
 - `AGENTS.md`
 - the relevant typed parser/registry/builder and tests
@@ -35,22 +34,20 @@ Do not turn Pages CMS into a generic page builder.
 - Generated responsive/video assets and generated TypeScript indexes are never hand-edited.
 - Do not create placeholder media to satisfy validation.
 
-## CMS publication and authoring boundary
+## Manual editing and release boundary
 
-- CMS publication authorization and classifiers are protected policy surfaces.
-- **CURRENT project branch contract:** `dev` is GitHub default + working/integration; `prod` is production/release/deploy. Editorial batches use the permanent `content/text-cms` branch and remain there until the user explicitly marks the batch ready (`готово`). Only then reconcile/validate and integrate into fresh `dev`; production publication remains a separate `dev -> prod` release.
-- **CURRENT local Desk topology:** ordinary `npm run desk` is READ ONLY, loopback-only and has no hidden `media:ensure`/sync startup. Explicit `npm run desk:write` is the only local write launcher; it is guarded to exact `content/text-cms`, rejects CI/GitHub Actions, rejects direct `dev`/`prod` and unintended branches, and rejects host overrides.
-- **CURRENT authoring provenance guard:** `tools/cms-authoring-topology.mjs` reports branch/worktree/HEAD, fresh `dev`, dirty/ahead/behind/divergence, READY state and CMS-only scope without reset/rebase/merge/commit/push. Diverged authoring/dev histories fail closed with `reconciliation-required`.
-- **CURRENT write persistence:** Desk text/media mutations require revision-aware `expectedRevision`; stale sources fail with conflict semantics; validated single-file replacements are staged; bulk writes prevalidate and use rollback-backed all-or-nothing service semantics under the documented failure model. See `docs/content-media-desk-api.md` and the owning tests before changing this boundary.
-- **OPEN issue ownership:** #451/#452/#453 remain open for residual end-to-end acceptance/Pages CMS enforcement/E2E/closeout as applicable. Do not infer from their open state that the safeguards above are absent, and do not close them merely from this agent skill.
-- `ENGINEERING`, `UNKNOWN`, mixed scope, or unsafe topology must block publication. Do not add an override to bypass this.
-- Do not change `.pages.yml`, workflows, scope/topology tools or publication semantics as a side effect of an ordinary content/media task.
+- Keep `dev` and `prod` as the permanent operational branches. Manually edit code/content in `dev`; private Lab/Storybook uses `dev`; public production uses the separately authorized protected `prod` release.
+- Pages CMS, Content Desk and Media Desk write interfaces are retired. Do not invoke removed launchers, topology tools or workflows. Old `content/text-cms` references are recovery/history.
+- Preserve parsers, schemas, media identities and validation. Historical CMS asset vocabulary is compatibility data; do not rename it as cleanup.
+- Keep media preparation, usage snapshots, deterministic builders, exact-cache checks and writeback SHA/path guards.
+- External Worker/domain removal requires separate dependency review and authorization.
+- Review workflow permissions, testing/release guards and publication-policy changes explicitly.
 
 ## Validation
 
 Choose the narrowest sufficient checks:
 
-- CMS schema/options: `npm run cms:check`
+- Usage snapshots: `npm run media:page-usage:check` and `npm run media:static-usage:check`
 - Media Catalog consistency: `npm run media:catalog:check`
 - Media contract changes: the existing media contract/affected checks
 - Generated outputs: regenerate with the owning tool and verify an unchanged second run does not rewrite output

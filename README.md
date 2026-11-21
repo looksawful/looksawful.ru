@@ -20,12 +20,10 @@ Common entry points:
 - local/tooling workflow: [docs/tooling-pipeline.md](./docs/tooling-pipeline.md)
 - testing policy: [docs/testing-policy.md](./docs/testing-policy.md)
 - current testing map: [docs/testing-pipeline.md](./docs/testing-pipeline.md)
-- CMS/content/media ownership: [docs/cms-architecture.md](./docs/cms-architecture.md)
-- CMS operator handbook: [docs/cms-handbook.md](./docs/cms-handbook.md)
-- site/CMS publication operations: [docs/site-operations.md](./docs/site-operations.md)
-- local Content/Media Desk HTTP contract: [docs/content-media-desk-api.md](./docs/content-media-desk-api.md)
+- manual content, media and protected releases: [docs/site-operations.md](./docs/site-operations.md)
+- private Lab/Storybook: [docs/private-lab.md](./docs/private-lab.md)
 
-The CMS/Desk authoring model is currently under reconciliation in GitHub Issues #249 and #451–#453. Current implemented behavior and target safer behavior are documented separately; target work must not be treated as already implemented.
+Pages CMS, Content Desk and Media Desk are retired from this codebase. Manually edit content in `dev`; retain the typed Media Catalog and deterministic media preparation. External Worker/domain retirement remains a separate dependency review. Existing issue #1009 records acceptance.
 
 ## Rights and licensing
 

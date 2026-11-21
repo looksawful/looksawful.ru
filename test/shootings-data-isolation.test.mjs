@@ -53,7 +53,7 @@ test("shootings archive data stays isolated while the Collection route remains d
   assert.equal(shootingsPage.path, "/shootings/");
 
   const indexSource = readFileSync("index.html", "utf8");
-  assert.match(indexSource, /id="project-shootings"/);
+  assert.doesNotMatch(indexSource, /id="project-shootings"/, "the Collection route is no longer embedded in the Homepage");
   assert.doesNotMatch(indexSource, /<!-- SHOOTINGS_INTRO -->/);
   assert.doesNotMatch(indexSource, /\/media\/projects\/shootings\/behance\//);
 

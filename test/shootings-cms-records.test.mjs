@@ -88,8 +88,17 @@ test("Shootings editorial parser is strict and restores code-owned record order"
   const recordsInCodeOwnedOrder = restoreCodeOwnedOrder(records);
 
   assert.deepEqual(SHOOTING_RECORD_IDS, expectedIds);
-  assert.deepEqual(shootingsEditorialRecords, recordsInCodeOwnedOrder);
-  assert.deepEqual(parseShootingsOverview(clone(overview)), overview);
+  assert.deepEqual(shootingsEditorialRecords, recordsInCodeOwnedOrder.map(({ id, title, date, description, credits }) => ({
+    id,
+    title: (title ?? "").trim(),
+    date: (date ?? "").trim(),
+    description: (description ?? "").trim(),
+    credits: (credits ?? []).map((credit) => credit.trim()).filter(Boolean),
+  })));
+  const parsedOverview = parseShootingsOverview(clone(overview));
+  for (const [key, value] of Object.entries(overview)) {
+    assert.equal(parsedOverview[key], value.trim(), `Shootings overview ${key} must normalize whitespace`);
+  }
 
   const malformed = clone(recordsInCodeOwnedOrder[0]);
   malformed.layout = "masonry";
@@ -122,9 +131,11 @@ test("Shootings CMS data flows through the current catalog and rendered copy", a
   const recordsInCodeOwnedOrder = restoreCodeOwnedOrder(records);
 
   assert.deepEqual(
-    shootingsProjects.map(({ id, name, date }) => ({ id, title: name, date: date ?? "" })),
-    recordsInCodeOwnedOrder.map(({ id, title, date }) => ({ id, title, date })),
+    shootingsProjects.filter(({ id }) => expectedIds.includes(id)).map(({ id, name, date }) => ({ id, title: name, date: date ?? "" })),
+    recordsInCodeOwnedOrder.map(({ id, title, date }) => ({ id, title: (title ?? "").trim(), date: (date ?? "").trim() })),
   );
+
+  assert.deepEqual(shootingsProjects.filter(({ id }) => !expectedIds.includes(id)).map(({ id }) => id), ["shootings-dava"], "the code-owned Dava project must remain an explicit exception");
 
   const renderedOverview = renderProjectIntro(shootingsIntro);
   for (const text of Object.values(overview)) {
@@ -143,45 +154,5 @@ test("Shootings CMS data flows through the current catalog and rendered copy", a
   for (const [index, record] of recordsInCodeOwnedOrder.slice(0, 6).entries()) {
     assert.ok(renderedSections[index].includes(record.title));
     assert.ok(renderedSections[index].includes(record.description));
-  }
-});
-
-test("Pages CMS exposes Shootings records without architecture or presentation controls", async () => {
-  const cms = await readFile(new URL("../.pages.yml", import.meta.url), "utf8");
-  const marker = "\n  - name: shootings\n";
-  const start = cms.indexOf(marker);
-  assert.notEqual(start, -1, "Shootings CMS group must exist");
-  const rest = cms.slice(start + 1);
-  const nextEntry = rest.indexOf("\n  - name: ", marker.length - 1);
-  const config = nextEntry === -1 ? rest : rest.slice(0, nextEntry);
-
-  assert.match(config, /type: group/);
-  assert.match(config, /path: src\/content\/collections\/shootings\.json/);
-  assert.match(config, /type: collection/);
-  assert.match(config, /path: src\/content\/shootings/);
-  assert.match(config, /primary: title/);
-  assert.match(config, /create: false/);
-  assert.match(config, /rename: false/);
-  assert.match(config, /delete: false/);
-
-  for (const field of ["head", "title", "role", "summary", "lead", "id", "date", "description"]) {
-    assert.match(config, new RegExp(`name: ${field}\\b`));
-  }
-
-  for (const forbidden of [
-    "route",
-    "canonical",
-    "href",
-    "indexable",
-    "listed",
-    "renderer",
-    "entryId",
-    "className",
-    "layout",
-    "captionView",
-    "surfaceDeck",
-    "filter",
-  ]) {
-    assert.doesNotMatch(config, new RegExp(`name: ${forbidden}\\b`));
   }
 });

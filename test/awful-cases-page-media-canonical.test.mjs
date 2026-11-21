@@ -4,7 +4,7 @@ import test from "node:test";
 
 import { awfulCasesMediaAssets } from "../src/data/media/assets/awful-cases.ts";
 import { mediaCatalogItems } from "../src/data/media/catalog-view.ts";
-import { indexPageMediaSources } from "../tools/media-desk/index-page-media.mjs";
+import { indexPageMediaSources } from "../tools/media/index-page-media.mjs";
 
 const expectedPaths = [
   "/media/interactive/awful-cases-atlas.png",
