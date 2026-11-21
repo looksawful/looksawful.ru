@@ -79,37 +79,48 @@ function tokenGallery(filter, heading) {
   const root = el("main", "token-foundations");
   root.innerHTML = `<style>
     .token-foundations{min-height:100vh;padding:clamp(20px,4vw,48px);background:var(--clr-bg,#fff);color:var(--clr-text,#111);font-family:var(--ff-primary,Inter,system-ui,sans-serif)}
-    .token-foundations *{box-sizing:border-box}.token-foundations h1{margin:0 0 8px;font-size:clamp(32px,5vw,64px);line-height:.95}.token-intro{max-width:760px;margin:0 0 32px;opacity:.7}
+    .token-foundations *{box-sizing:border-box}.token-foundations h1{margin:0 0 10px;font-size:clamp(32px,4vw,52px);line-height:1}.token-intro{max-width:70ch;margin:0 0 28px;color:var(--clr-text-muted,#555);line-height:1.45}
     .token-toolbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:0 0 24px}.token-search{width:min(440px,100%);padding:12px 14px;border:1px solid var(--clr-border,#ccc);border-radius:10px;background:transparent;color:inherit;font:inherit}
-    .token-count{font-size:12px;opacity:.6}.token-section{margin:36px 0}.token-section h2{text-transform:lowercase;margin:0 0 14px;font-size:20px}.token-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(230px,100%),1fr));gap:12px}
-    .token-card{min-width:0;padding:12px;border:1px solid var(--clr-border,#ddd);border-radius:14px;background:color-mix(in srgb,var(--clr-bg,#fff) 94%,var(--clr-text,#111) 6%)}
-    .token-preview{height:112px;margin-bottom:12px;border:1px solid color-mix(in srgb,currentColor 16%,transparent);border-radius:9px;display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:32px}
+    .token-count{font-size:13px;color:var(--clr-text-muted,#555);font-variant-numeric:tabular-nums}.token-section{margin:36px 0}.token-section h2{text-transform:lowercase;margin:0 0 14px;font-size:20px}.token-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(290px,100%),1fr));gap:0 24px}
+    .token-card{min-width:0;padding:16px 0 18px;border-block-start:1px solid var(--clr-border,#ddd)}
+    .token-preview{min-height:74px;height:74px;margin-bottom:12px;border:1px solid var(--clr-border,#ddd);border-radius:var(--radius-contained,12px);display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:32px}.token-preview--font-size{height:auto;min-height:132px;padding:16px 12px;line-height:1;overflow:visible}
     .token-preview--shadow{margin:12px;height:88px;background:var(--clr-bg,#fff)}.token-preview--spacing{justify-content:flex-start;padding:12px}.token-size-bar{display:block;height:40px;min-width:2px;max-width:100%;background:currentColor}
     .token-layer{position:relative;width:58px;height:58px;display:grid;place-items:center;border:1px solid currentColor;background:var(--clr-bg,#fff);transform:translate(12px,8px)}.token-layer--active{transform:translate(-12px,-8px)}
-    .token-name{font:600 12px/1.3 ui-monospace,SFMono-Regular,Consolas,monospace;overflow-wrap:anywhere}.token-value{margin-top:5px;font:11px/1.4 ui-monospace,SFMono-Regular,Consolas,monospace;opacity:.65;overflow-wrap:anywhere}.token-alias,.token-context{margin-top:5px;font-size:12px;opacity:1;overflow-wrap:anywhere}
+    .token-name{font:600 14px/1.45 ui-monospace,SFMono-Regular,Consolas,monospace;overflow-wrap:anywhere}.token-value{margin-top:4px;font:13px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;color:var(--clr-text-muted,#555);overflow-wrap:anywhere}.token-details{margin-top:10px;font-size:13px;color:var(--clr-text-muted,#555)}.token-details summary{width:max-content;max-width:100%;cursor:pointer;text-decoration:underline;text-underline-offset:3px}.token-detail-content{margin-top:8px;overflow-wrap:anywhere}.token-empty{padding:32px 0;color:var(--clr-text-muted,#555)}.token-search:focus-visible,.token-details summary:focus-visible{outline:2px solid var(--clr-foreground,#111);outline-offset:3px}
   </style>`;
   root.append(el("h1", "", heading));
-  root.append(el("p", "token-intro", "Active global CSS tokens from the production stylesheet. Component-local values and disabled themes are excluded."));
+  root.append(el("p", "token-intro", "Current site tokens only. Search by name or value; expand a token to see its source."));
   const toolbar = el("div", "token-toolbar");
-  const search = el("input", "token-search"); search.type = "search"; search.placeholder = "filter tokens…"; search.setAttribute("aria-label", "Filter design tokens");
+  const search = el("input", "token-search"); search.type = "search"; search.placeholder = "Search tokens"; search.setAttribute("aria-label", "Filter design tokens");
   const count = el("span", "token-count"); toolbar.append(search, count); root.append(toolbar);
-  const content = el("div", "token-content"); root.append(content);
+  const content = el("div", "token-content"); content.id = "token-gallery-results"; search.setAttribute("aria-controls", content.id); root.append(content);
   const allTokens = buildTokens().filter(filter);
   const render = () => {
     content.replaceChildren();
     const query = search.value.trim().toLowerCase();
     const tokens = allTokens.filter((t) => `${t.name} ${t.raw} ${t.kind} ${t.selector || ""} ${t.media || ""} ${t.source || ""}`.toLowerCase().includes(query));
-    count.textContent = `${tokens.length} / ${allTokens.length}`;
+    count.textContent = `${tokens.length} of ${allTokens.length}`;
+    if (!tokens.length) {
+      const empty = el("p", "token-empty", `No tokens match "${search.value.trim()}".`);
+      empty.setAttribute("role", "status");
+      content.append(empty);
+      return;
+    }
     const groups = groupTokensByKind(tokens);
     for (const [kind, items] of groups) {
       const section = el("section", "token-section"); section.append(el("h2", "", kind));
       const grid = el("div", "token-grid");
       for (const token of items) {
-        const card = el("article", "token-card"); card.append(previewFor(token), el("div", "token-name", token.name), el("div", "token-value", token.raw));
-        if (token.resolved !== token.raw) card.append(el("div", "token-value", `→ ${token.resolved}`));
-        if (token.aliases.length) card.append(el("div", "token-alias", `aliases: ${token.aliases.join(", ")}`));
-        const context = [token.selector, token.media && `@media ${token.media}`, token.name.startsWith("--clr-") ? "src/styles/colors.css" : "src/styles/tokens.css"].filter(Boolean).join(" · ");
-        if (context) card.append(el("div", "token-context", context));
+        const card = el("article", "token-card");
+        card.append(previewFor(token), el("div", "token-name", token.name), el("div", "token-value", token.raw));
+        const details = el("details", "token-details");
+        details.append(el("summary", "", "Source and aliases"));
+        const source = token.name.startsWith("--clr-") ? "src/styles/colors.css" : "src/styles/tokens.css";
+        const context = [token.selector, token.media && `@media ${token.media}`, source].filter(Boolean).join(" · ");
+        details.append(el("div", "token-detail-content", context));
+        if (token.resolved !== token.raw) details.append(el("div", "token-detail-content", `Resolved: ${token.resolved}`));
+        if (token.aliases.length) details.append(el("div", "token-detail-content", `Aliases: ${token.aliases.join(", ")}`));
+        card.append(details);
         grid.append(card);
       }
       section.append(grid); content.append(section);

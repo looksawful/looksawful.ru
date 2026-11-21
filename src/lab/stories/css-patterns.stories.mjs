@@ -65,7 +65,7 @@ export const LayoutPrimitives = {
       .pattern-tile{display:block;min-inline-size:0;margin:0;padding:var(--size-200);background:var(--clr-surface-raised);overflow-wrap:anywhere}
     </style>
     <h1>CSS layout patterns</h1>
-    <p>Read-only specimens from src/styles/patterns.css. The gallery itself also uses production CSS. Prose and real text-pair content have separate examples. Reference: <a href="https://github.com/kevin-powell/responsive-design-patterns">Kevin Powell</a>.</p>
+    <p>Eight layout utilities from <code>src/styles/patterns.css</code>. Resize the viewport to see how they wrap.</p>
     <div class="auto-grid" style="--auto-grid-min:22rem">
       ${productionPatterns.map((pattern) => `<section class="stack" data-css-pattern="${pattern.name}" style="--stack-space:var(--size-200)">
         <h2><code>.${pattern.name}</code></h2>
