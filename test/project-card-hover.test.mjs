@@ -12,7 +12,7 @@ test("project cards use a restrained fine-pointer hover treatment", () => {
 });
 
 test("hover tint remains a translucent six-percent foreground, not a blue accent", () => {
-  assert.match(colors, /--clr-hover-tint:\\s*color-mix\\(in srgb, var\\(--clr-foreground\\), transparent 94%\\)/);
+  assert.match(colors, /--clr-hover-tint:\s*color-mix\(in srgb, var\(--clr-foreground\), transparent 94%\)/);
   assert.doesNotMatch(colors, /--clr-accent:/);
 });
 
