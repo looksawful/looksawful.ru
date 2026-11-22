@@ -18,6 +18,8 @@ const viewports = [
 const cases = [
   ["foundations-palette", "00-foundations-design-tokens--palette", ".token-foundations .token-card"],
   ["theme-presets", "00-foundations-design-tokens-project-themes--all-presets", ".theme-catalog__choice"],
+  ["color-architecture", "00-foundations-color-architecture--overview", "[data-color-level]"],
+  ["color-exceptions", "00-foundations-color-architecture--component-exceptions", "[data-component-palette]"],
   ["patterns-layout", "04-layout-css-patterns--layout-primitives", "[data-css-pattern]"],
   ["atom-media", "01-atoms-production-primitives--media-image", "img[src]"],
   ["site-navigation-open", "03-organisms-site-navigation--open", "[data-site-navigation][data-menu-open]"],
@@ -79,6 +81,16 @@ try {
         const next = await preview.evaluate((node) => getComputedStyle(node).backgroundColor);
         assert.notEqual(next, original, "nested theme must change the rendered surface");
         await page.locator('button[data-preset="neutral"]').click();
+      }
+      if (name === "color-architecture") {
+        assert.equal(await page.locator("[data-color-level]").count(), 2, "site and project color levels");
+        const siteForeground = await page.locator("[data-color-role=foreground]").evaluate((node) => getComputedStyle(node).backgroundColor);
+        assert.equal(siteForeground, "rgb(17, 17, 17)", "the diagram uses the live site foreground token");
+      }
+      if (name === "color-exceptions") {
+        assert.equal(await page.locator("[data-component-palette]").count(), 4);
+        const proColor = await page.locator("[data-jestei-pro-color]").evaluate((node) => getComputedStyle(node).backgroundColor);
+        assert.equal(proColor, "rgb(20, 122, 255)", "Jestei palette comes from the real component stylesheet");
       }
       if (name === "foundations-palette") {
         const alpha = await page.locator(".token-card").evaluateAll((cards) => {
