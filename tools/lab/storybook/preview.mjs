@@ -33,7 +33,7 @@ const preview = {
   parameters: {
     layout: "fullscreen",
     viewport: {
-      options: labReviewViewports,
+      options: reviewViewports,
     },
     options: {
       storySort: {
