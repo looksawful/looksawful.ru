@@ -17,6 +17,7 @@ const viewports = [
 
 const cases = [
   ["foundations-palette", "00-foundations-design-tokens--palette", ".token-foundations .token-card"],
+  ["theme-presets", "00-foundations-design-tokens-project-themes--all-presets", ".theme-catalog__choice"],
   ["patterns-layout", "04-layout-css-patterns--layout-primitives", "[data-css-pattern]"],
   ["atom-media", "01-atoms-production-primitives--media-image", "img[src]"],
   ["site-navigation-open", "03-organisms-site-navigation--open", "[data-site-navigation][data-menu-open]"],
@@ -69,6 +70,24 @@ try {
         if (await errorSurfaces.nth(index).isVisible()) visibleErrors += 1;
       }
       assert.equal(visibleErrors, 0, `${viewportName}/${name}: Storybook error surface present`);
+      if (name === "theme-presets") {
+        const preview = page.locator(".theme-catalog__stage");
+        assert.equal(await page.locator("button[data-preset]").count(), 24);
+        const original = await preview.evaluate((node) => getComputedStyle(node).backgroundColor);
+        await page.locator('button[data-preset="pink-red"]').click();
+        assert.equal(await preview.getAttribute("data-theme"), "pink-red");
+        const next = await preview.evaluate((node) => getComputedStyle(node).backgroundColor);
+        assert.notEqual(next, original, "nested theme must change the rendered surface");
+        await page.locator('button[data-preset="neutral"]').click();
+      }
+      if (name === "foundations-palette") {
+        const alpha = await page.locator(".token-card").evaluateAll((cards) => {
+          const tint = cards.find((card) => card.querySelector(".token-name")?.textContent === "--clr-hover-tint");
+          const paint = tint?.querySelector(".token-preview__paint");
+          return paint ? getComputedStyle(paint).backgroundColor : "";
+        });
+        assert.match(alpha, /(?:0\.06|\.06)/, "hover tint should render with six-percent opacity");
+      }
       if (name === "site-navigation-open") {
         assert.equal(await page.locator("[data-site-menu-toggle]").getAttribute("aria-expanded"), "true");
       }

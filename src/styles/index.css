@@ -95,7 +95,7 @@
       position: absolute;
       z-index: 1;
       inset: 0;
-      background: color-mix(in srgb, var(--clr-accent), transparent 94%);
+      background: var(--clr-hover-tint);
       opacity: 0;
       pointer-events: none;
       transition: opacity 700ms ease;
