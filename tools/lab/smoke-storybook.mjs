@@ -86,7 +86,7 @@ try {
           const paint = tint?.querySelector(".token-preview__paint");
           return paint ? getComputedStyle(paint).backgroundColor : "";
         });
-        assert.match(alpha, /(?:0\\.06|\\.06)/, "hover tint should render with six-percent opacity");
+        assert.match(alpha, /(?:0\.06|\.06)/, "hover tint should render with six-percent opacity");
       }
       if (name === "site-navigation-open") {
         assert.equal(await page.locator("[data-site-menu-toggle]").getAttribute("aria-expanded"), "true");
