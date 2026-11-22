@@ -12,7 +12,7 @@ function playerMarkup() {
     '</div>' +
     '<button type="button" data-audio-play aria-pressed="false">Play / pause</button>' +
     '<div data-audio-progress style="block-size:8px;background:var(--clr-border);cursor:pointer">' +
-    '<div data-audio-progress-fill style="block-size:100%;inline-size:0;background:var(--clr-accent)"></div></div>' +
+    '<div data-audio-progress-fill style="block-size:100%;inline-size:0;background:var(--clr-foreground)"></div></div>' +
     '<div class="cluster"><span data-audio-current>00:00</span><span>/</span><span data-audio-duration>00:00</span></div>' +
     '<label>Volume <input type="range" data-audio-volume min="0" max="1" value="0.5" step="0.1"></label>' +
     '<p>Volume: <output data-audio-volume-text>5/10</output>; status: <output data-audio-status>initializing</output></p>' +
