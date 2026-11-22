@@ -275,6 +275,9 @@ async function main() {
   await writeFile(path.join(outputRoot, "system", "inventory.html"), renderInventoryHtml(inventory), "utf8");
   console.log(`[lab-inventory] ${inventory.coverageSummary.denominator} denominator sources, ${inventory.coverageSummary.discoveredUiSources} discovered UI sources, ${inventory.stories.length} stories, ${inventory.structuralIssues.filter((issue) => issue.severity === "error").length} structural errors`);
   console.log(`[lab-inventory] covered ${inventory.coverageSummary.covered}, partial ${inventory.coverageSummary.partial}, missing ${inventory.coverageSummary.missing}, no-story excluded ${inventory.coverageSummary.excludedNoStory}`);
+  for (const issue of inventory.structuralIssues.filter((issue) => issue.severity === "error")) {
+    console.error(`[lab-inventory] ${JSON.stringify(issue)}`);
+  }
   if (inventory.structuralIssues.some((issue) => issue.severity === "error")) process.exitCode = 1;
 }
 if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(fileURLToPath(import.meta.url))) main();

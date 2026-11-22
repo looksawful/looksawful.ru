@@ -19,7 +19,7 @@ const meta = {
     looksawful: {
       sources: ["src/site/pages/manifest.ts", "src/styles/tokens.css", "src/lab/storybook/inventory.ts"],
       layer: "foundation",
-      policy: "documentation",
+      policy: "isolated",
       canonical: false,
     },
     docs: { description: { component: "One source-backed Storybook for the current site. The catalog documents existing code, not a second UI kit." } },

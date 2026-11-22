@@ -1,5 +1,5 @@
 ﻿export const LOOKSAWFUL_STORY_LAYER_VALUES = Object.freeze([
-  "foundation", "atom", "molecule", "organism", "template", "page", "motion", "experimental",
+  "foundation", "atom", "molecule", "organism", "layout", "template", "page", "motion", "feedback", "experimental",
 ]);
 
 export const LOOKSAWFUL_STORY_POLICY_VALUES = Object.freeze([

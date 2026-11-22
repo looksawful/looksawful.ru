@@ -15,7 +15,7 @@ const meta = {
         "src/templates/section-intro.ts", "src/templates/subproject-card.ts",
       ],
       layer: "motion",
-      policy: "source-backed",
+      policy: "behavior-fixture",
       canonical: true,
       motion: ["motion-enabled", "reduced-motion"],
       responsive: { review: ["desktop", "tablet", "mobile"] },

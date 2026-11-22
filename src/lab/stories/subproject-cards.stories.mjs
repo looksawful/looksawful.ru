@@ -13,7 +13,7 @@ const meta = {
     looksawful: {
       sources: ["src/data/subproject-cards.ts", "src/templates/subproject-card.ts", "src/styles/subproject-cards.css"],
       layer: "molecule",
-      policy: "source-backed",
+      policy: "isolated",
       canonical: true,
       responsive: { review: ["desktop", "tablet", "mobile"] },
     },

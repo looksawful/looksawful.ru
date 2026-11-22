@@ -16,7 +16,7 @@ const meta = {
         "src/components/jestei-theme-organism/jestei-theme-organism.css",
       ],
       layer: "molecule",
-      policy: "source-backed",
+      policy: "behavior-fixture",
       canonical: true,
       responsive: { review: ["desktop", "tablet", "mobile"] },
     },

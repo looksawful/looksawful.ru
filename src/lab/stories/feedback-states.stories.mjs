@@ -19,7 +19,7 @@ const meta = {
         "src/components/jestei-theme-organism/jestei-theme-organism.css",
       ],
       layer: "feedback",
-      policy: "source-backed",
+      policy: "behavior-fixture",
       canonical: true,
       data: ["loading", "ready", "error"],
       responsive: { review: ["desktop", "tablet", "mobile"] },
@@ -51,5 +51,5 @@ export const UnimplementedFamilies = {
     '<p>Standalone Skeleton: no canonical component in site source.</p>' +
     '<p>Global visual Preloader: no canonical component in site source. The Jestei theme organism has its own component-local loader above.</p>' +
     '<p>These are inventory gaps, not examples. Create production components only after design approval.</p></main>',
-  parameters: { looksawful: { canonical: false, policy: "documented-gap" } },
+  parameters: { looksawful: { canonical: false, policy: "experimental" } },
 };

@@ -13,7 +13,7 @@ const meta = {
     looksawful: {
       sources: ["src/site/pages/manifest.ts", "src/lab/storybook/inventory.ts", "src/site/renderers/entity-page.ts"],
       layer: "page",
-      policy: "source-backed",
+      policy: "page",
       canonical: true,
       responsive: { review: ["desktop", "tablet", "mobile"] },
     },

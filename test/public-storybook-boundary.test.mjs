@@ -41,6 +41,14 @@ test("Storybook covers every requested design-system layer with real source-back
 });
 
 
+test("runtime asset URLs for 3D loaders resolve to the published origin", async () => {
+  const { resolvePublishedAssetUrl } = await import("../src/lab/storybook/published-assets.mjs");
+  assert.equal(resolvePublishedAssetUrl("/media/logo-3d/jestei/model.glb"), "https://www.looksawful.ru/media/logo-3d/jestei/model.glb");
+  assert.equal(resolvePublishedAssetUrl("/vendor/tool.js"), "https://www.looksawful.ru/vendor/tool.js");
+  assert.equal(resolvePublishedAssetUrl("https://cdn.example.org/model.glb"), "https://cdn.example.org/model.glb");
+  assert.equal(resolvePublishedAssetUrl("./preview.glb"), "./preview.glb");
+});
+
 test("published media are served by the already-public site, not duplicated in Storybook", async () => {
   const { usePublishedAssetUrls } = await import("../src/lab/storybook/published-assets.mjs");
   const fragment = '<img src="/media/gallery/example.webp" alt=""><source srcset="/media/a.webp 1x, /media/b.webp 2x"><script type="application/json">{"src":"/media/logo.glb"}</script>';

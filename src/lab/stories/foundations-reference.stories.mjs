@@ -62,7 +62,7 @@ const meta={
     looksawful:{
       sources:["src/lab/stories/foundations-reference.stories.mjs","src/lab/foundations-reference-data.mjs","src/styles/tokens.css","src/styles/colors.css"],
       layer:"foundation",
-      policy:"reference-only",
+      policy:"experimental",
       canonical:false,
       state:"unapproved",
       visibility:["always"],

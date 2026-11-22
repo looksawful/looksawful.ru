@@ -33,7 +33,7 @@ const meta = {
     looksawful: {
       sources: ["src/components/berserk-audio-player.ts"],
       layer: "organism",
-      policy: "runtime-host-fixture",
+      policy: "behavior-fixture",
       canonical: false,
       responsive: { review: ["desktop", "tablet", "mobile"] },
     },

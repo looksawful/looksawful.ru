@@ -2,6 +2,11 @@
 const ORIGIN = "https://www.looksawful.ru";
 const PUBLIC_PATH = /(["'(\s])\/(media|vendor|components)\//g;
 
+export function resolvePublishedAssetUrl(url) {
+  const value = String(url);
+  return /^\/(?:media|vendor|components)\//.test(value) ? ORIGIN + value : value;
+}
+
 export function usePublishedAssetUrls(markup) {
   return String(markup).replace(PUBLIC_PATH, "$1" + ORIGIN + "/$2/");
 }

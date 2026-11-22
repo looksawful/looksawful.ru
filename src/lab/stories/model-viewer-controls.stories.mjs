@@ -552,7 +552,7 @@ const meta = {
   render: renderStory,
   parameters: {
     layout: "fullscreen",
-    looksawful: { sources: ["src/lab/model-viewer-controls-prototype.css", "src/lab/stories/model-viewer-controls.stories.mjs"], layer: "experimental", policy: "prototype", canonical: false },
+    looksawful: { sources: ["src/lab/model-viewer-controls-prototype.css", "src/lab/stories/model-viewer-controls.stories.mjs"], layer: "experimental", policy: "experimental", canonical: false },
     docs: {
       description: {
         component: "Noncanonical prototype for a data-attribute-driven 3D viewer control system. The production component is intentionally not connected to any project surface yet.",
