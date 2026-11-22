@@ -123,7 +123,6 @@
   white-space: nowrap;
   text-overflow: ellipsis;
 }
-.lab-pilot__token-sample[style*="white-space"] { white-space: pre-line !important; }
 .lab-pilot__project-sample {
   max-inline-size: 51rem;
   padding-block: var(--size-200) var(--size-400);

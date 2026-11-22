@@ -1,7 +1,7 @@
 // PROTOTYPE: an isolated visual direction for the Storybook documentation shell.
 // Compare with the existing canonical stories before approving any migration.
 import "./documentation-pilot.css";
-import { buildTokenRegistry, isCanonicalFoundationDeclaration } from "../token-visualization.mjs";
+import { buildTokenRegistry } from "../token-visualization.mjs";
 import { getVisibleProjectCardPresentations } from "../../data/projects.ts";
 import { renderProjectCard } from "../../templates/project-card.ts";
 
@@ -40,7 +40,7 @@ function sourceProperties() {
   const found = [];
   function visit(rules) {
     for (const rule of rules) {
-      if (rule.style && isCanonicalFoundationDeclaration({ selector: rule.selectorText })) {
+      if (rule.style && rule.selectorText?.trim() === ":root") {
         for (const name of rule.style) {
           if (!/^--(?:ff|fw|fs|lh|ls)-/.test(name)) continue;
           const raw = rule.style.getPropertyValue(name).trim();
