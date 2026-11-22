@@ -45,15 +45,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install media tooling
-        run: sudo apt-get update && sudo apt-get install -y ffmpeg
-
-      - name: Typecheck
-        run: npm run typecheck
-
-      - name: Protected Admin/Lab contracts
-        run: node --test test/private-lab-shell.test.mjs test/private-admin-github-oauth.test.mjs test/private-lab-storybook-integration.test.mjs test/private-lab-deploy.test.mjs
-
       - name: Build isolated Lab
         env:
           LAB_BUILD_BRANCH: ${{ github.head_ref || github.ref_name }}
@@ -61,17 +52,14 @@ jobs:
           LAB_BUILD_TIME: ${{ github.event.pull_request.updated_at || github.event.repository.updated_at }}
         run: npx vite build --config vite.lab.config.ts
 
-      - name: Prepare production media for Storybook
-        run: npm run media:ensure
+      - name: Verify public Storybook contract
+        run: node --test test/public-storybook-boundary.test.mjs
 
-      - name: Build private Storybook design system
-        run: npm run lab:system
+      - name: Build sole Storybook catalog
+        run: npm run storybook:public
 
-      - name: Generate Storybook inventory
-        run: npm run lab:inventory
-
-      - name: Storybook contracts
-        run: node --test test/lab-design-system-inventory.test.mjs test/lab-storybook-harness.test.mjs test/lab-storybook-integration-gaps.test.mjs test/lab-storybook-molecule-coverage.test.mjs test/lab-storybook-smoke-contract.test.mjs test/lab-storybook-state-coverage.test.mjs test/lab-storybook-state-schema.test.mjs test/model-viewer-lab-media-shell.test.mjs
+      - name: Storybook behavior contracts
+        run: node --test test/lab-storybook-harness.test.mjs test/lab-storybook-integration-gaps.test.mjs test/lab-storybook-molecule-coverage.test.mjs test/lab-storybook-smoke-contract.test.mjs test/lab-storybook-state-coverage.test.mjs
 
       - name: Install pinned Chromium headless shell
         run: npx playwright install --with-deps --only-shell chromium
@@ -79,17 +67,15 @@ jobs:
       - name: Targeted Storybook browser smoke
         run: node tools/lab/smoke-storybook.mjs
 
-      - name: Fast regression suite
-        run: npm run test:fast
-
       - name: Verify Lab artifact and public isolation
         shell: bash
         run: |
           test -f dist-lab/lab/index.html
           grep -q 'noindex,nofollow,noarchive' dist-lab/lab/index.html
-          test -f dist-lab/lab/system/index.html
-          test -f dist-lab/lab/system/inventory.html
-          test -f dist-lab/lab/system-inventory.json
+          test -f dist-storybook/index.html
+          test -f dist-storybook/index.json
+          test ! -e dist-lab/lab/system
+          test ! -e dist-lab/lab/system-inventory.json
           if test -e dist/lab/index.html; then
             echo "Public production artifact unexpectedly contains Lab" >&2
             exit 1

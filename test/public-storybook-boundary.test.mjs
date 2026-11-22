@@ -8,16 +8,10 @@ const root = fileURLToPath(new URL("../", import.meta.url));
 const storiesDir = path.join(root, "src/lab/stories");
 const files = readdirSync(storiesDir).filter((name) => /\.stories\.(?:js|mjs)$/.test(name));
 
-test("one Storybook catalog has the same complete story set for every build", async () => {
-  process.env.PUBLIC_STORYBOOK = "1";
-  const { default: publicConfig } = await import("../tools/lab/storybook/main.mjs?public");
-  delete process.env.PUBLIC_STORYBOOK;
-  const { default: previewConfig } = await import("../tools/lab/storybook/main.mjs?lab");
-
-  assert.deepEqual(publicConfig.stories, previewConfig.stories);
-  assert.deepEqual(publicConfig.stories, ["../../../src/lab/stories/**/*.stories.@(js|mjs)"]);
-  assert.deepEqual(publicConfig.staticDirs, []);
-  assert.equal(previewConfig.staticDirs.length, 1);
+test("one public Storybook catalog, without private media duplication", async () => {
+  const { default: config } = await import("../tools/lab/storybook/main.mjs");
+  assert.deepEqual(config.stories, ["../../../src/lab/stories/**/*.stories.@(js|mjs)"]);
+  assert.deepEqual(config.staticDirs, []);
 });
 
 test("the catalog keeps real primitives without a mandatory section quota", () => {

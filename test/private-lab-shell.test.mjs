@@ -18,6 +18,8 @@ test("private Lab is an isolated non-production build", async () => {
   assert.match(labHtml, /<meta name="robots" content="noindex,nofollow,noarchive"/);
   assert.match(labHtml, /data-environment="non-production"/);
   assert.match(labHtml, /data-mode="read-only"/);
+  assert.doesNotMatch(labHtml, /lab-storybook|lab\/system/);
+  assert.match(labConfig, /publicDir:\s*false/);
 });
 
 test("private Lab middleware is deployment-scoped, fail-closed, OAuth-protected, and non-indexable", async () => {

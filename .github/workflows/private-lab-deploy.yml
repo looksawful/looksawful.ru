@@ -78,50 +78,12 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
-      - name: Install media tooling
-        run: sudo apt-get update && sudo apt-get install -y ffmpeg
-
-      - name: Prepare production-backed media fixtures
-        run: npm run media:ensure
-
       - name: Build isolated Private Lab
         env:
           LAB_BUILD_BRANCH: dev
           LAB_BUILD_COMMIT: ${{ github.sha }}
           LAB_BUILD_TIME: ${{ github.event.repository.updated_at }}
         run: npm run lab:build
-
-      - name: Prune Cloudflare-incompatible Lab-only assets
-        shell: bash
-        run: |
-          set -euo pipefail
-          removed=0
-          # Vite emits two media trees for the private Storybook shell.
-          # Prune only previously approved non-delivery originals in both copies.
-          for media_root in dist-lab/media dist-lab/lab/system/media; do
-            [[ -d "${media_root}/projects" ]] || continue
-            while IFS= read -r -d '' file; do
-              echo "Pruning oversized source asset: ${file#dist-lab/}"
-              rm -- "${file}"
-              removed=$((removed + 1))
-            done < <(find "${media_root}/projects" -type f -path '*/source/*' -size +26214400c -print0)
-
-            orphan_cover="${media_root}/projects/index/2.png"
-            if [[ -f "${orphan_cover}" ]] && (( $(stat -c '%s' "${orphan_cover}") > 26214400 )); then
-              echo "Pruning unreferenced oversized project asset: ${orphan_cover#dist-lab/}"
-              rm -- "${orphan_cover}"
-              removed=$((removed + 1))
-            fi
-
-            review_unused_video="${media_root}/generated/video/projects/sensetique/11/source/97-16x9.web.mp4"
-            if [[ -f "${review_unused_video}" ]] && (( $(stat -c '%s' "${review_unused_video}") > 26214400 )); then
-              echo "Pruning oversized video unused by Private Lab stories: ${review_unused_video#dist-lab/}"
-              rm -- "${review_unused_video}"
-              removed=$((removed + 1))
-            fi
-          done
-
-          echo "Pruned ${removed} confirmed non-delivery oversized Lab asset(s)."
 
       - name: Enforce Cloudflare Pages asset size limit
         shell: bash
@@ -286,7 +248,7 @@ jobs:
             echo "Private Lab DNS write failed with HTTP ${write_status}; the Cloudflare token needs DNS edit access." >&2
             exit 1
           fi
-      - name: Verify remote auth boundary and Storybook route
+      - name: Verify remote auth boundary and Lab route
         shell: bash
         run: |
           set -euo pipefail
@@ -294,14 +256,14 @@ jobs:
           for delay in 0 5 10 20 30 45; do
             if (( delay > 0 )); then sleep "${delay}"; fi
             redirect="$(curl --silent --show-error --output /dev/null --write-out '%{redirect_url}' \
-              --max-time 15 "https://${PRIVATE_LAB_DOMAIN}/lab/system/" || true)"
+              --max-time 15 "https://${PRIVATE_LAB_DOMAIN}/lab/" || true)"
             if [[ "${redirect}" == "https://${PRIVATE_LAB_DOMAIN}/auth/github" ]]; then
               ready=1
               break
             fi
           done
           if (( ready != 1 )); then
-            echo "Private Lab did not expose the protected Storybook route." >&2
+            echo "Private Lab did not expose the protected Lab route." >&2
             exit 1
           fi
 

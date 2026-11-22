@@ -81,19 +81,8 @@ This slice provides the authentication boundary for the existing isolated Lab fo
 
 A green repository build proves the repository-owned OAuth/Lab contract only. It must not be used to claim that Cloudflare runtime secrets, the production OAuth app/callback, the custom domain or the full #732 Lab workspace are deployed and operational.
 
-## Storybook design system
+## Storybook boundary
 
-The canonical Storybook viewer is part of the isolated Private Lab artifact, not the public production build.
+Storybook is a standalone public artifact: `npm run storybook:public` produces `dist-storybook/`. The protected Private Lab is **not** a parallel Storybook host or source of component fixtures. Its read-only OAuth/provenance shell and security contract stay independent.
 
-```text
-npm run lab:system
-  -> dist-lab/lab/system/
-
-npm run lab:inventory
-  -> dist-lab/lab/system-inventory.json
-  -> dist-lab/lab/system/inventory.html
-```
-
-The Lab shell links to `/lab/system/` and `/lab/system/inventory.html`. Storybook stories use production renderers, production data and the shared `parameters.looksawful` state schema. Public assets are mounted read-only from `public/` for production-backed media fixtures.
-
-`.github/workflows/private-lab-verify.yml` builds the isolated Lab first, then Storybook and the generated inventory into the same `dist-lab/` artifact. The workflow verifies those files while still rejecting any accidental `dist/lab/index.html` public-build entry.
+Storybook documents the production UI using the site's real components, but does not copy the portfolio media directory or include Admin/CMS secrets.

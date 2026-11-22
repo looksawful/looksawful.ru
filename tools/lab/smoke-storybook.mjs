@@ -6,7 +6,7 @@ import axe from "axe-core";
 import { chromium } from "playwright";
 
 const root = process.cwd();
-const storybookDir = path.join(root, "dist-lab", "lab", "system");
+const storybookDir = path.join(root, "dist-storybook");
 const MIME = new Map([[".html", "text/html"], [".js", "text/javascript"], [".css", "text/css"], [".json", "application/json"], [".svg", "image/svg+xml"], [".png", "image/png"], [".jpg", "image/jpeg"], [".jpeg", "image/jpeg"], [".webp", "image/webp"], [".woff2", "font/woff2"]]);
 
 const viewports = [

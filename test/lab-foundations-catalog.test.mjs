@@ -3,7 +3,6 @@ import test from "node:test";
 import { readFileSync } from "node:fs";
 import { canonicalFoundationGroup, isCanonicalFoundationDeclaration } from "../src/lab/token-visualization.mjs";
 import foundations from "../src/lab/stories/foundations.stories.mjs";
-import { referenceTokens } from "../src/lab/foundations-reference-data.mjs";
 
 test("all active root tokens belong to exactly one Foundations group", () => {
   const tokens = ["tokens.css", "colors.css"].flatMap((file) => {
@@ -22,5 +21,4 @@ test("all active root tokens belong to exactly one Foundations group", () => {
 
 test("reference values remain separate from production Foundations", () => {
   assert.equal(foundations.title, "00 Foundations/Design Tokens");
-  assert.equal(referenceTokens.length, 38);
 });

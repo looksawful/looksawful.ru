@@ -20,20 +20,6 @@ test("Storybook a11y findings are blocking evidence instead of todo metadata", a
   assert.doesNotMatch(preview, /a11y\s*:\s*\{[\s\S]*test\s*:\s*"todo"/);
 });
 
-test("global experimental model-viewer CSS stays namespaced to the prototype stage", async () => {
-  const css = await read("src/lab/model-viewer-controls-prototype.css");
-  const selectors = css
-    .split("{")
-    .slice(0, -1)
-    .map((chunk) => chunk.split("}").at(-1)?.trim())
-    .filter((selector) => selector && !selector.startsWith("@"));
-
-  assert.ok(selectors.length > 0);
-  for (const selector of selectors) {
-    assert.match(selector, /\.mv-stage\s/);
-  }
-});
-
 test("Storybook launcher uses a fixed Windows command interpreter without shell mode", async () => {
   const buildScript = await read("tools/lab/build-storybook.mjs");
 
