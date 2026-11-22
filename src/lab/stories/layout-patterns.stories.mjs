@@ -64,8 +64,6 @@ export const ProseSimple = {
       </article>
     </main>
   `,
-  parameters: {
-  },
 };
 
 export const TextPairSensetiqueProduction = {
@@ -74,8 +72,6 @@ export const TextPairSensetiqueProduction = {
       ${renderSectionIntro(sensetiqueProductionIntro, { reveal: false })}
     </main>
   `,
-  parameters: {
-  },
 };
 
 

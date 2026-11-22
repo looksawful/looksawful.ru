@@ -26,6 +26,4 @@ export const FocusVisible = {
     const link = canvasElement.querySelector(".project-card");
     if (link instanceof HTMLAnchorElement) link.focus();
   },
-  parameters: {
-  },
 };

@@ -29,5 +29,4 @@ export const CardReveal = {
 export const ReducedMotionReference = {
   render: () => '<main class="wrapper" style="padding-block:var(--size-500)">' +
     renderSectionIntro(sensetiqueProductionIntro, { reveal: false }) + '</main>',
-  parameters: { looksawful: { state: "reduced-motion-static-reference", motion: ["reduced-motion"] } },
 };

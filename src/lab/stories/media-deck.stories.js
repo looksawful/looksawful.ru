@@ -28,9 +28,7 @@ export const NextSelected = {
     const next = context.canvasElement.querySelector("[data-deck-next]");
     if (next instanceof HTMLButtonElement) next.click();
   },
-  parameters: { looksawful: { state: "next-selected", interaction: ["selected", "active-or-pressed"] } },
 };
 export const ReducedMotion = {
   play: (context) => initialize(context, reducedMotion),
-  parameters: { looksawful: { state: "reduced-motion", motion: ["reduced-motion"] } },
 };

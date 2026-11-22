@@ -24,6 +24,4 @@ export const Open = {
       source.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
     }
   },
-  parameters: {
-  },
 };

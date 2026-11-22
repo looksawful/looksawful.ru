@@ -31,12 +31,3 @@ export const ThemePreloader = {
     .replace('aria-busy="false"', 'aria-busy="true"'),
   parameters: { docs: { description: { story: "The existing Jestei theme organism in its authored loading state, including the real loading surface and aria-live status." } } },
 };
-
-export const UnimplementedFamilies = {
-  render: () => '<main class="wrapper stack" style="--stack-space:var(--size-300);padding-block:var(--size-600)">' +
-    '<h1>Unimplemented · not production UI</h1>' +
-    '<p>Standalone Skeleton: no canonical component in site source.</p>' +
-    '<p>Global visual Preloader: no canonical component in site source. The Jestei theme organism has its own component-local loader above.</p>' +
-    '<p>These are inventory gaps, not examples. Create production components only after design approval.</p></main>',
-  parameters: { looksawful: { canonical: false, policy: "experimental" } },
-};

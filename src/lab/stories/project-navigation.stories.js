@@ -39,5 +39,4 @@ export const Docked = {
       inner.removeAttribute("aria-hidden");
     }
   },
-  parameters: { looksawful: { state: "docked", interaction: ["selected"] } },
 };

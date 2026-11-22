@@ -36,8 +36,6 @@ export const FocusVisible = {
     const button = context.canvasElement.querySelector("[data-code-copy-button]");
     if (button instanceof HTMLButtonElement) button.focus();
   },
-  parameters: {
-  },
 };
 
 export const Copied = {
@@ -45,8 +43,6 @@ export const Copied = {
     enhance(context);
     const button = context.canvasElement.querySelector("[data-code-copy-button]");
     if (button instanceof HTMLButtonElement) button.click();
-  },
-  parameters: {
   },
 };
 
@@ -57,6 +53,4 @@ export const LongContent = {
     code: "npm run build:site && node tools/preview/prepare-cloudflare-pages.mjs dist",
   },
   play: enhance,
-  parameters: {
-  },
 };

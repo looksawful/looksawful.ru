@@ -1,7 +1,7 @@
 import { usePublishedAssetUrls, usePublishedAssetUrlsInNode } from "../../../src/lab/storybook/published-assets.mjs";
 import "../../../src/styles/index.css";
 
-const labReviewViewports = {
+const reviewViewports = {
   desktop: {
     name: "Lab desktop 1440×1000",
     styles: { width: "1440px", height: "1000px" },
@@ -19,8 +19,7 @@ const labReviewViewports = {
   },
 };
 
-// The published portfolio owns media. Both Storybook entrypoints render the
-// same stories and reference their already-public assets instead of copying 1 GB.
+// The catalog reuses already published portfolio assets instead of copying them.
 const withPublicPortfolioAssets = (story) => {
   const content = story();
   if (typeof content === "string") return usePublishedAssetUrls(content);

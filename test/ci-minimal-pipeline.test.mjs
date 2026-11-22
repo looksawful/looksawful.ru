@@ -23,6 +23,7 @@ const expectedWorkflows = [
   "pages.yml",
   "pr-preview.yml",
   "production-health.yml",
+  "public-storybook.yml",
   "quality.yml",
   "ui-responsive.yml",
 ];

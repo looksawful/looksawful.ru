@@ -26,9 +26,7 @@ export default meta;
 export const Closed = { play: (context) => initialize(context) };
 export const Open = {
   play: (context) => openMenu(context),
-  parameters: { looksawful: { state: "menu-open", visibility: ["disclosure", "overlay", "input-capability"], interaction: ["open", "focus-visible"] } },
 };
 export const ReducedMotionOpen = {
   play: (context) => openMenu(context, reducedMotion),
-  parameters: { looksawful: { state: "menu-open-reduced-motion", visibility: ["disclosure", "overlay", "input-capability"], interaction: ["open", "focus-visible"], motion: ["reduced-motion"] } },
 };

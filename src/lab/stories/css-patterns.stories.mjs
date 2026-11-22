@@ -68,6 +68,4 @@ export const LayoutPrimitives = {
       </section>`).join("")}
     </div>
   </main>`,
-  parameters: {
-  },
 };

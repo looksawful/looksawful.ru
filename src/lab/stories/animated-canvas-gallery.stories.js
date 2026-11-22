@@ -25,12 +25,10 @@ export const Ready = {
     const gallery = canvasElement.querySelector("[data-animated-canvas-gallery]");
     if (gallery instanceof HTMLElement) gallery.dataset.galleryState = "ready";
   },
-  parameters: { looksawful: { state: "ready", data: ["ready"] } },
 };
 export const Error = {
   play: ({ canvasElement }) => {
     const gallery = canvasElement.querySelector("[data-animated-canvas-gallery]");
     if (gallery instanceof HTMLElement) gallery.dataset.galleryState = "error";
   },
-  parameters: { looksawful: { state: "error", data: ["error"] } },
 };

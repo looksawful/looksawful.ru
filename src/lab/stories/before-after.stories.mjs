@@ -40,11 +40,7 @@ export const ManualAdjusted = {
       range.dispatchEvent(new Event("input", { bubbles: true }));
     }
   },
-  parameters: {
-  },
 };
 export const AutoReveal = {
   play: (context) => initialize(context, true),
-  parameters: {
-  },
 };
