@@ -6,26 +6,10 @@ const initialize = ({ canvasElement }) => createMediaLightbox({ root: canvasElem
 
 const meta = {
   title: "03 Organisms/Media Lightbox",
-  tags: ["autodocs", "stable", "a11y-reviewed", "project:awful-cases"],
+  tags: ["autodocs"],
   render: () => renderMediaFigure(awfulCasesDemo, { reveal: false }),
   parameters: {
     layout: "padded",
-    looksawful: {
-      sources: [
-        "src/components/media-lightbox.ts",
-        "src/components/photoswipe-lightbox.ts",
-        "src/templates/media-figure.ts",
-        "src/data/content/awful-cases.ts",
-        "src/styles/captions.css",
-      ],
-      layer: "organism",
-      policy: "behavior-fixture",
-      canonical: true,
-      state: "lightbox-closed",
-      visibility: ["overlay"],
-      interaction: ["closed", "focus-visible"],
-      responsive: { review: ["desktop", "tablet", "mobile"] },
-    },
   },
 };
 
@@ -41,9 +25,5 @@ export const Open = {
     }
   },
   parameters: {
-    looksawful: {
-      state: "lightbox-open",
-      interaction: ["open", "focus-visible"],
-    },
   },
 };

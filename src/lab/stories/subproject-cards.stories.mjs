@@ -7,16 +7,9 @@ const cardIds = [...new Set(sampleCards.map((card) => card.id))];
 
 const meta = {
   title: "02 Molecules/Subproject Cards",
-  tags: ["autodocs", "stable"],
+  tags: ["autodocs"],
   parameters: {
     layout: "padded",
-    looksawful: {
-      sources: ["src/data/subproject-cards.ts", "src/templates/subproject-card.ts", "src/styles/subproject-cards.css"],
-      layer: "molecule",
-      policy: "isolated",
-      canonical: true,
-      responsive: { review: ["desktop", "tablet", "mobile"] },
-    },
     docs: { description: { component: "The same card data, media, badge and responsive layout as the public portfolio. No Storybook card implementation." } },
   },
 };

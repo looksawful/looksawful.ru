@@ -1,15 +1,8 @@
 const meta = {
   title: "04 Layout/CSS Patterns",
-  tags: ["autodocs", "stable"],
+  tags: ["autodocs"],
   parameters: {
     layout: "fullscreen",
-    looksawful: {
-      sources: ["src/styles/patterns.css"],
-      layer: "layout",
-      policy: "isolated",
-      canonical: true,
-      state: "read-only",
-    },
   },
 };
 export default meta;
@@ -76,9 +69,5 @@ export const LayoutPrimitives = {
     </div>
   </main>`,
   parameters: {
-    looksawful: {
-      state: "read-only-production-patterns",
-      sources: ["src/styles/patterns.css", "src/lab/stories/css-patterns.stories.mjs"],
-    },
   },
 };

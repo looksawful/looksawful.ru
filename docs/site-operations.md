@@ -4,9 +4,9 @@ Status: CURRENT operator reference. See `docs/README.md` for documentation autho
 
 ## Branches and manual content
 
-The only permanent operational branches are `dev` (code, manually authored content and private Lab/Storybook) and `prod` (protected public release). Edit authored files in `dev`; validate the exact candidate before integration. Production publication requires its separately authorized release and required GitHub checks. Never force-push or bypass protections.
+The only permanent operational branches are `dev` (code, manually authored content and Storybook) and `prod` (protected public release). Edit authored files in `dev`; validate the exact candidate before integration. Production publication requires its separately authorized release and required GitHub checks. Never force-push or bypass protections.
 
-Pages CMS, local Content Desk and Cloudflare Media Desk source, launchers and repository deployment workflows are retired. No local content-write HTTP interface is part of the site or Lab. Old `content/text-cms` refs are recovery/history, not an authoring lane. Do not delete legacy refs or unique work without preservation and dependency review.
+Pages CMS, local Content Desk and Cloudflare Media Desk source, launchers and repository deployment workflows are retired. No local content-write HTTP interface is part of the site. Old `content/text-cms` refs are recovery/history, not an authoring lane. Do not delete legacy refs or unique work without preservation and dependency review.
 
 ## Ownership
 
@@ -27,9 +27,9 @@ Builders own generated media, manifests and TypeScript indexes. Review generated
 
 `.github/workflows/media-preparation.yml` prepares explicit `dev` source changes. It retains exact-cache verification, affected-only images, allowed metadata paths and a non-force writeback that refuses an advanced `origin/dev`. It never authorizes production.
 
-## Site and private Lab
+## Site and Storybook
 
-Validate with `npm ci`, `npm run typecheck`, `npm run test:fast` and `npm run build:site`. Use `npm run lab:build` for private Lab, integrated Storybook and inventory. Lab remains read-only, private, OAuth-protected and non-indexable; it must not enter the public build. See `docs/private-lab.md`.
+Validate with `npm ci`, `npm run typecheck`, `npm run test:fast` and `npm run build:site`. `npm run storybook:public` builds the standalone component catalog in `dist-storybook/`; it is not part of the production website build.
 
 Production deployment remains explicitly scoped to `prod` in `.github/workflows/pages.yml`. Verify live rules and exact SHAs before relying on protection or claiming deployment.
 

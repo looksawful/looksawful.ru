@@ -14,25 +14,10 @@ const authoredVisible = isHomeSectionVisible("client-logo-wall");
 
 const meta = {
   title: "03 Organisms/Home Section Visibility",
-  tags: ["autodocs", "stable"],
+  tags: ["autodocs"],
   render: () => applyClientLogoWallVisibility(clientLogoWallSection, authoredVisible),
   parameters: {
     layout: "padded",
-    looksawful: {
-      sources: [
-        "src/site/renderers/home/home-slots.ts",
-        "src/data/content/home-visibility.ts",
-        "src/content/visibility/home.json",
-        "index.html",
-      ],
-      layer: "organism",
-      policy: "behavior-fixture",
-      canonical: true,
-      state: "section-hidden",
-      visibility: ["conditional", "data"],
-      data: ["ready"],
-      responsive: { review: ["desktop", "tablet", "mobile"] },
-    },
   },
 };
 

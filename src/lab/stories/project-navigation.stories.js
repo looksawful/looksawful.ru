@@ -19,23 +19,10 @@ const initialize = ({ canvasElement }) => {
 
 const meta = {
   title: "03 Organisms/Project Navigation",
-  tags: ["autodocs", "stable", "a11y-reviewed"],
+  tags: ["autodocs"],
   render: () => projectsSection,
   parameters: {
     layout: "fullscreen",
-    looksawful: {
-      sources: [
-        "src/components/project-navigation.ts",
-        "index.html",
-      ],
-      layer: "organism",
-      policy: "behavior-fixture",
-      canonical: true,
-      state: "undocked",
-      visibility: ["conditional", "offscreen-or-virtualized"],
-      interaction: ["default", "selected"],
-      responsive: { review: ["desktop", "tablet", "mobile"] },
-    },
   },
 };
 

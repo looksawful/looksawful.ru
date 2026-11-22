@@ -25,10 +25,7 @@ test("the catalog keeps real primitives without a mandatory section quota", () =
   ]) {
     assert.ok(!files.includes(retired), retired + " must not be in the public catalog");
   }
-  for (const name of files) {
-    const source = readFileSync(path.join(storiesDir, name), "utf8");
-    assert.match(source, /looksawful:\s*\{[\s\S]*?sources\s*:/, name + " needs production-source provenance");
-  }
+
 });
 
 test("runtime asset URLs for 3D loaders resolve to the published origin", async () => {

@@ -5,21 +5,9 @@ import { renderJesteiTrackFilter } from "../../components/specialized/jestei-tra
 
 const meta = {
   title: "02 Molecules/Chips Badges & Filter Controls",
-  tags: ["autodocs", "stable"],
+  tags: ["autodocs"],
   parameters: {
     layout: "padded",
-    looksawful: {
-      sources: [
-        "src/data/content/jestei-theme-organism.ts",
-        "src/templates/jestei-theme-organism.ts",
-        "src/components/specialized/jestei-track-filter-canonical.ts",
-        "src/components/jestei-theme-organism/jestei-theme-organism.css",
-      ],
-      layer: "molecule",
-      policy: "behavior-fixture",
-      canonical: true,
-      responsive: { review: ["desktop", "tablet", "mobile"] },
-    },
     docs: { description: { component: "Real Jestei Pool theme chips and badges, plus the native radio/tab group from the existing playlist filter. No invented UI variants." } },
   },
 };

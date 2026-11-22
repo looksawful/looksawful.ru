@@ -13,25 +13,10 @@ const initialize = ({ canvasElement }, motion = motionEnabled) => {
 
 const meta = {
   title: "03 Organisms/Media Deck",
-  tags: ["autodocs", "stable", "a11y-reviewed", "project:sensetique"],
+  tags: ["autodocs"],
   render: () => renderMediaSlider(sensetiqueHarshLightSlider),
   parameters: {
     layout: "padded",
-    looksawful: {
-      sources: [
-        "src/components/media-deck.ts",
-        "src/templates/media-slider.ts",
-        "src/data/content/sensetique.ts",
-      ],
-      layer: "organism",
-      policy: "behavior-fixture",
-      canonical: true,
-      state: "slide-selected",
-      visibility: ["offscreen-or-virtualized"],
-      interaction: ["selected", "active-or-pressed"],
-      motion: ["motion-enabled", "reduced-motion"],
-      responsive: { review: ["desktop", "tablet", "mobile"] },
-    },
   },
 };
 

@@ -15,22 +15,10 @@ const openMenu = (context, motion = motionEnabled) => {
 
 const meta = {
   title: "03 Organisms/Site Navigation",
-  tags: ["autodocs", "stable", "a11y-reviewed"],
+  tags: ["autodocs"],
   render: () => renderSiteNavigation(homePage),
   parameters: {
     layout: "fullscreen",
-    looksawful: {
-      sources: ["src/components/site-navigation.ts", "src/site/shell/navigation.ts", "src/site/pages/manifest.ts"],
-      layer: "organism",
-      policy: "behavior-fixture",
-      canonical: true,
-      state: "menu-closed",
-      visibility: ["disclosure", "input-capability"],
-      interaction: ["closed", "focus-visible"],
-      motion: ["motion-enabled", "reduced-motion"],
-      responsive: { review: ["desktop", "tablet", "mobile"], conditions: ["(hover: hover) and (pointer: fine)"] },
-      routeDiscovery: { listed: true, indexable: true },
-    },
   },
 };
 

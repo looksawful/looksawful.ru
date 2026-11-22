@@ -8,22 +8,9 @@ if (!canvasSlide || canvasSlide.kind !== "canvas-gallery") throw new Error("Cano
 
 const meta = {
   title: "08 Feedback/Loading & Error States",
-  tags: ["autodocs", "stable"],
+  tags: ["autodocs"],
   parameters: {
     layout: "padded",
-    looksawful: {
-      sources: [
-        "src/templates/animated-canvas-gallery.ts",
-        "src/data/content/styx.ts",
-        "src/templates/jestei-theme-organism.ts",
-        "src/components/jestei-theme-organism/jestei-theme-organism.css",
-      ],
-      layer: "feedback",
-      policy: "behavior-fixture",
-      canonical: true,
-      data: ["loading", "ready", "error"],
-      responsive: { review: ["desktop", "tablet", "mobile"] },
-    },
     docs: { description: { component: "Real project loading and error markup, not decorative fake placeholders. Standalone Skeleton and Preloader families have no canonical production implementations yet." } },
   },
 };

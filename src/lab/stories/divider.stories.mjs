@@ -1,15 +1,8 @@
 const meta = {
   title: "01 Atoms/Divider",
-  tags: ["autodocs", "stable"],
+  tags: ["autodocs"],
   parameters: {
     layout: "padded",
-    looksawful: {
-      sources: ["src/styles/components.css", "src/site/renderers/entity/section.ts"],
-      layer: "atom",
-      policy: "isolated",
-      canonical: true,
-      state: "read-only",
-    },
   },
 };
 export default meta;

@@ -8,28 +8,10 @@ const motionPreference = {
 
 const meta = {
   title: "03 Organisms/Page Flip",
-  tags: ["autodocs", "stable", "project:sensetique"],
+  tags: ["autodocs"],
   render: () => renderPageFlip(sensetiqueDigitalFearPageFlip),
   parameters: {
     layout: "fullscreen",
-    looksawful: {
-      sources: [
-        "src/components/page-flip.ts",
-        "src/data/content/sensetique.ts",
-        "src/templates/page-flip.ts",
-      ],
-      layer: "organism",
-      policy: "behavior-fixture",
-      canonical: true,
-      state: "interactive-ready",
-      visibility: ["always"],
-      interaction: ["default", "active-or-pressed", "disabled"],
-      motion: ["motion-enabled", "reduced-motion"],
-      responsive: {
-        review: ["desktop", "tablet", "mobile"],
-        conditions: ["portrait", "landscape"],
-      },
-    },
     docs: {
       description: {
         component: "Uses the canonical Sensetique page-flip data, production renderer and production runtime enhancer. Runtime evidence includes disabled edge controls, active paging, portrait/landscape orientation and prefers-reduced-motion behavior.",

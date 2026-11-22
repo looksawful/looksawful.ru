@@ -6,20 +6,9 @@ import { initMotion } from "../../motion.ts";
 
 const meta = {
   title: "07 Motion/Reveal System",
-  tags: ["autodocs", "stable"],
+  tags: ["autodocs"],
   parameters: {
     layout: "padded",
-    looksawful: {
-      sources: [
-        "src/motion-contract.ts", "src/motion.ts", "src/styles/motion.css",
-        "src/templates/section-intro.ts", "src/templates/subproject-card.ts",
-      ],
-      layer: "motion",
-      policy: "behavior-fixture",
-      canonical: true,
-      motion: ["motion-enabled", "reduced-motion"],
-      responsive: { review: ["desktop", "tablet", "mobile"] },
-    },
     docs: { description: { component: "Production GSAP one-shot reveals for copy, media and cards. Toggle the Storybook reduced-motion browser preference to inspect the no-animation contract." } },
   },
 };

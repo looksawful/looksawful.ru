@@ -131,17 +131,9 @@ function tokenGallery(filter, heading) {
 
 const meta = {
   title: "00 Foundations/Design Tokens",
-  tags: ["autodocs", "stable"],
+  tags: ["autodocs"],
   parameters: {
     docs: { description: { component: "Read-only, source-backed production foundations. Every active global CSS token appears in exactly one thematic story; experimental and local CSS values are not canonical." } },
-    looksawful: {
-      sources: ["src/styles/tokens.css", "src/styles/colors.css"],
-      layer: "foundation",
-      policy: "isolated",
-      canonical: true,
-      state: "read-only",
-      visibility: ["always"],
-    },
   },
 };
 export default meta;

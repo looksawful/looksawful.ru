@@ -26,17 +26,10 @@ const initialize = ({ canvasElement }) => {
 
 const meta = {
   title: "03 Organisms/Audio Player",
-  tags: ["autodocs", "stable"],
+  tags: ["autodocs"],
   render: playerMarkup,
   parameters: {
     layout: "padded",
-    looksawful: {
-      sources: ["src/components/berserk-audio-player.ts"],
-      layer: "organism",
-      policy: "behavior-fixture",
-      canonical: false,
-      responsive: { review: ["desktop", "tablet", "mobile"] },
-    },
     docs: { description: { component: "Production Berserk audio controller with its required data-attribute DOM. Audio is loaded from the controller's existing public CDN, never bundled into Storybook." } },
   },
 };

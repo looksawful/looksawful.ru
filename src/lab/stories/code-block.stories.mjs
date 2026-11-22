@@ -8,7 +8,7 @@ const enhance = ({ canvasElement }) => {
 
 const meta = {
   title: "02 Molecules/Code Block",
-  tags: ["autodocs", "stable", "a11y-reviewed"],
+  tags: ["autodocs"],
   args: {
     title: "Install",
     description: "Canonical renderer and runtime behavior from src/components.",
@@ -18,16 +18,6 @@ const meta = {
   render: (args) => renderCodeBlock(args),
   parameters: {
     layout: "padded",
-    looksawful: {
-      sources: ["src/components/code-block.ts", "src/components/content/code-block.ts"],
-      layer: "molecule",
-      policy: "behavior-fixture",
-      canonical: true,
-      state: "copy-ready",
-      visibility: ["always"],
-      interaction: ["default", "focus-visible", "active-or-pressed"],
-      responsive: { review: ["desktop", "tablet", "mobile"] },
-    },
     docs: {
       description: {
         component: "Rendered by src/components/content/code-block.ts and enhanced by src/components/code-block.ts. The copy control is a real production interaction, not a Storybook-only mock.",
@@ -47,10 +37,6 @@ export const FocusVisible = {
     if (button instanceof HTMLButtonElement) button.focus();
   },
   parameters: {
-    looksawful: {
-      state: "focus-visible",
-      interaction: ["focus-visible"],
-    },
   },
 };
 
@@ -61,10 +47,6 @@ export const Copied = {
     if (button instanceof HTMLButtonElement) button.click();
   },
   parameters: {
-    looksawful: {
-      state: "copied-confirmation",
-      interaction: ["active-or-pressed"],
-    },
   },
 };
 
@@ -76,6 +58,5 @@ export const LongContent = {
   },
   play: enhance,
   parameters: {
-    looksawful: { state: "long-content-responsive" },
   },
 };

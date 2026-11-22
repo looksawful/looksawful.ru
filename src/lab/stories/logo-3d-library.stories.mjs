@@ -526,7 +526,6 @@ export default {
   title: "03 Organisms/3D Logo Library",
   parameters: {
     layout: "padded",
-    looksawful: { sources: ["src/lab/data/logo-3d-catalog.mjs", "src/components/model-viewer.ts"], layer: "organism", policy: "experimental", canonical: false },
     docs: {
       description: {
         component: "Каталог готовых 3D-логотипов внутри обычной media surface сайта. Используется отдельный исправленный web GLB: manifold-сетка, жёсткие фронт/тыл, контролируемые фаски и экспортированные normals. Материал хранится в GLB; Three.js добавляет только локальную HDRI/PMREM, Neutral tone mapping, камеру и interaction.",

@@ -38,26 +38,9 @@ const renderComparison = () => `
 
 const meta = {
   title: "04 Layout/Typographic Rhythm",
-  tags: ["autodocs", "stable"],
+  tags: ["autodocs"],
   parameters: {
     layout: "fullscreen",
-    looksawful: {
-      sources: [
-        "src/styles/patterns.css",
-        "src/styles/project-shell.css",
-        "src/templates/project-intro.ts",
-        "src/templates/section-intro.ts",
-        "src/data/content/jestei-pool.ts",
-        "src/data/content/sensetique.ts",
-      ],
-      layer: "layout",
-      policy: "composition",
-      canonical: true,
-      state: "typographic-flow",
-      visibility: ["always"],
-      interaction: ["default"],
-      responsive: { review: ["desktop", "tablet", "mobile"] },
-    },
     docs: {
       description: {
         component: "Canonical layout-pattern specimens. Prose owns direct-child typographic rhythm; Stack owns uniform container rhythm; Text Pair owns asymmetric heading-to-copy composition. Sensetique Production exercises the real multi-paragraph section-intro renderer.",
@@ -82,7 +65,6 @@ export const ProseSimple = {
     </main>
   `,
   parameters: {
-    looksawful: { state: "prose-flow" },
   },
 };
 
@@ -93,7 +75,6 @@ export const TextPairSensetiqueProduction = {
     </main>
   `,
   parameters: {
-    looksawful: { state: "intrinsic-text-pair" },
   },
 };
 
@@ -113,7 +94,6 @@ export const ProjectTitleMeasure = {
     </main>
   `,
   parameters: {
-    looksawful: { state: "project-title-measure" },
     docs: {
       description: {
         story: "Text project titles keep the 16ch typographic measure. Logo titles use the editorial grid track and never inherit a character-based width cap.",

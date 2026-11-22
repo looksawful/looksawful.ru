@@ -43,9 +43,9 @@ jobs:
           cache: npm
       - name: Install
         run: npm ci
-      - name: Verify unified Storybook catalog
+      - name: Verify Storybook build inputs
         run: node --test test/public-storybook-boundary.test.mjs
-      - name: Build complete Storybook catalog
+      - name: Build Storybook catalog
         run: npm run storybook:public
       - name: Ensure no media inventory was copied into public artifact
         run: |
