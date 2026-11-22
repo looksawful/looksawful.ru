@@ -14,7 +14,7 @@ export default {
     layout: "fullscreen",
     docs: {
       description: {
-        component: "A map of the existing color hierarchy. Informational only: no new themes, tokens, or website behavior.",
+        component: "How global site colors, project themes and component-local palettes relate.",
       },
     },
   },
@@ -38,7 +38,7 @@ export const Overview = {
       <section class="color-map__source" data-color-level="projects" data-color-source="project">
         <div class="color-map__heading"><h2>Уровень 2. Проекты</h2><span class="color-map__status">Подготовлен</span></div>
         <p>24 набора <code>data-theme</code> могут заменять <code>surface</code> и <code>foreground</code> внутри проекта.</p>
-        <p>В исходниках также остались <code>accent</code> и <code>on-accent</code>. Они не являются глобальными цветами сайта; пока демонстрируются только в Storybook.</p>
+        <p>У тем проектов также определены <code>accent</code> и <code>on-accent</code>. Эти роли доступны в демонстрации Storybook, но не являются глобальными цветами сайта.</p>
         <a class="color-map__link" href="/?path=/story/00-foundations-design-tokens-project-themes--all-presets" target="_top">Открыть все 24 темы</a>
         <p class="color-map__file">src/lab/storybook/project-theme-presets.css</p>
       </section>
@@ -86,7 +86,7 @@ export const Overview = {
     </section>
 
     <section class="color-map__outside">
-      <div><h2>Вне иерархии: цвета компонентов</h2><p>Jestei, мокапы, фильтр плейлистов, подписи и лайтбокс имеют собственные палитры. Не смешиваем их с глобальными токенами до отдельного разбора.</p></div>
+      <div><h2>Вне иерархии: цвета компонентов</h2><p>Jestei, мокапы, фильтр плейлистов, подписи и лайтбокс используют собственные палитры, независимые от глобальных токенов.</p></div>
       <a class="color-map__link" href="/?path=/story/00-foundations-color-architecture--component-exceptions" target="_top">Посмотреть исключения</a>
     </section>
   `),
@@ -95,7 +95,7 @@ export const Overview = {
 export const ComponentExceptions = {
   render: () => page(`
     <h1>Исключения компонентов</h1>
-    <p class="color-map__lead">Отдельная область для локальных цветов. Это инвентаризация для будущего решения, не предложение объединить всё в одну палитру.</p>
+    <p class="color-map__lead">Локальные цветовые системы компонентов, не входящие в глобальную палитру сайта.</p>
 
     <section class="color-map__exception" data-component-palette="jestei">
       <div class="color-map__heading"><h2>Jestei · пять режимов</h2><span class="color-map__status">Своя система</span></div>
