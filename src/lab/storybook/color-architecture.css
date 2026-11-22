@@ -52,5 +52,6 @@
   .color-map__connections span:last-child { display: none; }
   .color-map__samples { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .color-map__heading { flex-wrap: wrap; }
+  .color-map__outcome { flex-direction: column; }
   .color-map__jestei-colors { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
