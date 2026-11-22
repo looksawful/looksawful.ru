@@ -1,166 +1,166 @@
 /* Preserved project-level theme definitions; imported by Storybook only, not by the website. */
-[data-theme="neutral"] {
+.theme-catalog [data-theme="neutral"] {
   --clr-surface: rgb(255 255 255);
   --clr-foreground: rgb(13 13 13);
   --clr-accent: rgb(47 91 255);
   --clr-on-accent: rgb(255 255 255);
 }
 
-[data-theme="pink-red"] {
+.theme-catalog [data-theme="pink-red"] {
   --clr-surface: rgb(241 168 195);
   --clr-foreground: rgb(244 79 55);
   --clr-accent: rgb(40 16 154);
   --clr-on-accent: rgb(255 255 255);
 }
 
-[data-theme="red-pink"] {
+.theme-catalog [data-theme="red-pink"] {
   --clr-surface: rgb(244 79 55);
   --clr-foreground: rgb(241 168 195);
   --clr-accent: rgb(189 255 74);
   --clr-on-accent: rgb(13 13 13);
 }
 
-[data-theme="blue-pink"] {
+.theme-catalog [data-theme="blue-pink"] {
   --clr-surface: rgb(40 16 154);
   --clr-foreground: rgb(241 168 195);
   --clr-accent: rgb(189 255 74);
   --clr-on-accent: rgb(13 13 13);
 }
 
-[data-theme="lavender-brown"] {
+.theme-catalog [data-theme="lavender-brown"] {
   --clr-surface: rgb(186 195 216);
   --clr-foreground: rgb(63 40 43);
   --clr-accent: rgb(244 79 55);
   --clr-on-accent: rgb(255 255 255);
 }
 
-[data-theme="purple-lime"] {
+.theme-catalog [data-theme="purple-lime"] {
   --clr-surface: rgb(109 56 151);
   --clr-foreground: rgb(189 255 74);
   --clr-accent: rgb(241 168 195);
   --clr-on-accent: rgb(63 40 43);
 }
 
-[data-theme="warm-red"] {
+.theme-catalog [data-theme="warm-red"] {
   --clr-surface: rgb(222 216 207);
   --clr-foreground: rgb(244 79 55);
   --clr-accent: rgb(40 16 154);
   --clr-on-accent: rgb(255 255 255);
 }
 
-[data-theme="lime-black"] {
+.theme-catalog [data-theme="lime-black"] {
   --clr-surface: rgb(189 255 74);
   --clr-foreground: rgb(13 13 13);
   --clr-accent: rgb(109 56 151);
   --clr-on-accent: rgb(255 255 255);
 }
 
-[data-theme="acid-violet"] {
+.theme-catalog [data-theme="acid-violet"] {
   --clr-surface: rgb(232 255 98);
   --clr-foreground: rgb(58 30 120);
   --clr-accent: rgb(255 90 47);
   --clr-on-accent: rgb(13 13 13);
 }
 
-[data-theme="berry-pink"] {
+.theme-catalog [data-theme="berry-pink"] {
   --clr-surface: rgb(213 52 104);
   --clr-foreground: rgb(255 211 227);
   --clr-accent: rgb(189 255 74);
   --clr-on-accent: rgb(13 13 13);
 }
 
-[data-theme="mint-green"] {
+.theme-catalog [data-theme="mint-green"] {
   --clr-surface: rgb(217 243 228);
   --clr-foreground: rgb(22 59 47);
   --clr-accent: rgb(42 67 255);
   --clr-on-accent: rgb(255 255 255);
 }
 
-[data-theme="electric-ice"] {
+.theme-catalog [data-theme="electric-ice"] {
   --clr-surface: rgb(42 67 255);
   --clr-foreground: rgb(243 245 255);
   --clr-accent: rgb(241 168 195);
   --clr-on-accent: rgb(63 40 43);
 }
 
-[data-theme="black-acid"] {
+.theme-catalog [data-theme="black-acid"] {
   --clr-surface: rgb(18 18 18);
   --clr-foreground: rgb(200 255 61);
   --clr-accent: rgb(255 90 47);
   --clr-on-accent: rgb(13 13 13);
 }
 
-[data-theme="orange-cream"] {
+.theme-catalog [data-theme="orange-cream"] {
   --clr-surface: rgb(255 90 47);
   --clr-foreground: rgb(255 240 216);
   --clr-accent: rgb(13 13 13);
   --clr-on-accent: rgb(255 255 255);
 }
 
-[data-theme="black-white"] {
+.theme-catalog [data-theme="black-white"] {
   --clr-surface: rgb(13 13 13);
   --clr-foreground: rgb(255 255 255);
   --clr-accent: rgb(255 255 255);
   --clr-on-accent: rgb(13 13 13);
 }
 
-[data-theme="black-green"] {
+.theme-catalog [data-theme="black-green"] {
   --clr-surface: rgb(10 13 11);
   --clr-foreground: rgb(244 247 244);
   --clr-accent: rgb(92 255 99);
   --clr-on-accent: rgb(10 13 11);
 }
 
-[data-theme="soft-pink"] {
+.theme-catalog [data-theme="soft-pink"] {
   --clr-surface: rgb(247 220 231);
   --clr-foreground: rgb(59 38 48);
   --clr-accent: rgb(236 91 143);
   --clr-on-accent: rgb(255 255 255);
 }
 
-[data-theme="blue"] {
+.theme-catalog [data-theme="blue"] {
   --clr-surface: rgb(40 85 217);
   --clr-foreground: rgb(247 249 255);
   --clr-accent: rgb(185 255 79);
   --clr-on-accent: rgb(17 17 17);
 }
 
-[data-theme="lavender"] {
+.theme-catalog [data-theme="lavender"] {
   --clr-surface: rgb(216 209 240);
   --clr-foreground: rgb(53 43 79);
   --clr-accent: rgb(113 87 217);
   --clr-on-accent: rgb(255 255 255);
 }
 
-[data-theme="orange-black"] {
+.theme-catalog [data-theme="orange-black"] {
   --clr-surface: rgb(255 122 47);
   --clr-foreground: rgb(17 17 17);
   --clr-accent: rgb(255 244 232);
   --clr-on-accent: rgb(17 17 17);
 }
 
-[data-theme="white-red"] {
+.theme-catalog [data-theme="white-red"] {
   --clr-surface: rgb(255 255 255);
   --clr-foreground: rgb(24 24 24);
   --clr-accent: rgb(239 63 49);
   --clr-on-accent: rgb(255 255 255);
 }
 
-[data-theme="white-blue"] {
+.theme-catalog [data-theme="white-blue"] {
   --clr-surface: rgb(255 255 255);
   --clr-foreground: rgb(24 24 24);
   --clr-accent: rgb(47 91 255);
   --clr-on-accent: rgb(255 255 255);
 }
 
-[data-theme="black-red"] {
+.theme-catalog [data-theme="black-red"] {
   --clr-surface: rgb(13 13 13);
   --clr-foreground: rgb(247 247 247);
   --clr-accent: rgb(255 74 61);
   --clr-on-accent: rgb(13 13 13);
 }
 
-[data-theme="black-orange"] {
+.theme-catalog [data-theme="black-orange"] {
   --clr-surface: rgb(13 13 13);
   --clr-foreground: rgb(247 247 247);
   --clr-accent: rgb(255 122 47);
