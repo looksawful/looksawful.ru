@@ -11,7 +11,7 @@ const meta = {
   tags: ["autodocs"],
   parameters: {
     layout: "padded",
-    docs: { description: { component: "Real project loading and error markup, not decorative fake placeholders. Standalone Skeleton and Preloader families have no canonical production implementations yet." } },
+    docs: { description: { component: "Loading, ready and error states from existing project components." } },
   },
 };
 export default meta;

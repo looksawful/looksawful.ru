@@ -10,10 +10,10 @@ const meta = {
   title: "02 Molecules/Code Block",
   tags: ["autodocs"],
   args: {
-    title: "Install",
-    description: "Canonical renderer and runtime behavior from src/components.",
+    title: "Storybook build",
+    description: "Build the public Storybook catalog.",
     language: "shell",
-    code: "npm run lab",
+    code: "npm run storybook:public",
   },
   render: (args) => renderCodeBlock(args),
   parameters: {
@@ -49,7 +49,7 @@ export const Copied = {
 export const LongContent = {
   args: {
     title: "Preview command",
-    description: "Longer source checks wrapping and overflow behavior.",
+    description: "Build the website and prepare its Cloudflare Pages preview.",
     code: "npm run build:site && node tools/preview/prepare-cloudflare-pages.mjs dist",
   },
   play: enhance,
