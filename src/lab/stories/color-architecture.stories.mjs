@@ -132,8 +132,5 @@ export const ComponentExceptions = {
       <p class="color-map__file">src/styles/captions.css · media-lightbox.css · contact-form-hub.css · before-after.css</p>
     </section>
 
-    <section class="color-map__outside">
-      <div><h2>Что разбирать позже</h2><p>Проверять повторяющиеся назначения, реальные состояния и прозрачность. Переносить в общие токены только цвета с одинаковой ролью. Пока все локальные системы остаются без изменений.</p></div>
-    </section>
   `),
 };
