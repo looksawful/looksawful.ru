@@ -85,10 +85,6 @@ export const Overview = {
       <p class="color-map__file">src/styles/base.css · src/styles/index.css</p>
     </section>
 
-    <section class="color-map__outside">
-      <div><h2>Вне иерархии: цвета компонентов</h2><p>Jestei, мокапы, фильтр плейлистов, подписи и лайтбокс используют собственные палитры, независимые от глобальных токенов.</p></div>
-      <a class="color-map__link" href="/?path=/story/00-foundations-color-architecture--component-exceptions" target="_top">Посмотреть исключения</a>
-    </section>
   `),
 };
 
