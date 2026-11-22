@@ -53,7 +53,7 @@ export const Overview = {
         <div>
           <h3>От surface</h3>
           <ul>
-            <li><code>--clr-surface-page</code> · поверхность −2,5% яркости</li>
+            <li><code>--clr-surface-page</code> · 2,5% чёрного в цвете поверхности</li>
             <li><code>--clr-bg</code> · фон страницы</li>
             <li><code>--clr-surface-raised</code> · светлая поверхность</li>
             <li><code>--clr-surface-elevated</code> · светлая поверхность</li>
@@ -115,14 +115,14 @@ export const ComponentExceptions = {
     <section class="color-map__exception" data-component-palette="mockups">
       <div class="color-map__heading"><h2>Мокапы и терминалы</h2><span class="color-map__status">Локальные значения</span></div>
       <p>Тёмные поверхности браузеров и терминалов, серые панели и цветные индикаторы окон. Их палитра имитирует предметный интерфейс, а не оформление сайта.</p>
-      <div class="color-map__dots" aria-label="Примеры цветов окон"><span style="background:#FF5F57"></span><span style="background:#FEBC2E"></span><span style="background:#28C840"></span></div>
+      <div class="color-map__dots" role="group" aria-label="Примеры цветов окон"><span style="background:#FF5F57"></span><span style="background:#FEBC2E"></span><span style="background:#28C840"></span></div>
       <p class="color-map__file">src/styles/components.css · src/styles/code-block.css</p>
     </section>
 
     <section class="color-map__exception" data-component-palette="playlist">
       <div class="color-map__heading"><h2>Фильтр плейлистов</h2><span class="color-map__status">Автономный интерфейс</span></div>
       <p>Собственные тёмные поверхности и цветные состояния. Например, <code>--accent-biloba</code> и <code>--accent-blue-hover</code>: это локальные имена, не глобальный <code>--clr-accent</code>.</p>
-      <div class="color-map__dots" aria-label="Примеры локальной палитры фильтра"><span style="background:#151718"></span><span style="background:#B2A1EA"></span><span style="background:#1760C1"></span></div>
+      <div class="color-map__dots" role="group" aria-label="Примеры локальной палитры фильтра"><span style="background:#151718"></span><span style="background:#B2A1EA"></span><span style="background:#1760C1"></span></div>
       <p class="color-map__file">public/components/playlist-filter-workflow.css</p>
     </section>
 
