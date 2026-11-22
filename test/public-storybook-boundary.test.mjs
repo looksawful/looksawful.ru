@@ -20,26 +20,22 @@ test("one Storybook catalog has the same complete story set for every build", as
   assert.equal(previewConfig.staticDirs.length, 1);
 });
 
-test("Storybook covers every requested design-system layer with real source-backed stories", () => {
-  const titles = files.flatMap((file) => {
-    const source = readFileSync(path.join(storiesDir, file), "utf8");
-    return [...source.matchAll(/title\s*:\s*["']([^"']+)["']/g)].map((match) => match[1]);
-  });
-  const chapters = [
-    "00 Foundations", "01 Atoms", "02 Molecules", "03 Organisms",
-    "04 Layout", "05 Patterns & Templates", "06 Pages",
-    "07 Motion", "08 Feedback",
-  ];
-  for (const chapter of chapters) {
-    assert.ok(titles.some((title) => title.startsWith(chapter + "/")), chapter);
+test("the catalog keeps real primitives without a mandatory section quota", () => {
+  for (const core of ["foundations.stories.mjs", "divider.stories.mjs", "project-card.stories.mjs"]) {
+    assert.ok(files.includes(core), core + " missing");
   }
-  assert.ok(files.length >= 30, "all catalog sections must be populated");
-  for (const file of files) {
-    const source = readFileSync(path.join(storiesDir, file), "utf8");
-    assert.match(source, /looksawful:\s*\{[\s\S]*?sources\s*:/, file + " needs production-source provenance");
+  for (const retired of [
+    "catalog-guide.stories.mjs", "site-pages.stories.mjs", "entity-fixtures.stories.mjs",
+    "foundations-reference.stories.mjs", "gallery-full-content.stories.mjs",
+    "model-viewer-controls.stories.mjs",
+  ]) {
+    assert.ok(!files.includes(retired), retired + " must not be in the public catalog");
+  }
+  for (const name of files) {
+    const source = readFileSync(path.join(storiesDir, name), "utf8");
+    assert.match(source, /looksawful:\\s*\\{[\\s\\S]*?sources\\s*:/, name + " needs production-source provenance");
   }
 });
-
 
 test("runtime asset URLs for 3D loaders resolve to the published origin", async () => {
   const { resolvePublishedAssetUrl } = await import("../src/lab/storybook/published-assets.mjs");

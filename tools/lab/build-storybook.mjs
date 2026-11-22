@@ -62,18 +62,9 @@ if (publicOnly) {
   // All documented components share one public catalog. The artifact includes
   // no portfolio media; browsers request already-published site assets.
   const { entries } = JSON.parse(await readFile(path.join(outputDir, "index.json"), "utf8"));
-  const titles = Object.values(entries).map((entry) => entry.title);
-  const chapters = [
-    "00 Foundations", "01 Atoms", "02 Molecules", "03 Organisms",
-    "04 Layout", "05 Patterns & Templates", "06 Pages",
-    "07 Motion", "08 Feedback",
-  ];
-  for (const chapter of chapters) {
-    if (!titles.some((title) => title.startsWith(chapter + "/"))) {
-      throw new Error("Storybook chapter is missing: " + chapter);
-    }
-  }
-  console.log("[storybook] unified catalog: " + titles.length + " index entries");
+  const count = Object.keys(entries).length;
+  if (!count) throw new Error("Storybook catalog is empty");
+  console.log("[storybook] curated catalog: " + count + " index entries");
 }
 
 const generatedTokenDir = path.join(root, "tools", "lab", "public");
