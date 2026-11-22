@@ -21,7 +21,7 @@ Common entry points:
 - testing policy: [docs/testing-policy.md](./docs/testing-policy.md)
 - current testing map: [docs/testing-pipeline.md](./docs/testing-pipeline.md)
 - manual content, media and protected releases: [docs/site-operations.md](./docs/site-operations.md)
-- private Lab/Storybook: [docs/private-lab.md](./docs/private-lab.md)
+- Storybook: `npm run storybook:public`; see [docs/tooling-pipeline.md](./docs/tooling-pipeline.md)
 
 Pages CMS, Content Desk and Media Desk are retired from this codebase. Manually edit content in `dev`; retain the typed Media Catalog and deterministic media preparation. External Worker/domain retirement remains a separate dependency review. Existing issue #1009 records acceptance.
 

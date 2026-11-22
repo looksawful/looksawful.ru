@@ -1,7 +1,7 @@
+import { usePublishedAssetUrls, usePublishedAssetUrlsInNode } from "../../../src/lab/storybook/published-assets.mjs";
 import "../../../src/styles/index.css";
-import "../../../src/lab/model-viewer-controls-prototype.css";
 
-const labReviewViewports = {
+const reviewViewports = {
   desktop: {
     name: "Lab desktop 1440×1000",
     styles: { width: "1440px", height: "1000px" },
@@ -19,24 +19,28 @@ const labReviewViewports = {
   },
 };
 
+// The catalog reuses already published portfolio assets instead of copying them.
+const withPublicPortfolioAssets = (story) => {
+  const content = story();
+  if (typeof content === "string") return usePublishedAssetUrls(content);
+  if (content instanceof Element) return usePublishedAssetUrlsInNode(content);
+  return content;
+};
+
 const preview = {
+  decorators: [withPublicPortfolioAssets],
   tags: ["autodocs"],
   parameters: {
     layout: "fullscreen",
     viewport: {
-      options: labReviewViewports,
+      options: reviewViewports,
     },
     options: {
       storySort: {
         order: [
-          "00 Foundations",
-          "01 Atoms",
-          "02 Molecules",
-          "03 Organisms",
-          "04 Templates",
-          "05 Pages",
-          "06 Motion",
-          "90 Experimental",
+          "00 Foundations", "01 Atoms", "02 Molecules", "03 Organisms",
+          "04 Layout", "05 Patterns & Templates", "06 Pages",
+          "07 Motion", "08 Feedback", "90 Experimental",
         ],
       },
     },

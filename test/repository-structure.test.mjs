@@ -64,7 +64,6 @@ test("repository root contains only intentional source directories", async () =>
     ".github",
     "docs",
     "gallery",
-    "lab",
     "public",
     "shootings",
     "src",
@@ -167,6 +166,7 @@ test("manual editing keeps dev/prod and Storybook without CMS or Media Desk serv
     assert.equal(pkg.scripts[name], undefined, `obsolete script ${name}`);
   }
   assert.doesNotMatch(pkg.scripts["build:site"], /cms:check/u);
-  assert.equal(await exists("src/lab/storybook/render.ts"), true, "private Storybook remains");
+  assert.equal(await exists("lab/index.html"), false, "retired Lab must not return");
+  assert.equal(await exists("tools/lab/storybook/main.mjs"), true, "the standalone Storybook remains");
   assert.equal(await exists(".github/workflows/pages.yml"), true, "protected production deploy remains");
 });

@@ -29,7 +29,7 @@ Branch vocabulary is explicit:
 | `../AGENTS.md` | CURRENT POLICY | Repository-wide agent and change rules. |
 | `testing-policy.md` | CURRENT NORMATIVE | Testing ownership and verification policy. |
 | `testing-pipeline.md` | CURRENT OPERATIONAL | Current testing commands/groups and operator map. |
-| `site-operations.md` | CURRENT OPERATOR | Manual dev content, media preparation, private Lab and protected prod releases. |
+| `site-operations.md` | CURRENT OPERATOR | Manual dev content, media preparation and protected prod releases. |
 | `tooling-pipeline.md` | CURRENT OPERATIONAL | Local commands, CI/media tooling and explicit branches. |
 | `repository-structure.md` | CURRENT MAP | Repository area ownership/navigation. |
 | `gitbook-architecture.md` | CURRENT NORMATIVE / rollout in progress | Free-only GitBook projection over canonical repository docs and migration governance. |

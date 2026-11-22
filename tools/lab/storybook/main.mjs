@@ -6,16 +6,10 @@ const storybookViteConfig = fileURLToPath(
 
 const config = {
   stories: ["../../../src/lab/stories/**/*.stories.@(js|mjs)"],
-  staticDirs: [{ from: fileURLToPath(new URL("../../../public/", import.meta.url)), to: "/" }],
+  staticDirs: [],
   addons: [
     "@storybook/addon-docs",
     "@storybook/addon-a11y",
-    {
-      name: "storybook-design-token",
-      options: {
-        designTokenGlob: "src/**/*.css",
-      },
-    },
   ],
   framework: {
     name: "@storybook/html-vite",

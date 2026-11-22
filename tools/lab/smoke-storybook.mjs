@@ -6,7 +6,7 @@ import axe from "axe-core";
 import { chromium } from "playwright";
 
 const root = process.cwd();
-const storybookDir = path.join(root, "dist-lab", "lab", "system");
+const storybookDir = path.join(root, "dist-storybook");
 const MIME = new Map([[".html", "text/html"], [".js", "text/javascript"], [".css", "text/css"], [".json", "application/json"], [".svg", "image/svg+xml"], [".png", "image/png"], [".jpg", "image/jpeg"], [".jpeg", "image/jpeg"], [".webp", "image/webp"], [".woff2", "font/woff2"]]);
 
 const viewports = [
@@ -16,6 +16,9 @@ const viewports = [
 ];
 
 const cases = [
+  ["foundations-palette", "00-foundations-design-tokens--palette", ".token-foundations .token-card"],
+  ["patterns-layout", "04-layout-css-patterns--layout-primitives", "[data-css-pattern]"],
+  ["atom-media", "01-atoms-production-primitives--media-image", "img[src]"],
   ["site-navigation-open", "03-organisms-site-navigation--open", "[data-site-navigation][data-menu-open]"],
   ["project-navigation-docked", "03-organisms-project-navigation--docked", "[data-projects-navigation][data-project-nav-docked]"],
   ["media-deck-next", "03-organisms-media-deck--next-selected", "[data-slide][data-active]"],

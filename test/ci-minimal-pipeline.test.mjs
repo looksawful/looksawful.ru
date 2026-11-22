@@ -22,9 +22,8 @@ const expectedWorkflows = [
   "media-preparation.yml",
   "pages.yml",
   "pr-preview.yml",
-  "private-lab-deploy.yml",
-  "private-lab-verify.yml",
   "production-health.yml",
+  "public-storybook.yml",
   "quality.yml",
   "ui-responsive.yml",
 ];

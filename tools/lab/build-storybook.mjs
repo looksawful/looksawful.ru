@@ -1,19 +1,16 @@
-import { rm, rmdir } from "node:fs/promises";
+import { readFile, rm } from "node:fs/promises";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 
 const root = process.cwd();
-const labOutputRoot = path.resolve(root, path.join("dist-lab", "lab"));
-const outputDir = path.join(labOutputRoot, "system");
+const outputDir = path.resolve(root, "dist-storybook");
 const npmCommand = process.platform === "win32" ? "npm.cmd" : "npm";
-
 const packages = [
   "storybook@10.6.0",
   "@storybook/html-vite@10.6.0",
   "@storybook/addon-docs@10.6.0",
   "@storybook/addon-a11y@10.6.0",
   "axe-core@4.10.3",
-  "storybook-design-token@5.0.0",
 ];
 
 function run(command, args) {
@@ -26,37 +23,19 @@ function run(command, args) {
     env: process.env,
   });
   if (result.error) throw result.error;
-  if (result.status !== 0) {
-    throw new Error(`${command} ${args.join(" ")} failed with exit code ${result.status ?? "unknown"}`);
-  }
+  if (result.status !== 0) throw new Error(`${command} failed: ${result.status ?? "unknown"}`);
 }
 
 await rm(outputDir, { recursive: true, force: true });
-
 run(npmCommand, [
-  "install",
-  "--no-save",
-  "--package-lock=false",
-  "--no-audit",
-  "--no-fund",
-  ...packages,
+  "install", "--no-save", "--package-lock=false", "--no-audit", "--no-fund", ...packages,
+]);
+run(npmCommand, [
+  "exec", "--no", "--", "storybook", "build",
+  "--config-dir", "tools/lab/storybook", "--output-dir", outputDir, "--quiet",
 ]);
 
-run(npmCommand, [
-  "exec",
-  "--no",
-  "--",
-  "storybook",
-  "build",
-  "--config-dir",
-  "tools/lab/storybook",
-  "--output-dir",
-  outputDir,
-  "--quiet",
-]);
-
-const generatedTokenDir = path.join(root, "tools", "lab", "public");
-await rm(path.join(generatedTokenDir, "design-tokens.source.json"), { force: true });
-await rmdir(generatedTokenDir).catch(() => {});
-
-console.log(`[lab-storybook] built ${path.relative(root, outputDir).replaceAll("\\", "/")}`);
+const { entries } = JSON.parse(await readFile(path.join(outputDir, "index.json"), "utf8"));
+const count = Object.keys(entries).length;
+if (!count) throw new Error("Storybook catalog is empty");
+console.log(`[storybook] curated catalog: ${count} index entries`);

@@ -44,15 +44,15 @@ Fast CI runs on configured engineering `dev` pushes and PRs. It checks repositor
 
 ## Manual content and media
 
-Permanent branches: `dev` for code, authored content and private Lab/Storybook; `prod` for the separately protected public release. Pages CMS, Content Desk and Media Desk launchers/write interfaces are retired. See `docs/site-operations.md` for ownership and external retirement boundaries.
+Permanent branches: `dev` for code, authored content and standalone Storybook; `prod` for the separately protected public release. Pages CMS, Content Desk and Media Desk launchers/write interfaces are retired. See `docs/site-operations.md` for ownership and external retirement boundaries.
 
 `.github/workflows/media-preparation.yml` listens to explicit `dev` media/content paths. It normalizes catalog metadata, generates affected images or required video/media output, verifies exact cache state and persists only allowed metadata paths. Writeback requires the source SHA still to equal `origin/dev` and uses a non-force push.
 
 The workflow checks out the source SHA shallowly and fetches the exact previous push commit. Full history is unnecessary. Preserve masters; builders own generated output. Validate with `media:catalog:check`, `media:page-usage:check`, `media:static-usage:check`, `test:media:contract` and `test:media:checks`.
 
-## Private Lab and Storybook
+## Storybook
 
-`npm run lab` starts local Lab. `npm run lab:build` builds private Lab, integrated Storybook (`lab:system`) and inventory (`lab:inventory`). Do not substitute a nonexistent standalone Storybook command or publish Lab with the public site. See `docs/private-lab.md`.
+`npm run storybook:public` builds the only component catalog in `dist-storybook/` using the production renderers. The unused private Lab source, OAuth shell, and deploy workflows were retired from this repository; deleting them does not delete an existing external Cloudflare project.
 
 ## Production deployment
 

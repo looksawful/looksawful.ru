@@ -3,6 +3,7 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { logo3dCatalog } from "../data/logo-3d-catalog.mjs";
+import { resolvePublishedAssetUrl } from "../storybook/published-assets.mjs";
 
 const READY_LOGOS = logo3dCatalog.filter((entry) => entry.status === "ready" && entry.modelUrl);
 const DEFAULT_ENTRY = READY_LOGOS.find((entry) => entry.id === "jestei-symbol-metal") ?? READY_LOGOS[0];
@@ -225,7 +226,7 @@ const loadEnvironment = async (renderer, scene) => {
 
 const loadLogo = async (entry) => {
   const loader = new GLTFLoader();
-  const gltf = await loader.loadAsync(entry.modelUrl);
+  const gltf = await loader.loadAsync(resolvePublishedAssetUrl(entry.modelUrl));
   return gltf.scene;
 };
 
@@ -522,7 +523,7 @@ const createStory = () => {
 };
 
 export default {
-  title: "02 Molecules/Model Viewer/Logo Library",
+  title: "03 Organisms/3D Logo Library",
   parameters: {
     layout: "padded",
     docs: {

@@ -137,3 +137,6 @@ artifacts/lighthouse/
 
 # External link reports
 artifacts/external-links/
+
+# Approved public Storybook build output
+dist-storybook/
