@@ -33,7 +33,7 @@ test("the catalog keeps real primitives without a mandatory section quota", () =
   }
   for (const name of files) {
     const source = readFileSync(path.join(storiesDir, name), "utf8");
-    assert.match(source, /looksawful:\\s*\\{[\\s\\S]*?sources\\s*:/, name + " needs production-source provenance");
+    assert.match(source, /looksawful:\s*\{[\s\S]*?sources\s*:/, name + " needs production-source provenance");
   }
 });
 
