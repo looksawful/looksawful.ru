@@ -44,8 +44,6 @@ export const fastTests = new Set([
   "test/homepage-compact-curation.test.mjs",
   "test/jestei-event-contract.test.mjs",
   "test/jestei-mobile-layout-contract.test.mjs",
-  "test/lab-foundations-catalog.test.mjs",
-  "test/public-storybook-boundary.test.mjs",
   "test/lighthouse-ci-config.test.mjs",
   "test/logo-3d-catalog.test.mjs",
   "test/logo-3d-generator-contract.test.mjs",

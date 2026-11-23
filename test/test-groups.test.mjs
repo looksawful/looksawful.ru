@@ -15,9 +15,7 @@ test("fast tests are opt-in contracts while broad cheap coverage stays available
     "test/test-groups.test.mjs",
   ];
 
-  assert.deepEqual(selectTests("fast", files), [
-    "test/lab-vite-config.test.mjs",
-  ]);
+  assert.deepEqual(selectTests("fast", files), []);
 
   assert.deepEqual(selectTests("unit", files), [
     "test/before-after-renderer-contract.test.mjs",
@@ -43,13 +41,11 @@ test("fast tests are opt-in contracts while broad cheap coverage stays available
 
   assert.equal(fastTests.has("test/new-widget-regression.test.mjs"), false);
   assert.equal(fastTests.has("test/before-after-renderer-contract.test.mjs"), false);
-  assert.equal(fastTests.has("test/lab-vite-config.test.mjs"), true);
   assert.equal(fastTests.has("test/logo-3d-catalog.test.mjs"), true);
   assert.equal(fastTests.has("test/logo-3d-generator-contract.test.mjs"), true);
   assert.equal(fastTests.has("test/logo-3d-index.test.mjs"), true);
   assert.equal(fastTests.has("test/logo-3d-manifest.test.mjs"), true);
   assert.equal(fastTests.has("test/logo-3d-output-pack.test.mjs"), true);
   assert.equal(fastTests.has("test/logo-3d-source-audit.test.mjs"), true);
-  assert.equal(fastTests.has("test/logo-3d-storybook-contract.test.mjs"), true);
   assert.throws(() => selectTests("invalid", files), /unknown test group/);
 });

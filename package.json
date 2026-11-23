@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "storybook:dev": "storybook dev --config-dir tools/lab/storybook --port 6006 --no-open",
     "storybook:public": "node tools/lab/build-storybook.mjs",
     "design:capture": "node tools/design-capture/cli.mjs",
     "design:capture:pages": "node tools/design-capture/cli.mjs --mode=pages",
@@ -73,9 +74,13 @@
   },
   "devDependencies": {
     "@lhci/cli": "^0.16.1",
+    "@storybook/addon-docs": "10.6.0",
+    "@storybook/builder-vite": "10.6.0",
+    "@storybook/html-vite": "10.6.0",
     "@types/three": "^0.185.0",
     "playwright": "^1.61.1",
     "sharp": "^0.35.5",
+    "storybook": "10.6.0",
     "typescript": "^7.0.2",
     "vite": "^8.3.8"
   },

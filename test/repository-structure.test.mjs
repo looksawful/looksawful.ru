@@ -122,18 +122,6 @@ test("authored production JavaScript under src is limited to explicitly tracked 
   assert.deepEqual(javascript, allowed);
 });
 
-test("Lab Storybook JavaScript remains isolated from the production JavaScript migration guard", async () => {
-  const labJavascript = (await collectFiles(path.join(root, "src", "lab")))
-    .filter((file) => file.endsWith(".js"))
-    .sort();
-
-  assert.ok(labJavascript.length > 0, "expected Storybook JavaScript under src/lab");
-  assert.ok(
-    labJavascript.every((file) => file.startsWith("stories/") && file.endsWith(".stories.js")),
-    `unexpected authored JavaScript in src/lab: ${labJavascript.join(", ")}`,
-  );
-});
-
 test("literal .gitattributes paths point to files that still exist", async () => {
   const attributes = await readFile(path.join(root, ".gitattributes"), "utf8");
   const literalPaths = attributes

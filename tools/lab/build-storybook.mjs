@@ -5,13 +5,6 @@ import { spawnSync } from "node:child_process";
 const root = process.cwd();
 const outputDir = path.resolve(root, "dist-storybook");
 const npmCommand = process.platform === "win32" ? "npm.cmd" : "npm";
-const packages = [
-  "storybook@10.6.0",
-  "@storybook/html-vite@10.6.0",
-  "@storybook/addon-docs@10.6.0",
-  "@storybook/addon-a11y@10.6.0",
-  "axe-core@4.10.3",
-];
 
 function run(command, args) {
   const isWindows = process.platform === "win32";
@@ -27,9 +20,6 @@ function run(command, args) {
 }
 
 await rm(outputDir, { recursive: true, force: true });
-run(npmCommand, [
-  "install", "--no-save", "--package-lock=false", "--no-audit", "--no-fund", ...packages,
-]);
 run(npmCommand, [
   "exec", "--no", "--", "storybook", "build",
   "--config-dir", "tools/lab/storybook", "--output-dir", outputDir, "--quiet",

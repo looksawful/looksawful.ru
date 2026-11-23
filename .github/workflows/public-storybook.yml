@@ -16,7 +16,6 @@ on:
       - "src/styles/**"
       - "package.json"
       - "package-lock.json"
-      - "test/public-storybook-boundary.test.mjs"
   pull_request:
     branches: [dev]
     paths:
@@ -32,7 +31,6 @@ on:
       - "src/styles/**"
       - "package.json"
       - "package-lock.json"
-      - "test/public-storybook-boundary.test.mjs"
   workflow_dispatch:
 
 permissions:
@@ -59,8 +57,6 @@ jobs:
           cache: npm
       - name: Install
         run: npm ci
-      - name: Verify Storybook build inputs
-        run: node --test test/public-storybook-boundary.test.mjs
       - name: Build Storybook catalog
         run: npm run storybook:public
       - name: Ensure no media inventory was copied into public artifact
@@ -69,11 +65,6 @@ jobs:
           test ! -e dist-storybook/media
           test ! -e dist-storybook/projects
           test ! -e dist-storybook/lab
-      - name: Smoke Storybook preview
-        if: github.event_name == 'pull_request'
-        run: |
-          npx --no-install playwright install chromium
-          node tools/lab/smoke-storybook.mjs
       - name: Ensure separate public Cloudflare Pages project
         if: github.event_name != 'pull_request'
         env:

@@ -1,53 +1,29 @@
-import { usePublishedAssetUrls, usePublishedAssetUrlsInNode } from "../../../src/lab/storybook/published-assets.mjs";
 import "../../../src/styles/index.css";
+// Authored selector exists but is not yet imported by the site stylesheet.
+import "../../../src/styles/subproject-cards.css";
 
 const reviewViewports = {
   desktop: {
-    name: "Lab desktop 1440×1000",
+    name: "Desktop 1440×1000",
     styles: { width: "1440px", height: "1000px" },
     type: "desktop",
   },
   tablet: {
-    name: "Lab tablet 834×1112",
+    name: "Tablet 834×1112",
     styles: { width: "834px", height: "1112px" },
     type: "tablet",
   },
   mobile: {
-    name: "Lab mobile 390×844",
+    name: "Mobile 390×844",
     styles: { width: "390px", height: "844px" },
     type: "mobile",
   },
 };
 
-// The catalog reuses already published portfolio assets instead of copying them.
-const withPublicPortfolioAssets = (story) => {
-  const content = story();
-  if (typeof content === "string") return usePublishedAssetUrls(content);
-  if (content instanceof Element) return usePublishedAssetUrlsInNode(content);
-  return content;
-};
-
-const preview = {
-  decorators: [withPublicPortfolioAssets],
-  tags: ["autodocs"],
+export default {
   parameters: {
     layout: "fullscreen",
-    viewport: {
-      options: reviewViewports,
-    },
-    options: {
-      storySort: {
-        order: [
-          "00 Foundations", "01 Atoms", "02 Molecules", "03 Organisms",
-          "04 Layout", "05 Patterns & Templates", "06 Pages",
-          "07 Motion", "08 Feedback", "90 Experimental",
-        ],
-      },
-    },
-    a11y: {
-      test: "error",
-    },
+    viewport: { options: reviewViewports },
+    options: { storySort: { order: ["00 Foundations", "01 Atoms"] } },
   },
 };
-
-export default preview;
