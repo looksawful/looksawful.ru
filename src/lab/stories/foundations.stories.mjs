@@ -1,4 +1,4 @@
-// The only public Storybook story: typography from the production stylesheet.
+// Typography specimens from the production stylesheet.
 // Do not redeclare font sizes, weights or line heights here.
 const specimens = [
   {
