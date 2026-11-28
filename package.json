@@ -78,7 +78,7 @@
     "@storybook/builder-vite": "10.6.0",
     "@storybook/html-vite": "10.6.0",
     "@types/three": "^0.185.0",
-    "playwright": "^1.61.1",
+    "playwright": "^1.65.1",
     "sharp": "^0.35.5",
     "storybook": "10.6.0",
     "typescript": "^7.0.2",
